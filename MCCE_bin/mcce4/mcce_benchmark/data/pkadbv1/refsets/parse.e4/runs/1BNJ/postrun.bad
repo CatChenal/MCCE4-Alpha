@@ -1,0 +1,4 @@
+1BNJ :: WARNING           :: Neutral ARG found in 'non_canonical' list (@ point 7).
+1BNJ :: non_canonical: 3  :: ARG+B0059_, LYS+B0062_, ARG+C0059_
+1BNJ :: chi2 >= 3.0: 3    :: GLU-A0073_, LYS+A0108_, ASP-C0054_
+#

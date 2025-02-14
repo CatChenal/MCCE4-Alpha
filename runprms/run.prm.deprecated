@@ -1,0 +1,70 @@
+Deprecated run.prm entries in MCCE4 with explanation for each KEY in parentheses
+
+==============================================================================
+Replaced by script and module step1                         (DO_PREMCCE)
+Replaced by script and module step2                         (DO_ROTAMERS)
+Replaced by script and module step3                         (DO_ENERGY)
+Replaced by script and module step4                         (DO_MONTE)
+
+MCCE4 side chain optimization                               (SIDECHAIN_OPT)
+This option is not used anymore                             (RXN_METHOD)
+No longer used                                              (MCCE_HOME)
+Replaced by DEBUG_MODE                                      (MINIMIZE_SIZE)
+No longer used                                              (DO_TRACE)
+==============================================================================
+
+step 1:
+Use separate IPECE program to add membrane                  (IPECE_ADD_MEM)
+Use separate IPECE program to add membrane                  (IPECE_MEM_THICKNESS)
+Use separate IPECE program to add membrane                  (IPECE_MEM_CHAINID)
+
+step 2:
+No longer used, all atom relaxation by swing                (HV_RELAX_DT)
+No longer used, all atom relaxation by swing                (HV_RELAX_NITER)
+No longer used, all atom relaxation by swing                (HV_RELAX_VDW_THR)
+No longer used, all atom relaxation by swing                (HV_RELAX_HV_VDW_THR)
+No longer used, all atom relaxation by swing                (HV_TORS_SCALE)
+No longer used, all atom relaxation by swing                (HV_RELAX_N_SHAKE)
+No longer used, all atom relaxation by swing                (HV_RELAX_CONSTRAINT)
+No longer used, all atom relaxation by swing                (HV_RELAX_CONSTRAINT_FRC)
+No longer used, all atom relaxation by swing                (HV_RELAX_ELEC_THR)
+No longer used, all atom relaxation by swing                (HV_RELAX_ELEC_CRG_THR)
+No longer used, all atom relaxation by swing                (HV_RELAX_ELEC_DIST_THR)
+No longer used, all atom relaxation by swing                (RELAX_H)
+No longer used, all atom relaxation by swing                (RELAX_E_THR)
+No longer used, all atom relaxation by swing                (RELAX_NSTATES)
+No longer used, all atom relaxation by swing                (RELAX_N_HYD)
+No longer used, all atom relaxation by swing                (RELAX_CLASH_THR)
+No longer used, all atom relaxation by swing                (RELAX_PHI)
+No longer used, all atom relaxation by swing                (RELAX_NITER)
+No longer used, all atom relaxation by swing                (RELAX_TORQ_THR)
+
+step 4:
+MFE report by default + separate MFE tools                  (MFE_POINT)
+MFE report by default + separate MFE tools                  (MFE_CUTOFF)
+
+# Advanced options:
+#APBS
+Interface to be rewritten                                     (GRIDS_APBS)
+Interface to be rewritten                                     (SURFACE_APBS)
+Interface to be rewritten                                     (CHARGES_APBS)
+Interface to be rewritten                                     (BOUND_COND_APBS)
+
+#### PASCAL COMTE GENETIC ALGORITHM PARAMETERS FOR STEP 2 #######################
+GA to be rewritten                                          (GA_SEED)
+GA to be rewritten                                          (GA_POP_SIZE)
+GA to be rewritten                                          (GA_MUTATION_RATE)
+GA to be rewritten                                          (GA_MIGRATION_RATE)
+GA to be rewritten                                          (GA_CROSSOVER_RATE)
+GA to be rewritten                                          (GA_RANDOM_CUT_POINTS)
+GA to be rewritten                                          (GA_PHASE)
+GA to be rewritten                                          (GA_SHIFT)
+GA to be rewritten                                          (GA_DIST_CENTER)
+GA to be rewritten                                          (GA_DIST_CENTER_EPS)
+GA to be rewritten                                          (GA_MAX_BUCKET_POP)
+GA to be rewritten                                          (GA_RESIDUE_MIN_ENERGY_CUTOFF)
+GA to be rewritten                                          (GA_OCCUPANCY_CUTOFF)
+GA to be rewritten                                          (GA_DELTA_E)
+GA to be rewritten                                          (GA_SPHERE_FOCUS_RESID)
+GA to be rewritten                                          (GA_SPHERE_PROBE_RADIUS)
+GA to be rewritten                                          (GA_OUTPUT)

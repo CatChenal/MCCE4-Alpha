@@ -1,0 +1,4 @@
+1LNI :: non_canonical: 4  :: GLU-A0014_, ASP-A0079_, GLU-B0014_, ASP-B0079_
+1LNI :: chi2 >= 3.0: 3    :: ARG+A0068_, ARG+B0065_, ARG+B0068_
+1LNI :: new_tpl           :: True
+#

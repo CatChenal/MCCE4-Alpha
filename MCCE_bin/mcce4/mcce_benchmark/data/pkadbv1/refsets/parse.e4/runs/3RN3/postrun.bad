@@ -1,0 +1,4 @@
+3RN3 :: non_canonical: 2  :: NTR+A0001_, LYS+A0041_
+3RN3 :: chi2 >= 3.0: 2    :: HIS+A0012_, LYS+A0041_
+3RN3 :: new_tpl           :: True
+#

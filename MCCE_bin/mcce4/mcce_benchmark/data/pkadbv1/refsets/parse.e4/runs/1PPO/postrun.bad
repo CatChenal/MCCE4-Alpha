@@ -1,0 +1,4 @@
+1PPO :: non_canonical: 2  :: LYS+A0085_, LYS+A0215_
+1PPO :: chi2 >= 3.0: 5    :: CYS-A0025_, HIS+A0159_, LYS+A0172_, LYS+A0178_, LYS+A0194_
+1PPO :: new_tpl           :: True
+#

@@ -1,0 +1,4 @@
+1MBC :: non_canonical: 1  :: LYS+A0016_
+1MBC :: chi2 >= 3.0: 3    :: LYS+A0016_, LYS+A0042_, HEM+A0155_
+1MBC :: new_tpl           :: True
+#

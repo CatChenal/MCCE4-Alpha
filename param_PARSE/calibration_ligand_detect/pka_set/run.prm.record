@@ -1,0 +1,54 @@
+# Recorded on 12:55PM on July 12, 2024
+Step 1 uses the following run parameters:
+4pti.pdb                                                                   (INPDB) # Set by command option
+delphi     Poisson-Boltzmann solver name                              (PBE_SOLVER) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+4.0        Protein dielectric constant for DelPhi                   (EPSILON_PROT) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+$DIST_FOLDER/param_PARSE ftpl folder                                               (FTPL_FOLDER) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+$DIST_FOLDER/extra.tpl                                                                 (EXTRA) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+$DIST_FOLDER/name.txt MCCE renaming rule.                                      (RENAME_RULES) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+ph         "ph" for pH titration, "eh" for eh titration                (TITR_TYPE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+0.0        Initial pH                                                   (TITR_PH0) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+1.0        pH interval                                                  (TITR_PHD) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+0.0        Initial Eh                                                   (TITR_EH0) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+30.0       Eh interval (in mV)                                          (TITR_EHD) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+15         Number of titration points                                 (TITR_STEPS) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+t          Label terminal residues?                                    (TERMINALS) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+2.0        distance limit of reporting clashes                    (CLASH_DISTANCE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+0.05       cut off water if % SAS exceeds this number              (H2O_SASCUTOFF) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+t          ignore hydrogens in input structure                    (IGNORE_INPUT_H) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+f          Use specific control (head1.lst) on rotamer making         (ROT_SPECIF) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+f          Rebuild sidechain based on torsion minima                  (REBUILD_SC) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+t          Do swap (stereo isotope)                                     (ROT_SWAP) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+t          Do rotate?                                                       (PACK) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+6          number of rotamers in a bond rotation                       (ROTATIONS) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+1.00       SAS Threshold not making rotamers                          (SAS_CUTOFF) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+10.0       Cutoff of self vdw in kcal/mol                             (VDW_CUTOFF) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+5000       number of repacks                                             (REPACKS) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+0.01       occupancy cutoff of repacks                             (REPACK_CUTOFF) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+t          h-bond directed rotamer making, requir 't' on Do rotate          (HDIRECTED) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+1.0        threshold for two conformers being different                 (HDIRDIFF) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+36         Limit number of the Hbond conformers                         (HDIRLIMT) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+80.0       Solvent dielectric constant for DelPhi                   (EPSILON_SOLV) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+65         Grids in each DelPhi                                     (GRIDS_DELPHI) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+2.0        The target grids per angstrom for DelPhi                (GRIDS_PER_ANG) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+1.4        Radius of the probe                                      (RADIUS_PROBE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+2.0        Ion radius                                                     (IONRAD) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+0.15       Salt                                                             (SALT) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+$DIST_FOLDER/MCCE_bin/delphi Delphi executable                                          (DELPHI_EXE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+$DIST_FOLDER/MCCE_bin/apbs APBS executable                                              (APBS_EXE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+5.0        Big pairwise threshold to make big list                  (BIG_PAIRWISE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+-1         Random seed, -1 uses time as random seed                   (MONTE_SEED) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+298.15     Temperature                                                   (MONTE_T) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+3          Number of flips                                           (MONTE_FLIPS) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+100        Annealing = n_start * confs                              (MONTE_NSTART) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+300        Equalibration = n_eq * confs                                (MONTE_NEQ) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+0.001      Cut-off occupancy of the reduction                       (MONTE_REDUCE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+6          Independent monte carlo sampling                           (MONTE_RUNS) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+2000       Sampling = n_iter * confs                                 (MONTE_NITER) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+50000      Trace energy each MONTE_TRACE steps, 0 no trace           (MONTE_TRACE) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+1000000    Maximum microstates for analytical solution                (NSTATE_MAX) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+t          Do entropy correction                                       (MONTE_TSX) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+1          pbe start conformer number, 0 based                         (PBE_START) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+99999      pbe end conformer number, self included                       (PBE_END) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+6.0        dielectric constant for Coulomb's law                 (EPSILON_COULOMB) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default
+/tmp       delphi temporary file folder                               (PBE_FOLDER) # Set by /home/jmao/projects/MCCE4/runprms/run.prm.default

@@ -1,0 +1,4 @@
+4ICB :: non_canonical: 6  :: NTR+A0000_, GLU-A0027_, ASP-A0054_, ASP-A0058_, GLU-A0060_, GLU-A0065_
+4ICB :: chi2 >= 3.0: 2    :: ASP-A0054_, ASP-A0058_
+4ICB :: new_tpl           :: True
+#

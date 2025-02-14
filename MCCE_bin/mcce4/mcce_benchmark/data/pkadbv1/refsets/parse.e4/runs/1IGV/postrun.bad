@@ -1,0 +1,4 @@
+1IGV :: non_canonical: 4  :: GLU-A0027_, ASP-A0054_, ASP-A0058_, GLU-A0060_
+1IGV :: chi2 >= 3.0: 2    :: ASP-A0054_, ASP-A0058_
+1IGV :: new_tpl           :: True
+#

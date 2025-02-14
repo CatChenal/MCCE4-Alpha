@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+"""
+Calculate VDW breakdown from step2_out.pdb.
+"""
+from mcce4.args import VDWOptions
+from mcce4.runprm import *
+from mcce4.pdbio import *
+from mcce4.mcce import *
+from mcce4.mcce import _step2_out
+from mcce4.main import *
+from mcce4.mcce._vdw import vdw_conf
+
+
+newtpl_name = "new"
+
+if __name__ == "__main__":
+    logging.info("Running VDW calculation between two conformers")
+    # 3 key elements for a calculation
+    # run.prm - configuration of a run
+    # tpl files - parameter files (optional in step 4)
+    # input structure - (optional in step 2, 3, and 4)
+
+    # Get runprm
+    cmd_options = VDWOptions()        # get command options
+    runprm = RunPrm()                   # create a runprm object and load default values
+    runprm.amend_by_cmd(cmd_options)    # load additional runprm per instruction in the command line
+    runprm.warn_deprecated()            # warn deprecated entries found in loaded 
+    runprm.dump("VDW uses the following run parameters:")  # dump the runprm to a file with a comment
+  
+    
+    # Get tpl
+    tpl = TPL()
+    tpl.read_ftpl_folder(runprm.FTPL_FOLDER.value)
+    tpl.dump(fname="ftpl.record")
+        
+    newftpl_file = "%s.ftpl" % (newtpl_name)        
+    if os.path.isfile(newftpl_file):
+        tpl.read_ftpl_file(newftpl_file)
+
+
+    # Here we don't pass structure to MCCE class, make an empty mcce.protein object instead
+    mcce = MCCE(prm=runprm, tpl=tpl)
+    mcce.convert_to_mccepdb()  # create an empty mcce.protein object
+ 
+    # Load mccepdb to mcce.protein object
+    logging.info("Loading structure from %s." % _step2_out)
+    mcce.load_mccepdb(_step2_out)
+
+    mcce.assign_vdw_param()
+    mcce.make_connect12()
+    #mcce.print_connect12()
+    mcce.make_connect13()
+    mcce.make_connect14()
+    mcce.make_blob()
+    protein = mcce.protein
+
+    # print(cmd_options.args.confs)
+    # print(cmd_options.args.cutoff)
+    
+    cutoff = cmd_options.args.cutoff
+    resName = cmd_options.args.confs[0][:3]
+    confSeq = cmd_options.args.confs[0][5:]
+
+    chainID = confSeq[0]
+    resSeq = int(confSeq[1:5])
+    confNum = int(confSeq[-3:])
+    iCode = confSeq[5] 
+    resID = (resName, chainID, resSeq, iCode)
+    confID = cmd_options.args.confs[0]
+
+    found_res = False
+    found_conf = False
+    for res in protein.residue:
+        if found_res:
+            break
+        if res.resID == resID:
+            found_res = True
+            for conf in res.conf:
+                if found_conf:
+                    break
+#                print(confID, conf.confID)
+                if confID == conf.confID:
+                    found_conf = True
+                    vdw0 = 0.0  # intra
+                    vdw1 = 0.0  # to backbone
+                    for res2 in protein.residue:
+                        vdwt = vdw_conf(conf, res2.conf[0])
+                        vdw1 += vdwt
+                        if abs(vdwt) > cutoff:
+                            print("Backbone(Accumulative): %s -> %s: %.3f" % (conf.confID, res2.conf[0].confID, vdw1))
+                        for conf2 in res2.conf[1:]:
+                            if conf2 == conf:  # Intra
+                                vdw0 = vdw_conf(conf, conf2)
+                                print("Intra: %s -> %s: %.3f *" % (conf.confID, conf2.confID, vdw0))
+                            elif res == res2:  # same residue to other conformers
+                                vdwt = 0.0
+                            else:
+                                vdwt = vdw_conf(conf, conf2)
+                                if abs(vdwt) > cutoff:
+                                    print("Pairwise: %s -> %s: %.3f" % (conf.confID, conf2.confID, vdwt))
+
+    print("%s: vdw0=%.3f, vdw1=%.3f" % (sys.argv[1], vdw0, vdw1))

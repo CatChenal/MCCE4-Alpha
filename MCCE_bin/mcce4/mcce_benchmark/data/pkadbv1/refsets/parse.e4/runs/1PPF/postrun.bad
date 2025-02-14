@@ -1,0 +1,4 @@
+1PPF :: non_canonical: 1  :: NTR+I0001_
+1PPF :: chi2 >= 3.0: 4    :: NTR+E0016_, HIS+E0057_, ARG+E0129_, ARG+E0178_
+1PPF :: new_tpl           :: True
+#

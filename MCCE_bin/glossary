@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+"""
+Tool file: glossary
+"""
+
+import sys
+from mcce4.prm_glossary.gloss import gloss_cli
+
+
+if __name__ == "__main__":
+    sys.exit(gloss_cli())

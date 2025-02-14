@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+
+"""
+Tool file: ProtInfo
+"""
+
+import sys
+from mcce4.protinfo.cli import prot_info_cli
+
+
+if __name__ == "__main__":
+    sys.exit(prot_info_cli())

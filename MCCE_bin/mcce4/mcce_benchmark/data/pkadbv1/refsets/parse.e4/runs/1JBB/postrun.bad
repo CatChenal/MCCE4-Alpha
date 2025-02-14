@@ -1,0 +1,4 @@
+1JBB :: WARNING           :: Neutral ARG found in 'non_canonical' list (@ point 7).
+1JBB :: non_canonical: 6  :: LYS+A0006_, ARG+A0082_, ASP-A0128_, GLU-A0133_, CTR-A0150_, LYS+B0010_
+1JBB :: chi2 >= 3.0: 3    :: ASP-A0049_, TYR-A0147_, GLU-B0053_
+#

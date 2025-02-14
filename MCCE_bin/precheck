@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+"""
+Tool: simple check pdb information
+"""
+
+from mcce4 import argparse, pdbio
+
+
+def pre_check_pdbs(fnames: list):
+    """Perform a structure check for all pdb files in fnames."""
+
+    for fn in fnames:
+        # define a object that holds the structure
+        structure = pdbio.Structure()
+
+        # load the file content into the object
+        structure.load_pdb(fn)
+
+        # pretty print structure data
+        structure.print_summary()
+
+    return
+
+
+if __name__ == "__main__":
+
+    helpmsg = "Precheck input structure files and report findings"
+    parser = argparse.ArgumentParser(description=helpmsg)
+    parser.add_argument("fnames", nargs="+", default=[], metavar="filename",
+                        help="specify input file names in pdb format")
+    args = parser.parse_args()
+
+    pre_check_pdbs(args.fnames)

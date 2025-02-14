@@ -1,0 +1,9 @@
+# extracted from GLU_ideal.pdb
+ATOM      1  N   NTR A   1       1.199   1.867  -0.117  1.00 10.00           N
+ATOM      2  CA  NTR A   1       1.138   0.515   0.453  1.00 10.00           C
+ATOM      3  C   NTR A   1       2.364  -0.260   0.041  1.00 10.00           C
+ATOM      4  O   NTR A   1       3.010   0.096  -0.916  1.00 10.00           O
+ATOM      5  CB  NTR A   1      -0.113  -0.200  -0.062  1.00 10.00           C
+
+# NTG is special due to the lack of side chain (no CB), therefore not enough
+# information to place its missing heavy atoms

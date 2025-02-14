@@ -1,0 +1,4 @@
+1BVI :: non_canonical: 4  :: GLU-B0102_, CTR-B0104_, ASP-C0029_, GLU-C0058_
+1BVI :: chi2 >= 3.0: 10   :: ASP-A0029_, HIS+A0040_, ASP-A0076_, HIS+B0040_, GLU-B0102_, ASP-C0029_, HIS+C0040_, ASP-D0029_, HIS+D0040_, GLU-D0058_
+1BVI :: new_tpl           :: True
+#

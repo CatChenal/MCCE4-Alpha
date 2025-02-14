@@ -1,0 +1,4 @@
+1RDD :: non_canonical: 6  :: NTR+A0001_, ASP-A0010_, LYS+A0033_, GLU-A0131_, ASP-A0134_, GLU-A0154_
+1RDD :: chi2 >= 3.0: 7    :: ASP-A0010_, GLU-A0048_, LYS+A0060_, CYS-A0063_, ASP-A0070_, HIS+A0114_, ASP-A0134_
+1RDD :: new_tpl           :: True
+#

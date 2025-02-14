@@ -1,0 +1,130 @@
+#!/usr/bin/env python
+"""
+MCCE4 Step 1 Preprocess input structure and convert to MCCE format for step 2.
+"""
+import logging
+
+from mcce4.args import Step1Options
+from mcce4.runprm import *
+from mcce4.pdbio import *
+from mcce4.mcce import *
+from mcce4.mcce import _head1
+from mcce4 import __version__
+from mcce4.main import *
+from mcce4.mcce._strip_cofactors import loose_cofactors, strip_cofactors
+
+newtpl_name = "new"
+
+if __name__ == "__main__":
+    print("MCCE4 version: %s\n" % __version__)
+    logging.info("Running MCCE4 step 1")
+    # 3 key elements for a calculation
+    # run.prm - configuration of a run
+    # tpl files - parameter files (optional in step 4)
+    # input structure - (optional in step 2, 3, and 4)
+
+    # Get runprm
+    cmd_options = Step1Options()        # get command options
+    runprm = RunPrm()                   # create a runprm object and load default values
+    runprm.amend_by_cmd(cmd_options)    # load additional runprm per instruction in the command line
+    runprm.warn_deprecated()            # warn deprecated entries found in loaded 
+    runprm.dump("Step 1 uses the following run parameters:")  # dump the runprm to a file with a comment
+  
+    
+    # Get tpl
+    tpl = TPL()
+    tpl.read_ftpl_folder(runprm.FTPL_FOLDER.value)
+    # Since extra.ftpl is in the ftpl folder, we don't need to load separately
+    # extra_tpl = update_dist_folder(runprm.EXTRA.value)
+    # tpl.read_ftpl_file(extra_tpl)
+    tpl.dump(fname="ftpl.record")
+
+    structure = Structure()
+    structure.load_pdb(runprm.INPDB.value, rename=runprm.RENAME_RULES.value)
+
+    # Split structures if altLoc atoms are present at Backbone
+    # There is a standalone toll for this purpose tool.
+    from mcce4.mcce._split_altloc import split_altloc
+    if len(structure.models) < 1:
+        logging.error("The input protein file doesn't contain valid structure.")
+        structure.print_summary()
+        sys.exit()
+    elif len(structure.models) > 1:
+        logging.warning("The input protein file contains multiple models, please select which model to use.")
+        sys.exit()
+    else:
+        splited_default_models = split_altloc(structure.models[0])
+
+    # Convert to mcce calculation object
+    from mcce4.mcce import _step1_out
+    n_molecules = len(splited_default_models)
+    if n_molecules > 1:
+        logging.warning("Detected %d altLoc on backbone, multiple %s created." % (n_molecules, _step1_out))
+        logging.warning("Choose one of %s files to proceed to step 2." % (_step1_out))
+    
+    for i in range(n_molecules):
+        molecule = splited_default_models[i]
+        if n_molecules > 1:
+            logging.warning("AltLoc happened on backbone atoms. Split molecules created.")
+            fname = "%s.%c" % (_step1_out, molecule.altLoc)
+            newftpl_file = "%s.%c.ftpl" % (newtpl_name, molecule.altLoc)        
+            acc_fname = "%s.%c.acc" % ("cofactors", molecule.altLoc)
+            head1_name = "%s.%c" % (_head1, molecule.altLoc)
+        else:
+            fname = "%s" % (_step1_out)
+            newftpl_file = "%s.ftpl" % (newtpl_name)
+            acc_fname = "cofactors.acc"
+            head1_name = "%s" % (_head1)
+
+        # detect and load new.ftpl
+        if os.path.isfile(newftpl_file):
+            tpl.read_ftpl_file(newftpl_file)
+
+        #Strip off water and cofactors
+        logging.info("Strip off exposed loose cofactors: %s" % ",".join(loose_cofactors))
+        cutoff = runprm.H2O_SASCUTOFF.value
+        stripped_lines, res_acc_lines = strip_cofactors(molecule.lines, cutoff=cutoff)
+        molecule.lines = stripped_lines
+        logging.info("Cofactor accessible surface is in %s" % acc_fname)
+        open(acc_fname, "w").writelines(res_acc_lines)
+
+        # use current tpl database to detect unknown cofactors
+        logging.info("Detect unrecognized cofactors by mcce ...")
+        newftpl_lines = molecule.detect_unknowns(tpl)
+        if newftpl_lines:
+            logging.warning("Detected unrecognized cofactors, see %s for assumed structure values" % newftpl_file)
+            open(newftpl_file, "w").writelines(newftpl_lines)
+            #update tpl with this file only
+            tpl.read_ftpl_file(newftpl_file)
+
+        mcce = MCCE(prm=runprm, tpl=tpl, structure=molecule)
+
+        logging.info("Identifying ligands and renaming ...")
+
+        link_lines = mcce.identify_ligands()  # identify cyc-cyc and hem ligands and rename them in structure before conversion
+        # for l in molecule.lines:
+        #     print(l)
+
+        logging.info("Converting to mccepdb format ...")
+
+        mcce.convert_to_mccepdb()
+
+        #print(runprm.TERMINALS.value)
+        if runprm.TERMINALS.value.upper() == "T":
+            logging.info("Making terminal residues ...")
+            mcce.make_termini()
+
+        # center the protein
+        logging.info("Move the mcce object to the origin ...")
+        mcce.center_protein()
+
+        # Check missing and duplicate atoms in each conformer
+        logging.info("Check missing and duplicate atoms ...")
+        mcce.atom_number_check()
+
+        logging.info("Save mccepdb to file %s" % fname)
+        link_lines.insert(0, "# Non-peptide atom linkage detected by mcce rules\n")
+        mcce.protein.dump(fname, prepend=link_lines)
+
+        logging.info("Write %s" % head1_name)
+        mcce.write_head1(head1_name)

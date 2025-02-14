@@ -1,0 +1,4 @@
+1RGG :: non_canonical: 4  :: GLU-A0014_, ASP-A0079_, GLU-B0014_, ASP-B0079_
+1RGG :: chi2 >= 3.0: 5    :: ARG+A0068_, TYR-A0081_, TYR-B0030_, ARG+B0068_, TYR-B0081_
+1RGG :: new_tpl           :: True
+#

@@ -1,0 +1,4 @@
+3SRN :: non_canonical: 4  :: NTR+A0001_, LYS+A0037_, LYS+A0066_, NTR+B0114_
+3SRN :: chi2 >= 3.0: 1    :: TYR-B0115_
+3SRN :: new_tpl           :: True
+#

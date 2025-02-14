@@ -1,0 +1,91 @@
+   Label backbone, sidechain and altLoc conformers...
+   Error! premcce_confname(): Can't get conformer list of this residue BPH
+   Creating temporary parameter file for unrecognized residue...
+   Trying labeling again...
+   Error! premcce_confname(): Can't get conformer list of this residue U10
+   Creating temporary parameter file for unrecognized residue...
+
+   In file new.tpl, parameter "CONFLIST BPH        BPHBK" is already loaded somewhere else.
+   Try delete this entry and run MCCE again
+   Trying labeling again...
+   Error! The following atoms of residue BCL L 282 can not be loaded to conformer type BCL-1
+           NA 
+           NB 
+           NC 
+           ND 
+           C6 
+           C7 
+           C8 
+           C9 
+           C10
+           C11
+           C12
+           C13
+           C14
+           C15
+           C16
+           C17
+           C18
+           C19
+           C20
+   Error! The following atoms of residue BCL L 283 can not be loaded to conformer type BCL-1
+           NA 
+           NB 
+           NC 
+           ND 
+           C6 
+           C7 
+           C8 
+           C9 
+           C10
+           C11
+           C12
+           C13
+           C14
+           C15
+           C16
+           C17
+           C18
+           C19
+           C20
+   Error! The following atoms of residue BCL M 309 can not be loaded to conformer type BCL-1
+           NA 
+           NB 
+           NC 
+           ND 
+           C6 
+           C7 
+           C8 
+           C9 
+           C10
+           C11
+           C12
+           C13
+           C14
+           C15
+           C16
+           C17
+           C18
+           C19
+           C20
+   Error! The following atoms of residue BCL M 310 can not be loaded to conformer type BCL-1
+           NA 
+           NB 
+           NC 
+           ND 
+           C6 
+           C7 
+           C8 
+           C9 
+           C10
+           C11
+           C12
+           C13
+           C14
+           C15
+           C16
+           C17
+           C18
+           C19
+           C20
+   STOP:  The pdb file has been read through.  If the pdb file contains more atoms than defined             in the tpl file for this cofactor/residue the program will exit

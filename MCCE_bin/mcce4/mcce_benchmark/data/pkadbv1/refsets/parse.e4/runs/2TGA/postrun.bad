@@ -1,0 +1,4 @@
+2TGA :: non_canonical: 4  :: NTR+A0016_, GLU-A0070_, ASP-A0071_, LYS+A0087_
+2TGA :: chi2 >= 3.0: 5    :: TYR-A0020_, TYR-A0039_, LYS+A0060_, ASP-A0071_, LYS+A0159_
+2TGA :: new_tpl           :: True
+#

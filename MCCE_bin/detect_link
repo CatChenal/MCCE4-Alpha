@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+"""
+MCCE tool: detect_link
+This is a standalone program uses the rule file to detect non-peptide links. 
+The same information is reported by step1 in step1_out.pdb
+"""
+
+from mcce4.args import detect_link_Options
+from mcce4.runprm import *
+from mcce4.pdbio import *
+from mcce4.mcce import *
+from mcce4.main import *
+
+if __name__ == "__main__":
+    cmd_options = detect_link_Options()        # get command options
+    runprm = RunPrm()                   # create a runprm object and load default values
+    runprm.amend_by_cmd(cmd_options)    # load additional runprm per instruction in the command line
+    runprm.dump("detect_link uses the following run parameters:")  # dump the runprm to a file with a comment
+
+    tpl = TPL()
+    tpl.read_ftpl_folder(runprm.FTPL_FOLDER.value)
+
+    structure = Structure()
+    structure.load_pdb(runprm.INPDB.value, rename=runprm.RENAME_RULES.value)
+
+    # Split structures if altLoc atoms are present at Backbone
+    # There is a standalone toll for this purpose tool.
+    from mcce4.mcce._split_altloc import split_altloc
+    if len(structure.models) < 1:
+        logging.error("The input protein file doesn't contain valid structure.")
+        structure.print_summary()
+        sys.exit()
+    elif len(structure.models) > 1:
+        logging.warning("The input protein file contains multiple models, please select which model to use.")
+        sys.exit()
+    else:
+        splited_default_models = split_altloc(structure.models[0])
+
+    # Convert to mcce calculation object
+    from mcce4.mcce import _step1_out
+    n_molecules = len(splited_default_models)
+    if n_molecules > 1:
+        logging.warning("Detected %d altLoc on backbone, multiple %s created." % (n_molecules, _step1_out))
+    for i in range(n_molecules):
+        molecule = splited_default_models[i]
+        if n_molecules > 1:
+            fname = "%s.%c" % (_step1_out, molecule.altLoc)
+        else:
+            fname = "%s" % (_step1_out)
+
+        mcce = MCCE(prm=runprm, tpl=tpl, structure=molecule)
+
+        logging.info("Identifying ligands and renaming ...")
+        detected_links = mcce.identify_ligands()  # identify cyc-cyc and hem ligands and rename them in structure before conversion
+        sys.stdout.writelines(detected_links)

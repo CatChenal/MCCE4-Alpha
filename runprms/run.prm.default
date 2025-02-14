@@ -1,0 +1,95 @@
+MCCE4 CONFIGURATION FILE (default 06/12/2024)
+   This file must be named "run.prm.default" in distribution directory/runprms
+   The first field of the line is the value, and last string within parentheses
+   is the key, capitalized.
+
+   Optionally:
+   You may need file defined by "RENAME_RULES" to customize cofactors.
+   You may need file defined by "EXTRA" to customize advanced controls.
+
+   Macros:
+   $DIST_FOLDER: This points to the MCCE4 distribution folder where the PARAMETERS
+   are.
+
+CHANGELOG:
+* 11-08-24:
+  Reformated explanations for use by mcce4.prm_glossary.
+==============================================================================
+
+Most modified entries
+------------------------------------------------------------------------------
+Input and Output:
+prot.pdb  Step1. PDB file name; leave as is if file is soft-linked as prot.pdb       (INPDB)
+delphi    Step3. Poisson-Boltzmann Equation solver name: delphi, apbs, ngpb, or zap  (PBE_SOLVER)
+==============================================================================
+
+Less modified entries
+------------------------------------------------------------------------------
+4.0   Step2. Protein dielectric constant. Use 8 for small, soluble proteins  (EPSILON_PROT)
+$DIST_FOLDER/param_PARSE Step2 & Step3. Topologies .ftpl files folder        (FTPL_FOLDER)
+$DIST_FOLDER/param_PARSE/extra.ftpl  Step2 & Step4. Extra param file         (EXTRA)
+$DIST_FOLDER/name.txt Step1. Renaming rules for atoms and groups             (RENAME_RULES)
+
+ph    Step4. Titration type: "ph" or "eh"                       (TITR_TYPE)
+0.0   Step4. Initial pH                                         (TITR_PH0)
+1.0   Step4. pH interval                                        (TITR_PHD)
+0.0   Step4. Initial Eh                                         (TITR_EH0)
+30.0  Step4. Eh interval (in mV)                                (TITR_EHD)
+15    Step4. Number of titration points                         (TITR_STEPS)
+=============================================================================
+
+MODIFYING FOLLOWING ENTRIES REQUIRE ADVANCED KNOWLEDGE:
+=============================================================================
+# Options specific to each step:
+
+step 1:
+t      Step1. Label terminal residues as separate NTER and CTR?     (TERMINALS)
+2.0    Step1. Distance limit for reporting clashes                  (CLASH_DISTANCE)
+0.05   Step1. Remove water with %SAS exceeding this cutoff value    (H2O_SASCUTOFF)
+t      Step1. Ignore hydrogens in input structure                   (IGNORE_INPUT_H)
+
+step 2:
+f      Step2. Use specific control (head1.lst) on rotamer making    (ROT_SPECIF)
+f      Step2. Rebuild sidechain based on torsion minima             (REBUILD_SC)
+t      Step2. Do swap (stereo isotope)                              (ROT_SWAP)
+f      Step2. Do rotate?                                            (PACK)
+f      Step2. Do swing?                                             (SWING)
+10.0   Step2. phi in degrees of swing                               (PHI_SWING)
+6      Step2. Number of rotamers in a bond rotation                 (ROTATIONS)
+1.00   Step2. SAS threshold for not making rotamers                 (SAS_CUTOFF)
+10.0   Step2. Cutoff of self vdw in kcal/mol                        (VDW_CUTOFF)
+500    Step2. Number of repacks                                     (REPACKS)
+0.01   Step2. Occupancy cutoff of repacks                           (REPACK_CUTOFF)
+t      Step2. H-bond directed rotamer making. Requires 't' on PACK  (HDIRECTED)
+1.0    Step2. Threshold for two conformers being different          (HDIRDIFF)
+36     Step2. Limit number of the H-bond conformers                 (HDIRLIMT)
+
+step 3:
+80.0   Step3. Solvent dielectric constant for DelPhi             (EPSILON_SOLV)
+65     Step3. Number of grids in each DelPhi                     (GRIDS_DELPHI)
+2.0    Step3. The target grids per angstrom for DelPhi           (GRIDS_PER_ANG)
+1.4    Step3. Radius of the probe                                (RADIUS_PROBE)
+2.0    Step3. Ion radius                                         (IONRAD)
+0.15   Step3. Salt                                               (SALT)
+$DIST_FOLDER/MCCE_bin/delphi Step3. Delphi executable              (DELPHI_EXE)
+$DIST_FOLDER/MCCE_bin/apbs Step3. APBS executable                  (APBS_EXE)
+
+step 4:
+5.0      Step4. Big pairwise threshold to make big list            (BIG_PAIRWISE)
+-1       Step4. Random seed, -1 uses time as random seed           (MONTE_SEED)
+298.15   Step4. Temperature                                        (MONTE_T)
+3        Step4. Number of flips                                    (MONTE_FLIPS)
+100      Step4. Annealing = MONTE_NSTART * confs                   (MONTE_NSTART)
+300      Step4. Equilibration = MONTE_NEQ * confs                  (MONTE_NEQ)
+0.001    Step4. Cutoff occupancy of the reduction                  (MONTE_REDUCE)
+6        Step4. Number of independent Monte Carlo samplings        (MONTE_RUNS)
+2000     Step4. Sampling = MONTE_NITER * confs                     (MONTE_NITER)
+50000    Step4. Trace energy each MONTE_TRACE steps, 0: no trace   (MONTE_TRACE)
+1000000  Step4. Maximum microstates for analytical solution        (NSTATE_MAX)
+t        Step4. Do entropy correction                              (MONTE_TSX)
+
+# Advanced options:
+1        Step3. PBE solver. Start conformer number, 0 based        (PBE_START)
+99999    Step3. PBE solver. End conformer number, self included    (PBE_END)
+/tmp     Step3. PBE solver. Temporary file folder                  (PBE_FOLDER)
+6.0      Step3. Dielectric constant for Coulomb's law              (EPSILON_COULOMB)

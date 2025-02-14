@@ -1,0 +1,24 @@
+# This defines how MCCE detect the ligands and rename the residue accordingly
+# CYS-CYS is reported in SSBOND records from PDB file
+# HEM ligands are reported in LINK records from PDB file
+# The format of this file is
+# 1. key1 = "LIGAND_ID"
+# 2. key2 = residue 1
+# 3. key3 = residue 2
+# 4. value contains atom, distance threshold, renamed residuename
+# 5. The order of atom, and renamed residue should match the order of the keys
+# 6. * in atom name is wildcard, which means it could match any character
+# CYS-CYS calibrated bt pka_set
+# 
+
+LIGAND_ID, CYS, CYS: " SG " - " SG "; 2.03 +- 0.90; CYD, CYD
+LIGAND_ID, CYS, HEC: " SG " - " CA*"; 1.90 +- 1.00; CYL, HEC
+LIGAND_ID, CYS, HEM: " SG " - " CA*"; 1.90 +- 1.00; CYL, HEM
+LIGAND_ID, HIS, HEM: " NE2" - "FE  "; 2.10 +- 0.70; HIL, HEM
+LIGAND_ID, HIS, HEA: " NE2" - "FE  "; 2.10 +- 0.70; HIL, HEA
+LIGAND_ID, HIS, HEB: " NE2" - "FE  "; 2.10 +- 0.70; HIL, HEB
+LIGAND_ID, HIS, HEC: " NE2" - "FE  "; 2.10 +- 0.70; HIL, HEC
+LIGAND_ID, MET, HEM: " SD " - "FE  "; 2.30 +- 0.50; MEL, HEM
+LIGAND_ID, MET, HEA: " SD " - "FE  "; 2.30 +- 0.50; MEL, HEA
+LIGAND_ID, MET, HEB: " SD " - "FE  "; 2.30 +- 0.50; MEL, HEB
+LIGAND_ID, MET, HEC: " SD " - "FE  "; 2.30 +- 0.50; MEL, HEC

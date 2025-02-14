@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+"""
+MCCE tool: strip_cofactors
+This is a standalone program to srip off surface water and other cofactors, layer by layer,
+until only buried cofactors are left.
+
+There is a module version can be called within python programs. The main code serves example
+of such implementation.
+"""
+
+import argparse
+import os
+from mcce4.mcce._strip_cofactors import strip_cofactors, loose_cofactors
+from mcce4.pdbio import Structure
+
+if __name__ == "__main__":
+
+    # Get the command arguments
+    helpmsg = "Strip off exposed cofactors like water and ions based on solvent accessible surface area."
+    parser = argparse.ArgumentParser(description=helpmsg)
+    parser.add_argument("-c", metavar="RES", nargs="+", default=[], help="Specify cofactors to strip off in addition to \"%s\"." % " ".join(loose_cofactors))
+    parser.add_argument("-s", metavar="exposure", help="Strip off if fraction exposure exceeds this threshold. Default is 0.05.", default=0.05, type=float)
+    parser.add_argument("-o", metavar="outputfile", help="Output file name, default is inputfile name with extension .stripped.")
+    parser.add_argument("inpdb", metavar="inpdb", help="Input pdb file", default="", nargs=1)
+
+    args = parser.parse_args()
+
+    if args.o:
+        fname = args.o
+    else:
+        filename, extension = os.path.splitext(args.inpdb[0])
+        if extension == ".pdb":
+            fname = "%s-stripped.pdb" % filename
+        else:
+            fname = "%s-stripped.pdb" % args.inpdb[0]
+    
+    structure = Structure()
+    structure.load_pdb(args.inpdb[0])
+
+    stripped_lines, res_acc_lines = strip_cofactors(structure.models[0].lines, cofactors_in=args.c, cutoff=args.s)
+    
+    filename, extension = os.path.splitext(args.inpdb[0])
+    open(fname, "w").writelines(stripped_lines)
+    open("%s.acc" % filename, "w").writelines(res_acc_lines)
+    print("Output structure file: %s; accessibility: %s" % (fname, "%s.acc" % filename))

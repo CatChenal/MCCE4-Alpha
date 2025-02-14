@@ -1,0 +1,4 @@
+1PPN :: non_canonical: 2  :: LYS+A0100_, CTR-A0302_
+1PPN :: chi2 >= 3.0: 5    :: LYS+A0017_, CYS-A0025_, TYR-A0067_, HIS+A0159_, LYS+A0174_
+1PPN :: new_tpl           :: True
+#
