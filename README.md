@@ -16,7 +16,18 @@ MCCE4 will stay as a private repository that only lab members and collaborators 
   * [Developer Manual](doc/DevManual.md)
   * [User Manual](doc/UserManual.md)
 
-* [Discussions](https://github.com/GunnerLab/MCCE4/discussions) - discussion board for anything 
+* [Discussions](https://github.com/GunnerLab/MCCE4/discussions) - discussion board for anything
+
+## Installation Guide
+
+Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. If MCCE4-Alpha was located in /gunnerlab/, you would add the following lines:
+
+<pre>
+export PATH=/home/gunnerlab/MCCE4-Alpha/bin:$PATH
+export PATH=/home/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
+</pre>
+
+The important thing is that both the /bin/ and /MCCE_bin/ folders are referenced and accessible. Now, use command "source .bashrc". Commands like "step1.py", "p_info.py" should now be accessible- try using "which step1.py". If the command returns the path to MCCE4-Alpha/bin, you'll know it worked. Enjoy trying MCCE4-Alpha!
 
 ## Transition stage
 Transition stage is when c code version mcce coexists with python mcce4. In this transition statge, you will need to compile the program:
