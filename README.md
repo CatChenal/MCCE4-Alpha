@@ -27,7 +27,29 @@ export PATH=/home/gunnerlab/MCCE4-Alpha/bin:$PATH
 export PATH=/home/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
 </pre>
 
-The important thing is that both the /bin/ and /MCCE_bin/ folders are referenced and accessible. Now, use command "source .bashrc". Commands like "step1.py", "p_info.py" should now be accessible- try using "which step1.py". If the command returns the path to MCCE4-Alpha/bin, you'll know it worked. Enjoy trying MCCE4-Alpha!
+The important thing is that both the /bin/ and /MCCE_bin/ folders are referenced and accessible. Now, use command "source .bashrc". Commands like "step1.py", "p_info.py" should now be accessible- try using "which step1.py". If the command returns the path to MCCE4-Alpha/bin, you'll know it worked. 
+Enjoy trying MCCE4-Alpha!
+
+## MCCE4 Updates
+MCCE4 now supports multiple Poisson-Boltzmann (PB) solvers, offering flexibility in electrostatic calculations. 
+While **Delphi remains the default PB solver**, we have integrated **NextGenPB(NGPB)** and **Zap TK from OpenEye Scientific** as additional options for enhanced performance and accuracy.
+In the near furture **NextGenPB(NGPB)** will be used as default MCCE4 PB solver.
+
+To use the **Zap TK**, please obtain a OpenEye License (https://www.eyesopen.com/contact).
+Follow instructions for installing OpenEye Toolkits at https://docs.eyesopen.com/toolkits/python/quickstart-python/linuxosx.html
+
+We recommend using a dedicated conda enviorment:
+
+<pre>
+conda create -n oepython -c openeye openeye-toolkits python=3.10
+conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
+</pre>>
+
+Test if your licesne is working properly with 
+<pre>
+oecheminfo.py
+<pre/> 
+
 
 ## Transition stage
 Transition stage is when c code version mcce coexists with python mcce4. In this transition statge, you will need to compile the program:
@@ -44,5 +66,6 @@ export PATH=your_MCCE4_path/bin:your_MCCE4_path/MCCE_bin:$PATH
 </pre>
 
 ## Latest updates
-* 06/06/2004 Torsion energy is restored to C code algorithm.
+- 03/17/2025 MCCE4-Alpha has been created for testing distribution
 - 05/31/2024 Stable-MCCE is merged to this repository.
+- 06/06/2004 Torsion energy is restored to C code algorithm.
