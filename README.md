@@ -43,12 +43,12 @@ We recommend using a dedicated conda enviorment:
 <pre>
 conda create -n oepython -c openeye openeye-toolkits python=3.10
 conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
-</pre>>
+</pre>
 
-Test if your licesne is working properly with 
+Test if your license is working properly with 
 <pre>
 oecheminfo.py
-<pre/> 
+</pre>pre> 
 
 
 ## Transition stage
