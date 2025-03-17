@@ -32,21 +32,20 @@ Enjoy trying MCCE4-Alpha!
 
 ## MCCE4 Updates
 
+### Poisson-Boltzmann Solvers in MCCE4  
 MCCE4 now supports multiple **Poisson-Boltzmann (PB) solvers**, offering flexibility in electrostatic calculations. While **Delphi remains the default PB solver**, we have integrated **NextGenPB (NGPB) from the Rocchia Lab (IIT)** and **Zap TK from OpenEye Scientific** as additional options for enhanced performance and accuracy.  
 
 🔹 **Upcoming Change:** In the near future, **NextGenPB (NGPB) will become the default PB solver** in MCCE4.  
 ---
 
-### 🔹 Poisson-Boltzmann Solvers in MCCE4  
-
-#### Delphi (Default)  
+### 🔹 Delphi (Default)  
 The standard PB solver used in MCCE4. Well-established for electrostatic calculations.  
 
-#### NextGenPB (NGPB) - Rocchia Lab (IIT)
+### 🔹 NextGenPB (NGPB) - Rocchia Lab (IIT)
 Developed by [Vincenzo di Florio](https://github.com/vdiflorio) at the [Rocchia Lab](https://github.com/concept-lab), IIT Genova, Italy.  
 **Upcoming:** A Docker container is being built for easier deployment. **Stay tuned!** 🚀
 
-#### Zap TK - OpenEye Scientific 
+### 🔹 Zap TK - OpenEye Scientific 
 To use **Zap TK**, you must obtain an **OpenEye license**:  
 🔗 [Request a License](https://www.eyesopen.com/contact)  
 
