@@ -48,7 +48,12 @@ conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
 Test if your license is working properly with 
 <pre>
 oecheminfo.py
-</pre>pre> 
+</pre> 
+
+Zap is run at MCCE4 step3, and can be called as follows (we recommend salt concentration set 0.05 for best results):
+<pre>
+step3.py -s zap -salt 0.05
+</pre> 
 
 
 ## Transition stage
