@@ -70,7 +70,7 @@ Test if your license and installation are working with:
 oecheminfo.py
 ```
 
-Zap is run at MCCE4 step3. We recommend salt concentration set 0.05 for best results.
+Zap is run at MCCE4 step3. We highly recommend setting the salt concentration to 0.05 for best results.
 ```
 step3.py -s zap -salt 0.05
 ```
