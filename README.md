@@ -55,11 +55,15 @@ Follow the OpenEye Toolkit installation guide:
 🔗 [Quickstart Guide](https://docs.eyesopen.com/toolkits/python/quickstart-python/linuxosx.html)  
 
 We recommend using a dedicated Conda environment:  
-
 <pre>
 conda create -n oepython -c openeye openeye-toolkits python=3.10
 conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
 </pre>
+
+Add your license file to your PATH in your .bashrc file
+```
+export OE_LICENSE=/home/mcce/openeye/oe_license.txt
+```
 
 Test if your license is working properly with 
 <pre>
