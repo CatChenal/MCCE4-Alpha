@@ -62,7 +62,7 @@ conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
 
 Add your license file to your PATH in your .bashrc file
 ```
-export OE_LICENSE=/home/mcce/openeye/oe_license.txt
+export OE_LICENSE=/home/gunnerlab/openeye/oe_license.txt
 ```
 
 Test if your license and installation are working with:
