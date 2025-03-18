@@ -50,12 +50,7 @@ Developed by [Vincenzo di Florio](https://github.com/vdiflorio) at the [Rocchia 
 To use **Zap TK**, you must obtain an **OpenEye license**:  
 🔗 [Request a License](https://www.eyesopen.com/contact)  
 
-Add your license file to your PATH in your .bashrc file
-```
-export OE_LICENSE=/home/mcce/openeye/oe_license.txt
-```
-
-##### Installation Instructions  
+**Installation Instructions**   
 Follow the OpenEye Toolkit installation guide:  
 🔗 [Quickstart Guide](https://docs.eyesopen.com/toolkits/python/quickstart-python/linuxosx.html)  
 
@@ -65,12 +60,17 @@ conda create -n oepython -c openeye openeye-toolkits python=3.10
 conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
 ```
 
-Test if your license and isntallation are working:
+Add your license file to your PATH in your .bashrc file
+```
+export OE_LICENSE=/home/mcce/openeye/oe_license.txt
+```
+
+Test if your license and installation are working with:
 ```
 oecheminfo.py
 ```
 
-Zap is run at MCCE4 step3, and can be called as follows (we recommend salt concentration set 0.05 for best results):
+Zap is run at MCCE4 step3. We recommend salt concentration set 0.05 for best results.
 ```
 step3.py -s zap -salt 0.05
 ```
