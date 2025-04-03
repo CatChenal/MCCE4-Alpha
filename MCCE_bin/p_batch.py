@@ -161,7 +161,7 @@ def should_process_protein(protein_name):
 def main():
     if len(sys.argv) < 2 or len(sys.argv) > 3:
 
-        print("Usage: p_batch.py <protein_files_or_directory> [<shell_script>]\n")
+        print("Usage: p_batch.py <directory_containing_PDB_files> [<shell_script>]\n")
 
         print("Use flag '-h' or '-help' for more details.")
         sys.exit(1)

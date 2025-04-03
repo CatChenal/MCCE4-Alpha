@@ -1,19 +1,40 @@
 #!/usr/bin/env python
 import os
 import csv
+import re
+
+def txt_to_csv(input_file):
+    # converts pK.out into pK.csv for easy data handling
+    output_file = input_file.rsplit('.', 1)[0] + ".csv"
+    
+    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+        for line in infile:
+            stripped = line.lstrip()  # Remove leading spaces/tabs
+            first_split = stripped.split(maxsplit=1)  # Split into two parts at the first whitespace
+
+            if len(first_split) > 1:
+                first_part, rest = first_split
+                rest = ','.join(rest.split())  # Replace remaining spaces/tabs with commas
+                outfile.write(f"{first_part},{rest}\n")
+            else:
+                outfile.write(stripped + '\n')
 
 def collect_pk_files(root_dir):
-    """Recursively find all 'pK.out.csv' files in subdirectories."""
+    """Recursively create all 'pK.out.csv' files in subdirectories."""
     pk_files = []
     for subdir, _, files in os.walk(root_dir):
-        if "pK.out.csv" in files:
-            pk_files.append(os.path.join(subdir, "pK.out.csv"))
+        if "pK.out" in files:
+            txt_file = os.path.join(subdir, "pK.out")
+            os.chdir(subdir)  # Change to the directory containing the file
+            txt_to_csv(txt_file)  # Convert to CSV
+            os.chdir(root_dir)  # Return to root directory
+            pk_files.append(os.path.join(subdir, "pK.csv"))
     return pk_files
 
 def merge_csv_files(pk_files, output_file):
-    """Merge all 'pK.out.csv' files into one, keeping only the first file's header."""
+    """Merge all 'pK.csv' files into one, keeping only the first file's header."""
     if not pk_files:
-        print("No 'pK.out.csv' files found.")
+        print("No 'pK.csv' files found.")
         return
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
@@ -56,7 +77,7 @@ def merge_csv_files(pk_files, output_file):
 if __name__ == "__main__":
     root_directory = os.getcwd()  # Change this to your target directory if needed
     output_directory = os.path.join(root_directory, "batch_analysis")
-    output_file = os.path.join(output_directory, "merged_pK_data.csv")
+    output_file = os.path.join(output_directory, "all_pK_data.csv")
     
     pk_files = collect_pk_files(root_directory)
     merge_csv_files(pk_files, output_file)
