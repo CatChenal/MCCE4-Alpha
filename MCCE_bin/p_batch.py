@@ -287,7 +287,7 @@ def main():
             with open('book.txt', 'w') as file:
                 file.write(book_list)
 
-            print("\nNew book.txt created. You can remove protein files to be run by editing book.txt if desired, and resume by running bb again. ")
+            print("\nNew book.txt created. You can remove protein files to be run by editing book.txt if desired, and resume by running p_batch again. ")
 
             print("These proteins will be run:\n\n" + book_list +  "Pre-existing directories for these proteins will be emptied and replaced with information from the new run. ")
             
