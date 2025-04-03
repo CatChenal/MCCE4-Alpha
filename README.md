@@ -89,6 +89,15 @@ Make sure to add both paths, bin and MCCE_bin, to you environment variable PATH.
 ```
 export PATH=your_MCCE4_path/bin:your_MCCE4_path/MCCE_bin:$PATH
 ```
+## Running Batches of Proteins
+
+Sometimes it is convenient to run multiple proteins at time. Try using p_batch.py, located in the MCCE_bin.
+
+p_batch.py accepts a directory containing pdb files, and optionally a shell script with custom instructions (level of conformers, what steps, dielectric const, etc.). For example, if the current working directory has a directory named "protein_list" containing 4lzt.pdb and 1a2p.pdb, you could run the command to begin a default run of those proteins.
+
+```
+p_batch.py protein_list
+```
 
 ## Latest updates
 - 03/17/2025 MCCE4-Alpha has been created for testing distribution
