@@ -163,16 +163,18 @@ def main():
 
         print("Usage: p_batch.py <directory_containing_PDB_files> [<shell_script>]\n")
 
+        print("Please provide the path to a directory containing PDB files.\n")
+
         print("Use flag '-h' or '-help' for more details.")
         sys.exit(1)
 
     if sys.argv[1] == "--help" or sys.argv[1] == "-help" or sys.argv[1] == "-h" or sys.argv[1] == "--h":
 
-        print("\nProtein Batch accepts a file containing paths to protein files or a directory containing protein files. A shell script giving custom instructions for the bench batch may also be given. If custom instructions are not given, a default shell script will be created and executed.\n")
+        print("\np_batch.py, or Protein Batch, accepts a directory containing protein files. A shell script giving custom instructions for the bench batch may also be given. If custom instructions are not given, a default shell script will be created and executed.\n")
 
-        print("Protein Batch creates a file called book.txt listing working proteins. If book.txt exists prior to execution, the program will read book.txt to know what runs to perform. In this way, a user may edit book.txt to run batches on a subset of desired proteins. File corresponding to lines containing ' c' or ' x' will not be run during a bench batch.\n")
+        print("Protein Batch creates a file called book.txt listing working proteins. If book.txt exists prior to execution, the program will read book.txt to know what runs to perform. In this way, a user may edit book.txt to run batches on a subset of desired proteins. Files corresponding to lines containing ' c' or ' x' will not be run during a bench batch.\n")
 
-        print("Usage: p_batch.py <protein_files_or_directory> [<shell_script>]")
+        print("Usage: p_batch.py <directory_containing_PDB_files> [<shell_script>]")
 
         sys.exit(1)
 
