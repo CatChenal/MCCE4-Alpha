@@ -91,13 +91,23 @@ export PATH=your_MCCE4_path/bin:your_MCCE4_path/MCCE_bin:$PATH
 ```
 ## Running Batches of Proteins
 
-Sometimes it is convenient to run multiple proteins at time. Try using p_batch.py, located in the MCCE_bin.
+Sometimes it is convenient to run multiple proteins at time. Try using p_batch, located in the MCCE_bin.
 
-p_batch.py accepts a directory containing pdb files, and optionally a shell script with custom instructions (level of conformers, what steps, dielectric const, etc.). For example, if the current working directory has a directory named "protein_list" containing 4lzt.pdb and 1a2p.pdb, you could run the command to begin a default run of those proteins.
+p_batch accepts a directory containing pdb files, and optionally a shell script with custom instructions (level of conformers, what steps, dielectric const, etc.). For example, if the current working directory has a directory named "protein_list" containing 4lzt.pdb and 1a2p.pdb, you could run the following command to begin a default run of those proteins.
 
 ```
-p_batch.py protein_list
+p_batch protein_list
 ```
+
+If you want to change the shell instructions, edit the default_script.sh, or create your own similarly structured file. If your shell script was named "custom_script.sh", you would run it like
+
+```
+p_batch protein_list custom_script.sh
+```
+
+Additional custom instructions can be included in a "run.prm.custom" file. For example, if you want to simulate a membrane slab, or change the distance limit for reporting clashes, you can create your own "run.prm.custom" file (place in the same directory where you run p_batch). The many options for "run.prm.custom" files can be found in "MCCE4-Alpha/runprms/run.prm.full". You only need to include the desired options- default instructions are found in "MCCE4-Alpha/runprms/run.prm.default".
+
+![Image](https://github.com/user-attachments/assets/6226520b-c3bf-40b6-bb07-ae78ad0c6e73)
 
 ## Latest updates
 - 03/17/2025 MCCE4-Alpha has been created for testing distribution
