@@ -6,6 +6,7 @@ Created on Fri Dec 13 14:00:00 2024
 (lightly edited by Jared Suchomel to incorporate into batch_analyze.py)
 """
 
+import shutil
 import os
 import pandas as pd
 import argparse
@@ -17,7 +18,7 @@ def extract_run_times(runs_folder):
     # Loop through each pdb folder in the runs directory
     for pdb_folder in os.listdir(runs_folder):
         pdb_folder_path = os.path.join(runs_folder, pdb_folder)
-
+        
         # Check if it's a folder
         if os.path.isdir(pdb_folder_path):
             run_log_file = os.path.join(pdb_folder_path, 'run.log')
@@ -27,6 +28,7 @@ def extract_run_times(runs_folder):
 
             # Skip if run.log or prot.pdb doesn't exist
             if not os.path.isfile(run_log_file) or not os.path.isfile(prot_pdb_file):
+                print(run_log_file)
                 continue
 
             # Initialize variables to store the run times
@@ -94,6 +96,7 @@ def extract_run_times(runs_folder):
             num_non_surface_waters = len(non_surface_waters)
 
             # If any times are found, add to data list
+            # oddly, step4_time is not always being logged to run.log. Will need to investigate...
             if step1_time is not None and step2_time is not None and step3_time is not None and step4_time is not None:
                 total_time = step1_time + step2_time + step3_time + step4_time
                 data.append([
@@ -109,6 +112,8 @@ def extract_run_times(runs_folder):
                     step4_time,
                     total_time
                 ])
+
+            print(data)
 
     # Convert the data list to a dataframe
     df = pd.DataFrame(
@@ -130,19 +135,38 @@ def extract_run_times(runs_folder):
 
     # Sort the dataframe by 'Conformers' column in ascending order
     df = df.sort_values(by='Conformers', ascending=True)
+    
+    if not df.empty:
 
-    # Save dataframe to CSV
-    df.to_csv('run_times.csv', index=False)
-    print(f"Run times saved to 'run_times.csv'.")
+        # Save dataframe to CSV
+        df.to_csv('run_times.csv', index=False)
+        print(f"Run times saved to 'run_times.csv'.")
 
-    # Save dataframe to TXT in the form of a pandas DataFrame
-    with open('run_times.txt', 'w') as f:
-        f.write(df.to_string(index=False))
-    print(f"Run times saved to 'run_times.txt'.")
+        # Save dataframe to TXT in the form of a pandas DataFrame
+        with open('run_times.txt', 'w') as f:
+            f.write(df.to_string(index=False))
+        print(f"Run times saved to 'run_times.txt'.")
+
+        # Files to move
+        files_to_move = ["run_times.csv", "run_times.txt"]
+        target_dir = "batch_analysis"
+
+        # Create the target directory if it doesn't exist
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+
+        # Move each file
+        for file in files_to_move:
+            if os.path.exists(file):
+                shutil.move(file, os.path.join(target_dir, file))
+                print(f"Moved {file} to {target_dir}/")
+            else:
+                print(f"File not found: {file}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract run times and rot_stat from run.log files.")
-    parser.add_argument("runs_folder", nargs="?", default="runs", help="Directory containing pdb folders with run.log and prot.pdb files")
+    dir_path = os.getcwd() 
+    parser.add_argument("runs_folder", nargs="?", default=dir_path, help="Directory containing pdb folders with run.log and prot.pdb files. By default, tthe present working directory is this.")
     args = parser.parse_args()
 
     extract_run_times(args.runs_folder)

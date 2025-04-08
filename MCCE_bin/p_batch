@@ -164,7 +164,7 @@ def should_process_protein(protein_name):
                         return False
     return True
 
-def main():
+def protein_batch():
     if len(sys.argv) < 2 or len(sys.argv) > 3:
 
         print("Usage: p_batch <directory_containing_PDB_files> [<shell_script>]\n")
@@ -310,5 +310,5 @@ def main():
         abort()
 
 if __name__ == "__main__":
-    main()
+    protein_batch()
 
