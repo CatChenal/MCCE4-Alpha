@@ -33,18 +33,15 @@ Enjoy trying MCCE4-Alpha!
 ## MCCE4 Updates
 
 ### 🔹 Poisson-Boltzmann Solvers in MCCE4  
-MCCE4 now supports multiple **Poisson-Boltzmann (PB) solvers**, offering flexibility in electrostatic calculations. While **Delphi remains the default PB solver**, we have integrated **NextGenPB (NGPB) from the Rocchia Lab (IIT)** and **Zap TK from OpenEye Scientific** as additional options for enhanced performance and accuracy.  
-
-🚀 **Upcoming Change:** In the near future, **NextGenPB (NGPB) will become the default PB solver** in MCCE4.  
+🚀  **NextGenPB (NGPB) from the Rocchia Lab (IIT)** is now our default PB solver 
+The traditional PB solver **Delphi from the Honig Lab** and **Zap TK from OpenEye Scientific** are additional options.
 
 ---
-
-### 🔹 Delphi (Default)  
-The standard PB solver used in MCCE4. Well-established for electrostatic calculations.  
-
 ### 🔹 NextGenPB (NGPB) - Rocchia Lab (IIT)
 Developed by [Vincenzo di Florio](https://github.com/vdiflorio) at the [Rocchia Lab](https://github.com/concept-lab), IIT Genova, Italy.  
-**Upcoming:** A Docker container is being built for easier deployment. **Stay tuned!** 🚀
+
+### 🔹 Delphi 
+The standard PB solver used in MCCE4. Well-established for electrostatic calculations.  
 
 ### 🔹 Zap TK - OpenEye Scientific 
 To use **Zap TK**, you must obtain an **OpenEye license**:  
@@ -82,8 +79,9 @@ Transition stage is when c code version mcce coexists with python mcce4. In this
 ```
 cd your_MCCE4_path
 make clean
-make
+make all
 ```
+**Note to install the NGPB container you must have sudo access.**
 
 Make sure to add both paths, bin and MCCE_bin, to you environment variable PATH. If a program are in both bin folders, bin/ has higher priority. Once we fully tested the newer version, the old one will be removed. 
 ```
