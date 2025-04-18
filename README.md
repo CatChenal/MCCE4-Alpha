@@ -81,7 +81,7 @@ cd your_MCCE4_path
 make clean
 make all
 ```
-**Note to install the NGPB container you must have sudo access.**
+**Note to install the NGPB container you must have sudo access ~15min.**
 
 Make sure to add both paths, bin and MCCE_bin, to you environment variable PATH. If a program are in both bin folders, bin/ has higher priority. Once we fully tested the newer version, the old one will be removed. 
 ```
