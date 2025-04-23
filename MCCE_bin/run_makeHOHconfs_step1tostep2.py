@@ -62,7 +62,7 @@ for resi, chain_id, res_num in water_molecules:
                     temp_file.write(line)
 
     # Call the function in the imported script
-    subprocess.run(["make_step1tostep2HOHconfs.py", temp_pdb, "-N", str(num_conformers)])
+    subprocess.run(["makeHOHconfs_step1tostep2.py", temp_pdb, "-N", str(num_conformers)])
 
     # Move the generated conformers into the temporary directory
     if os.path.exists(source_file):
