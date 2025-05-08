@@ -5,18 +5,9 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 * quick developing
 * available functions already in NumPy and SciPy
 
-## MCCE4 Project Essential Links
+# MCCE Wiki
 
-MCCE4 will stay as a private repository that only lab members and collaborators can see. A public version will be released separately. 
-
-* [Repository](https://github.com/GunnerLab/MCCE4) - where you get and deposit code
-* [Project](https://github.com/orgs/GunnerLab/projects/4) - automated project monitoring
-* [Documentation](doc) - a place that makes your code actually usable
-  * [Feature Requests](doc/Features.md)
-  * [Developer Manual](doc/DevManual.md)
-  * [User Manual](doc/UserManual.md)
-
-* [Discussions](https://github.com/GunnerLab/MCCE4/discussions) - discussion board for anything
+[Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves)
 
 ## Installation Guide
 
