@@ -7,7 +7,7 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 
 # MCCE Wiki
 
-[Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves)
+[Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves) (under construction)
 
 ## Installation Guide
 
