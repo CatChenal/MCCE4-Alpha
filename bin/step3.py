@@ -7,7 +7,7 @@ The output is energies/*.opp, energies/*.oppl and head3.lst
 
 Command line options:
 -d number: Dielectric constant (default 4)
--s PBSolver: PBE solver name (default delphi, choices=["delphi", "ngpb", "zap", "apbs", "template"])
+-s PBSolver: PBE solver name (default ngpb, choices=["delphi", "ngpb", "zap", "apbs", "template"])
 -p number: Run with number of threads (default 1)
 -c start end: Run conformer from start to end (default 0 to 99999)
 -t path: Temporary folder path (default /tmp)
@@ -1076,6 +1076,7 @@ def compose_head3(protein):
                 if ("CONFORMER", conftype) in env.param:
                     rxn0 = env.param["CONFORMER", conftype].param[key3]
                 else:
+                    rxn0 = 0.0
                     logger.warning(
                         (
                             f"CONFORMER record of {conftype} not defined "
@@ -1156,7 +1157,7 @@ def cli_parser():
     parser.add_argument(
         "-s",
         metavar="pbs_name",
-        default="delphi",
+        default="ngpb",
         choices=["delphi", "ngpb", "zap", "apbs", "template"],
         help="PBE solver; default: %(default)s.",
     )
@@ -1280,6 +1281,28 @@ if __name__ == "__main__":
     # Prepare input for PB solver: common_boundary, sites to receive potential, and PB conditions
     # make conformer list with their corresponding ir and ic. This list or (ir, ic) will be passed
     # as an array that multiprocess module will take in as work load.
+    
+    if run_options.s.upper() == "NGPB":
+        bind_path = run_options.t  
+        instance_name = "my_instance"
+        # Find the container path
+        container_path = shutil.which('NextGenPB_MCCE4.sif')
+        try:
+            result = subprocess.run(
+                f"ps aux | grep -v grep | grep '{instance_name}'",
+                shell=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            os.system("apptainer instance stop my_instance")
+            os.system(f"apptainer instance start --bind {bind_path}:{bind_path} {container_path} {instance_name}")
+        
+        except subprocess.CalledProcessError:
+            # If the command fails, the instance is not running
+            os.system(f"apptainer instance start --bind {bind_path}:{bind_path} {container_path} {instance_name}")
+        
+
     if not args.skip_pb:
         work_load = []
         counter = 1
@@ -1310,6 +1333,9 @@ if __name__ == "__main__":
         logger.info("   Post-processing of electrostatic potential.")
         start_t = time.time()
 
+    if run_options.s.upper() == "NGPB":
+        os.system("apptainer instance stop my_instance")
+        
     logger.info("   Processing ele pairwise interaction...")
     ele_matrix = postprocess_ele(protein)
     # Debug

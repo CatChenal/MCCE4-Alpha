@@ -464,7 +464,9 @@ class PBS_NGPB:
     """
     def __init__(self):
         # consider loading these parameters from a file
-        self.exe = ['mpirun', '-np', '1', 'poisson_boltzmann', '--potfile', 'options.pot', '--pqrfile']
+        #self.exe = ['mpirun', '-np', '1', 'poisson_boltzmann', '--potfile', 'options.pot', '--pqrfile']
+        self.exe = ['apptainer', 'exec', 'instance://my_instance', 'ngpb', '--potfile', 'options.pot', '--pqrfile']
+        
         self.mesh_shape = 3
         self.scale = 1.5
         self.outlevel =1
@@ -554,14 +556,14 @@ class PBS_NGPB:
         return
     
     def collect_energy(self, log: str):
-        log_lines = log.split("\n")
-        logger.info("Number of log_lines %d" % len(log_lines))
+        #log_lines = log.split("\n")
+        #logger.info("Number of log_lines %d" % len(log_lines))
 
         found_pol  = False
         pol = None
-        for line in log_lines:
-            if "Polarization energy:" in line:
-                pol = float(line[21:].split()[0]) / self.KCAL2KT
+        for line in log.splitlines():
+            if "Polarization energy" in line:
+                pol = float(line.split(":")[1].strip().split()[0]) / self.KCAL2KT
                 found_pol = True
                 break
 
