@@ -11,15 +11,28 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 
 ## Installation Guide
 
-Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. If MCCE4-Alpha was located in /gunnerlab/, you would add the following lines:
+Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. If you cloned MCCE4-Alpha in a /gunnerlab/ directory, you would add the following lines:
 
 ```
-export PATH=/home/gunnerlab/MCCE4-Alpha/bin:$PATH
-export PATH=/home/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
+export PATH=/home/user/gunnerlab/MCCE4-Alpha/bin:$PATH
+export PATH=/home/user/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
+```
+Then apply the changes by sourcing or 'dotting' your .bashrc file, depending on your system:
+```
+ source ~/.bashrc
+# or
+ . ~/.bashrc
 ```
 
-The important thing is that both the /bin/ and /MCCE_bin/ folders are referenced and accessible. Now, use command "source .bashrc". Commands like "step1.py", "p_info.py" should now be accessible- try using "which step1.py". If the command returns the path to MCCE4-Alpha/bin, you'll know it worked. 
-Enjoy trying MCCE4-Alpha!
+Commands like "step1.py", "p_info.py" should now be accessible; check with:
+```
+ which step1.py
+```
+The command should return /home/user/gunnerlab/MCCE4-Alpha/bin/step1.py.  
+
+Please, report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
+Enjoy trying MCCE4!  
+
 
 ## MCCE4 Updates
 
@@ -42,15 +55,17 @@ To use **Zap TK**, you must obtain an **OpenEye license**:
 Follow the OpenEye Toolkit installation guide:  
 🔗 [Quickstart Guide](https://docs.eyesopen.com/toolkits/python/quickstart-python/linuxosx.html)  
 
-We recommend using a dedicated Conda environment:  
+We recommend using a dedicated conda environment:
 ```
-conda create -n oepython -c openeye openeye-toolkits python=3.10
-conda install numpy scipy matplotlib pygraphviz pandas xlrd openpyxl requests
+conda create -n oepython python=3.10
+conda activate oepython
+conda install -c openeye openeye-toolkits
+conda install numpy scipy matplotlib seaborn pandas pygraphviz networkx requests
 ```
 
 Add your license file to your PATH in your .bashrc file
 ```
-export OE_LICENSE=/home/gunnerlab/openeye/oe_license.txt
+export OE_LICENSE=/home/user/gunnerlab/openeye/oe_license.txt
 ```
 
 Test if your license and installation are working with:
@@ -101,4 +116,3 @@ Additional custom instructions can be included in a "run.prm.custom" file. For e
 ## Latest updates
 - 03/17/2025 MCCE4-Alpha has been created for testing distribution
 - 05/31/2024 Stable-MCCE is merged to this repository.
-- 06/06/2004 Torsion energy is restored to C code algorithm.
