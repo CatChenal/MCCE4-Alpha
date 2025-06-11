@@ -17,12 +17,36 @@ Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we r
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/bin:$PATH
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
 ```
+
 Then apply the changes by sourcing or 'dotting' your .bashrc file, depending on your system:
 ```
  source ~/.bashrc
 # or
  . ~/.bashrc
 ```
+
+## Transition stage
+MCCE4 contains c code programs that must be compiled by the user prior to use. The three programs are mcce, delphi and ngpb.
+Here, in MCCE4-Alpha we already provide the compiled delphi excecutable.
+
+To compile mcce and ngpb, please run:
+```
+cd your_MCCE4_path
+make clean
+make all
+```
+
+**Please Note: To install the NGPB container you must have sudo access ~15min.** 
+
+## Maintaining 
+***Please Note: When performing a git pull, ensure to compile the mcce and delphi executable again!***
+```
+cd your_MCCE4_path
+make clean
+make Delphi
+```
+
+
 
 Commands like "step1.py", "p_info.py" should now be accessible; check with:
 ```
