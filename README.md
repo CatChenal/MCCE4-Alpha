@@ -7,15 +7,16 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 
 ## Installation Guide
 
-Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. 
+1. Git clone the MCCE4-Alpha repsoitory to a desired place on your computer.
+2. Add the path of your cloned repository into your ".bashrc" file. Use vi or nano to open your ".bashrc" file. 
 
-Example - If you cloned MCCE4-Alpha in a /gunnerlab/ directory, you would add the following lines:
+Example: If you cloned MCCE4-Alpha to the directory /home/user/gunnerlab, you would add the following lines to your .bashrc file:
 ```
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/bin:$PATH
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
 ```
 
-Then apply these PATH changes by sourcing your .bashrc file:
+3. Apply these PATH updates by sourcing your .bashrc file:
 ```
  source ~/.bashrc
 # or
@@ -23,10 +24,10 @@ Then apply these PATH changes by sourcing your .bashrc file:
 ```
 
 ### Compile Executables 
-MCCE4 contains c code programs that must be compiled by the user prior to use. The three programs are mcce, delphi and ngpb.
-Here, in MCCE4-Alpha we already provide the compiled delphi excecutable.
+MCCE4 contains c-code programs that must be compiled by the user prior to use. The three compilable programs are mcce, delphi and ngpb.
+In this respository, MCCE4-Alpha, we provide the compiled delphi excecutable.
 
-To compile mcce and ngpb, please run:
+4. To compile mcce and ngpb, please run:
 ```
 cd your_MCCE4_path
 make clean
@@ -46,7 +47,6 @@ Please, report any issues you encounter [here](https://github.com/GunnerLab/MCCE
 Enjoy trying MCCE4!  
 
 # MCCE Wiki
-
 [Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves) (under construction)
 
 ## MCCE4 Updates
