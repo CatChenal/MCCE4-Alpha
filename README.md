@@ -5,10 +5,6 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 * quick developing
 * available functions already in NumPy and SciPy
 
-# MCCE Wiki
-
-[Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves) (under construction)
-
 ## Installation Guide
 
 Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. 
@@ -48,6 +44,9 @@ The command should return /home/user/gunnerlab/MCCE4-Alpha/bin/step1.py.
 Please, report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
 Enjoy trying MCCE4!  
 
+# MCCE Wiki
+
+[Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves) (under construction)
 
 ## MCCE4 Updates
 
