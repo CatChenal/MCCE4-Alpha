@@ -37,9 +37,9 @@ make
 
 
 ### Test Installation
-Commands like "step1.py", "p_info.py" should now be accessible; check with:
+Commands like "step1.py", "p_info" should now be accessible; check with:
 ```
- which step1.py
+which step1.py
 ```
 The command should return /home/user/gunnerlab/MCCE4-Alpha/bin/step1.py.  
 
