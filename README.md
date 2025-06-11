@@ -33,21 +33,10 @@ To compile mcce and ngpb, please run:
 ```
 cd your_MCCE4_path
 make clean
-make all
+make
 ```
 
 **Please Note: To install the NGPB container you must have sudo access ~15min.** 
-
-## Maintaining 
-***Please Note: When performing a git pull, ensure to compile the mcce and delphi executable again!***
-```
-cd your_MCCE4_path
-make clean
-make Delphi
-```
-
-
-
 Commands like "step1.py", "p_info.py" should now be accessible; check with:
 ```
  which step1.py
