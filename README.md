@@ -11,14 +11,14 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 
 ## Installation Guide
 
-Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. If you cloned MCCE4-Alpha in a /gunnerlab/ directory, you would add the following lines:
-
+Git clone MCCE4-Alpha to a desired place on your computer. For ease of use, we recommend adding to the path in your ".bashrc" file. Use vi or nano to open your ".bashrc" file. 
+Example - If you cloned MCCE4-Alpha in a /gunnerlab/ directory, you would add the following lines:
 ```
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/bin:$PATH
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
 ```
 
-Now source may your .bashrc file, depending on your system:
+Then apply these PATH changes by sourcing your .bashrc file:
 ```
  source ~/.bashrc
 # or
