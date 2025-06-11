@@ -18,14 +18,14 @@ export PATH=/home/user/gunnerlab/MCCE4-Alpha/bin:$PATH
 export PATH=/home/user/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
 ```
 
-Then apply the changes by sourcing or 'dotting' your .bashrc file, depending on your system:
+Now source may your .bashrc file, depending on your system:
 ```
  source ~/.bashrc
 # or
  . ~/.bashrc
 ```
 
-## Transition stage
+### Compile Executables 
 MCCE4 contains c code programs that must be compiled by the user prior to use. The three programs are mcce, delphi and ngpb.
 Here, in MCCE4-Alpha we already provide the compiled delphi excecutable.
 
@@ -35,8 +35,10 @@ cd your_MCCE4_path
 make clean
 make
 ```
-
 **Please Note: To install the NGPB container you must have sudo access ~15min.** 
+
+
+### Test Installation
 Commands like "step1.py", "p_info.py" should now be accessible; check with:
 ```
  which step1.py
