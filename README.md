@@ -30,7 +30,7 @@ ALPHA MCCE version development. In this development cycle, code **will** be pure
 MCCE4 contains C-code programs that must be compiled by the user prior to use. The two compilable programs are mcce and NGPB, the default PBE solver.  
   * NOTE: We also provide the DelPhi PBE solver executable file (`delphi`), without guarantying its runnability on all systems.
 
-  * To compile mcce and ngpb, please run:
+  * To compile mcce and ngpb:
     - Ensure you have sudo access as it is necessary for the installation of the NGPB container (~10min+)
     - `cd` into your MCCE4-Alpha clone directory
     - Run these commands:
@@ -38,7 +38,7 @@ MCCE4 contains C-code programs that must be compiled by the user prior to use. T
         make clean
         make
         ```
-  * NOTE: To use the Openeye Zap solver, see Zap Installation below.
+  * NOTE: To use the Openeye Zap solver, see "Zap Installation" below.
 
 ### 3. Test Installation
   * Create and activate a conda environment using MCCE4-Alpha environment file `mca.yml`:
@@ -52,6 +52,7 @@ MCCE4 contains C-code programs that must be compiled by the user prior to use. T
       ```
        conda env create -f mca.yml -n new_env
       ```
+
     - Activate the mca env:
     ```
      conda activate mca
@@ -70,8 +71,7 @@ MCCE4 contains C-code programs that must be compiled by the user prior to use. T
    step1.py <existing pdb filename>
   ```
 
-### 4. Help us improve MCCE4
-
+## Help us improve MCCE4
 Please, report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
 Thank you.
 Enjoy trying MCCE4!  
@@ -80,7 +80,7 @@ Enjoy trying MCCE4!
 ## Supported PBE Solvers
   
 🚀  __NextGenPB (NGPB) from the Rocchia Lab (IIT)__ is now our default PBE solver 
-The traditional PBE solver **Delphi from the Honig Lab** and **Zap TK from OpenEye Scientific** are additional options.
+The traditional PBE solver __Delphi from the Honig Lab__ and __Zap TK from OpenEye Scientific__ are also available.
 
 ---
 ### 🔹 NextGenPB (NGPB) - Rocchia Lab (IIT)
