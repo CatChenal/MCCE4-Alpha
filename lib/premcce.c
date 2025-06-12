@@ -694,7 +694,7 @@ int premcce_hvatoms(PROT prot)
     }
 
     /* Missing atoms */
-    Missing = 0;
+    /* Missing = 0;
     for (kr=0; kr<prot.n_res; kr++) {
         for (kc=0; kc<prot.res[kr].n_conf; kc++) {
             for (ka=0; ka<prot.res[kr].conf[kc].n_atom; ka++) {
@@ -712,6 +712,44 @@ int premcce_hvatoms(PROT prot)
                     }
                 }
             }
+        }
+    } */
+
+    Missing = 0;
+    for (kr = 0; kr < prot.n_res; kr++) {
+        for (kc = 0; kc < prot.res[kr].n_conf; kc++) {
+            char missing_atoms[256] = "";
+            int first = 1; // flag for the first atom
+
+            for (ka = 0; ka < prot.res[kr].conf[kc].n_atom; ka++) {
+                if (!prot.res[kr].conf[kc].atom[ka].on) {
+                   sprintf(siatom, "%3d", ka);
+                   if (param_get("ATOMNAME", prot.res[kr].conf[kc].confName, siatom, sbuff)) {
+                      printf("   Missing ATOMNAME records for slot \"%d\" of conformer %s.\n",
+                             ka, prot.res[kr].conf[kc].confName);
+                      Missing++;
+                   }
+                   else if (sbuff[1] != 'H' && sbuff[0] != 'H') {
+                        // Trim leading spaces
+                        char *trimmed = sbuff;
+                        while (*trimmed == ' ') trimmed++;
+
+                        if (!first) strcat(missing_atoms, ", ");
+                        strcat(missing_atoms, sbuff);
+                        first = 0;
+                        Missing++;
+                   }
+                }
+            }
+
+           if (!first) {
+               printf("   Missing heavy atoms for %s in \"%s %c%4d\":  %s\n",
+                      prot.res[kr].conf[kc].confName,
+                      prot.res[kr].resName,
+                      prot.res[kr].chainID,
+                      prot.res[kr].resSeq,
+                      missing_atoms);
+           }
         }
     }
 

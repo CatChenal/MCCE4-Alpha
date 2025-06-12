@@ -1671,13 +1671,12 @@ int fitit()
     else {      /* Eh titration assumed */
         fprintf(fp, "  Eh      ");
     }
-    fprintf(fp, "       pKa/Em  n(slope) 1000*chi2      vdw0    vdw1    tors    ebkb    dsol   offset  pHpK0   EhEm0    -TS   residues   total\n");
+    fprintf(fp, "       pKa/Em  n(slope) 1000*chi2       vdw0      vdw1      tors      ebkb      dsol    offset     pHpK0     EhEm0       -TS  residues      total\n");
 
     if (!(blist_fp = fopen("respair.lst", "w"))) {
         printf("can't write file respair.lst\n");
     }
     fprintf(blist_fp, " residue    partner         vdw     ele  pairwise  charge\n");
-
 
 
     for (i=0; i <N_res; i++) {
