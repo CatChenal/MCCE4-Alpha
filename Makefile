@@ -19,13 +19,16 @@ MCCE    = $(BIN)/mcce
 
 .PHONY: all Delphi sif clean cleanbin/mcce
 
-# Default: just build bin/mcce
-default: $(MCCE)
+# default: Build mcce and NGPB sif
+default: $(MCCE) sif
 
-# Delphi = mcce + delphi only
-Delphi: $(MCCE) $(DELPHI)
+# mcce: Build mcce only
+mcce: $(MCCE)
 
-# all = everything: mcce, delphi, sif
+# delphi: Build delphi only
+delphi: $(DELPHI)
+
+# all = Build  mcce, delphi, sif
 all: $(MCCE) $(DELPHI) sif
 
 # sif = mcce + container
