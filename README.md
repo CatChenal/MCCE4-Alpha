@@ -70,7 +70,10 @@ MCCE4 contains C-code programs that must be compiled by the user prior to use. T
    step1.py <existing pdb filename>
   ```
 
+### 4. Help us improve MCCE4
+
 Please, report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
+Thank you.
 Enjoy trying MCCE4!  
 
 
@@ -106,6 +109,12 @@ Zap is run at MCCE4 step3. We highly recommend setting the salt concentration to
 step3.py -s zap -salt 0.05
 ```
 ---
+
+# Tools Info
+Many (but not all!), tools have a succint description; you can list them all with:
+```
+ cat MCCE4-Alpha/MCCE_bin/tools.info
+```
 
 # MCCE Wiki
 [Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net/shelves) (under construction)

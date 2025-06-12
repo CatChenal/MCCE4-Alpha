@@ -1,6 +1,9 @@
-Tools in MCCE4/MCCE_bin - Last updated: 04/08/25:
-  - bench_setup    :: Setup a dataset for multiple runs & write 'prerun' report.
-                + 4 sub-commands:
+Tools in MCCE4/MCCE_bin - Last updated: 06/12/25.
+
+Note: Tools prefixed with "ms-" process the microstate file.
+
+- bench_setup    :: Setup a dataset for multiple runs & write 'prerun' report.
+                 + 4 sub-commands:
                   0. "pdbids"
                       To show & save the list of available pdbids.
                       
@@ -9,7 +12,7 @@ Tools in MCCE4/MCCE_bin - Last updated: 04/08/25:
                       using the pdbs in pKaDBv1 & job_name_run.sh script.
 
                   2. "user_pdbs"
-                      Sub-command for setting up <bench_dir>/runs folder
+                       Sub-command for setting up <bench_dir>/runs folder
                       using the user's pdbs & job_name_run.sh script.
 
                   3. "launch"
@@ -17,38 +20,59 @@ Tools in MCCE4/MCCE_bin - Last updated: 04/08/25:
                       Can be by-passed if 1. or 2. have the --launch flag, meaning 'launch now';
                       => No chance to review the pre-run report!
   
-  - bench_analyze  :: Do "intrinsic" analysis of a set of runs.
+- bench_analyze  :: Do "intrinsic" analysis of a set of runs.
                  + 2 sub-commands: 1. "pkdb_pdbs", 2. "user_pdbs", as above.
-  - bench_compare  :: Do "extrinsic" comparison of 2 sets of runs.
-  - bench_batch    :: Submit a batch of N (10) runs [to be used if scheduler fails].
 
-  - glossary       :: Query a glossary of MCCE parameters.
-                      - Search is case-sensitive!
-                      - To query for a specific step, the query should be 'StepN', e.g. Step0.
-  - ms_protonation :: Obtain Protonation Microstates Analysis with Weighted Correlation
-                      The requied input is a parameter file of which two examples can be found
-                      in MCCE4-Alpha/runprms: 'params.crgms' and 'minimal_no_bounds.crgms'.
+- bench_compare  :: Do "extrinsic" comparison of 2 sets of runs.
 
-  - ms_top2pdbs    :: Create pdb & pqr files for the topN tautomeric protonation microstates,
-                      along with a summary file & a listing of the N charge vectors.
-                      Defaults:
-                      pH=7.0; n_top=5; min_occ=0.0; residue_kinds=ionizable res; --overwrite=False.
-                      Examples:
-                       > ms_top2pdbs         # use all defaults
-                       > ms_top2pdbs -eh 30  # Eh titration at ph7
-                      Passing residues kinds: comma-separated; order & case insensitive:
-                       > ms_top2pdbs -residue_kinds _CL,his,GLU
+- bench_batch    :: Submit a batch of N (10) runs [to be used if scheduler fails].
 
-  - precheck       :: Simple check pdb information.
+- glossary       :: Query a glossary of MCCE parameters.
+                    - Search is case-sensitive!
+                    - To query for a specific step, the query should be 'StepN', e.g. Step0.
 
-  - protinfo       :: Parse pdb structure, run step1.py and parse log to create report.
+- ms_hbnets1_mspdbs :: Generate a random sample of MCCE microstates in pdb format.
+                       Minimal usage: ms_hbnets1_mspdbs
+
+- ms_hbnets2_hah    :: Compute all possible hbonds over a collection directory of step2_out formatted pdbs
+                       using the MCCE_bin.detect_hbonds.detect_hbonds function.
+                       Each pdb will have its own associated txt file containing their hbond donors,
+                       acceptors, distances and angles.
+
+- ms_hbnets3_net    :: list_hbond_networks
+
+- ms_hbnets4_stats  :: Analyze network similarites/statistics across a collection directory of microstate
+                       associated network files.
+
+- ms_protonation :: Obtain Protonation Microstates Analysis with Weighted Correlation
+                    The requied input is a parameter file of which two examples can be found
+                    in MCCE4-Alpha/runprms: 'params.crgms' and 'minimal_no_bounds.crgms'.
+
+- ms_sample2pdbs    :: Generate a random sample of MCCE microstates in mcce pdb format.
+                     Minimal usage: ms_sample_to_pdbs
+
+- ms_top2pdbs    :: Create pdb & pqr files for the topN tautomeric protonation microstates,
+                    along with a summary file & a listing of the N charge vectors.
+                    Defaults:
+                    pH=7.0; n_top=5; min_occ=0.0; residue_kinds=ionizable res; --overwrite=False.
+                    Examples:
+                     > ms_top2pdbs         # use all defaults
+                     > ms_top2pdbs -eh 30  # Eh titration at ph7
+                    Passing residues kinds: comma-separated; order & case insensitive:
+                     > ms_top2pdbs -residue_kinds _CL,his,GLU
+
+- postrun           :: Flags problem residues: non-canonical charge, high chi^2 or no fit.
+
+- precheck       :: Simple check pdb information.
+
+- protinfo       :: Parse pdb structure, run step1.py and parse log to create report.
 
 
   Tools help:  For information and usage on each tool, run:
 
-    <tool name> --help OR <bash script name> -h
+    <tool name> --help
 
   Tools documentation (WIP):  
-    https://github.com/GunnerLab/MCCE4/blob/main/doc/UserManual.md
+    https://github.com/GunnerLab/MCCE4-Alpha/blob/main/doc/UserManual.md
 
-  Problems? Bugs? Report new issues:  https://github.com/GunnerLab/MCCE4/issues
+  Problems? Bugs? Report new issues:  https://github.com/GunnerLab/MCCE4-Alpha/issues
