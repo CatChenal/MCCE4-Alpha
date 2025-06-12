@@ -35,7 +35,7 @@ cd your_MCCE4_path
 make clean
 make
 ```
-**Please Note: To install the NGPB container you must have sudo access ~15min.** 
+**Note: To install the NGPB container you must have sudo access ~15min.** 
 
 
 ### Test Installation
