@@ -2,15 +2,15 @@
 # names. The purpose is to unify residue names to 3-char mcce names
 # and break some big cofactors into small ones.
 #
-# Each line has two fields separated by at leas exactly two spaces. Each field
+# Each line has two fields separated by at least two spaces. Each field
 # is 14 characters long, matching the atom, residue name, chainID and
 # sequence number field of a pdb line. The first string will be
 # replaced by the second string.
 #
-# Symbol "*" in the first string is a wildcard that matchs any character.
+# Symbol "*" in the first string is a wildcard that matches any character.
 # It means "do not replace" in the second string.
 #
-# The replace is accumulative in the order of appearing in this file.
+# The replacement is accumulative in the order of appearance in this file.
 #
 ####_###_#_###  ####_###_#_###
 ***** ********  *****_********
@@ -61,7 +61,6 @@ HAD**HEC******  *****PDD******
 HBD**HEC******  *****PDD******
 *H1D*HEC******  *****PDD******
 *H2D*HEC******  *****PDD******
-
 
 *C11*HEM******  *****FAR******      extract FAR from heme
 *C12*HEM******  *****FAR******
@@ -254,7 +253,6 @@ HBD**HEC******  *****PDD******
 *C19 F6C******  *C19 CT4******
 *C20 F6C******  *C20 CT4******
 
-
 *C1A DGD******  *C1A DGA******      create DGD subheads, DGA and DGB head - added by Gehan (11/17/22)
 *C2A DGD******  *C2A DGA******
 *O1A DGD******  *O1A DGA******
@@ -289,7 +287,6 @@ HBD**HEC******  *****PDD******
 *O6E DGD******  *O6E DGB******
 *C6E DGD******  *C6E DGB******
 *O5E DGD******  *O5E DGB******
-
 
 *C3A DGD******  *C3A dgd******      create DGD tail - added by Gehan (07/28/22)
 *C4A DGD******  *C4A dgd******
@@ -400,7 +397,6 @@ HBD**HEC******  *****PDD******
 *C37 LHG******  *C37 lhg*******
 *C38 LHG******  *C38 lhg*******
 
-
 *C9  SQD******  *C9  sqd*******     create SQD tail - added by Gehan (09/19/22)
 *C10 SQD******  *C10 sqd*******
 *C11 SQD******  *C11 sqd*******
@@ -441,7 +437,6 @@ SE  *MSE******   SD *MET******
 *****HIE******  *****HIS******
 *****HID******  *****HIS******
 
-
 *NA  CCC******  *N1A CCC******      rename CCC-Chl a vs d vs f atoms  - added by Gehan
 *NB  CCC******  *N1B CCC******
 *NC  CCC******  *N1C CCC******
@@ -466,7 +461,6 @@ SE  *MSE******   SD *MET******
 *C18 CCC******  *C18 CT4******
 *C19 CCC******  *C19 CT4******
 *C20 CCC******  *C20 CT4******
-
 
 *NA  HOC******  *N1A HOC******      rename HOC-Chl a vs b atoms  - added by Gehan
 *NB  HOC******  *N1B HOC******
