@@ -41,6 +41,8 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import re
+from collections import defaultdict, Counter
 from mccesteps import export_runprm
 from mccesteps import record_runprm
 from mccesteps import detect_runprm
@@ -171,7 +173,7 @@ def fix_format(fname):
     new_pdblines += ntr_atoms
     new_pdblines += mid_atoms
     new_pdblines += ctr_atoms
-
+    
     return new_pdblines
 
 
@@ -295,6 +297,85 @@ def write_runprm(args):
 
     return
 
+def insert_termini_warning(text: str) -> str:
+    """Insert a warning when multiple termini were labelled, which
+    happens when a chain has breaks and termini labelling is turned on.
+    The warning directs the user to turn off labelling by setting parameter
+    'TERMINALS' to 'f'.
+    """
+    pattern = re.compile(r"(   Identify NTR and CTR\.\.\..*?Done)", re.DOTALL)
+    match = pattern.search(text)
+    try:
+        block = match.group(1).splitlines()[1:-1]
+    except AttributeError:
+        return text
+    # number of labelled ter should be 2 per 
+    ch  = len(set([line[20] for line in block]))
+    if len(block) > ch * 2:
+        warning = ("      Multiple NTR/CTR residues indicate breaks in the chain(s). "
+                   "Turn off labelling of termini by setting parameter 'TERMINALS' to 'f'.\n"
+                   )
+        insertion_point = match.end(1) - 7  # 7 == len("   Done")
+        return text[:insertion_point] + warning + text[insertion_point:]
+    
+    return text
+
+
+def filter_and_condense_missing_atoms(log_text):
+    # This function takes all the "Missing Heavy Atom" messages
+    # generated in the C code, removes the messages associated 
+    # with NTR or CTR. If multiple atoms are removed from a 
+    # conformer, they are reformatted to be on one line.
+
+    # Collect cleaned entries
+    cleaned_lines = []
+    missing_atoms = defaultdict(list)
+
+    # Pattern to match all "Missing heavy atom ..." lines
+    pattern = re.compile(
+        r'(Missing heavy atom\s+(\S+)\s+of conf\s+(\S+)\s+in "([^"]+)")'
+    )
+
+    # Store lines to remove
+    lines_to_remove = set()
+
+    for match in pattern.finditer(log_text):
+        full_line, atom, conf, residue = match.groups()
+
+        # Flag line for removal
+        lines_to_remove.add(full_line)
+
+        # Skip unwanted conformers
+        if 'NTR' in conf or 'CTR' in conf or conf.endswith('BK'):
+            continue
+
+        key = (conf, residue)
+        missing_atoms[key].append(atom)
+
+    # Generate new condensed lines
+    for (conf, residue), atoms in missing_atoms.items():
+        atoms_str = ", ".join(atoms)
+        cleaned_lines.append(
+                f"   Missing heavy atoms for {conf} in \"{residue}\":  {atoms_str}."
+        )
+
+    # Replace old section in original text
+    new_lines = []
+    for line in log_text.splitlines():
+        if not any(line.strip().startswith(to_remove) for to_remove in lines_to_remove):
+            new_lines.append(line)
+    new_log_text = "\n".join(new_lines)
+
+    # Insert condensed lines before final "Missing heavy atoms detected" message
+    insert_point = new_log_text.find("Missing heavy atoms detected.")
+    if insert_point != -1:
+        before = new_log_text[:insert_point].rstrip()
+        after = new_log_text[insert_point:]
+        final_text = before + "\n" + "\n".join(cleaned_lines) +"\n\n   " + after
+    else:
+        final_text = new_log_text + "\n" + "\n".join(cleaned_lines)
+
+    return final_text
 
 if __name__ == "__main__":
 
@@ -359,8 +440,16 @@ if __name__ == "__main__":
             fo.writelines(new_pdblines)
 
         process = subprocess.Popen([args.e], close_fds=True, stdout=subprocess.PIPE)
+        process_str = ""
         for line in process.stdout:
-            print(line.decode(), end="")
+            # print(line.decode(), end="") # unformatted "Missing heavy atom" code
+            process_str += line.decode()
+
+        # inserts termini warning if mult NTR in a chain
+        process_str = insert_termini_warning(process_str)
+        # re-formats Missing heavy atom output
+        processed_str = filter_and_condense_missing_atoms(process_str)
+        print(processed_str)
 
         if not Path("step1_out.pdb").exists():
             sys.exit("[Step1.py Error]: Output not found: step1_out.pdb.")
@@ -369,6 +458,6 @@ if __name__ == "__main__":
         lines = open("step1_out.pdb").readlines()
         newlines = label_het(lines)
         open("step1_out.pdb", "w").writelines(newlines)
-        
+
     if detected:
         restore_runprm()

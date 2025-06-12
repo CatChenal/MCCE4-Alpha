@@ -473,8 +473,8 @@ class PBS_NGPB:
         self.cx_foc = 0
         self.cy_foc = 0
         self.cz_foc = 0
-        self.n_grig = 50
-        self.perfil1 = 0.99
+        self.n_grid = 50
+        self.perfil1 = 0.98
         self.perfil2 = 0.95
         self.bc_type = 2
         self.epsilon_prot = 4.0  
@@ -507,7 +507,7 @@ class PBS_NGPB:
             fh.write("cx_foc=%.2f\n" % center[0])
             fh.write("cy_foc=%.2f\n" % center[1])
             fh.write("cz_foc=%.2f\n" % center[2])
-            fh.write("n_grig=%.2f\n" % number_grid)
+            fh.write("n_grid=%.2f\n" % number_grid)
             fh.write("outlevel=%d\n" % self.outlevel)
             fh.write("[../]\n")
 

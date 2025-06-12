@@ -686,7 +686,7 @@ class ENV:
                     if key_str[0] == "(" and key_str[-1] == ")":
                         key = key_str.strip("()").strip()
                         value = fields[0]
-                        self.runprm[key] = value
+                    self.runprm[key] = value
         else:  # assign key runprm with default values
             dist_folder = os.path.dirname(os.path.dirname(__file__))
             self.runprm["MCCE_HOME"] = dist_folder
@@ -958,6 +958,7 @@ def vdw_atom(atom1, atom2):
        atom1.xyz[1] - atom2.xyz[1] < VDW_CUTOFF_FAR and \
        atom1.xyz[2] - atom2.xyz[2] < VDW_CUTOFF_FAR:
         d2 = ddvv(atom1.xyz, atom2.xyz)
+        r = math.sqrt(d2)
 
         if atom1 != atom2 and atom2 not in atom1.connect12 and atom2 not in atom1.connect13:
             if d2 > VDW_CUTOFF_FAR2:
@@ -974,14 +975,25 @@ def vdw_atom(atom1, atom2):
                 else:
                     scale = 1.0
 
-                sig_min = r1 + r2
+                r0 = r1 + r2
                 eps = math.sqrt(e1 * e2)
 
-                sig_d2 = sig_min * sig_min / d2
+                sig_d2 = r0 * r0 / d2
                 sig_d6 = sig_d2 * sig_d2 * sig_d2
                 sig_d12 = sig_d6 * sig_d6
+                p = 6
 
-                p_lj = scale * (eps * sig_d12 - 2. * eps * sig_d6)
+                if r < r0:
+                   p_lj = scale * ( (eps * (np.log(r0 / r) * (sig_d2)**(p/2))) - eps) 
+                elif r >= r0:
+                   p_lj = scale * eps * (sig_d12 - 2.0 * sig_d6)
+
+                #p_lj = (
+                #       vdw_lj(d2, eps=eps, r0=r0_min, scale=scale) * (1 - np.heaviside(r - r0_min, 1)) +
+                #       (-eps) * (np.heaviside(r - r0_min, 1) - np.heaviside(r - r0_max, 1)) +
+                #       vdw_lj(d2, eps=eps, r0=r0_max, scale=scale) * np.heaviside(r - r0_max, 1)
+                #)
+
                 # #print("===%s===%s===" % (atom1.atomID, atom2.atomID))
                 # if (atom1.atomID == " HB2ASP0018A001" and atom2.atomID == " OD2ASP0018A001") or \
                 #    (atom1.atomID == " HB2ASP0018A003" and atom2.atomID == " OD2ASP0018A003"):

@@ -4,10 +4,7 @@
 # bug, single atom residue doesn't have CONNECT in mcce tpl, but should have a CONNECT record in free tpl
 
 import sys
-import logging
-
-logging.basicConfig(level=logging.INFO, format='%(levelname)-s: %(message)s')
-
+import argparse
 
 class Paramfile:
     def __init__(self, fname):
@@ -49,14 +46,15 @@ class Paramfile:
         for k in self.mccedb.keys():
             if k[0] == "CONFLIST":
                 conformers += self.mccedb[k].split()
-        logging.debug("# Detected these conformers: [%s]" % ', '.join(map(str, conformers)))
+        print("Detected these conformers: [%s]" % ', '.join(map(str, conformers)))
 
         # check consistency between ATOMNAME and IATOM
         for conf in conformers:
             if self.atom_consistency(conf):  # pased
-                logging.debug("# Consistency test passed for ATOM records of conformer %s." % conf)
+                print("Consistency test passed for ATOM records of conformer %s." % conf)
             else:
-                logging.debug("# There are discrepancies in ATOM records of conformer %s shown above." % conf)
+                print("There are discrepancies in ATOM records of conformer %s shown above." % conf)
+                sys.exit(1)
 
         # Make conflist
         # Include old comment lines
@@ -137,13 +135,17 @@ class Paramfile:
                     key = ("ATOMNAME", conf, "%4d" % i)
                     atomname = "{:<4}".format(self.mccedb[key][:4])
                 except:
-                    logging.debug("# Error in fetching number %d atom. Check ATOMNAME record of conformer %s" % (i, conf))
+                    qkey = "ATOMNAME %4s %4d" % (conf,  i)
+                    print("Quering \"%s\" as the key but didn't find a match in tpl file, likely a spacing error in the tpl line." % (qkey))
+                    passed = False
                     return passed
                 try:
                     key = ("IATOM", conf, atomname)
                     iatom = int(self.mccedb[key].strip())
                 except:
-                    logging.debug("# Error in finding index for atom \"%s\" of conformer %s" % (atomname, conf))
+                    qkey = "IATOM    %5s %4s" % (conf,  atomname)
+                    print("Quering \"%s\" as the key but didn't fine a match in tpl file, likely a spacing error in the tpl file line." % (qkey))
+                    passed = False
                     return passed
                 if iatom == i:
                     passed = True
@@ -275,6 +277,11 @@ class Paramfile:
 
 
 if __name__ == "__main__":
-    filename = sys.argv[1]
+    helpmsg = "Convert mcce tpl file to free format ftpl file."
+    parser = argparse.ArgumentParser(description=helpmsg)
+    parser.add_argument("tpl", metavar="input.tpl", type=str, nargs=1, help="Input mcce tpl file.")
+    args = parser.parse_args()
+
+    filename = args.tpl[0]
     file_param = Paramfile(filename)
     sys.stdout.writelines(file_param.tplout)

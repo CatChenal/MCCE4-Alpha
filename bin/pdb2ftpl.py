@@ -92,14 +92,17 @@ class Atom():
 
 class Pdb2ftpl:
     def __init__(self, arguments):
-        if len(arguments.c) != 2:
-            print("The conformer type ID has to be 2 characters, such as 01, 02, -1, +1, DM")
-            return
-        else:
-            self.confid = arguments.c
+        all_2char = True
+        for c in arguments.c:
+            if len(c) != 2:
+                print("The conformer type ID has to be 2 characters, such as 01, 02, -1, +1, DM")
+                all_2char = False
+                sys.exit()
+        if all_2char:
+            self.confids = arguments.c
 
         self.resname = []
-        self.atoms = self.file2atoms(arguments.pdbfile[0])
+        self.atoms = self.file2atoms(arguments.p[0])
         if len(self.resname) != 1:
             print("%d residue names detected. The input pdb file can only have one residue." % len(self.resname))
             sys.exit()
@@ -107,7 +110,7 @@ class Pdb2ftpl:
         if arguments.d:
             records = self.records_from_distance()
         else:
-            records = self.records_from_file(arguments.pdbfile[0])
+            records = self.records_from_file(arguments.p[0])
         if not records:
             records = self.records_from_distance()
 
@@ -210,50 +213,71 @@ class Pdb2ftpl:
 
     def print_conflist(self):
         print("# Conformer definition")
-        if self.confid == "BK":
-            print("CONFLIST, %s: %s%s" % (self.resname[0], self.resname[0], self.confid))
-        else:
-            print("CONFLIST, %s: %sBK, %s%s" % (self.resname[0], self.resname[0], self.resname[0], self.confid))
+        if len(self.confids) == 1 and self.confids[0]== "BK":  # Only BK is specified
+            print("CONFLIST, %s: %s%s" % (self.resname[0], self.resname[0], self.confids[0]))
+        else: # Multiple conformers and BK should be added
+            conftypes = ", ".join([ "%s%s"%(self.resname[0], x) for x in self.confids])
+            print("CONFLIST, %s: %sBK, %s" % (self.resname[0], self.resname[0], conftypes))
 
     def print_connect(self):
         print("# ATOM name and bonds")
-        for atom in self.atoms:
-            connected_atoms = ",".join(["\"%s\"" % x.name for x in atom.connect])
-            print("CONNECT, \"%s\", %s%s: %4s, %s" % (atom.name, self.resname[0], self.confid, atom.orbital, connected_atoms))
+        for confid in self.confids:
+            if confid[-2:] == "DM":
+                continue  # no need to print DM
+            for atom in self.atoms:
+                connected_atoms = ",".join(["\"%s\"" % x.name for x in atom.connect])
+                print("CONNECT, \"%s\", %s%s: %4s, %s" % (atom.name, self.resname[0], confid, atom.orbital, connected_atoms))
+            print()
 
     def print_charge(self):
         print("# ATOM charges")
-        for atom in self.atoms:
-            print("CHARGE, %s%s, \"%s\": to_be_filled" % (self.resname[0], self.confid, atom.name))
+        for confid in self.confids:
+            if confid[-2:] == "DM":
+                continue  # no need to print DM
+            for atom in self.atoms:
+                print("CHARGE, %s%s, \"%s\": to_be_filled" % (self.resname[0], confid, atom.name))
+            print()            
 
     def print_radius(self):
         print("# Atom radius, dielectric boundary radius, VDW radius, and energy well depth")
-        for atom in self.atoms:
-            if atom.element in elebd_radius:
-                rbd = elebd_radius[atom.element]
-            else:
-                rbd = elebd_radius[" X"]
+        for confid in self.confids:
+            if confid[-2:] == "DM":
+                continue  # no need to print DM
 
-            if atom.element in vdw_parm:
-                rvdw, well = vdw_parm[atom.element]
-            else:
-                rvdw, well = vdw_parm[" X"]
+            for atom in self.atoms:
+                if atom.element in elebd_radius:
+                    rbd = elebd_radius[atom.element]
+                else:
+                    rbd = elebd_radius[" X"]
 
-            print("RADIUS, %s%s, \"%s\": %6.3f, %6.3f, %6.3f" % (self.resname[0], self.confid, atom.name, rbd, rvdw, well))
+                if atom.element in vdw_parm:
+                    rvdw, well = vdw_parm[atom.element]
+                else:
+                    rvdw, well = vdw_parm[" X"]
+
+                print("RADIUS, %s%s, \"%s\": %6.3f, %6.3f, %6.3f" % (self.resname[0], confid, atom.name, rbd, rvdw, well))
+            print()
 
     def print_conformer(self):
         print("# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn")
-        print("CONFORMER, %s%s:  Em0=0.0, pKa0=0.00, ne=0, nH=0, rxn02= 0, rxn04= 0, rxn08= 0" % (self.resname[0], self.confid))
+        for confid in self.confids:
+            if confid[-2:] == "DM" or confid == "BK":
+                continue  # no need to print DM or BK
+            print("CONFORMER, %s%s:  Em0=0.0, pKa0=0.00, ne=0, nH=0, rxn02= 0, rxn04= 0, rxn08= 0" % (self.resname[0], confid))
 
 
 if __name__ == "__main__":
     # Get the command arguments
     helpmsg = "Create a ftpl template file from a cofactor PDB file. The atoms in the input files are considered as one molecule."
     parser = argparse.ArgumentParser(description=helpmsg)
-    parser.add_argument("-d", default=False, help="Ignore CONNECT, use distance to determine bond", action="store_true")
-    parser.add_argument("-c", metavar="conformer type", default="01", help="Specify a 2-character conformer type ID, default 01")
-    parser.add_argument("pdbfile", metavar="pdbfile", nargs=1)
+    parser.add_argument("-p", metavar="pdbfile", nargs=1)
+    parser.add_argument("-d", default=False, help="Ignore CONNECT, use distance to determine CONNECT", action="store_true")
+    parser.add_argument("-c", metavar="conftype", nargs="+", default=["01"], help="Specify one or more 2-character conformer type IDs, default is 01, a dummy BK is automatically created unless BK is explicitly specified.")
     args = parser.parse_args()
+
+    if not args.p:
+        print("Please specify the input PDB file or use -h for command help.")
+        sys.exit()
 
     ftpl = Pdb2ftpl(args)
     ftpl.print_conflist()
