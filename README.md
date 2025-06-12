@@ -93,21 +93,6 @@ Zap is run at MCCE4 step3. We highly recommend setting the salt concentration to
 step3.py -s zap -salt 0.05
 ```
 
-
-## Transition stage
-Transition stage is when c code version mcce coexists with python mcce4. In this transition statge, you will need to compile the program:
-
-```
-cd your_MCCE4_path
-make clean
-make all
-```
-**Note to install the NGPB container you must have sudo access ~15min.**
-
-Make sure to add both paths, bin and MCCE_bin, to you environment variable PATH. If a program are in both bin folders, bin/ has higher priority. Once we fully tested the newer version, the old one will be removed. 
-```
-export PATH=your_MCCE4_path/bin:your_MCCE4_path/MCCE_bin:$PATH
-```
 ## Running Batches of Proteins
 
 Sometimes it is convenient to run multiple proteins at time. Try using p_batch, located in the MCCE_bin.
