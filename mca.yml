@@ -13,7 +13,6 @@ dependencies:
   - pip
 
   - networkx
-  - pygraphviz
   - scipy
   - setuptools>=64
   - pip:
