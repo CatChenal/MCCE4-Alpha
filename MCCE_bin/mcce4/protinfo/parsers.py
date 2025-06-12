@@ -9,15 +9,20 @@ For this app purpose, only the output from step1 is considered, which
 is handled by the class RunLog1.
 """
 
+from argparse import Namespace
 from collections import defaultdict
 from dataclasses import dataclass
 import logging
 from pathlib import Path
+from pprint import pformat
 from time import sleep
-from typing import Union
+from typing import Tuple, Union
+
 import pandas as pd
+
 from mcce4 import pdbio
-from mcce4.protinfo import RUN1_LOG
+from mcce4.protinfo import MCCE4,RPT, RUN1_LOG, USER_MCCE
+from mcce4.protinfo import run
 from mcce4.protinfo.io_utils import ENV, get_path_keys, retry
 
 
@@ -35,8 +40,8 @@ Alternatively, change the water SAS cutoff to a non-zero, positive number using 
 
 # kept from when biopython was used to output buried res;
 # may be useful if/when acc.files are parsed.
-BURIED_THRESH = 0.05  # mcce default; res with sasa < this are buried.
-BURIED_THR_MSG = f"(using default mcce SASA threshold of {BURIED_THRESH:.0%}):\n"
+#BURIED_THRESH = 0.05  # mcce default; res with sasa < this are buried.
+#BURIED_THR_MSG = f"(using default mcce SASA threshold of {BURIED_THRESH:.0%}):\n"
 # This ref: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7817970/
 # has benchmarked a SASA threshold of 20%.
 
@@ -45,8 +50,8 @@ BURIED_THR_MSG = f"(using default mcce SASA threshold of {BURIED_THRESH:.0%}):\n
 def info_input_prot(pdb: Path) -> dict:
     """Return information about 'pdb' from mcce4.pdbio."""
     structure = pdbio.Structure()
-    # load with MCCE4 name.txt
-    name_rules = Path(__file__).parent.parent.parent.parent.joinpath("name.txt")
+    # load with MCCE4 renaming rules file
+    name_rules = MCCE4.joinpath("name.txt")
     structure.load_pdb(pdb, str(name_rules))
 
     info_d = structure.get_prerun_dict()
@@ -105,22 +110,21 @@ def extract_content_between_tags(
 
 
 @dataclass
-class LogHdr:
+class LogSection:
     """Dataclass to store information and line transformations for
-    each 'processing block' returned in run1.log after step1 has run.
-    Each processing block starts with a header line (hdr) and ends
+    each 'processing section' returned in run1.log after step1 has run.
+    Each processing section starts with a header line (hdr) and ends
     with a common '   Done' line.
 
     Attributes:
-        idx (int, start=1): Index of the block in order of appearance
-        hdr (str): header line
-        rpt_hdr (str): Corresponding header in the report
-        line_start (Union[None, str]): Remove the substring
-          from the start of the line
-        skip_lines (Union[None, list, tuple]): List of lines to skip
-          OR skip a line if substr in line when skip_lines is a tuple.
-        debuglog (bool): Whether a line in the given block mentions
-          'debug.log'; the debug.log file will then be parsed.
+      idx (int, start=1): Index of the section in order of appearance
+      hdr (str): header line
+      rpt_hdr (str): Corresponding header in the report
+      line_start (Union[None, str]): Remove the substring from the start of the line
+      skip_lines (Union[None, list, tuple]): If list: lines to skip; if tuple:
+                                             skip a line if substr in line.
+      debuglog (bool): True if a line in the given section mentions 'debug.log',
+                       the debug.log file will then be parsed.
     """
     idx: int
     hdr: str
@@ -147,7 +151,7 @@ class LogHdr:
 
 
 def get_log1_specs(pdb: Path) -> dict:
-    """Return a dict of LogHdr classes for processing step1 sections in run1.log.
+    """Return a dict of LogSection classes for processing step1 sections in run1.log.
     """
     # list of run1.log headers returned by mcce step1:
     runlog1_headers = [
@@ -166,21 +170,21 @@ def get_log1_specs(pdb: Path) -> dict:
     all = defaultdict(dict)
     for i, hdr in enumerate(runlog1_headers, start=1):
         if i == 1:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Renamed",
                 line_start="   Renaming ",
             )
         elif i == 2:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Termini",
                 line_start="      Labeling ",
             )
         elif i == 3:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Labeling",
@@ -196,13 +200,13 @@ def get_log1_specs(pdb: Path) -> dict:
             )
         elif i == 4:
             # keep as is until error found
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Load Structure",
             )
         elif i == 5:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Free Cofactors",
@@ -213,7 +217,7 @@ def get_log1_specs(pdb: Path) -> dict:
                 get_key="H2O_SASCUTOFF",
             )
         elif i == 6:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Missing Heavy Atoms",
@@ -221,18 +225,18 @@ def get_log1_specs(pdb: Path) -> dict:
                 skip_lines=["   Missing heavy atoms detected."],
             )
         elif i == 7:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i, hdr, rpt_hdr="Distance Clashes", get_key="CLASH_DISTANCE"
             )
         elif i == 8:
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Connectivity",
             )
         else:
             # unknown
-            all[i] = LogHdr(
+            all[i] = LogSection(
                 i,
                 hdr,
                 rpt_hdr="Other",
@@ -241,12 +245,12 @@ def get_log1_specs(pdb: Path) -> dict:
     return dict(all)
 
 
-class RunLog1:
+class RunLog1Parser:
     """A class to parse mcce run1.log into sections pertaining to step1, and
     process each one of them into a simplified output.
     """
     def __init__(self, pdb: Path) -> None:
-        self.pdb = pdb  #.resolve() :: not with symlink
+        self.pdb = pdb
         self.pdbid = self.pdb.stem
         self.s1_dir = self.pdb.parent
         # id of block with debug.log mentions, if any:
@@ -257,7 +261,7 @@ class RunLog1:
         self.dry_opt = None  # float(self.runprm["H2O_SASCUTOFF"]) == -0.01
 
     def get_runprm(self) -> dict:
-        env = ENV(self.s1_dir) #.joinpath("prerun")
+        env = ENV(self.s1_dir)
 
         return env.runprm
 
@@ -287,6 +291,11 @@ class RunLog1:
         Note:
         Parsing of get_connect12 warnings is likely not exhaustive;
         Are all going to debug.log?
+        Also found in triplicate:
+        '''
+            Error! get_connect12(): connectivity of atom " CA  ASPBK A0513" is not complete
+                   get_connect12(): atom  CB  in the same residue is not found
+        '''
         """
         dbgl_props_vdw = []
         dbgl_props_tor = []
@@ -300,6 +309,9 @@ class RunLog1:
             if line.endswith("not put in the connectivity list "):
                 # only pertains to free cofactors? skip
                 continue
+            if line.startswith(("    Error! get_connect12(): conn",
+                                "           get_connect12(): atom")):
+                continue
 
             if not line.startswith("   Warning"):
                 if line.startswith("TORSION"):
@@ -307,9 +319,13 @@ class RunLog1:
                 else:
                     dbgl_props_vdw.append(line.split())
             else:
-                dbgl_empty_conect.append(
-                    line.removeprefix(empty_slot).strip().split(" in residue ")
-                )
+                if line.startswith(empty_slot):
+                    dbgl_empty_conect.append(
+                        line.removeprefix(empty_slot).strip().split(" in residue ")
+                    )
+                else:
+                    # TODO: handle "Error! get_connect12()..."
+                    continue
 
         # populate output list:  # TODO? output dicts
         if dbgl_props_vdw:
@@ -333,24 +349,24 @@ class RunLog1:
 
         return out
 
-    def process_content_block(self, content: list, loghdr: LogHdr) -> list:
+    def process_content_block(self, content: list, log_section: LogSection) -> list:
         out = []
-        skip = loghdr.skip_lines is not None
-        change = loghdr.line_start is not None
+        skip = log_section.skip_lines is not None
+        change = log_section.line_start is not None
         newtpl = None
         tpl_mismatch = None
         tpl_mismatch_atoms = None
         tpl_err = "   Error! The following atoms of residue "
         
         # section that lists new.tpl creation:
-        if loghdr.idx == 3:
+        if log_section.idx == 3:
             newtpl = ""
 
         for line in content:
             if not line:
                 continue
 
-            if loghdr.idx == 3:
+            if log_section.idx == 3:
                 if line.startswith("   Error! premcce_confname()"):
                     # add conf name & link:
                     conf = line.rsplit(maxsplit=1)[1]
@@ -383,10 +399,10 @@ class RunLog1:
                 else:
                     continue
 
-            if loghdr.idx == 5:
+            if log_section.idx == 5:
                 # flag if 'debug.log' found in line:
-                if not loghdr.debuglog: 
-                    loghdr.has_debuglog(line)
+                if not log_section.debuglog: 
+                    log_section.has_debuglog(line)
 
                 if line.startswith("   Total deleted cofactors"):
                     if int(line.rsplit(maxsplit=1)[1][:-1]) != 0:
@@ -395,29 +411,29 @@ class RunLog1:
                         continue
 
             if skip:
-                if isinstance(loghdr.skip_lines, tuple):
+                if isinstance(log_section.skip_lines, tuple):
                     found = False
-                    for t in loghdr.skip_lines:
+                    for t in log_section.skip_lines:
                         found = found or (t in line)
                     if found:
                         continue
                 else:
-                    if line in loghdr.skip_lines:
+                    if line in log_section.skip_lines:
                         continue
 
             if change:
                 # remove common start:
-                if line.startswith(loghdr.line_start):
-                    line = line.removeprefix(loghdr.line_start)
+                if line.startswith(log_section.line_start):
+                    line = line.removeprefix(log_section.line_start)
 
             out.append(line)
 
-        if loghdr.idx == 5:
+        if log_section.idx == 5:
             if self.dry_opt:
                 out.insert(0, MSG_KEEP_H2O)
 
         # check if new tpl confs:
-        if loghdr.idx == 3:
+        if log_section.idx == 3:
             if newtpl:
                 out.append("Generic topology file created for")
                 out.append(newtpl)
@@ -473,8 +489,12 @@ class RunLog1:
             if block_txt[b2_hdr]:
                 termi = defaultdict(list)
                 for line in block_txt[b2_hdr]:
-                    i = line.index('"', 3) + 1
-                    termi[line[-3:]].append(line[:i])
+                    try:
+                        i = line.index('"', 3) + 1
+                        termi[line[-3:]].append(line[:i])
+                    except ValueError:
+                        continue
+
                 block_txt[b2_hdr] = []
                 for k in termi:
                     block_txt[b2_hdr].append((k, termi[k]))
@@ -529,8 +549,7 @@ def filter_heavy_atm_section(pdb: Path, s1_info_d: dict) -> dict:
 
 
 def info_s1_log(pdb: Path) -> dict:
-    dout = {}
-    s1log = RunLog1(pdb)
+    s1log = RunLog1Parser(pdb)
     s1log.runprm = s1log.get_runprm()
     s1log.dry_opt = float(s1log.runprm["H2O_SASCUTOFF"]) == -0.01
 
@@ -538,7 +557,210 @@ def info_s1_log(pdb: Path) -> dict:
     s1log.get_blocks(s1_text)
 
     # set the section data with dict & cleanup heavy atoms section:
+    dout = {}
     dout = {"MCCE.Step1": s1log.txt_blocks}
     dout = filter_heavy_atm_section(pdb, dout)
 
     return dout
+
+
+
+def hetero_count_per_chain(atomlines: list) -> Union[dict, None]:
+    """Given a list of pdb coordinates lines, parse the hetero atoms to
+    return a dictionary holding the count of free cofactors and waters,
+    per chain (key).
+    """
+    # get unique hetero species per chain:
+    hetero_set = defaultdict(set)
+    for line in atomlines:
+        if not line.startswith("HETATM"):
+            continue
+        # name = line[17:20]; chn = line[21]; seq = int(line[22:26])
+        hetero_set[line[21]].add((line[17:20], int(line[22:26])))
+    if not hetero_set:
+        return None
+    # get species count per chain:
+    tots_per_chain = defaultdict(dict)
+    for c in hetero_set:
+        cntr = defaultdict(int)
+        for val in hetero_set[c]:
+            cntr[val[0]] += 1
+        tots_per_chain[c]=  dict(cntr)
+        
+    return dict(tots_per_chain)
+
+
+def get_cofactors_change(pdb_heteros: dict, step1_heteros: dict) -> list:
+    """Return a list of changes in cofactors counts between the starting structure
+    dictionary entry key prot_d["PDB.Structure"]["Model 1 Free Cofactors & Waters"] passed in pdb_heteros
+    and step1_d["MCCE.Step1"]["Free Cofactors"] passed in step1_heteros.
+    """
+    # check what was removed:
+    diff = []
+    for chn in pdb_heteros:
+        for k in pdb_heteros[chn]:
+            if step1_heteros.get(chn) is None:
+                continue
+            if step1_heteros[chn].get(k) is None:
+                diff.append(f"Removed all {pdb_heteros[chn][k]} {k} in {chn}.")
+            else:
+                # get non-zero count difference
+                k_rem = step1_heteros[chn][k]
+                d = pdb_heteros[chn][k] - k_rem
+                if d:
+                    diff.append(f"Removed {d} {k} in {chn}; {k_rem} remaining.")
+
+    return diff
+
+
+def update_s1_dict_cofactors_change(pdb: Path, prot_d: dict, step1_d: dict):
+    """Update step1_d["MCCE.Step1"]["Free Cofactors"] list with cofactor changes if any.
+    """
+    if prot_d["PDB.Structure"].get("Model 1 Free Cofactors & Waters") is None:
+        return
+
+    pdb_heteros = prot_d["PDB.Structure"]["Model 1 Free Cofactors & Waters"]
+
+    # get cofactors count from step1 pdb:
+    s1_pdb = pdb.parent.joinpath("step1_out.pdb")
+    s1_heteros = hetero_count_per_chain(s1_pdb.read_text().splitlines())
+    if s1_heteros is None:
+        return
+
+    diff = get_cofactors_change(pdb_heteros, s1_heteros)
+    if diff:
+        step1_d_heteros = []
+        idx = 0
+        # initial list
+        step1_d_heteros = step1_d["MCCE.Step1"]["Free Cofactors"].copy()
+        if step1_d_heteros[idx].startswith("Total deleted cofactors"):
+            idx = 1
+        changes = " ".join(h1 for h1 in diff)
+        if step1_d_heteros[idx] != changes:
+            step1_d_heteros.insert(idx, changes)
+            step1_d["MCCE.Step1"]["Free Cofactors"] = step1_d_heteros
+
+    return
+
+
+def collect_info(pdb: Path, args: Namespace) -> Tuple[dict, Union[dict, None]]:
+    """Return at least one dict holding info from mcce4.pdbio.
+    The second dict is None when step1 cannot be run, otherwise
+    it contains info from the parsed run1.log file.
+    Args:
+      pdb (Path): File path of validated pdb.
+      args (argparse.Namespace): Cli arguments (for creating step1 script).
+    Returns:
+      A 2-tuple of dicts when step1 can run, else (dict1, None).
+    """
+    step1_d = None
+
+    # structural info:
+    prot_d = info_input_prot(pdb)
+
+    is_multi = prot_d["PDB.Structure"].get("MultiModels") is not None
+    is_malformed = prot_d["PDB.Structure"].get("Malformed PDB") is not None
+    DO_STEP1 = USER_MCCE is not None and not is_multi and not is_malformed
+
+    if DO_STEP1:
+        result = run.do_step1(pdb, args)
+        if result is None:  # no error message
+            step1_d = info_s1_log(pdb)
+            # update cofactors section changes if any:
+            update_s1_dict_cofactors_change(pdb, prot_d, step1_d)
+        else:
+            step1_d = {"MCCE.Step1": f"Error in run script 's1.sh': {result}."}
+
+    return prot_d, step1_d
+
+
+def write_report(pdb: Path, prot_d: dict, s1_d: Union[dict, None]):
+    """Write the prerun report for pdb in its parent folder using the
+    information passed in the parsers dicts, prot_d and step1_d.
+    Args:
+      pdb (Path): the pdb filepath; expected: path of pdb in prerun folder.
+      prot_d (dict): The dictionary of sections from mcce4.pdbio.
+      s1_d ([dict, None]): The dictionary of sections from step1 log parser.
+    """
+    name = prot_d.pop("Name")
+    if s1_d is None:
+        dict_lst = [prot_d]
+    else:
+        dict_lst = [prot_d, s1_d]
+
+    # save report in the call folder (e.g. ../prerun/.)
+    rpt_fp = pdb.parent.parent.joinpath(f"{pdb.stem}_{RPT}")
+    with open(rpt_fp, "w") as rpt:
+        rpt.write(f"---\n# {name}\n")
+
+        for i, subd in enumerate(dict_lst):
+            # h2: section hdrs, PDB.Structure or MCCE.Step1
+            h2 = list(subd.keys())[0]
+            rpt.write(f"## {h2}\n")
+
+            for k in subd[h2]:
+                if not subd[h2][k]:
+                    continue
+
+                if i == 0:
+                    if isinstance(subd[h2][k], (str, int, float)):
+                        rpt.write(f"### {k}: {subd[h2][k]}\n")
+                        continue
+
+                    rpt.write(f"### {k}:\n")
+                    if isinstance(subd[h2][k], list):
+                        for val in subd[h2][k]:
+                            rpt.write(f"  - {val}\n")
+                    elif isinstance(subd[h2][k], dict):
+                        for kk, vv in subd[h2][k].items():
+                            if isinstance(vv, (dict, tuple)):
+                                out = pformat(vv, sort_dicts=True, compact=True, width=160)[1:-1]
+                                rpt.write(f"  - {kk}:\n {out}\n")
+                            else:
+                                rpt.write(f"  - {kk}: {vv}\n")
+                else:
+                    rpt.write(f"### {k}:\n")
+                    for val in subd[h2][k]:
+                        if k == "Distance Clashes":
+                            if isinstance(val, str) and val.startswith("Clashes"):
+                                rpt.write(f"<details><summary>{val}</summary>\n\n")
+                            elif isinstance(val, str) and val.endswith("end_clash"):
+                                rpt.write("\n</details>\n")
+                            else:
+                                rpt.write(f"- {val}\n")
+
+                        elif k == "Labeling":
+                            if val.startswith("Generic") or val.startswith(
+                                "Unloadable"
+                            ):
+                                rpt.write(
+                                    f"<strong><font color='red'>{val}:</font></strong>  \n"
+                                )
+                            elif val.startswith("Likely"):
+                                val = val.replace(
+                                    "Likely cause",
+                                    "<strong><font color='red'>Likely cause</font></strong>",
+                                )
+                                rpt.write(f"{val}  \n")
+                            else:
+                                rpt.write(f"{val}\n")
+                        else:
+                            if isinstance(val, tuple):
+                                ter, lst = val
+                                rpt.write(
+                                    f" - <strong>{ter}</strong>: {', '.join(lst)}\n"
+                                )
+                            elif isinstance(val, list):
+                                ter, lst = val
+                                rpt.write(
+                                    f" - <strong>{ter}</strong>: {', '.join(x for x in lst)}\n"
+                                )
+                            elif isinstance(val, dict):
+                                for kk, vv in val.items():
+                                    rpt.write(f"  - {kk}: {vv}\n")
+                            else:
+                                rpt.write(f"  - {val}\n")
+
+                rpt.write("\n")
+
+    return

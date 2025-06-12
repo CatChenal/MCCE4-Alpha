@@ -44,7 +44,8 @@ EndOfText
 
 help_msg() {
   echo "Usage:"
-  echo " $0 [-h] target_file target_type [ p | e | n ]"
+  echo " $(basename "$0") -h"
+  echo " $(basename "$0") target_file target_type [ p | e | n ]"
   echo ""
   echo "  -h              Display this help message only"
   echo "  target_file     Name of the customized resource file in the current folder"
@@ -52,8 +53,8 @@ help_msg() {
   echo "                  Used to determines the name of the linked files: 'run.prm.user', 'extra.tpl', 'name.txt'"
   echo ""
   echo "Examples:"
-  echo " $0 customized_extra.tpl e"
-  echo " $0 customized_name.txt n"
+  echo " $(basename "$0") customized_extra.tpl e"
+  echo " $(basename "$0") customized_name.txt n"
   echo ""
   echo "$desc"
   exit 0
@@ -85,7 +86,7 @@ if [[ ! " ${valid_types[@]} " =~ " $target_type " ]]; then
 fi
 
 # Check if target exists
-if [ ! -f "$target_file" ]; then
+if [[ ! -f "$target_file" ]]; then
   printf 'Error: Customized file '%s' not found in %s\n' "$target_file" "$(pwd)"
   exit 1
  fi
@@ -93,7 +94,7 @@ if [ ! -f "$target_file" ]; then
 # Check if standard bench_dir/runs dir exists:
 runs_dir="runs"
 # Check if runs directory exists
-if [ ! -d "$runs_dir" ]; then
+if [[ ! -d "$runs_dir" ]]; then
   printf 'Error: Subdirectory '%s' not found in %s\n' "$runs_dir" "$(pwd)"
   exit 1
 fi
@@ -111,13 +112,13 @@ esac
 # Loop through subdirectories in runs
 for subdir in "$runs_dir"/*; do
   # Skip non-directories
-  if [ ! -d "$subdir" ]; then
+  if [[ ! -d "$subdir" ]]; then
     continue
   fi
   # Check if file already exists:
   linked="$subdir/$link_name"
-  if [ -f $linked ]; then
-    if [ -L $linked ]; then
+  if [[ -f $linked ]]; then
+    if [[ -L $linked ]]; then
       printf 'File %s is already linked.\n' $linked
     else
       printf 'WARNING: File %s exists but is not soft-linked!\n' $linked

@@ -30,7 +30,12 @@ if __name__ == "__main__":
     runprm.warn_deprecated()            # warn deprecated entries found in loaded 
     runprm.dump("Step 1 uses the following run parameters:")  # dump the runprm to a file with a comment
   
-    
+    if cmd_options.args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+
+
     # Get tpl
     tpl = TPL()
     tpl.read_ftpl_folder(runprm.FTPL_FOLDER.value)

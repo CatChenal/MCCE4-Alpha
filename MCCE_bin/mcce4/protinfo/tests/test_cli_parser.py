@@ -9,8 +9,8 @@ class TestPiParser:
     def test_parser_initialization(self):
         parser = pi_parser()
         assert (
-            parser.prog == "ProtInfo"
-        ), "The program name should be initialized as 'ProtInfo'"
+            parser.prog == "protinfo"
+        ), "The program name should be initialized as 'protinfo'"
 
     def test_fetch_only(self):
         parser = pi_parser()

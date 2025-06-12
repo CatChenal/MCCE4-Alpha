@@ -70,7 +70,6 @@ class FILES(Enum):
     MATCHED_PKAS_TXT = "matched_pkas.txt"
     MATCHED_PKAS_STATS_PKL = "matched_pkas_stats.pickle"
     MATCHED_PKAS_STATS = "matched_pkas_stats.txt"  # saved pka_stats_dict["report"]
-    MULTICONF_RES = "multiconformer_residues.txt"
     RESIDUES_STATS = "residues_stats.txt"
     RESIDUES_STATS_PKL = "residues_stats.pickle"
     CONF_COUNTS = "conf_counts.txt"
@@ -256,21 +255,21 @@ cli_opts = Opts()
 
 # Config for root logger:
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 # console/screen handler
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-ch_formatter = logging.Formatter("%(levelname)s - %(funcName)s: %(message)s")
-ch.setFormatter(ch_formatter)
-# file handlers
-flog_format = "[%(asctime)s - %(levelname)s]: %(name)s, %(funcName)s:\n\t%(message)s"
-fh = logging.FileHandler("benchmark.log", encoding="utf-8")
-fh.setLevel(logging.INFO)
-fh_formatter = logging.Formatter(flog_format)
-fh.setFormatter(fh_formatter)
-# add to logger
-logger.addHandler(ch)
-logger.addHandler(fh)
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.INFO)
+# ch_formatter = logging.Formatter("%(levelname)s - %(funcName)s: %(message)s")
+# ch.setFormatter(ch_formatter)
+# logger.addHandler(ch)
+# # file handlers
+# flog_format = "[%(asctime)s - %(levelname)s]: %(name)s, %(funcName)s:\n\t%(message)s"
+# fh = logging.FileHandler("benchmark.log", encoding="utf-8")
+# fh.setLevel(logging.INFO)
+# fh_formatter = logging.Formatter(flog_format)
+# fh.setFormatter(fh_formatter)
+# # add to logger
+# logger.addHandler(fh)
 
 
 USER = getpass.getuser()
@@ -296,7 +295,6 @@ Default analysis output file names (fixed):
   ALL_PKAS_OOB: {FILES.ALL_PKAS_OOB.value}
   CONF_COUNTS: {FILES.CONF_COUNTS.value}
   RES_COUNTS: {FILES.RES_COUNTS.value}
-  MULTICONF_RES: {FILES.MULTICONF_RES.value}
   CONFS_PER_RES: {FILES.CONFS_PER_RES.value}
   CONFS_THRUPUT: {FILES.CONFS_THRUPUT.value}
   FIG_CONFS_TP: {FILES.FIG_CONFS_TP.value}

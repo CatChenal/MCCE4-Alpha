@@ -229,6 +229,7 @@ def compare_runs(args: Union[dict, Namespace]):
     d1 = iou.from_pickle(analyze1.joinpath(FILES.JOB_PKAS_PKL.value))
     d2 = iou.from_pickle(analyze2.joinpath(FILES.JOB_PKAS_PKL.value))
     matched_pkas = pkanalysis.match_pks(d1, d2)
+
     # 'pretty' file:
     matched_fp = out_dir.joinpath(FILES.MATCHED_PKAS_TXT.value)
     pkanalysis.matched_pks_txt(
@@ -236,22 +237,12 @@ def compare_runs(args: Union[dict, Namespace]):
         matched_pkas,
         sets_names=(analyze1.parent.name, analyze2.parent.name),
     )
+
     # 3. matched pkas stats
     logger.info("Calculating the pkas & residues stats.")
     matched_df = iou.matched_pks_to_df(matched_fp)
     d_stats, res_stats_df = pkanalysis.matched_pks_stats(
         matched_df, titr_type=titr_type, level=level
-    )
-
-    logger.info("Doing outlier residue analysis.")
-    # all res:
-    _ = pkanalysis.res_outlier_count(matched_fp, grp_by="res")
-    # by res type:
-    _ = pkanalysis.res_outlier_count(matched_fp, grp_by="resid")
-
-    matched_df = iou.matched_pks_to_df(matched_fp)
-    d_stats, res_stats_df = pkanalysis.matched_pks_stats(
-        matched_df, titr_type=titr_type, level=lev1
     )
     logger.info(d_stats["report"])
     # dict to pickle:
@@ -281,6 +272,13 @@ def compare_runs(args: Union[dict, Namespace]):
         level=level,
         out_fp=out_dir.joinpath(FILES.FIG_FIT_PER_RES.value),
     )
+
+    # 5. Outlier residue analysis
+    logger.info("Doing outlier residue analysis.")
+    # all res:
+    _ = pkanalysis.res_outlier_count(matched_fp, grp_by="res")
+    # by res type:
+    _ = pkanalysis.res_outlier_count(matched_fp, grp_by="resid")
 
     return
 

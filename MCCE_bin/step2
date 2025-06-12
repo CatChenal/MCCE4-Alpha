@@ -31,13 +31,23 @@ if __name__ == "__main__":
     runprm.amend_by_cmd(cmd_options)    # load additional runprm per instruction in the command line
     runprm.warn_deprecated()            # warn deprecated entries found in loaded 
     runprm.dump("Step 2 uses the following run parameters:")  # dump the runprm to a file with a comment
-  
-    
+
+    if cmd_options.args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+
+    # debug
+    # print("command debug setting: %s" % cmd_options.args.debug)
+    # current_level = logging.getLogger().getEffectiveLevel()
+    # print("Current logging level: %s" % logging.getLevelName(current_level))
+
     # Get tpl
     tpl = TPL()
     tpl.read_ftpl_folder(runprm.FTPL_FOLDER.value)
     tpl.dump(fname="ftpl.record")
-        
+
+    
     newftpl_file = "%s.ftpl" % (newtpl_name)        
     if os.path.isfile(newftpl_file):
         tpl.read_ftpl_file(newftpl_file)
@@ -151,9 +161,28 @@ if __name__ == "__main__":
     lines = rot_stat.write_stat(mcce.protein)
     open(_rot_stat, "w").writelines(lines)
 
+    # Optimize H atoms for H bonds
+    logging.info("Optimize H atoms for hydrogen bonds ...")
+    mcce.hbond_h()
+    rot_stat.count_stat(mcce.protein, step="oh")
+    lines = rot_stat.write_stat(mcce.protein)
+    open(_rot_stat, "w").writelines(lines)
 
+    # Prune conformers
+    if runprm.PRUNE.value.upper() == "T":
+        logging.info("(PRUNE) if True. Pruning and clusering conformers ...")
+        mcce.prune_conf()
+    else:
+        logging.info("(PRUNE) if False. Skipping pruning.")    
+    rot_stat.count_stat(mcce.protein, step="prune")
+    lines = rot_stat.write_stat(mcce.protein)
+    open(_rot_stat, "w").writelines(lines)
+
+    mcce.initialize_atom_qr()
     logging.info("Save mccepdb to file %s" % _step2_out)
     mcce.protein.dump(_step2_out)
+
+    logging.info("Step 2 finished.")
 
 
 

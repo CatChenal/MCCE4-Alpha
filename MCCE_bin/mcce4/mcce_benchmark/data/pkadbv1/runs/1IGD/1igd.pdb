@@ -956,3 +956,5 @@ HETATM  588  O   HOH A 180       2.624  45.545  10.835  1.00 55.58           O
 HETATM  589  O   HOH A 181      16.665  22.966  24.809  1.00 45.26           O  
 MASTER      319    0    0    1    4    0    0    6  588    1    0    5          
 END                                                                             
+MODEL        1
+ENDMDL

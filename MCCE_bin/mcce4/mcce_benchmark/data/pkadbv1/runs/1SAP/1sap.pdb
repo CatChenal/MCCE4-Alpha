@@ -1281,3 +1281,5 @@ ATOM   1092  HZ3 LYS A  66      15.066   1.332   0.770  1.00  3.58           H
 TER    1093      LYS A  66                                                      
 MASTER      141    0    0    3    5    0    0    6  532    1    0    6          
 END                                                                             
+MODEL        1
+ENDMDL

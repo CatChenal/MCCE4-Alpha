@@ -33,7 +33,7 @@ os.environ['NUMEXPR_NUM_THREADS'] = "32"
 from pathlib import Path
 import shutil
 import sys
-from mcce4.io_utils import mf
+
 from mcce4.mcce_benchmark import BENCH, LOG_HDR, ENTRY_POINTS, SUB0, SUB1, SUB2, SUB3
 from mcce4.mcce_benchmark import FILES, RUNS_DIR, N_BATCH, N_PDBS, cli_opts
 # modules:
@@ -44,6 +44,14 @@ from mcce4.protinfo.cli import get_pdb_rpt
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+# file handlers
+flog_format = "[%(asctime)s - %(levelname)s]: %(name)s, %(funcName)s:\n\t%(message)s"
+fh = logging.FileHandler("benchmark.log", encoding="utf-8")
+fh.setLevel(logging.INFO)
+fh_formatter = logging.Formatter(flog_format)
+fh.setFormatter(fh_formatter)
+# add to logger
+logger.addHandler(fh)
 
 
 info_fh = Path("benchmark.info")
@@ -135,16 +143,14 @@ def do_pdbids(args: Namespace):
     """
     kind = args.kind.upper()
     if kind != "WT":
-        logger.error(mf("This kind: {!r} does not exists or is not yet setup.", kind))
+        logger.error(f"This kind: {kind!r} does not exists or is not yet setup.")
         sys.exit(1)
 
     job_setup.get_pkdb_list()
     # show
     out_fp = Path("PDBIDS_WT")
     if out_fp.exists():
-        logger.info(
-            mf("Displaying the PDBIDs list saved as: {!r}:\n", str(out_fp))
-        )
+        logger.info(f"Displaying the PDBIDs list saved as: {str(out_fp)!r}\n")
         print(out_fp.read_text())
 
     return
@@ -171,18 +177,13 @@ def do_prerun(args: Namespace):
         # use the linked prot.pdb to get the actual pdb name
         prot = runs_dir.joinpath(d, "prot.pdb")
         if not prot.is_symlink():
-            logger.error(
-                mf(
-                    "Error: prot.pdb should be a link to the input pdb. Skipping {}.",
-                    prot.parent,
-                )
-            )
+            logger.error(f"Error: prot.pdb should be a link to the input pdb. Skipping {prot.parent!s}.")
             skipped.append(prot.parent)
             continue
 
         #pre_dir = runs_dir.joinpath(d, "prerun")
-        if not args.redo_prerun and d.joinpath(f"{prot.readlink().stem}_protinfo.md").exists():
-            logger.info(mf("redo_prerun=False; md report already in {}.", d))
+        if not args.redo_prerun and prot.parent.joinpath(f"{prot.readlink().stem}_protinfo.md").exists():
+            logger.info(f"redo_prerun=False; md report already in {d!s}.")
             continue
 
         # enter prot folder to run protinfo main fn:
@@ -193,22 +194,17 @@ def do_prerun(args: Namespace):
         info_args["pdb"] = pdb
         # ?? partial not working?
         # get_pdb_rpt creates the 'prerun' output subfolder in the current run:
-        get_pdb_rpt(Namespace(**info_args), do_checks=False, do_fetch=False)
+        get_pdb_rpt(Namespace(**info_args)) #, do_checks=False, do_fetch=False)
         info_args["pdb"] = None
 
         os.chdir("../")
 
     if skipped:
-        logger.info(
-            mf(
-            """
-            ### NOTE: 'prot.pdb' in {} subfolders is expected to be a link.
-            Folder(s) skipped because 'prot.pdb' does not link to its parent:
-            {}""",
-                runs_dir,
-                skipped,
-            )
-        )
+        msg ="""
+    ### NOTE: 'prot.pdb' in {runs_dir!s} subfolders is expected to be a link.
+    Folder(s) skipped because 'prot.pdb' does not link to its parent: {skipped}
+    """
+        logger.info(msg)
 
     return
 
@@ -225,24 +221,11 @@ def populate_prerun_folder(bench_dir: Path, clear_folder: bool = False):
             shutil.rmtree(rpt_dir)
             rpt_dir.mkdir()
 
-    runs_dir = bench_dir.joinpath(RUNS_DIR)
-    all_pdbs = runs_dir.joinpath(BENCH.Q_BOOK).read_text().splitlines()
-    for dirname in all_pdbs:
-        d = dirname.split()[0]
-        # get the prot-specific protinfo report
-        prot = runs_dir.joinpath(d, "prerun", "prot.pdb")
-        if not prot.is_symlink():
-            continue
-
-        pdb_md = f"{prot.readlink().stem}_protinfo.md"
-        md_fp = runs_dir.joinpath(d, pdb_md)
-        if not md_fp.exists():
-            continue
-
-        save_fp = rpt_dir.joinpath(pdb_md)
-        if save_fp.exists():
-            save_fp.unlink()
-        save_fp.symlink_to(md_fp)
+    for rpt in bench_dir.joinpath(RUNS_DIR).glob("*/*_protinfo.md"):
+        md_fp = rpt_dir.joinpath(rpt.name)
+        if md_fp.exists():
+            md_fp.unlink()
+        md_fp.symlink_to(rpt)
 
     return
 
@@ -575,7 +558,7 @@ def bench_parser():
         metavar="pbes_name",
         type=str,
         choices=["delphi", "ngpb", "apbs", "zap", "template"],
-        default="delphi",
+        default="ngpb",
         help="PBE solver; default: %(default)s.",
     )
     cp.add_argument(

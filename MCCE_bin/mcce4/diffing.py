@@ -12,16 +12,14 @@ Valid files defined in mcce4.io_utils.DIFFING_FILES:
     "pK.out",
     "sum_crg.out",
     "vdw0.lst"
-
-See also:
-  mcce4.diffing.py: A command line interface for diffing files.
 """
 
 import argparse
 import logging
 from pathlib import Path
 import sys
-from mcce4.io_utils import DIFFING_FILES, files_diff
+
+from mcce4.io_utils import DIFFING_FILES, files_diff, MsgFmt
 
 
 logging.basicConfig(format="[ %(levelname)s ] %(name)s - %(funcName)s:\n  %(message)s")
@@ -31,26 +29,18 @@ logger.setLevel(logging.INFO)
 
 TOOL = "filesdiff"
 CLI_NAME = __name__ if __name__ == "__main__" else TOOL
+USAGE = ("\n1. Diffing files with same filenames; save diff file in current dir:"
+         f"\n\t{CLI_NAME} dir1/pK.out dir2/pK.out\n"
+         "\n2. Diffing files with standard filenames in two folders; save diff file in current dir:"
+         f"\n\t{CLI_NAME} dir1 dir2 --all\n"
+         "\n3. Save output file with only absolute difference beyond the given threshold value (default 0):"
+         f"\n\t{CLI_NAME} dir1/pK.out dir2/pK.out -threshold 2.5\n"
+         "\n4. Using files with different names: need to pass their common type in the -file_type option:"
+         f"\n\t{CLI_NAME} dir1/e8_pK.out dir2/pK.out -file_type pK.out\n"
+         )
 
-USAGE = f"""
-1. Minimal options for single file; same filenames, save diff file in calling dir:
-  {CLI_NAME} dir1/pK.out dir2/pK.out
 
-2. Minimal options for folders; diff {DIFFING_FILES} files of each folder, save diff file in calling dir:
-  {CLI_NAME} dir1 dir2 --all
-
-3. Save a file difference to a different folder or with a different name:
-  {CLI_NAME} dir1/pK.out dir2/pK.out -odir folder/path
-  {CLI_NAME} dir1/pK.out dir2/pK.out -oname diff_d1_v_d2_pK.out
-
-4. Save output file with only absolute difference beyond the given threshold value (default 0):
-  {CLI_NAME} dir1/pK.out dir2/pK.out -threshold 2.5
-
-5. Using files with different names: need to pass their common type in the -file_type option:
-  {CLI_NAME} dir1/e8_pK.out dir2/pK.out -file_type pK.out
-
-Note: -file_type and --all are mutually exclusive as diffing a folder requires standard filenames.
-"""
+mf = MsgFmt  # short lowercase alias
 
 
 def all_files_diff(
@@ -71,7 +61,7 @@ def all_files_diff(
             logger.warning(f"File 2 not found: {fp2!r}.")
             continue
 
-        logger.info(f"Diffing {fname} -> {str(out_dir)}/diff_{fname}")
+        logger.info(mf("Diffing {} -> {}/diff_{}", fname, str(out_dir), fname))
         files_diff(fp1, fp2, out_dir=out_dir, return_df=return_df, threshold=threshold)
 
     return
@@ -89,16 +79,15 @@ def check_paths(args: argparse.Namespace) -> tuple:
     if not args.all:  # paths must be files:
         if are_files:
             if p1.name != p2.name and args.file_type is None:
-                logger.error(
-                    (
-                        "You can use files with different names only if you provide their common "
-                        f"format in the '-file_type' option, which can one of: {DIFFING_FILES}."
-                    )
+                logger.error(mf(
+                    ("You can use files with different names only if you provide their "
+                     "common format in the '-file_type' option, which can one of: {}."
+                     ), DIFFING_FILES)
                 )
                 sys.exit(1)
             return p1, p2
         else:
-            logger.error("You must give two filespaths.")
+            logger.error("You must give two filepaths.")
             sys.exit(1)
 
     if args.all:
@@ -109,9 +98,11 @@ def check_paths(args: argparse.Namespace) -> tuple:
 
 
 def diff_cli(argv=None):
-    DESC = """Subtract all numerical columns from two mcce run files, e.g. f1 - f2.
-    The output default filename is 'diff_' + fil1.name."""
-    parser = argparse.ArgumentParser(prog=CLI_NAME, description=DESC, usage=USAGE)
+    parser = argparse.ArgumentParser(prog=CLI_NAME,
+                                     description=("Subtract all numerical columns from two "
+                                                  "mcce run files, e.g. f1 - f2.\n"
+                                                  "The output default filename is 'diff_' + f1.name."),
+                                     usage=USAGE)
     parser.add_argument("dir_or_file_paths", metavar="paths", nargs=2)
     parser.add_argument(
         "-threshold",
@@ -162,16 +153,17 @@ def diff_cli(argv=None):
         logger.info("Processing of files difference over.")
     else:
         files_diff(p1, p2, out_dir=outdir, out_name=args.oname, threshold=args.threshold, file_type=args.file_type)
-        if args.oname is None:
+        #if args.oname is None:
+        if not args.oname:
             diff_fp = outdir.joinpath(f"diff_{p1.name}")
         else:
             diff_fp = outdir.joinpath(args.oname)
         if diff_fp.exists():
-            msg = (
-                f"Displaying the difference file {str(diff_fp)!r} (threshold = {args.threshold}), which can be loaded\n"
-                "into a pandas.DataFrame using mcce4.io_utils.textfile2df:\n"
-            )
-            logger.info(msg)
+            logger.info(
+                mf(("Displaying the difference file {!r} (threshold: {:.2f}),\n"
+                    "  which can be loaded into a DataFrame using mcce4.io_utils.textfile2df:\n"
+                    ), str(diff_fp), args.threshold)
+                )
             print(diff_fp.read_text())
 
 

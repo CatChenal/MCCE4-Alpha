@@ -1040,3 +1040,5 @@ ATOM    855  HG3 GLU A  56      12.019   0.940  -2.966  1.00  0.82           H
 TER     856      GLU A  56                                                      
 MASTER      144    0    0    1    4    0    0    6  855    1    0    5          
 END                                                                             
+MODEL        1
+ENDMDL

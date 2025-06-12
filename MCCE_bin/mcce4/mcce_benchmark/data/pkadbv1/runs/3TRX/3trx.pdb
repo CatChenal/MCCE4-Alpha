@@ -1840,3 +1840,5 @@ ATOM   1629 HG23 VAL A 105     -16.234   0.356  -3.308  1.00  1.08           H
 TER    1630      VAL A 105                                                      
 MASTER      155    1    0    6    5    0    0    6 1629    1    0    9          
 END                                                                             
+MODEL        1
+ENDMDL

@@ -8,7 +8,6 @@ conformer and charge microstates.
 
 Classes:
   - Conformer
-  - Conformers
   - Microstate
   - Charge_Microstate
   - Charge_Microstates
@@ -16,11 +15,12 @@ Classes:
 
 """
 from collections import defaultdict
+from dataclasses import dataclass
 import logging
 import operator
 from pathlib import Path
 import sys
-from typing import List, Tuple, Union
+from typing import ByteString, Dict, List, Tuple, Union
 import zlib
 import numpy as np
 import pandas as pd
@@ -34,23 +34,30 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-MIN_OCC = 0.01
+MIN_OCC = 0.0
 
 
+@dataclass(init=True, repr=False, order=True, slots=True)
 class Conformer:
     """Minimal Conformer class for use in microstate analysis.
     Attributes: iconf, confid, ires, resid, crg.
     See also:
       - mcce4.pdbio.Conformer class: full class for writing head3.lst.
     """
+    iconf: int
+    confid: str
+    ires: int
+    resid: str
+    crg: float
+    occ: float
 
     def __init__(self):
         self.iconf = 0
         self.confid = ""
         self.ires = 0
         self.resid = ""
-        self.crg = 0.
-        self.occ = 0.
+        self.crg = 0.0
+        self.occ = 0.0
 
     def load_from_head3lst(self, line):
         fields = line.split()
@@ -64,9 +71,29 @@ class Conformer:
         return f"{self.confid} ({self.iconf}), {self.resid} ({self.ires}), {self.crg:.2f}, {self.occ:.2f}"
 
 
+def read_conformers(head3_path: str = "head3.lst") -> list:
+    """Load conformerrs from given head3.lst path;
+    Uses ./head3.lst by default; returns empty list if file not found.
+    """
+    if not Path(head3_path).exists():
+        return []
+
+    with open(head3_path) as h3:
+        lines = h3.readlines()[1:]
+
+    conformers = []
+    for line in lines:
+        conf = Conformer()
+        conf.load_from_head3lst(line)
+        conformers.append(conf)
+
+    return conformers
+
+
 class Conformers:
-    """Holds a collection of Conformer objects.
-    Has methods and attributes pertaining to that collection."""
+    """Collection of Conformer objects.
+    Has methods and attributes pertaining to that collection.
+    """
 
     def __init__(self, head3_path: str):
         """Given the path to 'head3.lst', process it to populate these attributes:
@@ -76,11 +103,11 @@ class Conformers:
         self.h3_fp = Path(head3_path)
         self.conformers = None
         self.N = None
-
         self.load_data()
 
     def load_data(self) -> list:
-        """Populate the class attributes."""
+        """Populate the class attributes.
+        """
         if not self.h3_fp.exists():
             # print(f"File not found: {self.h3_fp}")
             return
@@ -92,10 +119,15 @@ class Conformers:
             conf = Conformer()
             conf.load_from_head3lst(line)
             self.conformers.append(conf)
-
         self.N = len(self.conformers)
-
         return
+
+    def get_fixed_resid2crg_dict(self, fixed_iconfs: list) -> dict:
+        dd = defaultdict(float)
+        for conf in self.conformers:
+            if conf.iconf in fixed_iconfs:
+                dd[conf.resid] = conf.crg
+        return dd
 
 
 try:
@@ -108,63 +140,19 @@ except FileNotFoundError:
     conformers = []
 
 
-def get_confs_collection(head3_fp: Path) -> Conformers:
-    """Returns:
-    An instance of the Conformer collections class.
-    """
-    return Conformers(head3_fp)
-
-
-def read_conformers(head3_path: str):
-    """Legacy function. See Conformers.load_data."""
-    conformers = []
-    lines = open(head3_path).readlines()
-    lines.pop(0)
-    for line in lines:
-        conf = Conformer()
-        conf.load_from_head3lst(line)
-        conformers.append(conf)
-
-    return conformers
-
-
+@dataclass(init=True, repr=True, order=True, slots=True)
 class Microstate:
-    """Sortable class for mcce conformer microstates."""
-
-    def __init__(self, state: list, E: float, count: int):
-        self.state = state
-        self.E = E
-        self.count = count
+    """Sortable class for mcce conformer microstates.
+    """
+    state: list
+    E: float
+    count: int
 
     def __str__(self):
         return f"Microstate(\n\tcount={self.count:,},\n\tE={self.E:,},\n\tstate={self.state}\n)"
 
-    def _check_operand(self, other):
-        """Fails on missing attribute."""
 
-        if not (
-            hasattr(other, "state") and hasattr(other, "E") and hasattr(other, "count")
-        ):
-            return NotImplemented("Comparison with non Microstate object.")
-        return
-
-    def __eq__(self, other):
-        self._check_operand(other)
-        return (self.state, self.E, self.count) == (
-            other.state,
-            other.E,
-            other.count,
-        )
-
-    def __lt__(self, other):
-        self._check_operand(other)
-        return (self.state, self.E, self.count) < (
-            other.state,
-            other.E,
-            other.count,
-        )
-
-
+@dataclass(init=True, repr=False, order=True, slots=True)
 class Charge_Microstate:
     """
     Sortable class for charge microstates.
@@ -176,48 +164,34 @@ class Charge_Microstate:
       ms_analysis.py Microstate class in Junjun Mao's demo, but the 'key' that
       is encoded is a 2-tuple: (resid, crg) to facilitate further processing.
     """
+    crg_stateid: ByteString
+    count: int
+    average_E: float
+    total_E: float
+    E: float  # alias for average E
 
     def __init__(self, crg_state: list, total_E: float, count: int):
         # crg_state is a list of (resid, crg) tuples:
-        self.crg_stateid = zlib.compress(" ".join([x for x in crg_state]).encode())
-        self.average_E = self.E = 0  # .E -> average E
-        self.total_E = total_E
+        self.crg_stateid = zlib.compress(" ".join(x for x in crg_state).encode())
         self.count = count
+        self.average_E = self.E = 0
+        self.total_E = total_E
 
     def state(self):
         # recover (resid, crg) tuple:
         return [i for i in zlib.decompress(self.crg_stateid).decode().split()]
 
+    def split_key(self) -> list:
+        res_states = [tuple(itm.split("|")) for itm in self.state() ]
+        return res_states
+   
+    def crg(self):
+        """Return the sum charge of charges in the state key."""
+        return sum(int(split_key[1]) for split_key in self.split_key())
+    
     def __str__(self):
-        s = f"Charge_Microstate(\n\tcount = {self.count:,},\n"
-        s = s + f"\tE = {self.E:,.2f},\n\tstate = {self.state()}\n"
-
-        return s
-
-    def _check_operand(self, other):
-        """Fails on missing attribute."""
-        if not (
-            hasattr(other, "crg_stateid")
-            and hasattr(other, "E")
-            and hasattr(other, "count")
-        ):
-            return NotImplemented("Comparison with non Charge_Microstate object.")
-        return
-
-    def __eq__(self, other):
-        self._check_operand(other)
-        return (self.crg_stateid, self.E, self.count) == (
-            other.crg_stateid,
-            other.E,
-            other.count,
-        )
-
-    def __lt__(self, other):
-        self._check_operand(other)
-        return (self.crg_stateid, self.E, self.count) < (
-            other.crg_stateid,
-            other.E,
-            other.count,
+        return (f"\nCharge_Microstate(\n\tcount = {self.count:,}"
+                f"\tE = {self.average_E:,.2f}\tcrg = {self.crg}\n\tstate = {self.state()}\n"
         )
 
 
@@ -230,11 +204,33 @@ def reader_gen(fpath: Path):
             yield line
 
 
+def ms_counts(microstates: Union[dict, list]) -> int:
+    """Sum the microstates count attribute."""
+    if isinstance(microstates, dict):
+        return sum(ms.count for ms in microstates.values())
+    else:
+        return sum(ms.count for ms in microstates)
+
+
+@dataclass(init=False, repr=False, slots=True)
 class MSout:
-    __slots__ = ["T", "pH", "Eh", "N_ms", "N_uniq", "lowest_E", "highest_E", "average_E",
-                  "fixed_iconfs", "free_residues", "iconf2ires", "microstates",
-                ]
-        
+    # Define attribute types (initial values are set in __init__)
+    T: float
+    pH: float
+    Eh: float
+    fixed_iconfs: List
+    # list of free residues per their list of conformer indices, iconf:
+    free_residues: List
+    # mapping from conformer index to free residue index:
+    iconf2ires: Dict[int, int]
+    microstates: Dict[str, Microstate]
+    # attibutes that depend on the microstates collection:
+    N_ms: int
+    N_uniq: int
+    lowest_E: float
+    average_E: float
+    highest_E: float
+
     def __init__(self, fname):
         self.T = 298.15
         self.pH = 7.0
@@ -242,27 +238,43 @@ class MSout:
         self.N_ms = 0
         self.N_uniq = 0
         self.lowest_E = 0.0
-        self.highest_E = 0.0
         self.average_E = 0.0
+        self.highest_E = 0.0
         self.fixed_iconfs = []
-        self.free_residues = []  # free residues, referred by conformer indices, iconf
-        self.iconf2ires = {}  # from conformer index to free residue index
-        self.microstates = {}  # dict of Microstate objects
+        self.free_residues = []
+        self.iconf2ires = {}
+        self.microstates = {}
 
         self.load_msout(fname)
 
+        self.N_uniq = len(self.microstates)
+        # find N_ms, lowest, highest, averge E
+        E_sum = 0.0
+        msvals = self.microstates.values()
+        # initialize with actual, first values:
+        ms = next(iter(msvals))
+        lowest_E = ms.E
+        highest_E = ms.E
+        for ms in msvals:
+            self.N_ms += ms.count
+            E_sum += ms.E * ms.count
+            if ms.E < lowest_E:
+                lowest_E = ms.E
+            elif ms.E > highest_E:
+                highest_E = ms.E
+        # set attributes:
+        self.lowest_E = lowest_E
+        self.average_E = E_sum / self.N_ms
+        self.highest_E = highest_E
+
+        return
+
     def load_msout(self, fname):
-        """Process the 'msout file' to populate these attributes:
-        - T, pH, Eh (floats)
-        - fixed_iconfs (list)
-        - free_residues (list)
-        - iconf2ires (dict)
-        - N_ms, N_uniq (int)
-        - microstates (dict)
-        - lowest_E, average_E, highest_E (float)
+        """Process the 'msout file' to populate the class attributes.
         """
         found_mc = False
         newmc = False
+
         msout_data = reader_gen(fname)
         for i, line in enumerate(msout_data, start=1):
             line = line.strip()
@@ -293,13 +305,13 @@ class MSout:
             if i == 6:  # free residues
                 _, residues_str = line.split(":")
                 residues = residues_str.split(";")
-                self.free_residues = []
                 for f in residues:
                     if f.strip():
                         self.free_residues.append([int(i) for i in f.split()])
-                for i_res in range(len(self.free_residues)):
-                    for iconf in self.free_residues[i_res]:
-                        self.iconf2ires[iconf] = i_res
+
+                for idx, lst in enumerate(self.free_residues):
+                    for iconf in lst:
+                        self.iconf2ires[iconf] = idx
             else:
                 # find the next MC record
                 if line.startswith("MC:"):
@@ -324,48 +336,28 @@ class MSout:
                             current_state[ir] = ic
 
                         ms = Microstate(list(current_state), state_e, count)
-                        key = ",".join(["%d" % i for i in ms.state])
+                        key = ",".join(str(i) for i in ms.state)
                         if key in self.microstates:
                             self.microstates[key].count += ms.count
                         else:
                             self.microstates[key] = ms
-
-        # find N_ms, lowest, highest, averge E
-        E_sum = 0.0
-        msvals = self.microstates.values()
-        self.N_uniq = len(msvals)
-        ms = next(iter(msvals))
-        lowest_E = ms.E
-        highest_E = ms.E
-        for ms in msvals:
-            self.N_ms += ms.count
-            E_sum += ms.E * ms.count
-            if ms.E < lowest_E:
-                lowest_E = ms.E
-            elif ms.E > highest_E:
-                highest_E = ms.E
-
-        self.lowest_E = lowest_E
-        self.average_E = E_sum / self.N_ms
-        self.highest_E = highest_E
-
         return
 
     def get_fixed_res_crg(self, conformers: list) -> float:
-        """Return the charge contributed by fixed conformers."""
+        """Return the sum charge contributed by fixed conformers."""
         return sum([conf.crg for conf in conformers if conf.iconf in self.fixed_iconfs])
 
-    def get_sampled_ms(
+    def get_sampled_ms0(
         self,
         size: int,
-        kind: str = "deterministic",
+        kind: str = "random",
         seed: Union[None, int] = None,
     ) -> list:
         """
         Implement a sampling of MSout.microstates depending on `kind`.
         Args:
             size (int): sample size
-            kind (str, 'deterministic'): Sampling kind: one of ['deterministic', 'random'].
+            kind (str, 'random'): Sampling kind: one of ['deterministic', 'random'].
                  If 'deterministic', the microstates in ms_list are sampled at regular intervals
                  otherwise, the sampling is random. Case insensitive.
             seed (int, None): For testing purposes, fixes random sampling.
@@ -379,24 +371,17 @@ class MSout:
 
         kind = kind.lower()
         if kind not in ["deterministic", "random"]:
-            raise ValueError(
-                f"Values for `kind` are 'deterministic' or 'random'; Given: {kind}"
-            )
+            raise ValueError(f"Values for `kind` are 'deterministic' or 'random'; Given: {kind}")
 
         ms_sampled = []
         ms_list = list(self.microstates.values())
-        counts = ms_counts(ms_list)  # total number of ms
         sampled_cumsum = np.cumsum([mc.count for mc in ms_list])
 
         if kind == "deterministic":
-            sampled_ms_indices = np.arange(
-                size, counts - size, counts / size, dtype=int
-            )
+            sampled_ms_indices = np.arange(size, self.N_ms - size, self.N_ms / size, dtype=int)
         else:
             rng = np.random.default_rng(seed=seed)
-            sampled_ms_indices = rng.integers(
-                low=0, high=counts, size=size, endpoint=True
-            )
+            sampled_ms_indices = rng.integers(low=0, high=self.N_ms, size=size, endpoint=True)
 
         for i, c in enumerate(sampled_ms_indices):
             ms_sel_index = np.where((sampled_cumsum - c) > 0)[0][0]
@@ -404,20 +389,58 @@ class MSout:
 
         return ms_sampled
 
-    def sort_microstates(self, sort_by: str = "E", sort_reverse: bool = False) -> list:
+    def get_sampled_ms(
+        self,
+        size: int,
+        kind: str = "random",
+        seed: Union[None, int] = None,
+    ) -> list:
+        """
+        Implement a sampling of MSout.microstates using the ms count probability.
+        Args:
+            size (int): sample size
+            kind (str, 'random'): Sampling kind: one of ['deterministic', 'random'].
+                 If 'deterministic', the seed is set to 42. Case insensitive.
+            seed (int, None): For testing purposes, fixes random sampling.
+        Returns:
+            A list of lists: [[selection index, selected microstate], ...]
+        """
+        print("MSout.get_sample_ms :: Sampling of MSout.microstates using the ms count probability\n",
+              "The original, slow sampling scheme (using cumsum) is MSout.get_sampled_ms0.")
+
+        if not len(self.microstates):
+            print("The microstates dict is empty.")
+            return []
+
+        kind = kind.lower()
+        if kind not in ["deterministic", "random"]:
+            raise ValueError(f"Values for `kind` are 'deterministic' or 'random'; Given: {kind}")
+
+        ms_list = list(self.microstates.values()) 
+        if size > self.N_ms:  # ms space size
+            print(f"Requested sample size ({size :,}) > available data: reset to {self.N_ms:,}")
+            size = self.N_ms
+
+        if  kind == "deterministic":
+            seed = 42
+        rng = np.random.default_rng(seed=seed)
+
+        # Occupancies as probability of selection (sum to 1)
+        probs = np.array(np.array([ms.count for ms in ms_list]) / self.N_ms, dtype=float)
+        indices = rng.choice(len(self.microstates), size=size, p=probs)
+
+        return [[idx, ms_list[idx]] for idx in indices]
+
+    def sort_microstates(self, sort_by: str = "E", sort_reverse: bool = False) -> Union[list, None]:
         """Return the list of microstates sorted by one of these attributes: ["count", "E"],
         and in reverse order (descending) if sort_reverse is True.
         Args:
-        microstates (list): list of Microstate instances;
-        sort_by (str, "E"): Attribute as sort key;
-        sort_reverse (bool, False): Sort order: ascending if False (default), else descending.
+          sort_by (str, "E"): Attribute as sort key;
+          sort_reverse (bool, False): Sort order: ascending if False (default), else descending.
         Return None if 'sort_by' is not recognized.
         """
-
         if sort_by not in ["count", "E"]:
-            print(
-                "'sort_by' must be a valid microstate attribute; choices: ['count', 'E']"
-            )
+            print(f"{sort_by = } is not a valid microstate attribute; choices: ['count', 'E']")
             return None
 
         return sorted(
@@ -426,7 +449,18 @@ class MSout:
             reverse=sort_reverse,
         )
 
+    def __str__(self):
+        return (
+            f"\nConformer microstates: {self.N_ms:,}\n"
+            f"Accepted mc lines: {self.N_uniq:,}\n"
+            f"Energies: lowest_E: {self.lowest_E:,.2f}; average_E: "
+            f"{self.average_E:,.2f}; highest_E: {self.highest_E:,.2f}\n"
+            f"Free residues: {len(self.free_residues):,}\n"
+            f"Fixed residues: {len(self.fixed_iconfs):,}\n"
+        )
 
+
+# FIX divisor in occ calc should be the entire conf ms space: MSout.N_ms
 class Charge_Microstates:
     """
     Holds a collection of charge microstates. Has methods over the collection.
@@ -437,22 +471,29 @@ class Charge_Microstates:
                                    for each charge state in charge_microstates.
       - crg_group_stats (dict): Values: (low_state, lowE), (hi_state, hi_E), average.
     """
+
     __slots__ = ["N_uniq", "confms_by_crg_stateid", "charge_microstates"]
-    
-    def __init__(self, microstates: dict, conformers: list):
+
+    def __init__(self, microstates: dict, conformers: list, residue_kinds: list = None):
         """
         Args:
           - microstates (dict): MSout.microstates
           - conformers (list): conformers, e.g. Confs.conformers
         """
-        self.N_uniq = len(microstates)
+        self.N_ms = sum(ms.count for ms in microstates.values())
+        # for 'bucketing' all ms with the same crg state:
         self.confms_by_crg_stateid = defaultdict(list)
-        self.charge_microstates = {}  # cms data per cms stateid
+        # cms data per cms stateid, counterpart to MSout.microstates
+        self.charge_microstates = {}
 
-        # populate the empty attributes:
+        # populate the empty init attributes:
         self.ms_to_charge_ms(microstates, conformers)
 
-    def ms_to_charge_ms(self, microstates: dict, conformers: list):
+    def __str__(self):
+        return (f"Unique charge microstates: {len(self.confms_by_crg_stateid.keys()):,}\n"
+                )
+    
+    def ms_to_charge_ms(self, microstates: dict, conformers: list, residue_kinds: list = None):
         """Process the conformer microstates collection to
         obtain a list of charge microstate objects.
         Populate:
@@ -460,9 +501,8 @@ class Charge_Microstates:
            self.charge_microstates;
         """
         for ms in microstates.values():
-            current_crg_state = [
-                f"{conformers[ic].resid}|{round(conformers[ic].crg)}" for ic in ms.state
-            ]
+            current_crg_state = [f"{conformers[ic].resid}|{round(conformers[ic].crg)}" for ic in ms.state]
+
             crg_ms = Charge_Microstate(current_crg_state, ms.E * ms.count, ms.count)
             crg_id = crg_ms.crg_stateid  # compressed bytes for key
             # append conf ms in this crg ms key:
@@ -473,6 +513,7 @@ class Charge_Microstates:
                 self.charge_microstates[crg_id].count += crg_ms.count
                 self.charge_microstates[crg_id].total_E += crg_ms.total_E
             else:
+                # create item
                 self.charge_microstates[crg_id] = crg_ms
 
         # finalize each charge_microstate with average_E (=E) attribute:
@@ -484,9 +525,7 @@ class Charge_Microstates:
 
         return
 
-    def get_sorted_cms_data(
-        self, return_top_ms: bool = True, min_occ: float = MIN_OCC
-    ) -> Union[dict, None]:
+    def get_sorted_cms_data(self, return_top_ms: bool = True, min_occ: float = MIN_OCC) -> Union[dict, None]:
         """
         Combine self.confms_by_crg_stateid and data from self.charge_microstates
         filtered for states with occ >= min_occ (0.01 default) into a new dict.
@@ -497,41 +536,36 @@ class Charge_Microstates:
         Returns: A dict
             Output dict format:
                 key = crg state
-                value (list) = [
-                                size, occ, averE,           # :: most frequent cms data
-                                # last item(s):
-                                sorted_ms_lst (list)
+                value (list) = [ size, occ, averE, sum_crg, sorted_ms_lst  ]  # most frequent cms data
                                 OR
-                                ms0.count, ms0.E, ms0.state  #  :: most frequent ms data
-                            ]
+                               [ size, occ, averE, sum_crg, ms0.count, ms0.E, ms0.state ] # most frequent ms data
         Note:
           Output is None when return_top_ms is True and no state within the occupancy
           threshold was found.
         """
-        # sort to get most numerous first:
-        ms_by_crg_stateid = dict(
-            sorted(
-                self.confms_by_crg_stateid.items(),
-                key=lambda x: len(x[1]),
-                reverse=True,
-            )
-        )
+        # sort the ms lists to get most numerous ms first:
+        ms_by_crg_stateid = dict(sorted(
+                                        self.confms_by_crg_stateid.items(),
+                                        key=lambda x: len(x[1]),
+                                        reverse=True,
+                                        )
+                                 )
         cms_data = {}
         for k in ms_by_crg_stateid:
             size = len(ms_by_crg_stateid[k])
-            occ = size / self.N_uniq
+            sum_crg = self.charge_microstates[k].crg()
+
+            occ = size / self.N_ms
             if round(occ, 2) < min_occ:
                 continue
             E = self.charge_microstates[k].average_E
             if return_top_ms:
                 # sort conf_ms by count, descendingly:
-                sorted_lst = sorted(
-                    ms_by_crg_stateid[k], key=lambda x: x.count, reverse=True
-                )
-                ms0 = sorted_lst[0]  # most frequent ms
-                cms_data[k] = [size, occ, E, ms0.count, ms0.E, ms0.state]
+                sorted_lst = sorted(ms_by_crg_stateid[k], key=lambda x: x.count, reverse=True)
+                ms0 = sorted_lst[0]  # most frequent conf ms
+                cms_data[k] = [size, occ, E, sum_crg, ms0.count, ms0.E, ms0.state]
             else:
-                cms_data[k] = [size, occ, E, ms_by_crg_stateid[k]]
+                cms_data[k] = [size, occ, E, sum_crg, ms_by_crg_stateid[k]]
 
         return cms_data or None
 
@@ -550,16 +584,14 @@ class Charge_Microstates:
         for i, cms in enumerate(sorted_cms_data):
             if i == n_top:
                 break
-            # cms data :: [size, occ, E, ms0.count, ms0.E, ms0.state]
-            size, occ, averE, count, E, state = sorted_cms_data[cms]
-            lst.append([[state, averE], size, occ])
+            # cms data :: [size, occ, E, sum_crg, ms0.count, ms0.E, ms0.state]
+            size, occ, averE, sum_crg, count, E, state = sorted_cms_data[cms]
+            lst.append([[state, averE], size, occ, sum_crg])
 
         return lst
 
 
-def free_residues_df(
-    free_res: list, conformers: list, colname: str = "FreeRes"
-) -> pd.DataFrame:
+def free_residues_df(free_res: list, conformers: list, colname: str = "FreeRes") -> pd.DataFrame:
     """Return the free residues' ids in a pandas DataFrame."""
     free_residues = [conformers[res[0]].resid for res in free_res]
 
@@ -576,7 +608,7 @@ def fixed_res_crg(
     """
     Args:
       fixed_iconfs (list): List of fixed conformers.
-      conformers (list): List of Conformers objects.
+      conformers (list): List of Conformer instances.
       res_of_interest (list, None): List of resid for filtering.
       return_df (bool, False): If True, the second item of the output tuple
                                will be a pandas.DataFrame, else a dict.
@@ -604,14 +636,6 @@ def fixed_res_crg(
         return fixed_net_charge, fixed_res_crg_df
 
     return fixed_net_charge, dict(dd)
-
-
-def ms_counts(microstates: Union[dict, list]) -> int:
-    """Sum the microstates count attribute."""
-    if isinstance(microstates, dict):
-        return sum(ms.count for ms in microstates.values())
-    else:
-        return sum(ms.count for ms in microstates)
 
 
 def ms_charge(ms: Microstate):
@@ -862,7 +886,12 @@ def whatchanged_res(msgroup1: list, msgroup2: list, free_res: list) -> list:
     return bhd
 
 
-def example(msout_file: str):
+def example():
+    script = """
+    # must be in a mcce run directory
+
+    # set path to msout file:
+    msout_file = "./ms_out/pH4eH0ms.txt"
     msout = MSout(msout_file)
 
     n_bands = 20
@@ -891,9 +920,7 @@ def example(msout_file: str):
 
     diff_bhd = whatchanged_res(netural, charged, msout.free_residues)
     for ir in range(len(msout.free_residues)):
-        print(
-            "%s: %6.4f" % (conformers[msout.free_residues[ir][0]].resid, diff_bhd[ir])
-        )
+        print("%s: %6.4f" % (conformers[msout.free_residues[ir][0]].resid, diff_bhd[ir]))
     charges = ms_convert2sumcrg(msout.microstates.values(), msout.free_residues)
     for ir in range(len(msout.free_residues)):
         print("%s: %6.4f" % (conformers[msout.free_residues[ir][0]].resid, charges[ir]))
@@ -902,9 +929,9 @@ def example(msout_file: str):
     glu35_charged, _ = groupms_byconfid(microstates, ["GLU-1A0035"])
     print(len(microstates))
     print(len(glu35_charged))
+    """
+    print(script)
+    
 
-    return
-
-
-if __name__ == "__main__":
-    example("ms_out/pH4eH0ms.txt")
+    if __name__ == "__main__":
+        example()

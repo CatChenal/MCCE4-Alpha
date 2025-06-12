@@ -1,23 +1,45 @@
 #!/usr/bin/env python
 
 import logging
+from pathlib import Path
 import shutil
 
 
+logging.basicConfig(level=logging.INFO, 
+                    format="[ %(levelname)s ] %(name)s - %(funcName)s:\n  %(message)s")
+
+
+USER_MCCE = shutil.which("mcce")
+MCCE4 = Path(__file__).parent.parent.parent.parent
+
+
+CLI_NAME = "protinfo"
 # use a dedicated run.log file for step1 run by protinfo:
 RUN1_LOG = "run1.log"
 RPT = "protinfo.md"  # report name ends with RPT
 
 
-USER_MCCE = shutil.which("mcce")
-NO_MCCE_MSG = """The mcce executable was not found.
-The protinfo report will not include any information or diagnostics
-from MCCE step1.py."""
+class ERR:
+    """Output error messages from fstrings."""
 
-LOG_FILE = "protinfo.log"
-fh = logging.FileHandler(LOG_FILE, delay=True, mode="w")
-fh.setFormatter(logging.Formatter(fmt="[%(asctime)s - %(levelname)s]: %(name)s, %(funcName)s:\n\t%(message)s",
-                                  datefmt="%Y-%m-%d %H:%M:%S"))
-logging.basicConfig(handlers=[fh], level=logging.DEBUG)
+    def __init__(self, cli_name: str = CLI_NAME):
+        self.cmd = cli_name
 
-logger = logging.getLogger()
+    def FETCH_EXISTING_FILE(self, pdb: Path) -> str:
+        return f"""
+The input pdb ({pdb.name}) already exists.
+To use it, remove the --fetch flag; run:
+    {self.cmd} {pdb.name}
+To overwrite it with the downloaded biological assembly; run:
+    {self.cmd} {pdb.stem} --fetch
+"""
+
+    def MISSING_FETCH_FLAG(self, pdbid: str) -> str:
+        return f"""
+The input pdb ({pdbid}) seems to be a pdbid. To download its
+biological assembly, run this command:
+    {self.cmd} {pdbid} --fetch
+"""
+
+    def CALL_NOT_IN_FILE_DIR(self) -> str:
+        return f"Call {self.cmd} from where the pdb resides.\n"

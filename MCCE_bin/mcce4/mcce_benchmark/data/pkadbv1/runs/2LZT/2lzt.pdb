@@ -1689,3 +1689,5 @@ CONECT 1021 1019
 CONECT 1022 1019                                                                
 MASTER      315    1    5    7    3    0   10    6 1270    1   28   10          
 END                                                                             
+MODEL        1
+ENDMDL

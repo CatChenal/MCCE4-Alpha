@@ -53,7 +53,7 @@ def make_connect12(self):
         res = self.protein.residue[i_res]
         for conf in res.conf:  # search all conformers including backbone
             for atom in conf.atom:
-                key = ("CONNECT", atom.name, atom.confType)
+                key = ("CONNECT", atom.name, conf.confType)
                 connected_atoms = self.tpl.db[key].connected
                 for c_atom in connected_atoms:
                     found = False
@@ -62,7 +62,7 @@ def make_connect12(self):
                             if res != res2:  # skip the same residue
                                 for conf2 in res2.conf:
                                     for atom2 in conf2.atom:
-                                        key2 = ("CONNECT", atom2.name, atom2.confType)
+                                        key2 = ("CONNECT", atom2.name, conf2.confType)
                                         connected_atoms2 = self.tpl.db[key2].connected
                                         ligated2 = False
                                         for ligated_atom2 in connected_atoms2:
@@ -248,7 +248,7 @@ def print_connect12(self):
     for res in self.protein.residue:
         for conf in res.conf:
             for atom in conf.atom:
-                key = ("CONNECT", atom.name, atom.confType)
+                key = ("CONNECT", atom.name, conf.confType)
                 connected_atoms = self.tpl.db[key].connected
                 print(atom.atomID, str(connected_atoms))
                 for atom2 in atom.connect12:

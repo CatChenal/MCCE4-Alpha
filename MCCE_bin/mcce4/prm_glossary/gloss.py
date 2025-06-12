@@ -4,10 +4,20 @@
 Module: gloss.py
 
 Holds classes to create and query a glossary of MCCE parameters.
+Cli module to query the run.prm glossary
 
-CHANGELOG:
-* 11-08-24:
-  The run.prm file used is MCCE4/runprms/run.prm.default
+Note: The query is case-sensitive.
+
+Usage:
+1. Query for step information:
+> glossary Step0  # or Step1,2,3
+
+2. Query for full or partial keyword:
+> glossary IONRAD
+> glossary MONTE   # if partial, the query string must be the begining characters
+
+3. Print the entire glossary:
+> glossary --all
 """
 
 import argparse
@@ -17,7 +27,7 @@ from pathlib import Path
 import sys
 from typing import Any, List, Tuple, Union
 
-
+# Annotated run.prm for this purpose:
 runprm = Path(__file__).parent.joinpath("gloss.run.prm.full")
 
 
@@ -81,8 +91,7 @@ class EnvGlossary:
 
     @cache
     def load_runprm(self, filename: str = runprm):
-        """Format in run.prm:  default value - explanation - (KEY)  # maybe a comment 
-        """
+        """Format in run.prm:  default value - explanation - (KEY)  # + a comment maybe"""
         with open(filename) as fh:
             for line in fh:
                 if not line:
@@ -122,7 +131,8 @@ class EnvGlossary:
         if not self.glossary:
             return "Attribute 'glossary' is not set."
         return "\n".join(
-            f"{k}\n   Description: {v[0]}\n   Default: {v[1]}" for k, v in self.glossary.items()
+            f"{k}\n   Description: {v[0]}\n   Default: {v[1]}"
+            for k, v in self.glossary.items()
         )
 
 
@@ -140,18 +150,20 @@ def cli_parser():
     https://github.com/GunnerLab/MCCE4/issues
     """,
     )
-    p.add_argument(
+    mutex = p.add_mutually_exclusive_group()
+    mutex.add_argument(
         "query",
+        metavar="SEARCH_STR_START",
         type=str,
         nargs="?",
         default="",
         help="Query the glossary with the given prefix string; Note: search is case-sensitive!.",
     )
-    p.add_argument(
-        "--print",
+    mutex.add_argument(
+        "--all",
         default=False,
         action="store_true",
-        help="Print the entire glossary in usual query result format.",
+        help="Display the entire glossary in usual query result format.",
     )
 
     return p

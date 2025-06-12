@@ -125,7 +125,7 @@ defaults_per_step = {
     "s3": {
         "d": 4,
         "c": [1, 99999],
-        "s": "delphi",
+        "s": "ngpb",
         "t": "/tmp",
         "p": 1,
         "l": "",

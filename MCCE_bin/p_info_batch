@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+import os
+import sys
+import subprocess
+from pathlib import Path
+import shutil
+
+def get_pdb_files(input_path):
+    pdb_files = []
+    path = Path(input_path)
+    if path.is_dir():
+        pdb_files = list(path.glob("*.pdb"))
+    elif path.is_file():
+        found_pdb = False
+        with open(path, 'r') as f:
+            for line in f:
+                file_path = Path(line.strip())
+                if file_path.exists() and file_path.suffix == '.pdb':
+                    pdb_files.append(file_path)
+                    found_pdb = True
+            if found_pdb == False:
+                print("Could not find valid paths to '.pdb' files in the given file. Aborting...")
+                sys.exit(1)
+    else:
+        print("Invalid input: must be a directory with PDB files, or a text file containing paths to PDB files.")
+        sys.exit(1)
+    return pdb_files
+
+def process_pdb_file(pdb_file, p_info_path):
+    base_name = pdb_file.stem
+    dir_name = Path(base_name)
+    dir_name.mkdir(exist_ok=True)
+
+    dest_pdb = dir_name / pdb_file.name
+    shutil.copy(pdb_file, dest_pdb)
+
+    log_file = dir_name / "p_info.log"
+    with open(log_file, "w") as log:
+        try:
+            subprocess.run([str(p_info_path), pdb_file.name],
+                           cwd=dir_name, stdout=log, stderr=subprocess.STDOUT, check=True)
+        except subprocess.CalledProcessError:
+            print(f"Error running p_info_solo on {pdb_file.name}: see {log_file}")
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python p_info_batch.py <directory_or_filelist.txt>")
+        sys.exit(1)
+
+    # Path to this script's directory
+    script_dir = Path(__file__).resolve().parent
+    p_info_path = script_dir / "p_info_solo"
+
+    if not p_info_path.exists():
+        print(f"Error: p_info_solo not found in script directory: {p_info_path}")
+        sys.exit(1)
+
+    input_path = sys.argv[1]
+    pdb_files = get_pdb_files(input_path)
+
+    if not pdb_files:
+        print("No valid PDB files found.")
+        sys.exit(1)
+
+    for pdb_file in pdb_files:
+        print(f"Processing {pdb_file}...")
+        process_pdb_file(pdb_file, p_info_path)
+
+if __name__ == "__main__":
+    main()
+

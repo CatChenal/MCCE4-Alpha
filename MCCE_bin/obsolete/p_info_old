@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+import argparse
+import os
+import sys
+import subprocess
+
+
+def main():
+
+    parser = argparse.ArgumentParser(
+        description="Wrapper for p_info_solo and p_info_batch, located in MCCE_bin/mcce4/protinfo."
+        " Summarizes useful information about PDB files, obtained from the PDB and step 1 of MCCE."
+        " Learn about amino acid counts, ligands, chains, etc."
+        " Automatically uses p_info_batch if the input is a directory or a non-.pdb file."
+        " p_info_batch output is saved to p_info.log in a corresponding directory."
+    )
+    parser.add_argument(
+        "input_path",
+        type=str,
+        help="Path to a .pdb file, a text file containing paths to PDB files, or a directory of PDBs.",
+    )
+
+    args = parser.parse_args()
+    input_path = args.input_path
+
+    # Get the path to the directory containing this script
+    wrapper_dir = os.path.dirname(os.path.abspath(__file__))
+    # Construct full paths to the executables
+    p_info_path = os.path.join(wrapper_dir, "mcce4", "p_info", "p_info_solo")
+    p_info_batch_path = os.path.join(wrapper_dir, "mcce4", "p_info", "p_info_batch")
+
+    if os.path.isdir(input_path):
+        subprocess.run([p_info_batch_path, input_path])
+        return
+
+    if os.path.isfile(input_path):
+        if not input_path.lower().endswith(".pdb"):
+            subprocess.run([p_info_batch_path, input_path])
+            return
+        else:
+            subprocess.run([p_info_path, input_path])
+            return
+
+    print(f"Error: '{input_path}' is not a valid file or directory.")
+
+
+if __name__ == "__main__":
+
+    main()

@@ -1534,3 +1534,5 @@ HETATM  607  O   HOH A 167      12.812  27.696   7.842  1.00 56.38           O
 ANISOU  607  O   HOH A 167     6699   6617   7575     46   -724  -1970       O  
 MASTER      272    0    0    1    4    0    0    6  574    1    0    5          
 END                                                                             
+MODEL        1
+ENDMDL

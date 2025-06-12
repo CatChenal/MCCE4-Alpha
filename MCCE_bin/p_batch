@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import argparse
 import sys
 import requests
 import shutil
@@ -153,7 +154,33 @@ def process_protein_file(protein_path, script_path):
 
     # Execute the shell script in the directory in parallel without output
     os.system(f"cd {protein_dir} && bash ../{script_path} > /dev/null 2>&1 &")
-   
+
+def update_book_with_new_proteins(protein_dir, book_file='book.txt'):
+    # Read existing entries, keeping full lines but extracting only base protein names for comparison
+    if os.path.exists(book_file):
+        with open(book_file, 'r') as f:
+            lines = [line.rstrip() for line in f]
+        existing_protein_names = {line.split()[0] for line in lines if line.strip()}
+    else:
+        lines = []
+        existing_protein_names = set()
+
+    # Find valid .pdb files in the directory (exclude step*_out.pdb)
+    new_proteins = {
+        f[:-4]
+        for f in os.listdir(protein_dir)
+        if f.endswith('.pdb') and not (f.startswith('step') and f.endswith('_out.pdb'))
+    }
+
+    # Determine which proteins are missing (based on the base name only)
+    missing = new_proteins - existing_protein_names
+
+    # Append missing base names to book.txt
+    if missing:
+        with open(book_file, 'a') as f:
+            for protein in sorted(missing):
+                f.write(protein + '\n')
+
 def should_process_protein(protein_name):
     """Reads book.txt for c and x to check if should process this protein."""
     if os.path.exists("book.txt"):
@@ -165,36 +192,31 @@ def should_process_protein(protein_name):
     return True
 
 def protein_batch():
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
-
-        print("Usage: p_batch <directory_containing_PDB_files> [<shell_script>]\n")
-
-        print("Please provide the path to a directory containing PDB files.\n")
-
-        print("Use flag '-h' or '-help' for more details.")
-        sys.exit(1)
-
-    if sys.argv[1] == "--help" or sys.argv[1] == "-help" or sys.argv[1] == "-h" or sys.argv[1] == "--h":
-
-        print("\np_batch, or Protein Batch, accepts a directory containing protein files. A shell script giving custom instructions for the bench batch may also be given. If custom instructions are not given, a default shell script will be created and executed.\n")
-
-        print("Protein Batch creates a file called book.txt listing working proteins. If book.txt exists prior to execution, the program will read book.txt to know what runs to perform. In this way, a user may edit book.txt to run batches on a subset of desired proteins. Files corresponding to lines containing ' c' or ' x' will not be run during a bench batch.\n")
-
-        print("Usage: p_batch <directory_containing_PDB_files> [<shell_script>]")
-
-        sys.exit(1)
-
-    else:
-
-        input_path = sys.argv[1]
     
-    script_path = sys.argv[2] if len(sys.argv) == 3 else create_default_script()
+    parser = argparse.ArgumentParser(
+        description="p_batch accepts a directory containing PDB files, and executes identical MCCE runs in directories named after each respective PDB file."
+    )
+    parser.add_argument(
+        "input_path",
+        type=str,
+        help="Path to a .pdb file"
+    )
+    parser.add_argument(
+            "-custom", 
+            metavar="script_path", 
+            default="",
+            help="Give a shell script with custom instructions. If not defined, a default script will be created and used."
+    )
+
+    args = parser.parse_args()
+    input_path = args.input_path
+
+    script_path = args.custom
+
+    if not script_path:
+        script_path = create_default_script()
     
     # if file named custom.run.prm exists in the present working directory, make a symbolic link to it in each protein directory, and add "-load_rpm custom.run.prm" to each step. 
-
-    if not os.path.exists(script_path):
-        print(f"Error: Shell script '{script_path}' does not exist.")
-        abort()
 
     modify_script_for_runprm(script_path) # if run.prm.custom exists, make sure shell script sees it
     existing_dirs = []
@@ -227,7 +249,7 @@ def protein_batch():
 
             file_path = os.path.join(input_path, filename)
 
-            if os.path.isfile(file_path) and filename.lower().endswith('.pdb'): # ONLY process PDB files
+            if os.path.isfile(file_path) and filename.lower().endswith('.pdb') and filename != "step1_out.pdb" and filename != "step0_out.pdb" and filename != "step2_out.pdb": # ONLY process PDB files
                 protein_name = os.path.splitext(os.path.basename(file_path))[0]
                 book_list += protein_name + "\n" # add to the book list
 
@@ -237,6 +259,8 @@ def protein_batch():
         if Path("book.txt").is_file(): # if we already have a book.txt
 
             print("\nbook.txt found! Protein files identified in book.txt: ")
+            # update book.txt to include files not already in there
+            update_book_with_new_proteins(input_path)
             # print all valid files found in book.txt
             with open("book.txt") as f:
                 reference_book = f.read() # only print lines w/o "c" and "x"
@@ -245,13 +269,12 @@ def protein_batch():
             for line in reference_book.split("\n"):
                 if " c" not in line and " x" not in line:
                     prots_to_run += line + "\n"
-                    print(line)
 
-            if prots_to_run:
+            if prots_to_run.strip():
                 print("These proteins will be run:\n\n" + prots_to_run +  "Pre-existing directories for these proteins will be emptied and replaced with information from the new run. ")
 
             else:
-                print("No runnable proteins found. Clean the book and try again.")
+                print("No runnable proteins found. Remove 'c' or 'x' from lines in book.txt to make them runnable, add protein files to run, or delete book.txt to re-do all runs.")
                 abort()
 
             if Path("run.prm.custom").is_file():
@@ -261,21 +284,17 @@ def protein_batch():
             response = input("Run MCCE with the current settings? (yes/y/no)").strip().lower() 
             
             # should empty protein file prior to processing so mcce_stat works properly
-
             if response == "yes" or response == "y":    
                 
                 modify_script_for_runprm(script_path)
                 for filename in os.listdir(input_path):
-
-                    if should_process_protein(filename[0:-4]) == True: # is filename minus ".pdb" in book.txt?
-                        
+                    if os.path.basename(filename).split('.')[0] in prots_to_run:   
                         file_path = os.path.join(input_path, filename)
                         if os.path.isfile(file_path) and filename.lower().endswith('.pdb'):
                             process_protein_file(file_path, script_path) # if so, process as usual
                             print("Processing " + file_path + "...")
 
-                print("\nBash script is being executed in each directory. You can double check processes are being executed by running command 'top', or by running 'mcce_stat'")
-            
+                print("\nBash script is being executed in each directory. Double check processes are running with command 'top', or 'mcce_stat'. mcce_stat also updates book.txt to reflect completed runs.") 
             else:
                 abort()
 
@@ -296,11 +315,12 @@ def protein_batch():
                 modify_script_for_runprm(script_path)
                 for filename in os.listdir(input_path): # check if filename is also in book.txt 
                     file_path = os.path.join(input_path, filename)
-                    if os.path.isfile(file_path) and filename.lower().endswith('.pdb'):
+                    #if os.path.isfile(file_path) and filename.lower().endswith('.pdb'):
+                    if os.path.isfile(file_path) and filename.lower().endswith('.pdb') and filename != "step1_out.pdb" and filename != "step0_out.pdb" and filename != "step2_out.pdb":    
                         process_protein_file(file_path, script_path)
                         print("Processing " + file_path + "...")
 
-                print("\nBash script is being executed in each directory. You can double check processes are being executed by running command 'top', or by running 'mcce_stat'")
+                print("\nBash script is being executed in each directory. Double check processes are running with command 'top', or 'mcce_stat'. mcce_stat also updates book.txt to reflect completed runs.")
             else:
                 abort()
 

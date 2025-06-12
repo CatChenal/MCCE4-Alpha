@@ -5,14 +5,13 @@ Module: run.py
 Functions to launch mcce step1.py
 """
 
-
 from argparse import Namespace
 import logging
 from pathlib import Path
 import subprocess
 from typing import Union
+
 from mcce4.protinfo import RUN1_LOG
-from mcce4.protinfo.io_utils import make_executable
 
 
 logger = logging.getLogger(__name__)
@@ -71,8 +70,8 @@ def write_script(dest_dirpath: Path, sh_txt: str):
     """Write an executable bash script to run mcce step1."""
     sh_path = dest_dirpath.joinpath("s1.sh")
     sh_path.write_text(sh_txt)
-
-    make_executable(sh_path)
+    # make executable:
+    sh_path.chmod(0o755)
 
     return
 

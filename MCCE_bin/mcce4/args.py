@@ -33,7 +33,8 @@ class Step1Options:
         parser.add_argument("-ftpl_folder", metavar="ftpl_folder", help="Load ftpl files from alternative folder.", default="")
         parser.add_argument("-load_runprm", nargs="+", default=[], metavar="file", help="Load additional run.prm files in this order.")
         parser.add_argument("-load_options", default="", metavar="file", help="Command options can be loaded from a file, one option per line")
-        parser.add_argument("inpdb", metavar="inpdb", help="Input pdb file, default is prot.pdb", default="", nargs="?")
+        parser.add_argument("inpdb", metavar="inpdb", help="Input pdb file, default is prot.pdb", default="prot.pdb", nargs="?")
+        parser.add_argument("--debug", action="store_true", default=False, help="Enable debug mode")
         self.args = parser.parse_args()
 
 
@@ -52,6 +53,7 @@ class Step2Options:
         parser.add_argument("--ga ", help="Run Genetic Algorithm to generate conformers.", default=False, action="store_true")
         parser.add_argument("-load_runprm", nargs="+", default=[], metavar="file", help="Load additional run.prm files in this order.")
         parser.add_argument("-load_options", default="", metavar="file", help="Command options can be loaded from a file, one option per line")
+        parser.add_argument("--debug", action="store_true", default=False, help="Enable debug mode")
         self.args = parser.parse_args()
 
 

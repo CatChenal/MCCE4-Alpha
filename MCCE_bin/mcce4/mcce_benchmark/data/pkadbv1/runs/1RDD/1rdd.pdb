@@ -1711,3 +1711,5 @@ CONECT  371 1240
 CONECT 1240   83   88  371                                                      
 MASTER      366    0    1    7    5    0    1    6 1274    1    4   12          
 END                                                                             
+MODEL        1
+ENDMDL

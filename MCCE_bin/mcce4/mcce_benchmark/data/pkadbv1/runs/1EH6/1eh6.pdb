@@ -1839,3 +1839,5 @@ CONECT  544 1274
 CONECT 1274    6  148  188  544                                                 
 MASTER      332    0    1    8    5    0    2    6 1426    1    5   16          
 END                                                                             
+MODEL        1
+ENDMDL

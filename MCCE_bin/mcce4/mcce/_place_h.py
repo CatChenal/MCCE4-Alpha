@@ -36,6 +36,40 @@ atom_mass = {" H" : 1,
                 " K": 39}
 
 
+def sp3_2known(r0, r1, r2):
+    """
+    Place 2 H (r3 and r4) atoms to r0 when r1 and r2 are known
+    """
+    #	r3 r4
+    #	  \/
+    #	   r0 - r2
+    #	   |
+    #	   r1
+    #
+    # r0 is sp3 type.
+    # r0, r1, r2's coordinates are known.
+    # r3, r4's coordinates are to be determined.
+    #
+    # Solution: r3, r4 are placed at the bisector of r1 and r2
+    n01 = vector_normalize(vector_vminusv(r1, r0))
+    n02 = vector_normalize(vector_vminusv(r2, r0))
+    bisect = vector_normalize(vector_scale(vector_vplusv(n01, n02), -1))  # bisector of n01 and n02, opposite direction
+    norm102 = vector_normalize(vector_vxv(n01, n02))
+    half_angle = math.radians(bond_angle_sp3 / 2)
+
+    cos_half_angle = math.cos(half_angle)
+    sin_half_angle = math.sin(half_angle)
+
+    # r3 = r0 + bond_len * (bisect * cos(half_angle) + norm102 * sin(half_angle));
+    # r4 = r0 + bond_len * (bisect * cos(half_angle) - norm102 * sin(half_angle));
+    r3 = vector_vplusv(r0, vector_scale(vector_vplusv(vector_scale(bisect, cos_half_angle), vector_scale(norm102, sin_half_angle)), bond_length))
+    r4 = vector_vplusv(r0, vector_scale(vector_vminusv(vector_scale(bisect, cos_half_angle), vector_scale(norm102, sin_half_angle)), bond_length))
+
+    return (r3, r4)
+
+
+
+
 def sp3_1known(r0, r1, r2):
     """
     Place 3 H (r3, r4, and r5) atoms to r0
@@ -54,33 +88,28 @@ def sp3_1known(r0, r1, r2):
     # Solution:
     # 1. Calculate v01, this is the direction of r1 from r0
     # 2. Calculate uz = n01/|n01|, this is the unit vector of n01
-    # 3a. If r2 is not defined, pick an arbitrary orthogonal vector to uz, otherwise use r2
+    # 3a. If r2 is not defined, pick an arbitrary orthogonal vector to uz as uy
     # 3b. Calculate v012, this is the direction of plane r0, r1, r2
-    # 4. Calculate uy = v012/|v012|, this is the unit vector of v012
-    # 5. Calculate ux = uy x uz, this is the unit vector of uy cross uz
-    # 6. ux, uy, uz is the new coordinate system, with uz (r01's unit vector) as z axis and other two as x and y axes
-    # 7. Calculate r3, r4, r5 in the new coordinate system
-    # 8. return r3, r4, r5 in the original coordinate system
+    #     Calculate uy = v012/|v012|, this is the unit vector of v012
+    # 4. Calculate ux = uy x uz, this is the unit vector of uy cross uz
+    # 5. ux, uy, uz is the new coordinate system, with uz (r01's unit vector) as z axis and other two as x and y axes
+    # 6. Calculate r3, r4, r5 in the new coordinate system
+    # 7. return r3, r4, r5 in the original coordinate system
 
     # 1. Calculate v01, this is the direction of r1 from r0
     v01 = vector_vminusv(r1, r0)
     # 2. Calculate uz = n01/|n01|, this is the unit vector of n01
     uz = vector_normalize(v01)
-    # 3a. If r2 is not defined, pick an arbitrary orthogonal vector to uz, otherwise use r2
-    if r2 is None:
-        ux = vector_normalize(vector_orthogonal(uz))   # pick an arbitrary orthogonal vector to uz
-    else:
-        ux = vector_normalize(vector_vminusv(r2, r0))
-        
-        
-    # 3b. Calculate v012, this is the direction of plane r0, r1, r2
-    v012 = vector_vxv(vector_vminusv(r2, r1), vector_vminusv(r1, r0))
-    # 4. Calculate uy = v012/|v012|, this is the unit vector of v012
-    uy = vector_normalize(v012)
-    # 5. Calculate ux = uy x uz, this is the unit vector of uy cross uz
+
+    if r2 is None:    # 3a. If r2 is not defined, pick an arbitrary orthogonal vector to uz
+        uy = vector_normalize(vector_orthogonal(uz))   # pick an arbitrary orthogonal vector to uz
+    else:            # 3b. Calculate v012, this is the normal direction of plane r0, r1, r2
+        v012 = vector_vxv(vector_vminusv(r2, r1), vector_vminusv(r1, r0))
+        uy = vector_normalize(v012)
+    # 4. Calculate ux = uy x uz, this is the unit vector of uy cross uz
     ux = vector_normalize(vector_vxv(uy, uz))
-    # 6. ux, uy, uz is the new coordinate system, with uz (r01's unit vector) as z axis and other two as x and y axes
-    # 7. Calculate r3, r4, r5 in the new coordinate system
+    # 5. ux, uy, uz is the new coordinate system, with uz (r01's unit vector) as z axis and other two as x and y axes
+    # 6. Calculate r3, r4, r5 in the new coordinate system
     cos_theta = math.cos(math.radians(bond_angle_sp3))
     sin_theta = math.sin(math.radians(bond_angle_sp3))
     u3 = vector_normalize(vector_vplusv(vector_scale(uz, cos_theta), vector_scale(ux, sin_theta)))
@@ -286,26 +315,10 @@ def place_h(self):
                                 # r0, r1, r2's coordinates are known.
                                 # r3, r4's coordinates are to be determined.
                                 if len(missing_h) <= 2:     # place the 3rd and 4th H atoms at defined places
-                                    n01 = vector_normalize(vector_vminusv(connected_heavy_atoms[0].xyz, atom.xyz))
-                                    n02 = vector_normalize(vector_vminusv(connected_heavy_atoms[1].xyz, atom.xyz))
-                                    bisect304 = vector_normalize(vector_scale(vector_vplusv(n01, n02), -1))  # bisect304 is the bisector of n01 and n02, opposite direction
-                                    norm102 = vector_normalize(vector_vxv(n01, n02))
-                                    half_angle = math.radians(bond_angle_sp3 / 2)
-
-                                    # r3 = r0 + bond_len * (bisect304 * cos(half_angle) + norm102 * sin(half_angle));
-                                    # r4 = r0 + bond_len * (bisect304 * cos(half_angle) - norm102 * sin(half_angle));
-                                    r3 = vector_vplusv(atom.xyz, 
-                                                       vector_scale(
-                                                           vector_vplusv(
-                                                               vector_scale(bisect304, math.cos(half_angle)), 
-                                                               vector_scale(norm102, math.sin(half_angle)))
-                                                            , bond_length))
-                                    r4 = vector_vplusv(atom.xyz, 
-                                                       vector_scale(
-                                                           vector_vminusv(
-                                                               vector_scale(bisect304, math.cos(half_angle)), 
-                                                               vector_scale(norm102, math.sin(half_angle)))
-                                                            , bond_length))
+                                    r0 = atom.xyz
+                                    r1 = connected_heavy_atoms[0].xyz
+                                    r2 = connected_heavy_atoms[1].xyz
+                                    r3, r4 = sp3_2known(r0, r1, r2)
                                     if len(missing_h) == 1:
                                         h = create_h(atom, missing_h.pop(), r3)
                                         conf.atom.append(h)
@@ -534,7 +547,25 @@ def place_h(self):
                                     sys.exit()
 
                         elif orbital.lower() == "sp":
-                            print("sp")
+                            n_known = len(connected_heavy_atoms)
+                            if n_known == 1:  # place H on the oppsite side of the known atom
+                                # r2
+                                #  \
+                                #   r0
+                                #    \
+                                #     r1
+                                r0 = atom.xyz
+                                r1 = connected_heavy_atoms[0].xyz
+                                r2 = vector_vplusv(r0, vector_scale(vector_vminusv(r1, r0), -bond_length))
+                                if len(missing_h) == 1:
+                                    h = create_h(atom, missing_h.pop(), r2)
+                                    conf.atom.append(h)
+                            else:
+                                print("Atom %s on %s must of exactly one connected heavy atom to place missing H, connected %s" % (atom.name, conf.confID, [heavy.name for heavy in connected_heavy_atoms]))
+                                logging.error("Not enough infornation to place H on atom %s in conformer %s" % (atom.name, conf.confID))
+                                sys.exit()
+                            
+                            
                         else:
                             logging.error("Unknown orbital type %s for atom %s in conformer" % (orbital, atom.name, conf.confType))
                             sys.exit()

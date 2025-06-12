@@ -3,7 +3,7 @@
 """
 Tool file: bench_amend_pickle_level
 
-Ad hoc tool to change the conformer-making level value in the 
+Tool to edit the conformer-making level value in the 
 pickled cli args file created by bench_setup.
 """
 
@@ -25,7 +25,7 @@ def main():
     except TypeError:
         print(f"Could not read input into an integer; given: {ans}")
         return
-    
+
     if new_lev not in [1, 2, 3]:
         print(f"Unknown level: {new_lev}; choices are 1, 2, or 3. Exiting.")
         return
@@ -44,7 +44,7 @@ def main():
     if old_lev == new_lev:
         print("Same levels, no change. Done.")
         return
-    
+
     pkl_d["conf_making_level"] = new_lev
     print(f"New level: {new_lev} means {iou.levels2names[new_lev]}.")
     # Re-serialized to the same data type as the original:

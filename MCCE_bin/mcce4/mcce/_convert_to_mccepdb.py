@@ -7,20 +7,20 @@ def initialize_atom_qr(self):
     for res in self.protein.residue:
         for conf in res.conf:
             for atom in conf.atom:
-                key = ("CHARGE", atom.confType, atom.name)
+                key = ("CHARGE", conf.confType, atom.name)
                 if key in self.tpl.db:
                     atom.charge = self.tpl.db[key]
                 else:
-                    logging.warning("Parameter key %s doesn't exist, defaul to value 0." % str(key))
+                    logging.debug("Parameter key %s doesn't exist, defaul to value 0." % str(key))
                     atom.charge = 0.0
-                key = ("RADIUS", atom.confType, atom.name)
+                key = ("RADIUS", conf.confType, atom.name)
                 if key in self.tpl.db:
                     radius_param = self.tpl.db[key]
                     atom.r_bound = radius_param.r_bound
                     atom.r_vdw = radius_param.r_vdw
                     atom.e_vdw = radius_param.e_vdw
                 else:
-                    logging.warning("Parameter key %s doesn't exist, default to value 0." % str(key))
+                    logging.debug("Parameter key %s doesn't exist, default to value 0." % str(key))
                     atom.r_bound = 0.0
                     atom.r_vdw = 0.0
                     atom.e_vdw = 0.0

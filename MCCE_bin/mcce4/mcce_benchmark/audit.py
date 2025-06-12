@@ -29,12 +29,14 @@ def proteins_to_tsv(prot_file:str) -> list:
 """
 
 import logging
-import numpy as np
-import pandas as pd
 from pathlib import Path
 import subprocess
 import shutil
 from typing import Union
+
+import numpy as np
+import pandas as pd
+
 from mcce4.mcce_benchmark import BENCH, RUNS_DIR, SUB1, SUB2
 from mcce4.mcce_benchmark.pkanalysis import analyze_runs, expl_pks_masterfile_to_df
 
@@ -49,6 +51,22 @@ The only 'active' pdb (to be selected as 'prot.pdb'), must be the one
 listed in the 'Use' colummn in the 'proteins.tsv' file.
 The function audit.reset_multi_models() must be re-run to fix the problem.
 """
+
+
+def pdb_is_obsolete(pdb_fp: str) -> Union[None, str]:
+    """Returns the pdb id of the superseding structure if found,
+    else returns None.
+    """
+    cmd = f"egrep '^OBSLTE' {pdb_fp}"
+    found = subprocess.run(cmd,
+                           check=True,
+                           capture_output=True,
+                           text = True,
+                           shell = True)
+    if isinstance(found, subprocess.CompletedProcess):
+        return found.stdout.split()[-1]
+    else:
+        return None
 
 
 def redo_refset_analysis():

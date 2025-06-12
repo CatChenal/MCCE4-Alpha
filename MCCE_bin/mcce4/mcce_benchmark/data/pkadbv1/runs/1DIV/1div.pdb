@@ -1734,3 +1734,5 @@ ATOM   1435  HZ3 LYS A 149      58.413  18.541 101.778  1.00  0.00           H
 TER    1436      LYS A 149                                                      
 MASTER      244    0    0    6    6    0    0    6 1435    1    0   12          
 END                                                                             
+MODEL        1
+ENDMDL

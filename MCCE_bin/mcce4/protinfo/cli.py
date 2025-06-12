@@ -32,49 +32,27 @@ from pprint import pformat
 import sys
 import time
 from typing import Tuple, Union
+
+from mcce4.downloads import get_rcsb_pdb
 from mcce4.io_utils import show_elapsed_time
-from mcce4.protinfo import RPT, USER_MCCE, NO_MCCE_MSG, LOG_FILE
-from mcce4.protinfo import info, io_utils as iou
+from mcce4.protinfo import CLI_NAME, ERR, RPT, USER_MCCE
+from mcce4.protinfo import parsers
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(CLI_NAME)
 
 
+NO_MCCE_MSG = """The mcce executable was not found.
+The protinfo report will not include any information or diagnostics
+from MCCE step1.py."""
 if USER_MCCE is None:
     logger.warning(NO_MCCE_MSG)
 
 
-CLI_NAME = "protinfo"
 USAGE = """
  >protinfo 1fat --fetch
  >protinfo 1fat.pdb --noter [+ other step1.py options, e.g. --wet, etc.]
 """
-
-
-class ERR:
-    """Output error messages from fstrings."""
-
-    def __init__(self, cli_name: str = CLI_NAME):
-        self.cmd = cli_name
-
-    def FETCH_EXISTING_FILE(self, pdb: Path) -> str:
-        return f"""
-The input pdb ({pdb.name}) already exists.
-To use it, remove the --fetch flag; run:
-    {self.cmd} {pdb.name}
-To overwrite it with the downloaded biological assembly; run:
-    {self.cmd} {pdb.stem} --fetch
-"""
-
-    def MISSING_FETCH_FLAG(self, pdbid: str) -> str:
-        return f"""
-The input pdb ({pdbid}) seems to be a pdbid. To download its
-biological assembly, run this command:
-    {self.cmd} {pdbid} --fetch
-"""
-
-    def CALL_NOT_IN_FILE_DIR(self) -> str:
-        return f"Call {self.cmd} from where the pdb resides.\n"
 
 
 err = ERR()
@@ -162,13 +140,13 @@ def get_pdb_rpt_climode(
     out_dir = run_dir.joinpath("prerun")
     if not out_dir.exists():
         out_dir.mkdir()
-    
+
     if do_fetch:
         if not isinstance(pdb, Path):
-            pdb = iou.get_rcsb_pdb(pdb)
+            pdb = get_rcsb_pdb(pdb)
         else:
             if not pdb.exists():
-                pdb = iou.get_rcsb_pdb(pdb.stem)
+                pdb = get_rcsb_pdb(pdb.stem)
 
         if not isinstance(pdb, Path):
             logger.error("Could not download from rcsb.org.")
@@ -180,11 +158,11 @@ def get_pdb_rpt_climode(
         inpdb_fp.symlink_to(f"../{pdb.name}")
 
     logger.info(f"Processing {inpdb_fp.stem.upper()}.")
-    prot_d, step1_d = info.collect_info(inpdb_fp, args)
-    
+    prot_d, step1_d = parsers.collect_info(inpdb_fp, args)
+
     logger.info(f"Command line options used:\n{pformat(vars(args))}")
 
-    info.write_report(inpdb_fp, prot_d, step1_d)
+    parsers.write_report(inpdb_fp, prot_d, step1_d)
 
     return inpdb_fp
 
@@ -270,7 +248,7 @@ def pi_parser():
 
 def prot_info_cli(argv=None):
     """Cli 'main' function: produces a Markdown report for a single pdb."""
-    print(f"Start of protinfo. Details logged to {LOG_FILE!s}")
+    # print(f"Start of protinfo. Details logged to {LOG_FILE!s}")
 
     cli_parser = pi_parser()
     args = cli_parser.parse_args(argv)

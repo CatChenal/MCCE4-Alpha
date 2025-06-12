@@ -19,7 +19,7 @@ from typing import Tuple, Union
 import sys
 import numpy as np
 import pandas as pd
-from mcce4.io_utils import mf, mcfile2df
+from mcce4.io_utils import mccepdbline_positions, mcfile2df, mf
 from mcce4.mcce_benchmark import (
     BENCH,
     ENTRY_POINTS,
@@ -295,53 +295,6 @@ def save_confs_per_res(pdbs_dir: str, overwrite: bool = True) -> None:
     if txt_fin.exists() and overwrite:
         txt_fin.unlink()
     txt_fin.write_text(df.to_string() + "\n")
-
-    return
-
-
-def get_multiconf_res(s2fp: Path):
-    """Given the path to a step2_out.pdb file in a runs/ subfolder, save the list of
-    residues with multiple conformers to file in the analysis directory if it exists, 
-    else in the same directory."
-    """
-    s2df = pd.read_fwf(s2fp, header=None)
-
-    gly = s2df[s2df[3]=="GLY"][4]
-    n_gly = gly.unique().size
-
-    # exclude bkb confs
-    msk = s2df[10].str.startswith("BK")
-    s2df = s2df[~msk]
-
-    uniqres = s2df[3].unique()
-    res_count = s2df[4].str[1:5].astype(int).max()
-    ter = (uniqres[0] == "NTR") * 2
-    tot_res = res_count + ter
-
-    s2df["resconf"] = s2df[3] + "_" + s2df[4]
-    conf_count = s2df["resconf"].unique().size
-    mean_confs_per_res = round(conf_count / res_count)
-
-    uniqdf = pd.DataFrame(s2df["resconf"].unique(), columns=["res"])
-    uniqdf_count = uniqdf.res.str[:-4].value_counts()
-
-    tot_recombined = uniqdf_count.shape[0] + n_gly
-    logger.info((f"Check non-bkb count + glycines: {tot_recombined} == "
-                 f"res + ter: {tot_res} ? {tot_recombined == tot_res}"
-                 )
-    )
-    multiconfs = uniqdf_count[uniqdf_count>1]
-    multiconfs = multiconfs.reset_index()
-    multiconfs.columns = ["res", "confs"]
-    multiconfs.set_index(multiconfs.res.str[-4:].astype(int), inplace=True)
-    pdbid = s2fp.parent.stem
-    multiconfs.index.name = pdbid
-    adir = s2fp.parent.parent.parent.joinpath(ANALYZE_DIR)
-    if adir.exists():
-        fp = adir.joinpath(f"{pdbid}_{FILES.MULTICONF_RES.value}")
-    else:
-        fp = s2fp.parent.joinpath(f"{pdbid}_{FILES.MULTICONF_RES.value}")
-    fp.write_text(multiconfs.to_string())
 
     return
 

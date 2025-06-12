@@ -15,7 +15,7 @@ class ROT_STAT_item:
         self.ioni = 0        # conformer count after ionization confomers are made, proton added in this step
         self.torh = 0        # conformer count after torsion minimum H is created
         self.oh = 0          # conformer count after H bond hydrogen is created
-        self.elect = 0       # conformer count after clustering and election are made (limit conformer to <= 999)
+        self.prune = 0       # conformer count after clustering and election are made (limit conformer to <= 999)
 
 
 class ROT_STAT:
@@ -38,7 +38,7 @@ class ROT_STAT:
             logging.error("Valid names are %s." % str(attributes))
 
     def write_stat(self, prot):
-        header = "  Residue  Start   Swap Rotate  Swing Repack  Hbond Xposed   Ioni   TorH     OH  Elect\n"
+        header = "  Residue  Start   Swap Rotate  Swing Repack  Hbond Xposed   Ioni   TorH     OH  Prune\n"
         # items_in_header = len(header.strip().split()) - 1
         total_conf = ROT_STAT_item()
         attributes = [x for x in total_conf.__dir__() if x[0] != "_"]
@@ -61,7 +61,7 @@ class ROT_STAT:
                                                                               stat.ioni,
                                                                               stat.torh,
                                                                               stat.oh,
-                                                                              stat.elect)
+                                                                              stat.prune)
             for attr in attributes:
                 setattr(total_conf, attr, getattr(total_conf, attr) + getattr(stat, attr))
             lines.append(line)
@@ -78,7 +78,7 @@ class ROT_STAT:
                                                                           total_conf.ioni,
                                                                           total_conf.torh,
                                                                           total_conf.oh,
-                                                                          total_conf.elect)
+                                                                          total_conf.prune)
         lines.append(line)
 
         return lines
@@ -94,6 +94,7 @@ class MCCE:
     from .mcce._make_termini import make_termini
     from .mcce._convert_to_mccepdb import convert_to_mccepdb
     from .mcce._convert_to_mccepdb import initialize_atom_qr
+    from .mcce._convert_to_mccepdb import initialize_atom_id
     from .mcce._make_connect import make_connect12
     from .mcce._make_connect import make_connect13
     from .mcce._make_connect import make_connect14
@@ -116,6 +117,8 @@ class MCCE:
     from .mcce._rot_ionization import rot_ionization
     from .mcce._place_missing import place_missing_heavy
     from .mcce._place_h import place_h
+    from .mcce._hbond_h import hbond_h
     from .mcce._vdw import assign_vdw_param
+    from .mcce._rot_prune import prune_conf
     from mcce4.mcce._vdw import make_blob
 

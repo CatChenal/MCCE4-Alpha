@@ -720,3 +720,5 @@ HETATM  460  O   HOH A  79      14.424  22.340   4.447  0.64 26.95           O
 HETATM  461  O   HOH A  80      12.095  14.835  35.393  0.81 48.91           O  
 MASTER      217    0    0    1    4    0    0    6  460    1    0    5          
 END                                                                             
+MODEL        1
+ENDMDL

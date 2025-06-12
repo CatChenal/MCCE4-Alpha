@@ -8,7 +8,7 @@ Contains values, conversion factors, lists or dicts for use in MCCE4.
 
 NEUTRAL_RES = ["ALA", "ASN", "GLN", "GLY", "ILE", "LEU","MET", "PHE", "PRO", "SER", "THR", "TRP", "VAL"]
 IONIZABLE_RES = ["ASP", "GLU", "ARG", "HIS", "LYS", "CYS", "TYR", "NTR", "CTR"]
-ALL_RES = sorted(NEUTRAL_RES + IONIZABLE_RES)
+ALL_RES = IONIZABLE_RES + NEUTRAL_RES
 ACIDIC_RES = ["ASP", "GLU"]
 BASIC_RES = ["ARG", "HIS", "LYS"]
 POLAR_RES = ["CYS", "TYR"]

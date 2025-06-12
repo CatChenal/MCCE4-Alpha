@@ -1341,3 +1341,5 @@ CONECT  881  237
 CONECT  974   49                                                                
 MASTER      196    0    0    6    7    8    0    6 1069    1    8   10          
 END                                                                             
+MODEL        1
+ENDMDL

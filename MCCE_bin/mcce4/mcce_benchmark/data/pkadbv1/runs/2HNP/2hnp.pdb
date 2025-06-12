@@ -2640,3 +2640,5 @@ ATOM   2270  CE  MET A 282      62.634  20.826  29.231  1.00 56.78           C
 TER    2271      MET A 282                                                      
 MASTER      285    0    0    8   19    0    0    6 2270    1    0   25          
 END                                                                             
+MODEL        1
+ENDMDL

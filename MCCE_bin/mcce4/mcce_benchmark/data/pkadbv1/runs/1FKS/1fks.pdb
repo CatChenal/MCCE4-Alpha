@@ -1884,3 +1884,5 @@ ATOM   1663  HG3 GLU A 107     -60.657 -30.656  86.839  1.00  0.00           H
 TER    1664      GLU A 107                                                      
 MASTER      166    0    0    1   10    0    2    6  832    1    0    9          
 END                                                                             
+MODEL        1
+ENDMDL

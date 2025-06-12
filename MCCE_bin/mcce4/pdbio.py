@@ -25,6 +25,7 @@ Classes:
 
 """
 # ...................................................................................................| 100
+
 from collections import defaultdict, Counter
 import glob
 import logging
@@ -35,11 +36,16 @@ import re
 import sys
 from textwrap import wrap
 from typing import Tuple, Union
-from mcce4.constants import IONIZABLE_RES
-from .geom import *
 
+import numpy as np
+
+from mcce4.constants import IONIZABLE_RES
+from .geom import ddvv
+
+
+logging.basicConfig(level=logging.INFO, 
+                    format="[ %(levelname)s ] %(name)s - %(funcName)s:\n  %(message)s")
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class Atom:
@@ -76,7 +82,6 @@ class Atom:
         connect14 [list]: connected atoms at distance level 1-4.
         history (str): conformer history string.
     """
-
     def __init__(self) -> None:
         """
         Declare variable types and default values
@@ -212,7 +217,6 @@ class Atom:
         self.connect13 = []
         self.connect13 = []
 
-
     def as_ATOM_line(self) -> str:
         """Use an ATOM instance data to build an undifferentiated pdb ATOM line.
         Note:
@@ -273,9 +277,8 @@ class Conformer:
         self.vdw1 = 0.0  # vdw to backbone
         self.crg = 0.0  # net charge
         self.history = ""  # conformer history string
-        self.calculated = (
-            False  # flag if all energy terms were calculated; reported in head3.lst.
-        )
+        # calculated flag: if all energy terms were calculated; reported in head3.lst.
+        self.calculated = False
 
     def clone(self):
         """Clone self and return a confomer with updated atom 12 connectivity. This is useful when creating a new conformer."""
@@ -310,7 +313,6 @@ class Conformer:
                     atom2.connect12.append(atom)
             atom.connect12_inherited = []
         return new_conf
-
 
     def init_by_atom(self, atom):
         """Initialize this conformer by a valid atom record"""
@@ -359,7 +361,6 @@ class Blob:
             self.radius = d_far + r_max
 
 
-
 class Residue:
     """
     Define residue properties
@@ -377,16 +378,38 @@ class Residue:
             for atom in conf.atom:
                 atom.confNum = conf.confNum
             conf.confID = "%5s%c%04d%c%03d" % (conf.confType, conf.chainID, conf.resSeq, conf.iCode, conf.confNum)
-        # serialize history string: heavy atom
-        counter = {}
-        for conf in self.conf:
-            id = conf.history[:3]  # conf type + heavy atom making type
-            if id in counter:
-                counter[id] += 1
-            else:
-                counter[id] = 0  # count from 0
 
-            conf.history = conf.history[:3] + "%03d"%(counter[conf.history[:3]]%1000) + conf.history[6:]
+        # renumber the history string. sample history str "01R000M000"
+        # history[3:6] is the conformer number for heavy atom
+        # history[7:10] is the conformer number for H atom
+        # Conformer number for H atom is recounted if the conformer number for heavy atom is changed.
+        recorded_heavy_type = {}                            # this records the heavy atom conf types that are already discovered
+        counter_heavy_type = {}                             # this counts the heavy atom conf types based on [:3]
+        for conf in self.conf:
+            heavy_confType = conf.history[:3]               # this identifies the heavy atom conf type
+            heavy_confType_withNumber = conf.history[:6]    # this identifies the heavy atom conf type with number
+            if heavy_confType_withNumber not in recorded_heavy_type:   # first time seeing this heavy_confType_withNumber, increase the counter of the heavy_type
+                if heavy_confType in counter_heavy_type:
+                    counter_heavy_type[heavy_confType] += 1
+                else:
+                    counter_heavy_type[heavy_confType] = 0
+                new_confNum = recorded_heavy_type[heavy_confType_withNumber] = counter_heavy_type[heavy_confType]
+            else:                                           # use the existing number
+                # counter_heavy_type[heavy_confType] = 0      # renumber from 0
+                new_confNum = recorded_heavy_type[heavy_confType_withNumber]
+
+            conf.history = "%3s%03d%s" % (heavy_confType, new_confNum, conf.history[6:])
+
+        # renumber H atom history
+        heavy_id = {}
+        for conf in self.conf:
+            id = conf.history[:7]
+            if id in heavy_id:
+                heavy_id[id] += 1
+            else:
+                heavy_id[id] = 0
+            conf.history = conf.history[:7] + "%03d" % heavy_id[id]
+
 
 class Protein:
     """
@@ -436,8 +459,7 @@ class Protein:
 
 
 class CONNECT_param:
-    """CONNECT record
-    Defines ftpl value format."""
+    """CONNECT record. Defines ftpl value format."""
 
     def __init__(self, value_str):
         fields = value_str.split(",")
@@ -1057,7 +1079,7 @@ class Structure:
         if detected_model:  # model ended with ATOM or HETATM, push this last model
             self.models.append(model)
             detected_model = False
-        # some files, e.g. 1b16.pdb are missing a "MODEL" line:
+        # some files, e.g. 1b16.pdb, 4lzt.pdb may not have a "MODEL" line:
         if not self.models:
             self.n_models = 0
             logger.warning(f"{self.pdb_fp!s} is missing a MODEL line.")

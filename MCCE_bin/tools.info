@@ -1,4 +1,4 @@
-Tools in MCCE4/MCCE_bin - Last updated: 07/5/24:
+Tools in MCCE4/MCCE_bin - Last updated: 04/08/25:
   - bench_setup    :: Setup a dataset for multiple runs & write 'prerun' report.
                 + 4 sub-commands:
                   0. "pdbids"
@@ -21,42 +21,18 @@ Tools in MCCE4/MCCE_bin - Last updated: 07/5/24:
                  + 2 sub-commands: 1. "pkdb_pdbs", 2. "user_pdbs", as above.
   - bench_compare  :: Do "extrinsic" comparison of 2 sets of runs.
   - bench_batch    :: Submit a batch of N (10) runs [to be used if scheduler fails].
-  - bench_amend_pickle_level :: Correct the conformer-making level in the saved bench_setup cli args file.
+  - bench_amend_pickle_level :: Change the conformer-making level in the saved bench_setup cli args file.
   - bench_softlink.sh :: Soft-link customized run.prm, extra.tpl or name.txt files in the current bench_dir
                          as 'run.prm.user', 'extra.tpl' or 'name.txt' in each of the proteins subfolders of
                          bench_dir/runs/.
 
-  - clear_mcce_folder :: Delete all MCCE outputs from a folder.
-                         Kept: run.prm, original pdb and prot.pdb, as well as any non-MCCE files.
-
-  - extract_md_frames :: Extract the trajectory's frames with the given indices into pdb files.
-
-  - filesdiff      :: Obtain the column difference between two mcce files, or diff all files in
-                      two mcce output folders. The difference file is saved with the 'diff_' prefix.
-                      Applicable to these files:
-                      all_pK.out, all_sum_crg.out, entropy.out, fort.38, head3.lst, pK.out, 
-                      residues_stats.txt, sum_crg.out, vdw0.lst.
-  
-  - fix_psf_mdanalysis :: Can provide a reformatted PSF file if `MDAnalysis` fails to parse the given psf file.
-
-  - getpdb         :: Download one or more (bioassembly) pdb files from the RSCB Protein Data Bank.
-
-  - glossary       :: Query a glossary of MCCE parameters (based on runprms/run.prm.default).
+  - glossary       :: Query a glossary of MCCE parameters.
                       - Search is case-sensitive!
-                      - To query for a specific step, the query should be 'StepN', e.g. Step1.
-  
-  - multiconf_res  :: Given a mcce dirpath, save the list of residues with multiple
-                      conformers to file in the same directory.
-
-  - md_clustering  :: Given a topology file and one or more trajectories, save the pdbs of the clusters elements in
-                      the topology file's parent directory.
+                      - To query for a specific step, the query should be 'StepN', e.g. Step0.
 
   - precheck       :: Simple check pdb information.
 
-  - postrun        :: Flags problem residues: non-canonical charge, high chi^2 or no fit.
-
-  - ProtInfo       :: Parse an existing pdb file (or the downloaded bioassembly given a pdbid),
-                      to report on structural info & findings from step1 log.
+  - protinfo       :: Parse pdb structure, run step1.py and parse log to create report.
 
   - running_jobs_in_folder.sh :: Given a folder path, list any python jobs running in it and also kill them
                                  if the -K option is used (and precedes the path).
@@ -64,11 +40,6 @@ Tools in MCCE4/MCCE_bin - Last updated: 07/5/24:
                                  will include it.
                                  Expected usage: Run the command without the kill switch (-K option) first.
 
-  - tcms           :: Tautomeric, topN Charge Micro States
-                      Create the related pdb files & the files listing the N vectors.
-                      Minimal input: a pdb name if called inside a mcce output folder, else a 
-                      pdb filepath. Defaults: pH=7.0; n_top=5; --overwrite=False. Example:
-                      > tcms path/to/input.pdb
 
   Tools help:  For information and usage on each tool, run:
 

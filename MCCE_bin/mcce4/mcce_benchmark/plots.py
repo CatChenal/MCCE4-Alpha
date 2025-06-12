@@ -68,31 +68,6 @@ def fit_series(x: pd.Series, y: pd.Series) -> tuple:
     return converged, pfit, rmse, r_squared, err_msg
 
 
-def correl(x: pd.Series, y: pd.Series, somename: str = None) -> float:
-    """Compute the correlation between x and y, two pandas.Series.
-    Logs a warning if correlation reset to 0.
-    """
-    if somename is None:
-        msg1 = "Correlation set to 0."
-    else:
-        msg1 = f"Correlation for {somename} set to 0."
-    
-    if y.size <= 1:
-        corr = 0
-        logger.warning(msg1 + " Too few points.")
-        return corr
-    
-    np.seterr(all="raise")
-    with warnings.catch_warnings():
-        warnings.filterwarnings("error")
-        try:
-            corr = y.corr(x)
-        except RuntimeWarning:
-            corr = 0
-            logger.warning(msg1)
-    return corr
-
-
 def plot_conf_thrup(
     tp_df: pd.DataFrame,
     n_complete: int,
@@ -341,6 +316,35 @@ def plot_pkas_fit(
     return
 
 
+def correl(x: pd.Series, y: pd.Series, somename: str = None) -> float:
+    """Compute the correlation between x and y, two pandas.Series.
+    Logs a warning if correlation reset to 0.
+    """
+    if somename is None:
+        msg1 = "Correlation set to 0."
+    else:
+        msg1 = f"Correlation for {somename} set to 0."
+    
+    if y.size <= 1:
+        logger.warning(msg1 + " Too few points.")
+        return 0.
+    
+    if all(abs(y - x) == 0):
+        # Same values; no change
+        return 1.
+
+    np.seterr(all="raise")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("error")
+        try:
+            corr = y.corr(x)
+        except (RuntimeWarning, FloatingPointError) as e:
+            corr = 0
+            logger.warning(msg1)
+
+    return corr
+
+
 def plot_res_analysis(
     matched_fp: Path,
     res_stats: dict,
@@ -367,9 +371,9 @@ def plot_res_analysis(
     # sets names for axes:
     val_cols = matched_df.columns[-2:].tolist()
     res_u = matched_df.res.unique()
-    N_ioniz = len(res_u)
+    N_res = len(res_u)
     num_cols = 2
-    num_rows = int(np.ceil(N_ioniz / num_cols))
+    num_rows = int(np.ceil(N_res / num_cols))
 
     fig = plt.figure(figsize=figsize, layout="constrained")
     supti = "Residue Analysis"

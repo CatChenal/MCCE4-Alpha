@@ -33,7 +33,8 @@ help_msg() {
   echo "Usage:"
   echo " Note: Options come first!"
   echo ""
-  echo " $0 [-h] [[-K] folder_path [command or script name]]"
+  echo " $(basename "$0") [-h]"
+  echo " $(basename "$0") [-K] folder_path [command or script name]"
   echo ""
   echo "  -h              Display this help message & exit."
   echo "  -K              List, then kill the jobs running in the folder_path."
@@ -119,12 +120,12 @@ done
 shift $((OPTIND-1))
 
 # Get arguments from command line
-if [ -z "$1" ]; then
+if [[ -z "$1" ]]; then
   echo "Error: Missing folder path."
   exit 1
 fi
 
-if [ "$1" == "." ]; then
+if [[ "$1" == "." ]]; then
   folder_path="$(pwd)"
 else
   folder_path="$1"
@@ -135,9 +136,9 @@ printf "Target folder: %s\n" "$folder_path"
 cmd_name="python"
 process_cmd $folder_path $cmd_name $kill_switch
 
-if [ "$#" == 2 ]; then
+if [[ "$#" == 2 ]]; then
   cmd_name="$2"
-  if [ $cmd_name != "python "]; then
+  if [[ $cmd_name != "python " ]]; then
     process_cmd $folder_path $cmd_name $kill_switch
   fi
 fi
