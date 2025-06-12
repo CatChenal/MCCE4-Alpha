@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-
 """
 Module  cms_analysis_wc./tests/test_analysis.py
 """
-
-import pytest
-import pandas as pd
-import numpy as np
 from pathlib import Path
 from unittest.mock import patch, MagicMock, call
 
-# Assuming the mcce4 package is installed or accessible in the PYTHONPATH
+import numpy as np
+import pandas as pd
+import pytest
+
 from mcce4.cms_analysis_wc import analysis as msa
-from mcce4.cms_analysis_wc import parameters as prm # Needed for defaults in pipeline tests
-from mcce4.cms_analysis_wc import IONIZABLES, ACIDIC_RES, BASIC_RES, POLAR_RES # For rename/reorder tests
+# Needed for defaults in pipeline tests:
+from mcce4.cms_analysis_wc import parameters as prm
+# For rename/reorder tests:
+from mcce4.cms_analysis_wc import IONIZABLES, ACIDIC_RES, BASIC_RES, POLAR_RES
 
 # Fixtures for WeightedCorr
 @pytest.fixture

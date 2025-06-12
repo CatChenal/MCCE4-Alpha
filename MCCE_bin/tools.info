@@ -21,24 +21,17 @@ Tools in MCCE4/MCCE_bin - Last updated: 04/08/25:
                  + 2 sub-commands: 1. "pkdb_pdbs", 2. "user_pdbs", as above.
   - bench_compare  :: Do "extrinsic" comparison of 2 sets of runs.
   - bench_batch    :: Submit a batch of N (10) runs [to be used if scheduler fails].
-  - bench_amend_pickle_level :: Change the conformer-making level in the saved bench_setup cli args file.
-  - bench_softlink.sh :: Soft-link customized run.prm, extra.tpl or name.txt files in the current bench_dir
-                         as 'run.prm.user', 'extra.tpl' or 'name.txt' in each of the proteins subfolders of
-                         bench_dir/runs/.
 
   - glossary       :: Query a glossary of MCCE parameters.
                       - Search is case-sensitive!
                       - To query for a specific step, the query should be 'StepN', e.g. Step0.
+  - ms_protonation :: Obtain Protonation Microstates Analysis with Weighted Correlation
+                      The requied input is a parameter file of which two examples can be found
+                      in MCCE4-Alpha/runprms: 'params.crgms' and 'minimal_no_bounds.crgms'.
 
   - precheck       :: Simple check pdb information.
 
   - protinfo       :: Parse pdb structure, run step1.py and parse log to create report.
-
-  - running_jobs_in_folder.sh :: Given a folder path, list any python jobs running in it and also kill them
-                                 if the -K option is used (and precedes the path).
-                                 If a second argument is given, e.g. a script name, the listing (and optional killing)
-                                 will include it.
-                                 Expected usage: Run the command without the kill switch (-K option) first.
 
 
   Tools help:  For information and usage on each tool, run:

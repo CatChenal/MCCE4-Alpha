@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-
 """
 Module: cli.py
 
   Command line interfac for Protonation microstate analysis with weighted correlation.
 
 """
-
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import logging
 from pathlib import Path

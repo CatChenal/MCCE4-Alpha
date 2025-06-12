@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-
 """
 Module: parameters.py
 
 Functions to load the command line input parameter file, e.g. 'params.crgms'.
 
 """
-
 from collections import defaultdict
 from copy import deepcopy
 import logging

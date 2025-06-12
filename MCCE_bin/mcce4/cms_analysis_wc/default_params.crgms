@@ -32,7 +32,6 @@ list_head3_ionizables = False
 # mcce_dir :: The directory of a MCCE run containing a ms_out subfolder
 #          :: Default: current directory.
 #
-#mcce_dir = /home/muddin/raihan_work/ndh-1/ms_analysis_test/fr60
 mcce_dir = 4LZT
 
 # The 'msout file' that resides in mcce_dir/ms_out is named using the ph and eh points of
@@ -113,7 +112,7 @@ fig_show = False
 # Titles:
 
 # Add a title attribute to the correlation heatmap if needed (default is no title):
-#corr_heatmap.title = Loaded
+#corr_heatmap.title = Correlation
 
 # Figure sizes
 
