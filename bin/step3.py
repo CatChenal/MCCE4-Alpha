@@ -57,10 +57,10 @@ PROGRESS_LOG = "progress_step3.log"
 global run_options
 
 # Set VDW function
-if "--new_vdw" in sys.argv:
-     from pdbio_gr import *
-else:
+if "--old_vdw" in sys.argv:
      from pdbio import *
+else:
+     from pdbio_gr import *
 
 # copied from mcce4.io_utils:
 def config_logger(step_num: int, log_level: str = "INFO"):
@@ -1197,8 +1197,8 @@ def cli_parser():
         help="run vdw and torsion calculation only; default: %(default)s.",
     )
     parser.add_argument(
-        "--new_vdw", default=False, action="store_true",
-        help="Run new vdw function calculations; default: %(default)s.",
+        "--old_vdw", default=False, action="store_true",
+        help="Run old vdw function calculations; default: %(default)s.",
     )    
     parser.add_argument(
         "-vdw_relax",
@@ -1264,10 +1264,10 @@ if __name__ == "__main__":
     logger = config_logger(step_num=3, log_level=log_level)
 
     logger.info("Step 3. Energies calculation with PBE solver.")
-    if "--new_vdw" in sys.argv:
-         logger.info("Calling new VDW....No Scaling Applied")
-    else:
+    if "--old_vdw" in sys.argv:
          logger.info("Calling old VDW....Scaling Applied")
+    else:
+         logger.info("Calling new VDW....No Scaling Applied")
 
     start_t0 = start_t = time.time()
 

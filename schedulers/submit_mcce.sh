@@ -23,7 +23,7 @@ EXTRA="./user_param/extra.tpl"
 # MCCE Simulation
 STEP1="step1.py $input_pdb -d 4 --noter --dry"
 STEP2="step2.py -l 1 -d 4"
-STEP3="step3.py -d 4 -s zap -salt 0.05 --new_vdw"
+STEP3="step3.py -d 4 -s zap -salt 0.05"
 STEP4="step4.py --xts"
 #==============================================================================
 
