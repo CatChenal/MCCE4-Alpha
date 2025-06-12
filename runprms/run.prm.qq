@@ -48,7 +48,7 @@ ph       "ph" for pH titration, "eh" for eh titration       (TITR_TYPE)
 
 MODIFYING FOLLOWING ENTRIES REQUIRE ADVANCED KNOWLEDGE:
 -----------------------------------------------------------------------------
-/home/mcce/MCCE4/bin/mcce                                        (MCCE_HOME)
+/home/mcce/MCCE4                                            (MCCE_HOME)
 t       Minimize output files                               (MINIMIZE_SIZE)
 t       Print trace file                                    (DO_TRACE)
 

@@ -72,7 +72,7 @@ ph       "ph" for pH titration, "eh" for eh titration       (TITR_TYPE)
 
 MODIFYING FOLLOWING ENTRIES REQUIRE ADVANCED KNOWLEDGE:
 -----------------------------------------------------------------------------
-/home/mcce/MCCE4/bin/mcce                                        (MCCE_HOME)
+/home/mcce/MCCE4                                            (MCCE_HOME)
 # mcce home directory, the combination of this path and diectric constant 
 # points to the parameter directory
 
