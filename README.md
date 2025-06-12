@@ -19,7 +19,9 @@ export PATH=/home/user/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH
 3. Apply these PATH updates by sourcing your .bashrc file:
 ```
  source ~/.bashrc
-# or
+```
+or
+```
  . ~/.bashrc
 ```
 
