@@ -138,6 +138,7 @@ class RunOptions:
         self.start = args.c[0]
         self.end = args.c[1]
         self.d = float(args.d)
+        self.do = float(args.do)
         self.s = args.s
         self.p = args.p
         self.t = args.t
@@ -160,6 +161,8 @@ class RunOptions:
                         self.end = int(fields[2])
                     elif key == "-d":
                         self.d = float(fields[1])
+                    elif key == "-do":
+                        self.do = float(fields[1])
                     elif key == "-s":
                         self.s = fields[1]
                     elif key == "-p":
@@ -1160,11 +1163,17 @@ def cli_parser():
         help="protein dielectric constant; default: %(default)s.",
     )
     parser.add_argument(
+        "-do",
+        metavar="dielectric_outside",
+        default="80.0",
+        help="outside material dielectric constant; default: %(default)s.",
+    )
+    parser.add_argument(
         "-s",
         metavar="pbs_name",
         default="ngpb",
         choices=["delphi", "ngpb", "zap", "apbs", "template"],
-        help="PBE solver; default: %(default)s.",
+        help="PBE solver; choices: ngpb, delphi, zap; default: %(default)s.",
     )
     parser.add_argument(
         "-t",
