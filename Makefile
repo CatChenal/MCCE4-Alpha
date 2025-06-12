@@ -17,8 +17,6 @@ BIN     = bin
 DELPHI  = $(BIN)/delphi
 MCCE    = $(BIN)/mcce
 
-.PHONY: all Delphi sif clean cleanbin/mcce
-
 # default: Build mcce and NGPB sif
 default: $(MCCE) sif
 
