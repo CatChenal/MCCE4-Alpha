@@ -1,7 +1,7 @@
 # Choose command to run to create the environment:
 # 1. To use the default environment name of 'mca':
 #   $conda env create -f mca.yml
-# 2. If you want 'new_env' to be the environment name instead of 'mcaa':
+# 2. If you want 'new_env' to be the environment name instead of 'mca':
 #   $conda env create -f mca.yml -n new_env
 # 
 name: mca
