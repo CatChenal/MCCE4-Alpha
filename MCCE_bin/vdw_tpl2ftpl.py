@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-
-"""Create RADIUS parameters from 00always_needed.tpl
 """
-
+Create RADIUS parameters from 00always_needed.tpl
+"""
 from mcce4.args import vdw_tpl2ftp_Options
 from mcce4.pdbio import *
+
 
 def read_00always(folder):
     fname = "%s/00always_needed.tpl" % folder

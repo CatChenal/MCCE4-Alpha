@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-
 """
 A Tool to convert TORSION parameters from tpl to ftpl format
+
 tpl format:
 #-------|-----|----|----|----|----|----|---------|---------|---------|---------|---------|---------|---------|---------|---------
 #        CONF  ATOM ATOM ATOM ATOM relx Vn/2(kcal)  n_fold   gamma    Vn/2(kcal)  n_fold   gamma    Vn/2(kcal)  n_fold   gamma
@@ -16,9 +16,9 @@ TORSION, NTR01, " H  ": " N  ", " CA ", " C  ",  (0.0,   2, 180.00)
 TORSION, CTR01, " HO ": " O  ", " C  ", " CA ",  (1.800, 2, 180.00), (1.360,  1,  0.00)
 TORSION, CTR02, " HXT": " OXT", " C  ", " CA ",  t      1.800         2    180.00     1.360         1      0.00
 """
-
-import sys
 import math
+import sys
+
 
 class TORS:
     """Internal torsion data structure to hold v2, nfold and gamma"""
@@ -31,10 +31,11 @@ class TORS:
         self.n_fold = 0
         self.gamma = 0.0
 
+
 class TORSION_param:
     """This class defines the data structure of TORSION parameters."""
     def __init__(self, value_str) -> None:
-        """Construct the TORSION paramter and assign initial values from value_str.
+        """Construct the TORSION parameter and assign initial values from value_str.
 
         :param value_str: A string read from parameter file that defines the torsion parameter.
         :type value_str: string
@@ -62,6 +63,7 @@ class TORSION_param:
             tors.gamma = float(fields[i*3+2])  # write back to ftpl file and keep the radiant value
             self.tors_terms.append(tors)
 
+
 if __name__ == "__main__":
     fname = sys.argv[1]
     lines = open(fname).readlines()
@@ -81,7 +83,4 @@ if __name__ == "__main__":
                 for term in param_value.tors_terms:
                     terms.append("(%.3f, %d, %.2f)" % (term.v2, term.n_fold, term.gamma))
                 newline += ", ".join(terms)
-                #print(line)
                 print(newline)
-                #print("---------------------------------------")
-

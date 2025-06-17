@@ -1,6 +1,4 @@
-Tools in MCCE4/MCCE_bin - Last updated: 06/12/25.
-
-Note: Tools prefixed with "ms-" process the microstate file.
+Tools in MCCE4/MCCE_bin - Last updated: 06/17/25.
 
 - bench_setup    :: Setup a dataset for multiple runs & write 'prerun' report.
                  + 4 sub-commands:
@@ -31,48 +29,28 @@ Note: Tools prefixed with "ms-" process the microstate file.
                     - Search is case-sensitive!
                     - To query for a specific step, the query should be 'StepN', e.g. Step0.
 
-- ms_hbnets1_mspdbs :: Generate a random sample of MCCE microstates in pdb format.
-                       Minimal usage: ms_hbnets1_mspdbs
-
-- ms_hbnets2_hah    :: Compute all possible hbonds over a collection directory of step2_out formatted pdbs
-                       using the MCCE_bin.detect_hbonds.detect_hbonds function.
-                       Each pdb will have its own associated txt file containing their hbond donors,
-                       acceptors, distances and angles.
-
-- ms_hbnets3_net    :: list_hbond_networks
-
-- ms_hbnets4_stats  :: Analyze network similarites/statistics across a collection directory of microstate
-                       associated network files.
-
-- ms_protonation :: Obtain Protonation Microstates Analysis with Weighted Correlation
-                    The requied input is a parameter file of which two examples can be found
-                    in MCCE4-Alpha/runprms: 'params.crgms' and 'minimal_no_bounds.crgms'.
-
-- ms_sample2pdbs    :: Generate a random sample of MCCE microstates in mcce pdb format.
-                     Minimal usage: ms_sample_to_pdbs
-
-- ms_top2pdbs    :: Create pdb & pqr files for the topN tautomeric protonation microstates,
-                    along with a summary file & a listing of the N charge vectors.
-                    Defaults:
-                    pH=7.0; n_top=5; min_occ=0.0; residue_kinds=ionizable res; --overwrite=False.
-                    Examples:
-                     > ms_top2pdbs         # use all defaults
-                     > ms_top2pdbs -eh 30  # Eh titration at ph7
-                    Passing residues kinds: comma-separated; order & case insensitive:
-                     > ms_top2pdbs -residue_kinds _CL,his,GLU
-
 - postrun           :: Flags problem residues: non-canonical charge, high chi^2 or no fit.
 
 - precheck       :: Simple check pdb information.
 
 - protinfo       :: Parse pdb structure, run step1.py and parse log to create report.
 
+- run_mcce.sh    :: 
 
-  Tools help:  For information and usage on each tool, run:
+- strip_cofactors :: Strip off surface waters and other cofactors
 
-    <tool name> --help
+- torsion_tpl2ftpl :: A Tool to convert TORSION parameters from tpl to ftpl format
 
-  Tools documentation (WIP):  
-    https://github.com/GunnerLab/MCCE4-Alpha/blob/main/doc/UserManual.md
+- vdw :: Calculate VDW breakdown from step2_out.pdb.
 
-  Problems? Bugs? Report new issues:  https://github.com/GunnerLab/MCCE4-Alpha/issues
+- vdw_tpl2ftpl :: Create RADIUS parameters from 00always_needed.tpl
+
+..........
+Tools help:  For information and usage on each tool, run:
+
+  <tool name> -h OR <tool name> --help
+
+Tools documentation (WIP):  
+  https://github.com/GunnerLab/MCCE4-Alpha/blob/main/doc/UserManual.md
+
+Problems? Bugs? Report new issues:  https://github.com/GunnerLab/MCCE4-Alpha/issues
