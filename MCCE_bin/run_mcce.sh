@@ -10,11 +10,11 @@ for arg in "$@"; do
     if [ "$arg" == "-h" ]; then
         echo "Usage: $0 <file.pdb> [-dry] [-l 2] [-d N] [-s ngpb|zap]"
         echo "Options:"
-        echo "  -h              Shows this help message."
-	echo "  -l [2/3]        Specifies level of conformer creation (level 1 is default)."
-        echo "  -d              Choose dielectric constant. 4 and 8 are standard choices."
-	echo "  -s              Choose Poisson-Boltzmann solver (ngpb/zap). DelPhi is default."
-	echo "  -dry            Delete any waters in the protein file during mcce_run."
+        echo "  -h            Show this help message."
+	    echo "  -l [2|3]      Level of conformer creation (level 1 is default)."
+        echo "  -d            Dielectric constant; 4 and 8 are standard choices."
+	    echo "  -s [ngpb|zap] Poisson-Boltzmann Equation solver. NGPB is default."
+	    echo "  -dry          Ignore waters in the protein file."
         # Add more options as needed
         exit 0
     fi
@@ -66,7 +66,7 @@ while [[ $# -gt 0 ]]; do
                 fi
                 shift
             else
-                echo "Error: -s value must be 'ngpb' or 'zap'. The default solver is delphi."
+                echo "Error: -s value must be 'ngpb' or 'zap'."
                 exit 1
             fi
             ;;
@@ -88,4 +88,3 @@ step1.py prot.pdb $DRY_FLAG $D_FLAG
 step2.py $L_FLAG $D_FLAG
 step3.py $D_FLAG $S_FLAG $SALT_FLAG
 step4.py --xts
-
