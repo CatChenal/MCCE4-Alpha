@@ -111,8 +111,7 @@ def get_pdb_rpt_climode(
     Expected keys in args: pdb [Path, str], fetch [bool].
     Workflow:
       1. validate_pdb_inputs
-      2. io_utils.get_rcsb_pdb(pdb):
-         download bio-assembly if pdb is id
+      2. downloads.get_rcsb_pdb(pdb): Download the bio-assembly if pdb is id
       3. collect_info in two dicts:
          first: from pdbio.Structure, second: from run1.log protinfo.parser
       4. collect_info_lines from the two dicts
@@ -138,8 +137,7 @@ def get_pdb_rpt_climode(
     else:
         run_dir = Path.cwd()
     out_dir = run_dir.joinpath("prerun")
-    if not out_dir.exists():
-        out_dir.mkdir()
+    out_dir.mkdir(exist_ok=True)
 
     if do_fetch:
         if not isinstance(pdb, Path):
@@ -201,7 +199,7 @@ def pi_parser():
         "--fetch",
         default=False,
         action="store_true",
-        help="Download the biological assembly of given pdb (if not a file).",
+        help="Download the biological assembly of given pdbid from rcsb.org.",
     )
 
     s1 = p.add_argument_group("s1", "step1 options")
