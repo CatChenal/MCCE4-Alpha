@@ -651,6 +651,10 @@ if __name__ == "__main__":
     if not os.path.exists(input_path):
         print("File/Directory not found! Aborting p_info...")
 
+    if os.path.isfile(input_path) and input_path.lower().endswith(".cif"):
+        print("\np_info does not suppose CIF files. Please use a PDB file. Aborting...\n")
+        SystemExit()
+
     if os.path.isfile(input_path) and input_path.lower().endswith(".pdb"):
         main(input_path)
         closer()
