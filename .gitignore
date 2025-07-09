@@ -2,7 +2,9 @@
 _notebooks/
 _sandbox
 _tmp
-#.github/ISSUE_TEMPLATE/
+.github/ISSUE_TEMPLATE/
+
+bin/NextGenPB.sif
 
 *tests/*.log
 benchmark.info

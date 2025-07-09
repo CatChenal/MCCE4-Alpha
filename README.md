@@ -1,26 +1,66 @@
 # MCCE4-Alpha
 
-Public version of the private MCCE4 development repository.
+Public version of the private MCCE4 development repository.  
+MCCE4 is now using [NextGenPB (NGPB) from the Rocchia Lab (IIT)](https://github.com/concept-lab/NextGenPB) as its default PBE solver.  
+There are two ways you can install MCCE4-Alpha, which differ on whether a script is used: 
+ * Option A: Semi-automated setup using provided scripts that download a generic NGPB image.
+ * Option B: Manual setup that includes creation of a NGPB image optimized for your platform..
 
-## Installation Guide
-### 1. Clone the repository and add its bin folders to your system PATH variable
+---
+## Installation Option A: Quick Installation with Scripts
+### Scripts:
+These scripts automate many steps & download a generic NGPB image:
+  * `MCCE_bin/quick_install.sh` (Linux, bash shell)
+  * `MCCE_bin/quick_install_zsh.sh` (MacOS)
+
+### 1. Clone the repository to a desired place on your computer (referred to as "clone_dir"):
+```
+ git clone https://github.com/GunnerLab/MCCE4-Alpha.git
+```
+
+### 2. Run the "Quick Install" script:
+  * 1. Go to your MCCE4-Alpha clone:
+  ```
+   cd ~/clone_dir/MCCE4-Alpha
+  ```
+
+  * 2. Run the approriate script:
+    - On MacOS, run:
+    ```
+     sh ./MCCE_bin/quick_install_zsh.sh > install.log 2>&1
+    ```
+      
+    - On Linux, run:
+    ```
+     bash ./MCCE_bin/quick_install.sh > install.log 2>&1
+    ```
+
+  Note: Creating 'install.log' is not required but is recommended as you could copy its contents if your created an "installation issue", which could help us fix an unexpected problem.
+
+### 3. Follow the instructions displayed by the script to test your installation.
+---
+
+## Installation Option B: Installation with NGPB Optimized Image Creation:
+
+### 1. Clone the repository to a desired place on your computer (referred to as "clone_dir"):
   * Git clone MCCE4-Alpha to a desired place on your computer:
-    ```
-    git clone https://github.com/GunnerLab/MCCE4-Alpha.git
-    ```
-  * Add the clone's bin paths to your `.bashrc` (`.zshrc`) file then save it.
-  If you cloned MCCE4-Alpha in ~/gunnerlab/ directory, you would add the following lines:
   ```
-  export PATH="~/gunnerlab/MCCE4-Alpha/bin:$PATH"
-  export PATH="~/gunnerlab/MCCE4-Alpha/MCCE_bin:$PATH"
+   git clone https://github.com/GunnerLab/MCCE4-Alpha.git
   ```
-  * Then apply the changes by sourcing or 'dotting' your `.bashrc` (`.zshrc`) file, depending on your system.
+  
+  * Add the clone's bin paths to your `.bashrc` (`.bash_profile`) file then save it.
+  ```
+   export PATH="clone_dir/MCCE4-Alpha/bin:$PATH"
+   export PATH="clone_dir/MCCE4-Alpha/MCCE_bin:$PATH"
+  ```
+
+  * Then apply the changes to your PATH variable by sourcing your `.bashrc` (`.bash_profile`) file, depending on your system.
 
   * Check a tool's command correct path location (tools do not require compiling):
-    ```
-     which p_info
-    ```
-    The command should return \[your/root/dir/name\]/gunnerlab/MCCE4-Alpha/MCCE_bin/p_info
+  ```
+    which p_info
+  ```
+  The command should return \your [clone_dir\]/MCCE4-Alpha/MCCE_bin/p_info
 
 
 ### 2. Compile Executables 
