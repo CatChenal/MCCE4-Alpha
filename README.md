@@ -2,9 +2,10 @@
 
 Public version of the private MCCE4 development repository.  
 MCCE4 is now using [NextGenPB (NGPB) from the Rocchia Lab (IIT)](https://github.com/concept-lab/NextGenPB) as its default PBE solver.  
+
 There are two ways you can install MCCE4-Alpha, which differ on whether a script is used: 
  * Option A: Semi-automated setup using provided scripts that download a generic NGPB image.
- * Option B: Manual setup that includes creation of a NGPB image optimized for your platform..
+ * Option B: Manual setup that includes creation of a NGPB image optimized for your platform.
 
 ---
 ## Installation Option A: Quick Installation with Scripts
@@ -19,21 +20,20 @@ These scripts automate many steps & download a generic NGPB image:
 ```
 
 ### 2. Run the "Quick Install" script:
-  * 1. Go to your MCCE4-Alpha clone:
-  ```
-   cd ~/clone_dir/MCCE4-Alpha
-  ```
-
-  * 2. Run the approriate script:
-    - On MacOS, run:
-    ```
-     sh ./MCCE_bin/quick_install_zsh.sh > install.log 2>&1
-    ```
+#### i. Go to your MCCE4-Alpha clone:
+```
+ cd ~/clone_dir/MCCE4-Alpha
+```
+#### ii. Run the approriate script:
+* On MacOS, run:
+```
+ sh ./MCCE_bin/quick_install_zsh.sh > install.log 2>&1
+```
       
-    - On Linux, run:
-    ```
-     bash ./MCCE_bin/quick_install.sh > install.log 2>&1
-    ```
+* On Linux, run:
+```
+ bash ./MCCE_bin/quick_install.sh > install.log 2>&1
+```
 
   Note: Creating 'install.log' is not required but is recommended as you could copy its contents if your created an "installation issue", which could help us fix an unexpected problem.
 
