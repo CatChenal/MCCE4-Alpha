@@ -14,6 +14,7 @@ help_msg() {
   echo ""
   echo " -h                 : Display this help message & exit."
   echo " env_name (optional): Custom name for the conda environment to create (default is 'mc4')."
+  echo "                    : Required if you already have a conda environment named 'mc4'."
   echo ""
   exit 0
 }
