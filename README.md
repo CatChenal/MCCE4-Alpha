@@ -27,12 +27,12 @@ These scripts automate many steps & download a generic NGPB image:
 #### ii. Run the approriate script:
 * On MacOS, run:
 ```
- sh ./MCCE_bin/quick_install_zsh.sh > install.log 2>&1
+ sh ./MCCE_bin/quick_install_zsh.sh
 ```
-      
+
 * On Linux, run:
 ```
- bash ./MCCE_bin/quick_install.sh > install.log 2>&1
+ bash ./MCCE_bin/quick_install.sh
 ```
 
   Note: Creating 'install.log' is not required but is recommended as you could copy its contents if your created an "installation issue", which could help us fix an unexpected problem.
@@ -47,7 +47,7 @@ These scripts automate many steps & download a generic NGPB image:
   ```
    git clone https://github.com/GunnerLab/MCCE4-Alpha.git
   ```
-  
+ 
   * Add the clone's bin paths to your `.bashrc` (`.bash_profile`) file then save it.
   ```
    export PATH="clone_dir/MCCE4-Alpha/bin:$PATH"
