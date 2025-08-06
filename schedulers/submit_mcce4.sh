@@ -99,5 +99,5 @@ export STEPM STEPA STEPB STEPC
 
 # Inititiate MCCE_HOME PATH and call driver_mcce4.sh
 export PATH="$MCCE_HOME/bin:$PATH"  # Add MCCE_HOME/bin to PATH for mcce step executables
-"driver_mcce4.sh"
+driver_mcce4.sh
 
