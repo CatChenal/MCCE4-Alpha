@@ -44,7 +44,7 @@ from mccesteps import export_runprm
 from mccesteps import record_runprm
 from mccesteps import detect_runprm
 from mccesteps import restore_runprm
-
+from amend_sumcrg import amend_sum_crg
 
 def write_runprm(args):
     runprm = {}
@@ -120,6 +120,8 @@ def write_runprm(args):
     record_runprm(runprm, "#STEP4")
 
     return
+
+
 
 
 if __name__ == "__main__":
@@ -206,3 +208,6 @@ if __name__ == "__main__":
 
     if detected:
         restore_runprm()
+
+    # Amend sum_crg.out, use head3.lst and fort.38 to compose sum_crg.out
+    amend_sum_crg()

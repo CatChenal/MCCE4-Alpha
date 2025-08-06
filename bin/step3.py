@@ -32,9 +32,10 @@ import argparse
 from collections import defaultdict
 import json
 import logging
-from multiprocessing import Pool, current_process
+from multiprocessing import Pool, current_process, TimeoutError
 import os
 from pathlib import Path
+import tempfile
 import shutil
 import sys
 import time
@@ -42,6 +43,7 @@ from mccesteps import record_runprm
 from mccesteps import export_runprm
 from mccesteps import detect_runprm
 from mccesteps import restore_runprm
+import itertools
 #from pdbio import *
 from pbs_interfaces import *
 
@@ -142,6 +144,10 @@ class RunOptions:
         self.s = args.s
         self.p = args.p
         self.t = args.t
+        
+        # change self.t to absolute path
+        self.t = Path(self.t).resolve()
+
         self.ftpl = args.ftpl
         self.salt = args.salt
         self.skip_pb = args.skip_pb
@@ -465,6 +471,16 @@ def get_conflist(protein):
     return conf_list, bkb_list
 
 
+def safe_pbe(args):
+    """
+    A wrapper for pbe() to catch exceptions and return error messages.
+    """
+    try:
+        return pbe(args)
+    except Exception as e:
+        return f"[ERROR] {e}"
+
+
 def pbe(iric):
     """
     Calculate electrostatic terms: pairwise and reaction filed energy;
@@ -492,72 +508,97 @@ def pbe(iric):
     else:
         # switch to temporary unique directory
         cwd = Path.cwd()
-        tmp_pbe = run_options.t + "/pbe_" + str(cwd.joinpath(confid))[1:].replace("/", ".")
-        if not Path(tmp_pbe).exists():
-            Path(tmp_pbe).mkdir()
+        # use dir + "pbe_data" + cwd (replace / by .) + confid as <tmp_pbe_name>
+        tmp_pbe = os.path.join(str(run_options.t), f"pbe_data{cwd.as_posix().replace('/', '.')}_{confid}")
+        os.makedirs(tmp_pbe, exist_ok=True)
 
-        os.chdir(tmp_pbe)
+        try:
+            os.chdir(tmp_pbe)
 
-        # detect file .ld_library_path
-        src = cwd.joinpath(".ld_library_path")
-        dst = Path(tmp_pbe).joinpath(".ld_library_path")
-        if src.is_file():
-            shutil.copy(src, dst)
-        else:
-            # remove this file in tmp dir:
-            if dst.is_file():
-                dst.unlink()
+            # detect file .ld_library_path
+            src = cwd.joinpath(".ld_library_path")
+            dst = Path(tmp_pbe).joinpath(".ld_library_path")
+            if src.is_file():
+                shutil.copy(src, dst)
+            else:
+                # remove this file in tmp dir:
+                if dst.is_file():
+                    dst.unlink()
 
-        # decide which pb solver, delphi = delphi legacy
-        if run_options.s.upper() == "DELPHI":
-            logger.info(
-                "%s: Calling delphi to calculate conformer %s" % (pid.name, confid)
-            )
-            open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling delphi to calculate conformer %s\n" % (pid.name, confid))
-            pbs_delphi = PBS_DELPHI()
-            rxn0, rxn = pbs_delphi.run(bound, run_options)
+            # decide which pb solver, delphi = delphi legacy
+            if run_options.s.upper() == "DELPHI":
+                logger.info(
+                    "%s: Calling delphi to calculate conformer %s in %s" % (pid.name, confid, tmp_pbe)
+                )
+                open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling delphi to calculate conformer %s in %s\n" % (pid.name, confid, tmp_pbe))
+                pbs_delphi = PBS_DELPHI()
+                try:
+                    rxn0, rxn = pbs_delphi.run(bound, run_options)
+                except Exception as e:
+                    logger.critical(f"Delphi run failed for conformer {confid}: {e}", exc_info=True)
+                    return f"[ERROR] {e}"
+                
+            elif run_options.s.upper() == "NGPB":
+                logger.info(
+                    "%s: Calling ngpb to calculate conformer %s in %s" % (pid.name, confid, tmp_pbe)
+                )
+                open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling ngpb to calculate conformer %s in %s\n" % (pid.name, confid, tmp_pbe))
+                pbs_ngpb = PBS_NGPB()
+                try:
+                    rxn0, rxn = pbs_ngpb.run(bound, run_options)
+                except Exception as e:
+                    logger.critical(f"NGPB run failed for conformer {confid}: {e}", exc_info=True)
+                    return f"[ERROR] {e}"
+                
+            elif run_options.s.upper() == "ZAP":
+                logger.info(
+                    "%s: Calling zap to calculate conformer %s in %s" % (pid.name, confid, tmp_pbe)
+                )
+                open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling zap to calculate conformer %s in %s\n" % (pid.name, confid, tmp_pbe))
+                pbs_zap = PBS_ZAP()
+                try:
+                    rxn0, rxn = pbs_zap.run(bound, run_options)
+                except Exception as e:
+                    logger.critical(f"ZAP run failed for conformer {confid}: {e}", exc_info=True)
+                    return f"[ERROR] {e}"
+                
 
-        elif run_options.s.upper() == "NGPB":
-            logger.info(
-                "%s: Calling ngpb to calculate conformer %s" % (pid.name, confid)
-            )
-            open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling ngpb to calculate conformer %s\n" % (pid.name, confid))
-            pbs_ngpb = PBS_NGPB()
-            rxn0, rxn = pbs_ngpb.run(bound, run_options)
+            elif run_options.s.upper() == "APBS":
+                logger.info(
+                    "%s: Calling APBS to calculate conformer %s in %s" % (pid.name, confid, tmp_pbe)
+                )
+                open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling APBS to calculate conformer %s in %s\n" % (pid.name, confid, tmp_pbe))
+                pbs_apbs = PBS_APBS()
+                try:
+                    rxn0, rxn = pbs_apbs.run(bound, run_options)
+                except Exception as e:
+                    logger.critical(f"APBS run failed for conformer {confid}: {e}", exc_info=True)
+                    return f"[ERROR] {e}"
 
-        elif run_options.s.upper() == "ZAP":
-            logger.info(
-                "%s: Calling zap to calculate conformer %s" % (pid.name, confid)
-            )
-            open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling zap to calculate conformer %s\n" % (pid.name, confid))
-            pbs_zap = PBS_ZAP()
-            rxn0, rxn = pbs_zap.run(bound, run_options)
+            elif run_options.s.upper() == "TEMPLATE":
+                logger.info(
+                    "%s: Calling template to calculate conformer %s in %s" % (pid.name, confid, tmp_pbe)
+                )
+                open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling template to calculate conformer %s in %s\n" % (pid.name, confid, tmp_pbe))
+                pbs_template = PBS_TEMPLATE()
+                try:
+                    rxn0, rxn = pbs_template.run(bound, run_options)
+                except Exception as e:
+                    logger.critical(f"Template run failed for conformer {confid}: {e}", exc_info=True)
+                    return f"[ERROR] {e}"
 
-        elif run_options.s.upper() == "APBS":
-            logger.info(
-                "%s: Calling APBS to calculate conformer %s" % (pid.name, confid)
-            )
-            open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling APBS to calculate conformer %s\n" % (pid.name, confid))
-            pbs_apbs = PBS_APBS()
-            rxn0, rxn = pbs_apbs.run(bound, run_options)
+            else:
+                logger.critical("Unknown PBE solver name: %s" % run_options.s)
+                sys.exit("Unknown PBE solver name.")
 
-        elif run_options.s.upper() == "TEMPLATE":
-            logger.info(
-                "%s: Calling template to calculate conformer %s" % (pid.name, confid)
-            )
-            open(cwd.joinpath(PROGRESS_LOG), "a").write("%s: Calling template to calculate conformer %s\n" % (pid.name, confid))
-            pbs_template = PBS_TEMPLATE()
-            rxn0, rxn = pbs_template.run(bound, run_options)
+        except Exception as e:
+            print("An error occurred:", e)
 
-        else:
-            logger.critical("Unknown PBE solver name: %s" % run_options.s)
-            sys.exit("Unknown PBE solver name.")
-
-        # switch back to the current directory
-        if not run_options.debug:
-            shutil.rmtree(tmp_pbe)
-
-        os.chdir(cwd)
+        finally:
+            # Switch back to the original directory
+            os.chdir(cwd)
+            if not run_options.debug:
+                shutil.rmtree(tmp_pbe)
 
     # write raw opp file
     fname = "%s/%s.raw" % (energy_folder, confid)
@@ -1054,9 +1095,8 @@ def compose_head3(protein):
                 )
                 em0 = 0.0
                 pka0 = 0.0
-                ne = 0.0
-                # FIX: local variable 'mh' is assigned to but never used
-                # mh = 0.0
+                ne = 0
+                nh = 0
             vdw0 = conf.vdw0
             vdw1 = conf.vdw1
             # tors = tors_confs[count]
@@ -1153,7 +1193,7 @@ def cli_parser():
         metavar=("start", "end"),
         default=[1, 99999],
         nargs=2,
-        help="starting and ending conformer; default: %(default)s.",
+        help="starting and ending conformer; default: 1 99999",
         type=int,
     )
     parser.add_argument(
@@ -1179,7 +1219,7 @@ def cli_parser():
         "-t",
         metavar="tmp_folder",
         default="/tmp",
-        help="PBE solver temporary folder; default: %(default)s.",
+        help="PBE solver temporary folder; You need to make this directory writable for all (chmod a+w) when using ngbp; default: %(default)s.",
     )
     parser.add_argument(
         "-p",
@@ -1306,25 +1346,32 @@ if __name__ == "__main__":
     # as an array that multiprocess module will take in as work load.
     
     if run_options.s.upper() == "NGPB":
-        bind_path = run_options.t  
+        bind_path = run_options.t 
+        if os.path.commonpath([bind_path, "/tmp"]) == "/tmp":
+            parent_dir = bind_path
+        else:
+            parent_dir = os.path.dirname(bind_path)
         instance_name = "my_instance"
         # Find the container path
         container_path = shutil.which('NextGenPB_MCCE4.sif')
+        check_cmd = ["apptainer", "instance", "list"]
+        try:
+            check_result = subprocess.run(check_cmd, capture_output=True, text=True, check=True)
+            if instance_name in check_result.stdout:
+                logger.info(f"Instance '{instance_name}' already running. Stopping it...")
+                stop_cmd = ["apptainer", "instance", "stop", instance_name]
+                subprocess.run(stop_cmd, check=True)
+                logger.info(f"Stopped instance '{instance_name}'.")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error checking instance list: {e.stderr.strip()}")
+        
         try:
             result = subprocess.run(
-                f"ps aux | grep -v grep | grep '{instance_name}'",
-                shell=True,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            os.system("apptainer instance stop my_instance")
-            os.system(f"apptainer instance start --bind {bind_path}:{bind_path} {container_path} {instance_name}")
-        
-        except subprocess.CalledProcessError:
-            # If the command fails, the instance is not running
-            os.system(f"apptainer instance start --bind {bind_path}:{bind_path} {container_path} {instance_name}")
-        
+                    f"apptainer instance start --bind {parent_dir}:{parent_dir} {container_path} {instance_name}",
+                    shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to start apptainer instance: {e.stderr.decode().strip()}")
 
     if not args.skip_pb:
         work_load = []
@@ -1343,14 +1390,26 @@ if __name__ == "__main__":
         logger.info("   Set up parallel envrionment and run PB solver.")
         max_pool = run_options.p
         logger.info("   Running PBE solver in %d threads" % max_pool)
-        with Pool(max_pool) as process:
-            work_out = process.imap(pbe, work_load)
-            logger.debug("    Done PBE solving on %s" % str(list(work_out)))
+
+        with Pool(max_pool) as pool:
+            results = []
+            async_results = [pool.apply_async(safe_pbe, (arg,)) for arg in work_load]
+
+            for i, r in enumerate(async_results):
+                try:
+                    res = r.get(timeout=30)  # 30 seconds timeout per task
+                except TimeoutError:
+                    logger.error(f"Task {i} timed out")
+                    results.append("[ERROR] Task timed out")
+                except Exception as e:
+                    logger.error(f"Task {i} failed with error: {e}")
+                    results.append("[ERROR] Task failed")
+
+        if results:
+            logger.warning("    Error PBE solving on %s" % str(results))
+
 
         cwd = os.getcwd()
-        pbe_folder = run_options.t + "/pbe_" + cwd.strip("/").replace("/", ".")
-        if not run_options.debug and os.path.exists(pbe_folder):
-            shutil.rmtree(pbe_folder)
         logger.info("   Time needed: %d seconds.", time.time() - start_t)
 
         logger.info("   Post-processing of electrostatic potential.")
@@ -1420,9 +1479,6 @@ if __name__ == "__main__":
     logger.info("   Time needed: %d seconds.", time.time() - start_t)
 
     logger.info("   Total time for step3 is %d seconds.", time.time() - start_t0)
-
-    if run_options.debug:
-        logger.debug("PBE solver working directory for debugging is at %s" % pbe_folder)
 
     if detected:
         restore_runprm()
