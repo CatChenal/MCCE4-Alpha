@@ -2,8 +2,7 @@
 #SBATCH --job-name=mcce4_run
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1         # Adjust number of cores if needed
-#SBATCH --mem=24G                 # Adjust memory if needed
+#SBATCH --mem=12G                 # Adjust memory if needed
 
 # ==============================================================================
 # Script Name   : submit_mcce4.sh
@@ -59,6 +58,7 @@ MCCE_HOME="/home/granepura/MCCE4"
 USER_PARAM="./user_param"
 EXTRA="./user_param/extra.tpl"
 TMP="/tmp"
+CPUS=1
 
 # Step control flags
 step1="t"               # STEP1: pre-run, pdb-> mcce pdb  (DO_PREMCCE)
@@ -76,7 +76,7 @@ stepC="f"               # Run a custom script between step3 and step4   : If tru
 # MCCE Simulation
 STEP1="step1.py -d 4 --dry"
 STEP2="step2.py -d 4 -l 1"
-STEP3="step3.py -d 4 -t \$TMP"
+STEP3="step3.py -d 4 -s delphi -p $CPUS -t \$TMP"
 STEP4="step4.py --xts -i 7 -n 1"
 
 # Optional MCCE script locations
