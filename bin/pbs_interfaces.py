@@ -295,6 +295,7 @@ class PBS_DELPHI:
 
             # fort.10
             self.epsilon_prot = run_options.d
+            self.epsilon_solv = run_options.do
             with open("fort.10", "w") as fh:
                 fh.write("gsize=%d\n" % self.grids_delphi)
                 fh.write("scale=%.2f\n" % (self.grids_per_ang/2**(depth-1)))
@@ -346,6 +347,7 @@ class PBS_DELPHI:
 
         # fort.10
         self.epsilon_prot = run_options.d
+        self.epsilon_solv = run_options.do
         with open("fort.10", "w") as fh:
             fh.write("gsize=%d\n" % self.grids_delphi)
             fh.write("scale=%.2f\n" % (self.grids_per_ang/2**(depth-1)))
@@ -363,6 +365,10 @@ class PBS_DELPHI:
 
         # 1st delphi run
         result = subprocess.run([self.exe], capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.critical(f"Delphi failed with error:\n{result.stderr}")
+            sys.exit(1)
+
         rxns.append(self.collect_rxn(result.stdout))
 
         # subsequent delphi runs
@@ -384,6 +390,10 @@ class PBS_DELPHI:
                 fh.write("energy(g,an,sol)\n")  # g for grid energy, sol for corrected rxn
 
             result = subprocess.run([self.exe], capture_output=True, text=True)
+            if result.returncode != 0:
+                logger.critical(f"Delphi failed with error:\n{result.stderr}")
+                sys.exit(1)
+
             rxns.append(self.collect_rxn(result.stdout))
 
         # collect results from frc files
@@ -415,6 +425,7 @@ class PBS_DELPHI:
 
         # fort.10
         self.epsilon_prot = run_options.d
+        self.epsilon_solv = run_options.do
         with open("fort.10", "w") as fh:
             fh.write("gsize=%d\n" % self.grids_delphi)
             fh.write("scale=%.2f\n" % (self.grids_per_ang/2**(depth-1)))
@@ -432,6 +443,9 @@ class PBS_DELPHI:
 
         # 1st delphi run
         result = subprocess.run([self.exe], capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.critical(f"Delphi failed with error:\n{result.stderr}")
+            sys.exit(1)
 
         # subsequent delphi runs
         for i in range(1, depth):
@@ -451,6 +465,9 @@ class PBS_DELPHI:
                 fh.write("site(a,c,p)\n")
                 fh.write("energy(g,an,sol)\n")  # g for grid energy, sol for corrected rxn
             result = subprocess.run([self.exe], capture_output=True, text=True)
+            if result.returncode != 0:
+                logger.critical(f"Delphi failed with error:\n{result.stderr}")
+                sys.exit(1)
 
         # collect results from frc files
         self.collect_phi(depth, bound.multi_bnd_xyzrcp)
@@ -576,7 +593,7 @@ class PBS_NGPB:
     def collect_phi(self, xyzrcp):
         """Collect results from the log"""
         try:
-            with open("phi_on_atoms_0.txt") as fh:
+            with open("phi_on_atoms.txt") as fh:
                 lines = fh.readlines()
         except OSError:
             logger.critical("Could not open NGPB output file phi_on_atoms_0.txt.")
@@ -610,6 +627,7 @@ class PBS_NGPB:
         rxn0 = 0.0
         self.write_pqr(bound)
         self.epsilon_prot = run_options.d
+        self.epsilon_solv = run_options.do
         self.salt=run_options.salt
         num_spacing = 20
         if run_options.fly:
@@ -683,6 +701,11 @@ class PBS_NGPB:
         command = self.exe.copy()
         command.append('multi.pqr')
         result = subprocess.run(command, capture_output=True, text=True, env=self.my_env)
+        # Test result, if result is error, exit
+        if result.returncode != 0:
+            logger.critical(f"NGPB failed with error:\n{result.stderr}")
+            sys.exit(1)
+
         self.collect_phi(bound.multi_bnd_xyzrcp)
 
         return rxn0, rxn
@@ -819,6 +842,7 @@ class PBS_ZAP:
         # Calculate rxn0 using float boundary condition
         rxn0 = 0.0
         self.epsilon_prot = run_options.d
+        self.epsilon_solv = run_options.do
         salt_concentration = run_options.salt
         if salt_concentration > 0.05:
            logger.warning(("\n!!!!! WARNING ZAP !!!!!\nZAP is unstable at salt_concentrations "
@@ -1101,7 +1125,7 @@ class PBS_APBS:
            lpbe                                # Solve the linearized Poisson-Boltzmann equation
            bcfl mdh                            # Use all multipole moments when calculating the potential
            pdie {self.epsilon_prot}            # Solute dielectric
-           sdie 80.0                           # Solvent dielectric
+           sdie {self.epsilon_solv}            # Solvent dielectric
            chgm spl2                           # Spline-based discretization of the delta functions
            srfm spl2                           # Molecular surface definition
            srad 1.4                            # Solvent probe radius (for molecular surface)
@@ -1185,6 +1209,7 @@ class PBS_APBS:
             return reference rxn0, and rxn in single boundary condition.
         """
         self.epsilon_prot = run_options.d
+        self.epsilon_solv = run_options.do
         self.salt = run_options.d.salt
 
         # Calculate rxn0 using float boundary condition
