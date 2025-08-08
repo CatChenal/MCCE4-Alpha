@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""
+Created on Mon Jul 21 3:30:00 2025
+
+@author: Gehan Ranepura
+"""
+
+import argparse
+import subprocess
+import sys
+import os
+
+def run_command(cmd, label):
+    print(f"\nRunning {label}:")
+    print(f"  {cmd}")
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+        print(f"{label} completed.")
+    except subprocess.CalledProcessError:
+        print(f"Error: {label} failed.")
+        sys.exit(1)
+
+def run_default_pipeline(input_pdb):
+    # Copy to prot.pdb
+    if input_pdb != "prot.pdb":
+        print(f"Copying {input_pdb} → prot.pdb")
+        os.system(f"cp {input_pdb} prot.pdb")
+
+    STEP1 = f"step1.py {input_pdb} -d 4 --dry"
+    STEP2 = "step2.py -l 1 -d 4"
+    STEP3 = "step3.py -d 4"
+    STEP4 = "step4.py --xts -i 7 -n 1"
+
+    run_command(STEP1, "STEP1")
+    run_command(STEP2, "STEP2")
+    run_command(STEP3, "STEP3")
+    run_command(STEP4, "STEP4")
+
+def run_custom_script(script, input_pdb, use_sbatch):
+    if input_pdb != "prot.pdb":
+        print(f"Copying {input_pdb} → prot.pdb")
+        os.system(f"cp {input_pdb} prot.pdb")
+
+    if not os.path.isfile(script):
+        print(f"Error: Custom script '{script}' not found.")
+        sys.exit(1)
+
+    if use_sbatch:
+        cmd = f"sbatch --wait {script}"
+        run_command(cmd, "SLURM submission")
+    else:
+        cmd = f"bash {script}"
+        run_command(cmd, "Shell execution")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="""
+Run MCCE4 either via the default 4-step pipeline or with a custom SLURM shell script.
+
+Examples:
+  python run_mcce.py myprotein.pdb
+  python run_mcce.py myprotein.pdb --custom submit_mcce4.sh
+  python run_mcce.py myprotein.pdb --custom submit_mcce4.sh --sbatch
+        """,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument("pdb",      help="Input PDB file (copied to 'prot.pdb')")
+    parser.add_argument("--custom", help="Optional shell script to run instead of default pipeline")
+    parser.add_argument("--sbatch", action="store_true", help="Use sbatch to submit the custom shell script")
+
+    args = parser.parse_args()
+
+    if not os.path.isfile(args.pdb):
+        print(f"Error: PDB file '{args.pdb}' not found.")
+        sys.exit(1)
+
+    if args.custom:
+        run_custom_script(args.custom, args.pdb, args.sbatch)
+    else:
+        run_default_pipeline(args.pdb)
+
+if __name__ == "__main__":
+    main()
+

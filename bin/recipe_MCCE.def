@@ -143,7 +143,7 @@ CXXFLAGS="-Ofast -mtune=native -march=native" \
     echo "Building NextGenPB..."
     mkdir -p /usr/local/nextgenPB
     cd /usr/local/nextgenPB && \
-        git clone --branch v1.0.1 https://github.com/vdiflorio/NextGenPB.git . && \
+        git clone --branch NextGenPB_v1.0.0 https://github.com/concept-lab/NextGenPB.git . && \
         cp /usr/local/nextgenPB/local_setting/local_settings_rocky_fast.mk /usr/local/nextgenPB/src/local_settings.mk && \
         cd src && make clean all
 

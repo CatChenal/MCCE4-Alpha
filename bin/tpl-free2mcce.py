@@ -337,7 +337,6 @@ if __name__ == "__main__":
 
     os.chdir(cwd)
 
-
     # Load ftpl files in custom param directory
     user_param = "./user_param"
     if os.path.isdir(user_param):
@@ -351,6 +350,5 @@ if __name__ == "__main__":
             tpllines += convert(fname, epsilon)
 
         os.chdir(cwd)
-
 
     open(targetdir+"/mcce.tpl", "w").writelines(tpllines)
