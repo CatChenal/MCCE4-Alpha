@@ -58,9 +58,9 @@ def main():
 Run MCCE4 either via the default 4-step pipeline or with a custom SLURM shell script.
 
 Examples:
-  python run_mcce.py myprotein.pdb
-  python run_mcce.py myprotein.pdb --custom submit_mcce4.sh
-  python run_mcce.py myprotein.pdb --custom submit_mcce4.sh --sbatch
+  python run_mcce4 myprotein.pdb
+  python run_mcce4 myprotein.pdb --custom submit_mcce4.sh
+  python run_mcce4 myprotein.pdb --custom submit_mcce4.sh --sbatch
         """,
         formatter_class=argparse.RawTextHelpFormatter
     )
