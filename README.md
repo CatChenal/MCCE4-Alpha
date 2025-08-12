@@ -182,9 +182,9 @@ run_mcce4 4lzt.pdb
 
 Other files are created by MCCE in the process of creating "pK.out". Learn about [these output files here.](https://mccewiki.levich.net/books/results/page/mcce-output-files) Learn more about [the four individual steps that comprise run_mcce4 here.](https://mccewiki.levich.net/books/mcce-tutorial-4lzt/page/calculate-pkas-of-lysozyme-mcce-steps-1-4)
 
-How do I run multiple PDB files at once?
-
 How do I customize a run?
+
+How do I run MCCE on multiple PDB files at once?
 
 # Tools Info
 Many tools have a succint description in tools.info. You can list them all with:
