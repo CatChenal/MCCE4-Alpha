@@ -174,7 +174,7 @@ Copy/link your chosen protein into the protein directory. If the desired protein
 getpdb 4LZT
 `
 
-Now we can run MCCE. The easiest way is with "run_mcce4", which runs through the first four steps and calculates pKas for each residue of the PDB file, saving them to "pK.out".
+Now we can run MCCE. The easiest way is with "run_mcce4", which runs through the first four steps and calculates pKas for each residue of the PDB file, saving them to "pK.out" upon successful completion of the fourth step.
 
 `
 run_mcce4 4lzt.pdb
