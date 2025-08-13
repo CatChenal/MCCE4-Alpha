@@ -1,4 +1,4 @@
-# Multi-Conformation Continuum Electrostatics (MCCE4-Alpha)
+# Multi-Conformation Continuum Electrostatics
 
 <p align="center">
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
