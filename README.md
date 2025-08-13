@@ -14,7 +14,7 @@ In this guide walks you through calculating and analyzing electrostatic interact
 
 ## **Quick Introduction**
 
-**MCCE4** is a physics-based computational biophysics program for predicting:
+Given the structure of a macromolucule (in a PDB file), **MCCE4** can predict the following:
 
 - **pKₐ values**
 - **Protonation states**
