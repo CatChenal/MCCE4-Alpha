@@ -5,7 +5,7 @@
 </p>
 
 ## Welcome to the **MCCE4-Alpha**! 
-In this guide walks you through calculating electrostatic potentials from a biomolecular structure.
+In this guide walks you through calculating and analyzing electrostatic interactions from a PDB structure.
 
 🚀 **Get Started Now:** [**MCCE4 GitHub**](https://github.com/GunnerLab/MCCE4-Alpha)  
 📖 **Full documentation:** [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
