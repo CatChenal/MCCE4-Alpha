@@ -5,8 +5,6 @@
 </p>
 
 ## Welcome to the **MCCE4-Alpha**! 
-- This is a testing version of MCCE4 development. Please let us know about questions or comments!
-
 In this guide walks you through calculating electrostatic potentials from a biomolecular structure.
 
 🚀 **Get Started Now:** [**MCCE4 GitHub**](https://github.com/GunnerLab/MCCE4-Alpha)  
@@ -40,6 +38,11 @@ Comprehensive documentation covering:
 
 All information about installation and usage can be found in the [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
 
+## Help us improve MCCE4
+This is a testing version of MCCE4 development. 
+Please let us know about questions, comments or report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
+Thank You and we hope you enjoy using MCCE4!  
+  
 ---
 There are two ways you can install MCCE4-Alpha, which differ on whether a script is used: 
  * Option A: Semi-automated setup using provided scripts that download a generic NGPB image.
@@ -153,12 +156,6 @@ MCCE4 contains C and C++ libraries that must be compiled prior to use. Two compi
     ```
      step1.py -h
     ```
-
-
-## Help us improve MCCE4
-Please, report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
-Thank you.
-Enjoy trying MCCE4!  
 
 
 ## Supported PBE Solvers used in the energies calculation step (step 3) of MCCE4:
