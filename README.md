@@ -4,8 +4,10 @@
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-Welcome to the **MCCE4-Alpha**!  
-This guide walks you through calculating electrostatic potentials from a biomolecular structure.
+## Welcome to the **MCCE4-Alpha**! 
+- This is a testing version of MCCE4 development. Please let us know about questions or comments!
+
+In this guide walks you through calculating electrostatic potentials from a biomolecular structure.
 
 🚀 **Get Started Now:** [**MCCE4 GitHub**](https://github.com/GunnerLab/MCCE4-Alpha)  
 📖 **Full documentation:** [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
@@ -36,10 +38,8 @@ Comprehensive documentation covering:
 - Developer notes
 - Detailed explanations of all settings
 
-Testing version of MCCE4 development. Please let us know about questions or comments! 
----
-  
- 
+All information about installation and usage can be found in the [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
+
 ---
 There are two ways you can install MCCE4-Alpha, which differ on whether a script is used: 
  * Option A: Semi-automated setup using provided scripts that download a generic NGPB image.
