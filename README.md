@@ -45,16 +45,6 @@ Thank You and we hope you enjoy using MCCE4!
   
 ---
 
-# Tools Info
-Many tools have a succint description in tools.info. You can list them all with:
-```
- cat MCCE4-Alpha/MCCE_bin/tools.info
-```
-
-For more information about a given tool, check the wiki, or use the "-h" flag, e.g.:
-
-`step3.py -h`
-
 # MCCE Wiki
 [Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net) (under construction)
 
