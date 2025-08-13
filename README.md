@@ -1,10 +1,10 @@
+# Multi-Conformation Continuum Electrostatics (MCCE4-Alpha)
+
 <p align="center">
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-# Multi-Conformation Continuum Electrostatics
-
-Welcome to the **MCCE4 tutorial**!  
+Welcome to the **MCCE4-Alpha**!  
 This guide walks you through calculating electrostatic potentials from a biomolecular structure.
 
 🚀 **Get Started Now:** [**MCCE4 GitHub**](https://github.com/GunnerLab/MCCE4-Alpha)  
@@ -36,24 +36,15 @@ Comprehensive documentation covering:
 - Developer notes
 - Detailed explanations of all settings
 
----
-
-Whether you’re a **student** just getting started or a **researcher** interested in bioelectrostatics, you’ll find practical steps and in-depth information here.
-
-
-
-
-# MCCE4-Alpha
-
 Testing version of MCCE4 development. Please let us know about questions or comments! 
-
-MCCE4 is now using [NextGenPB (NGPB) from the Rocchia Lab (IIT)](https://github.com/concept-lab/NextGenPB) as its default PBE solver.  
-
+---
+  
+ 
+---
 There are two ways you can install MCCE4-Alpha, which differ on whether a script is used: 
  * Option A: Semi-automated setup using provided scripts that download a generic NGPB image.
  * Option B: Manual setup that includes creation of a NGPB image optimized for your platform.
-
----
+   
 ## Installation Option A: Quick Installation with Scripts
 ### Scripts:
 These scripts automate many steps & download a generic NGPB image:
