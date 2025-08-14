@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+
 """
-Created on Mon Jul 21 3:30:00 2025
+Created on Thu Aug 14 3:30:00 2025
 
 @author: Gehan Ranepura
 """
@@ -9,65 +10,230 @@ import argparse
 import subprocess
 import sys
 import os
+import shlex
+from datetime import datetime
 
-def run_command(cmd, label):
+def run_command(cmd, label, logfile=None):
+    """
+    Run a command with real-time 'tee'-style logging:
+      - Streams stdout/stderr to the console
+      - Also writes them to logfile (if provided), with timestamps
+    Accepts either a list argv (preferred) or a string (shell=True).
+    """
+    from subprocess import Popen, PIPE, STDOUT
+
     print(f"\nRunning {label}:")
-    print(f"  {cmd}")
+    is_list = isinstance(cmd, list)
+    pretty = shlex.join(cmd) if is_list else cmd
+    print("  " + pretty + (f"  >> {logfile}" if logfile else ""))
+
+    fh = open(logfile, "a") if logfile else None
     try:
-        subprocess.run(cmd, shell=True, check=True)
+        if fh:
+            fh.write(f"=== {label} started {datetime.now().isoformat()} ===\n")
+
+        if is_list:
+            proc = Popen(cmd, stdout=PIPE, stderr=STDOUT, text=True, bufsize=1)
+        else:
+            proc = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT, text=True, bufsize=1)
+
+        for line in proc.stdout:
+            print(line, end="")
+            if fh:
+                fh.write(line)
+        proc.stdout.close()
+        ret = proc.wait()
+        if ret != 0:
+            raise subprocess.CalledProcessError(ret, pretty)
+
         print(f"{label} completed.")
+        if fh:
+            fh.write(f"=== {label} completed {datetime.now().isoformat()} ===\n")
     except subprocess.CalledProcessError:
         print(f"Error: {label} failed.")
+        if fh:
+            fh.write(f"=== {label} FAILED {datetime.now().isoformat()} ===\n")
         sys.exit(1)
+    finally:
+        if fh:
+            fh.flush()
+            fh.close()
 
-def run_default_pipeline(input_pdb):
+def ensure_prot_pdb(input_pdb):
+    # Copy to prot.pdb so downstream scripts see the expected file
+    if input_pdb != "prot.pdb":
+        print(f"Copying {input_pdb} → prot.pdb")
+        subprocess.run(["cp", input_pdb, "prot.pdb"], check=True)
+
+# ---------------------------
+# Legacy Default MCCE4 Simulation
+# ---------------------------
+def run_legacy_pipeline(input_pdb):
     # Copy to prot.pdb
     if input_pdb != "prot.pdb":
         print(f"Copying {input_pdb} → prot.pdb")
-        os.system(f"cp {input_pdb} prot.pdb")
+        subprocess.run(["cp", input_pdb, "prot.pdb"], check=True)
 
     STEP1 = f"step1.py {input_pdb} -d 4 --dry"
     STEP2 = "step2.py -l 1 -d 4"
-    STEP3 = "step3.py -d 4"
-    STEP4 = "step4.py --xts -i 7 -n 1"
+    STEP3 = "step3.py -s ngpb -d 4"
+    STEP4 = "step4.py --xts"
 
-    run_command(STEP1, "STEP1")
-    run_command(STEP2, "STEP2")
-    run_command(STEP3, "STEP3")
-    run_command(STEP4, "STEP4")
+    run_command(STEP1, "STEP1", logfile="step1.log")
+    run_command(STEP2, "STEP2", logfile="step2.log")
+    run_command(STEP3, "STEP3", logfile="step3.log")
+    run_command(STEP4, "STEP4", logfile="step4.log")
+
+# ---------------------------
+# Flag-driven pipeline
+# ---------------------------
+def run_param_pipeline(input_pdb, args):
+    ensure_prot_pdb(input_pdb)
+
+    # Global dielectric for Steps 1–3 (default 4 if not set)
+    dielectric = args.d if args.d is not None else 4
+
+    # Summary (useful verification)
+    print("\n[Pipeline Parameters]")
+    print(f"  Dielectric (Steps 1–3): {dielectric}")
+    print(f"  Step1 hydration: {'WET (no --dry)' if args.wet else 'DRY (--dry)'}")
+    print(f"  Step2 conformer level (-l): {args.l}")
+    print(f"  Step3 solver (-s): {args.s}")
+    print(f"  Step3 CPUs (-p): {args.p if args.p is not None else 'default'}")
+    print(f"  Step3 tmp dir (-t): {args.t if args.t is not None else 'default'}")
+    print("  Step4: --xts -i 7 -n 1\n")
+
+    # ---- STEP 1
+    step1 = ["step1.py", input_pdb, "-d", str(dielectric)]
+    if not args.wet:
+        # DRY is default unless --wet is supplied
+        step1.append("--dry")
+
+    # ---- STEP 2
+    step2 = ["step2.py", "-d", str(dielectric), "-l", str(args.l)]
+
+    # ---- STEP 3
+    step3 = ["step3.py", "-d", str(dielectric)]
+    if args.s:
+        step3 += ["-s", args.s]
+    if args.p is not None:
+        step3 += ["-p", str(args.p)]
+    if args.t is not None:
+        step3 += ["-t", args.t]
+
+    # ---- STEP 4
+    step4 = ["step4.py", "--xts"]
+
+    run_command(step1, "STEP1", logfile="step1.log")
+    run_command(step2, "STEP2", logfile="step2.log")
+    run_command(step3, "STEP3", logfile="step3.log")
+    run_command(step4, "STEP4", logfile="step4.log")
+
+# ---------- CLI utilities ----------
+
+def was_passed(*names):
+    """
+    Returns True if any of the provided CLI flag names appear in sys.argv.
+    Handles both separated (-d 4) and concatenated short opts (-d4, -p8, -t/tmp).
+    """
+    argv = sys.argv[1:]  # ignore program name
+    for a in argv:
+        for name in names:
+            if a == name:
+                return True
+            # handle concatenated short options, e.g., -d6 or -t/tmp
+            if name.startswith("-") and not name.startswith("--"):
+                if len(name) == 2 and a.startswith(name) and a != name:
+                    return True
+    return False
+
+def any_pipeline_flags_passed():
+    # If any of these appear, we switch to the param pipeline
+    return (
+        was_passed("-d") or
+        was_passed("--wet") or
+        was_passed("-l") or
+        was_passed("-s") or
+        was_passed("-p") or
+        was_passed("-t")
+    )
+
+def any_non_custom_flags_passed_with_custom():
+    """
+    Return True if --custom is combined with any disallowed flags.
+    Allowed with --custom: ONLY the positional PDB and optional --sbatch.
+    Disallowed with --custom: -d, --wet, -l, -s, -p, -t
+    """
+    return (
+        was_passed("-d") or
+        was_passed("--wet") or
+        was_passed("-l") or
+        was_passed("-s") or
+        was_passed("-p") or
+        was_passed("-t")
+    )
 
 def run_custom_script(script, input_pdb, use_sbatch):
-    if input_pdb != "prot.pdb":
-        print(f"Copying {input_pdb} → prot.pdb")
-        os.system(f"cp {input_pdb} prot.pdb")
+    ensure_prot_pdb(input_pdb)
 
     if not os.path.isfile(script):
         print(f"Error: Custom script '{script}' not found.")
         sys.exit(1)
 
     if use_sbatch:
-        cmd = f"sbatch --wait {script}"
-        run_command(cmd, "SLURM submission")
+        # Non-blocking submission; show job id
+        print("\nSubmitting custom script via SLURM (non-blocking)...")
+        res = subprocess.run(
+            ["sbatch", script],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+        print(res.stdout.strip())
+        print("CLI returned immediately after sbatch submission.")
     else:
-        cmd = f"bash {script}"
-        run_command(cmd, "Shell execution")
+        print("\nRunning custom script via shell...")
+        run_command(["bash", script], "Custom script")
 
 def main():
     parser = argparse.ArgumentParser(
         description="""
-Run MCCE4 either via the default 4-step pipeline or with a custom SLURM shell script.
+Run MCCE4 either via the legacy default 4-step pipeline (no flags),
+a flag-driven pipeline (if flags are provided), or with a custom SLURM shell script.
+
+Rules:
+- --custom may only be combined with the positional PDB and optional --sbatch.
+- --sbatch can only be used together with --custom.
+- If any other flags are present with --custom, the command will error.
 
 Examples:
-  python run_mcce4 myprotein.pdb
-  python run_mcce4 myprotein.pdb --custom submit_mcce4.sh
-  python run_mcce4 myprotein.pdb --custom submit_mcce4.sh --sbatch
+  # Legacy default (exactly your original commands):
+  run_mcce4 myprotein.pdb
+
+  # Flag-driven:
+  run_mcce4 myprotein.pdb -d 6 --wet
+  run_mcce4 myprotein.pdb -d 6 -l 2 -s delphi -p 5 -t scrap
+
+  # Custom script:
+  run_mcce4 myprotein.pdb --custom submit_mcce4.sh
+  run_mcce4 myprotein.pdb --custom submit_mcce4.sh --sbatch
         """,
         formatter_class=argparse.RawTextHelpFormatter
     )
 
+    # Positional & custom-script options
     parser.add_argument("pdb",      help="Input PDB file (copied to 'prot.pdb')")
-    parser.add_argument("--custom", help="Optional shell script to run instead of default pipeline")
-    parser.add_argument("--sbatch", action="store_true", help="Use sbatch to submit the custom shell script")
+    parser.add_argument("--custom", help="Optional shell script to run instead of default/flag pipelines")
+    parser.add_argument("--sbatch", action="store_true", help="Use sbatch to submit the custom shell script (non-blocking)")
+
+    # ---- Flag-driven pipeline options
+    parser.add_argument("-d",    type=int, metavar="", help="Global inner dielectric for Steps 1–3 (default: 4)")
+    parser.add_argument("--wet", action="store_true", help="Step1: run WET (omit --dry) (default is DRY)")
+    parser.add_argument("-l",    type=int, metavar="", default=1, help="Step2: conformer level (default: 1)")
+    parser.add_argument("-s",    type=str, metavar="", default="ngpb", help="Step3: PBE solver (default: ngpb)")
+    parser.add_argument("-p",    type=int, metavar="", help="Step3: Number of CPUs to use")
+    parser.add_argument("-t",    type=str, metavar="", help="Step3: Temporary PBE data directory")
 
     args = parser.parse_args()
 
@@ -75,10 +241,29 @@ Examples:
         print(f"Error: PDB file '{args.pdb}' not found.")
         sys.exit(1)
 
+    # --- Enforce CLI rules ---
+
+    # 1) --sbatch must only be used with --custom
+    if args.sbatch and not args.custom:
+        parser.error("--sbatch can only be used together with --custom.")
+
+    # 2) --custom may only be combined with positional PDB and optional --sbatch
+    if args.custom and any_non_custom_flags_passed_with_custom():
+        parser.error("--custom may only be combined with the positional PDB and optional --sbatch (no other flags allowed).")
+
+    # --- Route execution ---
+
     if args.custom:
         run_custom_script(args.custom, args.pdb, args.sbatch)
+        return
+
+    # If any pipeline flags were passed, use param pipeline; else legacy default
+    if any_pipeline_flags_passed():
+        if args.t:
+            args.t = os.path.expanduser(args.t)  # expand ~ for -t
+        run_param_pipeline(args.pdb, args)
     else:
-        run_default_pipeline(args.pdb)
+        run_legacy_pipeline(args.pdb)
 
 if __name__ == "__main__":
     main()
