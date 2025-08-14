@@ -208,7 +208,7 @@ Rules:
 - If any other flags are present with --custom, the command will error.
 
 Examples:
-  # Legacy default (exactly your original commands):
+  # Legacy default MCCE4 simulation:
   run_mcce4 myprotein.pdb
 
   # Flag-driven:
