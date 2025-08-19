@@ -22,8 +22,6 @@ Given the structure of a macromolucule (in a PDB file), **MCCE4** can predict th
 
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
 
----
-
 ## **Documentation Overview**
 Comprehensive documentation covering:
 - Installation
