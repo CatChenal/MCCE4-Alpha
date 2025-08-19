@@ -5,10 +5,10 @@
 </p>
 
 ## Welcome to the **MCCE4-Alpha**! 
-In this guide walks you through calculating and analyzing electrostatic interactions from a PDB structure.
+🚀 **Get Started Now:**  [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
 
-🚀 **Get Started Now:** [**MCCE4 GitHub**](https://github.com/GunnerLab/MCCE4-Alpha)  
-📖 **Full documentation:** [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
+In this tutorial guides you through calculating and analyzing electrostatic interactions from a PDB structure.
+Here, we provide step-by-step practical examples designed to help new users quickly run simulations and understand key features of MCCE4.
 
 ---
 
@@ -25,24 +25,16 @@ In this program, protein side chain motions are simulated explicitly while the d
 ---
 
 ## **Documentation Overview**
-
-### **Tutorial**
-Step-by-step practical examples designed to help new users quickly run simulations and understand key features of MCCE4.
-
-### **Guide**
 Comprehensive documentation covering:
 - Installation
-- Advanced features
-- Developer notes
-- Detailed explanations of all settings
-
-All information about installation and usage can be found in the [**MCCE4 Tutorial & Guide Website**](https://gunnerlab.github.io/mcce4_tutorial/)
+- Gudie: Detailed explanations of all settings
+- Example Projects 
 
 ## Help us improve MCCE4
 This is a testing version of MCCE4 development. 
 Please let us know about questions, comments or report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
 Thank You and we hope you enjoy using MCCE4!  
-  
+
 ---
 
 # MCCE Wiki
