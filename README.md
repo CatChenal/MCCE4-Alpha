@@ -17,9 +17,9 @@ You’ll find step-by-step practical examples designed to help new users quickly
 **📖 MCCE4-Alpha Tutorial:** [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
 
 ## MCCE4-Tools 🔧  
-🧰 **Explore Now:** [MCCE4-Tools GitHub](https://github.com/GunnerLab/MCCE4-Tools)
+Please also check out the companion repository **MCCE4-Tools**. 
 
-Please also check out the companion repository **MCCE4-Tools**.  
+🧰 **Explore Now:** [MCCE4-Tools GitHub](https://github.com/GunnerLab/MCCE4-Tools)
 
 ---
 
