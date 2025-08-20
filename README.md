@@ -39,11 +39,10 @@ This is a testing version of MCCE4 development.
 Please let us know about questions, comments or report any issues you encounter [here](https://github.com/GunnerLab/MCCE4-Alpha/issues).
 Thank You and we hope you enjoy using MCCE4!  
 
----
-
 # MCCE Wiki
 [Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net) (under construction)
 
+---
 
 Copyright (C) 2024 GunnerLab
 
