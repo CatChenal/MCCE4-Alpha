@@ -8,7 +8,9 @@
 **Let's Get Started:** 
 
 🛠️ [Installation](https://gunnerlab.github.io/mcce4_tutorial/docs/installation/) ·
+
 🚀 [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/) ·
+
 📖 [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
 
 This tutorial walks you through calculating and analyzing **electrostatic interactions** from a PDB structure.  
