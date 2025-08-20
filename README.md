@@ -45,5 +45,10 @@ Thank You and we hope you enjoy using MCCE4!
 [Learn about MCCE, installation, available tools, and research done with MCCE.](https://mccewiki.levich.net) (under construction)
 
 
+Copyright (C) 2021-2024 GunnerLab
+
+This software is distributed under the terms the terms of the MIT licence
+
+
 
 
