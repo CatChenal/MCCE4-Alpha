@@ -4,8 +4,9 @@
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-## Welcome to the **MCCE4-Alpha**! 
-**🎬 Let's Get Started:** --> **📖 MCCE4-Alpha Tutorial:** [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
+## Welcome to the **MCCE4-Alpha**! **🎬 Let's Get Started!
+
+**📖 MCCE4-Alpha Tutorial:** [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
 
 **🛠️ Install Now:** [Installation](https://gunnerlab.github.io/mcce4_tutorial/docs/installation/)  
 **🚀 Run Your First Job:** [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
