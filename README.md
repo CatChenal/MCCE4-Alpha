@@ -11,7 +11,9 @@ In this tutorial guides you through calculating and analyzing electrostatic inte
 Here, we provide step-by-step practical examples designed to help new users quickly run simulations and understand key features of MCCE4.
 
 ## MCCE4-Tools 🔧 
-🧰 Please also check out additional utilities and scripts for MCCE4-Alpha in the companion repository [**MCCE4-Tools**](https://github.com/GunnerLab/MCCE4-Tools).
+🧰 [**MCCE4-Tools**](https://github.com/GunnerLab/MCCE4-Tools)
+
+Please also check out additional utilities and scripts for MCCE4-Alpha in the companion repository.
 
 ---
 
