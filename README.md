@@ -31,7 +31,7 @@ In this program, protein side chain motions are simulated explicitly while the d
 ## **Documentation Overview**
 Comprehensive documentation covering:
 - Installation
-- Gudie: Detailed explanations of all settings
+- Guide: Detailed explanations of all settings
 - Example Projects 
 
 ## Help us improve MCCE4
