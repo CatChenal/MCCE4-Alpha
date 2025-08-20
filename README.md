@@ -4,16 +4,17 @@
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-## Welcome to the **MCCE4-Alpha**! 🎬 Let's Get Started
+## Welcome to the **MCCE4-Alpha**! 
 
-**📖 MCCE4-Alpha Tutorial:** [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
+**🎬 Let's Get Started:** 
 
 **🛠️ Install Now:** [Installation](https://gunnerlab.github.io/mcce4_tutorial/docs/installation/)  
 **🚀 Run Your First Job:** [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
 
-
 This tutorial walks you through calculating and analyzing **electrostatic interactions** from a PDB structure.  
 You’ll find step-by-step practical examples designed to help new users quickly run simulations and understand key features of MCCE4.
+
+**📖 MCCE4-Alpha Tutorial:** [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
 
 ## MCCE4-Tools 🔧  
 🧰 **Explore Now:** [MCCE4-Tools GitHub](https://github.com/GunnerLab/MCCE4-Tools)
