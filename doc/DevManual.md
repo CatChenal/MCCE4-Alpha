@@ -1,6 +1,6 @@
 # Developer Manual
 
-## Develop Cycle
+## Development Cycle
 
 Developers are encouraged to develop code incrementally, with each cycle solving a small task. Issues and project tools in Github made possible to track the progress of the project automatically.
 
@@ -119,7 +119,7 @@ Except 3rd party programs, programs and scripts in bin folder should support com
 ### Global Constants and Default Values
 
 ### Run options
-Command line options are processed in file bin/lib/args.py. Options are converted to appropriate date types and stored as class elements.
+Command line options are processed in file bin/lib/args.py. Options are converted to appropriate data types and stored as class elements.
 
 Importing run options module in bin directory:
 `from modules.args import *`
@@ -135,19 +135,15 @@ options = GetpdbOptions()
 pdb = options.pdbid
 </pre>
 
-
-
 ### Protein structure
 
 ### Energy Lookup Table Structure
 
 ### Microstates Structure
 
-
-
 ## External Resources
 ### Python code writing style
-PEP 8 style is a wildly followed style. 
+PEP 8 style is a commonly followed style. 
 
 The full style rules are at https://peps.python.org/pep-0008/
 
