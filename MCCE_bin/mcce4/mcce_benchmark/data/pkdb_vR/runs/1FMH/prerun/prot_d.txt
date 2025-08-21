@@ -1,0 +1,48 @@
+# prot dict 
+{'Name': '1FMH :: Nmr Solution Structure Of A Designed Heterodimeric Leucine '
+         'Zipper',
+ 'PDB.Structure': {'Biounits': 'DIMERIC: A, B;',
+                   'Chains': 'A, B',
+                   'Cofactors': {'ACE': ('ACETYL GROUP', 2),
+                                 'NH2': ('AMINO GROUP', 2)},
+                   'Disulfides': ['CYS A  30 -- 2.03 Å --> CYS B  30'],
+                   'First Release': '17-AUG-00',
+                   'Function': 'TRANSCRIPTION',
+                   'Links': ['C  ACE A  0 -- 1.33 Å --> N  GLU A  1',
+                             'C  GLY A 31 -- 1.33 Å --> N  NH2 A 32',
+                             'C  ACE B  0 -- 1.32 Å --> N  GLU B  1',
+                             'C  GLY B 31 -- 1.33 Å --> N  NH2 B 32'],
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {'A': {'ACE': 1,
+                                                             'NH2': 1},
+                                                       'B': {'ACE': 1,
+                                                             'NH2': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 5, ASN: 1, '
+                                                           'CYS: 1, GLN: 5, '
+                                                           'GLU: 9, GLY: 1, '
+                                                           'HIS: 1, LEU: 3, '
+                                                           'LYS: 1, TYR: 1, '
+                                                           'VAL: 3',
+                                                           'Total: 31',
+                                                           'Ionizable: 13',
+                                                           'Ratio: 41.9%')},
+                                        'B': {'RESIDUES': ('ALA: 6, ARG: 3, '
+                                                           'ASN: 1, CYS: 1, '
+                                                           'GLN: 4, GLU: 1, '
+                                                           'GLY: 1, HIS: 1, '
+                                                           'LEU: 3, LYS: 6, '
+                                                           'TYR: 1, VAL: 3',
+                                                           'Total: 31',
+                                                           'Ionizable: 13',
+                                                           'Ratio: 41.9%')}},
+                   'Models': '1',
+                   'Molecule': 'GENERAL CONTROL PROTEIN GCN4',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:33, B:33; Total: 66',
+                   'Sites': {'AC3': ['BINDING SITE FOR RESIDUE NH2 A 32',
+                                     'CYS A  30',
+                                     'GLY A  31'],
+                             'AC4': ['BINDING SITE FOR RESIDUE NH2 B 32',
+                                     'CYS B  30',
+                                     'GLY B  31']},
+                   'Total cofactors': 4}}

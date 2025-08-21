@@ -1,0 +1,36 @@
+# prot dict 
+{'Name': '2L90 :: Solution Structure Of Murine Myristoylated Msra',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'MYR': ('MYRISTIC ACID', 1)},
+                   'First Release': '27-JAN-11',
+                   'Function': 'OXIDOREDUCTASE',
+                   'Links': ['C1 MYR A 21 -- 1.35 Å --> N  GLY A 22'],
+                   'Method': 'SOLUTION NMR',
+                   'Missing': {'ResAtoms': {'A': ['LYS_233=(CA,C,O,CB,CG,CD,CE)',
+                                                  'LYS_233=(NZ)']}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'MYR': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 14, ARG: 10, '
+                                                           'ASN: 6, ASP: 6, '
+                                                           'CYS: 4, GLN: 10, '
+                                                           'GLU: 18, GLY: 22, '
+                                                           'HIS: 8, ILE: 6, '
+                                                           'LEU: 8, LYS: 13, '
+                                                           'MET: 5, PHE: 10, '
+                                                           'PRO: 12, SER: 13, '
+                                                           'THR: 14, TRP: 3, '
+                                                           'TYR: 11, VAL: 19',
+                                                           'Total: 212',
+                                                           'Ionizable: 70',
+                                                           'Ratio: 33.0%')}},
+                   'Models': '1',
+                   'Molecule': 'PEPTIDE METHIONINE SULFOXIDE REDUCTASE',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:212; Total: 212',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE MYR A 21',
+                                     'GLY A  22',
+                                     'SER A  24',
+                                     'LYS A  27',
+                                     'GLY A 112',
+                                     'ARG A 156']},
+                   'Total cofactors': 1}}

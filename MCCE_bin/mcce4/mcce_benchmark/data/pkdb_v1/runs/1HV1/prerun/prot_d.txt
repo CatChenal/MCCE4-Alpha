@@ -1,0 +1,27 @@
+# prot dict 
+{'Name': '1HV1 :: Dissecting Electrostatic Interactions And The Ph-Dependent '
+         'Activity Of A Family 11 Glycosidase;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '05-JAN-01',
+                   'Function': 'HYDROLASE',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 177}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 10, ARG: 7, '
+                                                           'ASN: 18, ASP: 7, '
+                                                           'GLN: 4, GLU: 2, '
+                                                           'GLY: 25, HIS: 2, '
+                                                           'ILE: 6, LEU: 4, '
+                                                           'LYS: 5, MET: 2, '
+                                                           'PHE: 4, PRO: 6, '
+                                                           'SER: 18, THR: 25, '
+                                                           'TRP: 11, TYR: 15, '
+                                                           'VAL: 14',
+                                                           'Total: 185',
+                                                           'Ionizable: 38',
+                                                           'Ratio: 20.5%')}},
+                   'Models': '1',
+                   'Molecule': 'ENDO-1,4-BETA-XYLANASE',
+                   'Resolution': '1.80 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:185; Total: 185',
+                   'Total waters': 177}}

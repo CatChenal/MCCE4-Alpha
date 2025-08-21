@@ -1,0 +1,29 @@
+# prot dict 
+{'Name': '2CPL :: Similarities And Differences Between Human Cyclophilin A And '
+         'Other Beta-Barrel Structures. Structural Refinement At 1.63 '
+         'Angstroms; Resolution;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '30-JUN-92',
+                   'Function': 'ISOMERASE(PEPTIDYL-PROLYL CIS-TRANS)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'Residues': {'A': [('MET', 1), ('Count', 1)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 119}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 9, ARG: 6, '
+                                                           'ASN: 9, ASP: 7, '
+                                                           'CYS: 4, GLN: 3, '
+                                                           'GLU: 12, GLY: 23, '
+                                                           'HIS: 4, ILE: 10, '
+                                                           'LEU: 7, LYS: 14, '
+                                                           'MET: 4, PHE: 15, '
+                                                           'PRO: 6, SER: 8, '
+                                                           'THR: 11, TRP: 1, '
+                                                           'TYR: 2, VAL: 9',
+                                                           'Total: 164',
+                                                           'Ionizable: 49',
+                                                           'Ratio: 29.9%')}},
+                   'Models': '1',
+                   'Molecule': 'CYCLOPHILIN A',
+                   'Resolution': '1.63 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:165; Total: 165',
+                   'Total waters': 119}}

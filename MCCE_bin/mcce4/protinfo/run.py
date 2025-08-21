@@ -35,7 +35,7 @@ s1_defaults = {
 
 def cli_args_to_dict(sh_args: Namespace) -> dict:
     """Only return step1 args."""
-    excluded_keys = ["pdb", "fetch"]
+    excluded_keys = ["pdb", "fetch", "save_dicts"]
     d_args = {k: v for k, v in vars(sh_args).items() if k not in excluded_keys}
 
     return d_args

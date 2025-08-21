@@ -1,0 +1,24 @@
+# prot dict 
+{'Name': '1A91 :: Subunit C Of The F1Fo Atp Synthase Of Escherichia Coli; Nmr, '
+         '10 Structures;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '15-APR-98',
+                   'Function': 'MEMBRANE PROTEIN',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 13, ARG: 2, '
+                                                           'ASN: 2, ASP: 3, '
+                                                           'GLN: 2, GLU: 2, '
+                                                           'GLY: 10, ILE: 8, '
+                                                           'LEU: 12, LYS: 1, '
+                                                           'MET: 8, PHE: 4, '
+                                                           'PRO: 3, THR: 1, '
+                                                           'TYR: 2, VAL: 6',
+                                                           'Total: 79',
+                                                           'Ionizable: 10',
+                                                           'Ratio: 12.7%')}},
+                   'Models': '1',
+                   'Molecule': 'F1FO ATPASE SUBUNIT C',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:79; Total: 79'}}

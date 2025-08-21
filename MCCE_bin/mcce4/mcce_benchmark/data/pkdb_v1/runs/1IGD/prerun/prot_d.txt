@@ -1,0 +1,26 @@
+# prot dict 
+{'Name': '1IGD :: The Third Igg-Binding Domain From Streptococcal Protein G: '
+         'An Analysis By X-Ray Crystallography Of The Structure Alone And In A '
+         'Complex With; Fab;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '05-AUG-94',
+                   'Function': 'IMMUNOGLOBULIN BINDING PROTEIN',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 120}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 7, ASN: 3, '
+                                                           'ASP: 5, GLN: 1, '
+                                                           'GLU: 4, GLY: 4, '
+                                                           'ILE: 1, LEU: 2, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 2, PRO: 1, '
+                                                           'THR: 13, TRP: 1, '
+                                                           'TYR: 3, VAL: 6',
+                                                           'Total: 61',
+                                                           'Ionizable: 19',
+                                                           'Ratio: 31.1%')}},
+                   'Models': '1',
+                   'Molecule': 'PROTEIN G',
+                   'Resolution': '1.10 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:61; Total: 61',
+                   'Total waters': 120}}

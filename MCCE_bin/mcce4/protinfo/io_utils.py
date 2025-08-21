@@ -10,6 +10,13 @@ from pathlib import Path
 from time import sleep
 from typing import Dict, Union
 
+from mcce4.io_utils import subprocess_run, CalledProcessError
+
+
+# reset libs logging to higher level so that no unnecessary message is logged
+# when this module is used.
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
@@ -79,3 +86,18 @@ def get_path_keys(pdbpath: Path) -> Union[Dict, None]:
         "topologies": env.runprm["MCCE_HOME"] + "/param",
         "renaming file": env.runprm["RENAME_RULES"],
     }
+
+
+def make_executable(sh_path: str) -> None:
+    """Alternative to os.chmod(sh_path, stat.S_IXUSR): permission denied."""
+
+    sh_path = Path(sh_path)
+    cmd = f"chmod +x {str(sh_path)}"
+
+    try:
+        subprocess_run(cmd, capture_output=False, check=True)
+    except CalledProcessError:
+        logger.exception("Error in subprocess cmd 'chmod +x'")
+        raise
+
+    return

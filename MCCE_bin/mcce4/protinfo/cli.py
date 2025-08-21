@@ -23,7 +23,6 @@ Options:
     -e (mcce): mcce executable location.
     -h, --help  Show this help message and exit.
 """
-
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, Namespace
 from functools import partial
 import logging
@@ -123,7 +122,6 @@ def get_pdb_rpt_climode(
       protinfo can be safely re-run in a mcce run folder where step 1 & 2 have
       already been run.
     """
-
     if isinstance(args, dict):
         args = Namespace(**args)
 
@@ -136,6 +134,7 @@ def get_pdb_rpt_climode(
         run_dir = pdb.parent.resolve()
     else:
         run_dir = Path.cwd()
+
     out_dir = run_dir.joinpath("prerun")
     out_dir.mkdir(exist_ok=True)
 
@@ -147,9 +146,7 @@ def get_pdb_rpt_climode(
                 pdb = get_rcsb_pdb(pdb.stem)
 
         if not isinstance(pdb, Path):
-            logger.error("Could not download from rcsb.org.")
             sys.exit("Could not download from rcsb.org.")
-            out_dir.unlink()
 
     inpdb_fp = out_dir.joinpath(pdb.name)
     if not inpdb_fp.exists():
@@ -157,8 +154,13 @@ def get_pdb_rpt_climode(
 
     logger.info(f"Processing {inpdb_fp.stem.upper()}.")
     prot_d, step1_d = parsers.collect_info(inpdb_fp, args)
+    if args.save_dicts:
+        prot_d_fp = out_dir.joinpath("prot_d.txt")
+        prot_d_fp.write_text("# prot dict \n" + pformat(prot_d) + "\n")
+        step1_d_fp = out_dir.joinpath("step1_d.txt")
+        step1_d_fp.write_text("# step1 dict \n" + pformat(step1_d) + "\n")
 
-    logger.info(f"Command line options used:\n{pformat(vars(args))}")
+    #logger.info(f"Command line options used:\n{pformat(vars(args))}")
 
     parsers.write_report(inpdb_fp, prot_d, step1_d)
 
@@ -200,6 +202,13 @@ def pi_parser():
         default=False,
         action="store_true",
         help="Download the biological assembly of given pdbid from rcsb.org.",
+    )
+    p.add_argument(
+        "--save_dicts",
+        default=False,
+        action="store_true",
+        help="""Save the structure and step1 dicts as text files. 
+        Enables reusing the parsed data independently of the report; default: %(default)s.""",
     )
 
     s1 = p.add_argument_group("s1", "step1 options")

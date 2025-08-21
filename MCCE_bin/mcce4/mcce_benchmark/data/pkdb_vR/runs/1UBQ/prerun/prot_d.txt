@@ -1,0 +1,25 @@
+# prot dict 
+{'Name': '1UBQ :: Structure Of Ubiquitin Refined At 1.8 Angstroms Resolution',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '02-JAN-87',
+                   'Function': 'CHROMOSOMAL PROTEIN',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 58}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 2, ARG: 4, '
+                                                           'ASN: 2, ASP: 5, '
+                                                           'GLN: 6, GLU: 6, '
+                                                           'GLY: 6, HIS: 1, '
+                                                           'ILE: 7, LEU: 9, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 2, PRO: 3, '
+                                                           'SER: 3, THR: 7, '
+                                                           'TYR: 1, VAL: 4',
+                                                           'Total: 76',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 31.6%')}},
+                   'Models': '1',
+                   'Molecule': 'UBIQUITIN',
+                   'Resolution': '1.80 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:76; Total: 76',
+                   'Total waters': 58}}

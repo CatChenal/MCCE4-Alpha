@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """Module: job_setup.py
 
 Contains functions to prepare a user's benchmarking folder using user-provided options
@@ -45,7 +44,8 @@ from pathlib import Path
 import shutil
 import sys
 from typing import Union
-from mcce4.mcce_benchmark import BENCH, SUB1, RUNS_DIR, N_PDBS, N_BATCH
+from mcce4.mcce_benchmark import BenchResources, BENCH_DATA, Q_BOOK, DEFAULT_JOB, DEFAULT_JOB_SH
+from mcce4.mcce_benchmark import SUB1, RUNS_DIR, N_PDBS, N_BATCH
 from mcce4.mcce_benchmark import audit
 from mcce4.mcce_benchmark.io_utils import make_executable, Pathok
 
@@ -62,46 +62,38 @@ CREATED_PRM_MSG = """
 """
 
 
-def get_pkdb_list(
-    return_df: bool = False, n_pdbs: int = None
-) -> Union[None, pd.DataFrame]:
-    """Write 'PDBIDS_WT': a 3-column file of 'PDBIDS', 'res#' & 'method'
-    to enable selection by file.
-    If n_pdbs is not None, creates 'PDBIDS_WT_<n_pdbs>_smallest'.
+def get_pkdb_list(dataset:str,
+                  return_df: bool = False,
+                  n_pdbs: int = None) -> Union[pd.DataFrame, Path]:
+    """Write non-excluded 'PDBIDS' file to enable selection by file.
+    If n_pdbs is not None, creates 'PDBIDS_<n_pdbs>_smallest'.
     - n_pdbs: To save & return a list of n smaller pdbids.
-    File is sorted ascendingly by number of residues, res#.
+    File is sorted ascendingly by number of residues, Res#.
     """
-    wt_fp = BENCH.BENCH_WT
-    wt_df = pd.read_csv(wt_fp)
-    wt_df.rename(columns={"PDB ID": "PDBID", "Expt. method": "method"}, inplace=True)
-    wt_df.set_index("PDBID", inplace=True)
+    df = pd.read_csv(BenchResources(dataset).BENCH_PROTS, sep="\t")
+    cols = "PDB Res# Method Function Biounits Resolution".split()
+    df = df[cols]
     # filter out commented rows
-    msk = wt_df.index.str.startswith("#")
-    wt_df = wt_df[~msk]
-    grp = wt_df.groupby("PDBID", group_keys=False)[["res#", "method"]].apply(
-        lambda x: x
-    )
-    grp.reset_index(inplace=True)
-    grp.drop_duplicates(subset=["PDBID"], ignore_index=True, inplace=True)
-    grp["res#"] = grp["res#"].astype(int)
-    grp.sort_values(by="res#", ascending=True, inplace=True)
+    msk = df.PDB.str.startswith("#")
+    df = df[~msk]
+    df.sort_values(by="Res#", ascending=True, inplace=True)
+
     if n_pdbs is None or n_pdbs >= N_PDBS:
-        out_fp = Path("PDBIDS_WT")
-        out_fp.write_text(grp.to_string(index=False) + "\n")
-        logger.info(f"Saved pkDB pdbs list in: {out_fp!s}")
+        out_fp = Path(f"PDBIDS_{dataset}")
     else:
-        out_fp = Path(f"PDBIDS_WT_{n_pdbs}_smallest")
-        grp = grp[:n_pdbs]
-        out_fp.write_text(grp.to_string(index=False) + "\n")
-        logger.info(f"Saved pkDB pdbs list in: {out_fp!s}")
+        out_fp = Path(f"PDBIDS_{dataset}_{n_pdbs}_smallest")
+        df = df[:n_pdbs]
+
+    out_fp.write_text(df.to_string(index=False) + "\n")
+    logger.info(f"Saved pkDB pdbs list in: {out_fp!s}")
 
     if return_df:
-        return grp
-    return
+        return df
+    return out_fp
 
 
 def create_next_commands(args: Namespace):
-    """Create scripts launch.sh and analyse.sh with the pre-populated commands.
+    """Create scripts 'launch.sh' and 'analyse.sh' with the pre-populated commands.
     The launch command uses the scheduler (bench_setup launch).
     """
     if not hasattr(args, "n_batch"):
@@ -182,7 +174,7 @@ def setup_customized_files(args: Namespace) -> Namespace:
         logger.info("No customized files to soft-link.")
         return args
     
-    bdir = Path(args.bench_dir)  # .resolve()
+    bdir = Path(args.bench_dir)
     user_prm = args.load_runprm != ""
     created_prm = False
 
@@ -277,20 +269,21 @@ def setup_customized_files(args: Namespace) -> Namespace:
 
 
 def setup_ancillaries(bench_dir: Path, subcmd: str=SUB1):
+    """Install a copy of the book.txt and default script files in <bench_dir>/runs."""
     runs_dir = bench_dir.joinpath(RUNS_DIR)
     if not runs_dir.exists():
-        logger.critical("The runs subfolder should have been setup prior to installing the book and default script files!")
         sys.exit("The runs subfolder should have been setup prior to installing the book and default script files!")
+    bench = BenchResources(subcmd)
 
     # copy script file:
-    dest = runs_dir.joinpath(BENCH.DEFAULT_JOB_SH.name)
+    dest = runs_dir.joinpath(DEFAULT_JOB_SH)
     if not dest.exists():
-        shutil.copy(BENCH.DEFAULT_JOB_SH, dest)
+        shutil.copy(bench.DEFAULT_JOB_SH, dest)
         logger.info(f"Setup default script: {dest!s}")
 
-    book_fp = runs_dir.joinpath(BENCH.Q_BOOK)
+    book_fp = runs_dir.joinpath(Q_BOOK)
     if not book_fp.exists():
-        audit.rewrite_book_file(runs_dir.joinpath(BENCH.Q_BOOK), subcmd=subcmd)
+        audit.rewrite_book_file(book_fp, subcmd=subcmd)
         logger.info(f"Setup bookkeeping file: {book_fp!s}")
 
     return
@@ -320,7 +313,7 @@ def setup_user_runs(args: Namespace) -> None:
         pdbs_lst = list(p.glob("*.pdb"))
         if not pdbs_lst:
             logger.error(f"No pdbs in {p}.")
-            raise ValueError(f"No pdbs in {p}.")
+            sys.exit(1)
     else:
         pdbs_in_file = True
         with open(p) as f:
@@ -339,7 +332,7 @@ def setup_user_runs(args: Namespace) -> None:
 
         if not pdbs_lst:
             logger.error(f"None of the pdbs in {p!s} were found.")
-            raise ValueError(f"None of the pdbs in {p!s} were found.")
+            sys.exit(1)
 
     runs_dir = bench_dir.joinpath(RUNS_DIR)
     if not runs_dir.exists():
@@ -381,19 +374,19 @@ def setup_user_runs(args: Namespace) -> None:
 
 
 def list_user_pdbids(pdbids_file: str) -> list:
-    """Extract the PDBIDS from user-supplied file, which
+    """Extract the PDB from user-supplied file, which
     is presumed to be a modification of the file created by
-    mcce_benchmark.cli.get_pkdb_list. The PDBIDS are assumed to
-    be in the first column.
+    mcce_benchmark.cli.get_pkdb_list. The PDB ids are assumed to
+    be in the first column, named 'PDB'.
     """
-    return pd.read_fwf(Path(pdbids_file)).PDBID.to_list()
+    return pd.read_fwf(Path(pdbids_file)).PDB.to_list()
 
 
-def setup_expl_runs(bench_dir: str, n_pdbs: int, pdbids_file: str) -> None:
+def setup_pkdb_runs(bench_dir: str, n_pdbs: int, pdbids_file: str, subcmd: str) -> None:
     """
     Replicate current setup.
     - Create a copy of BENCH_PDBS (packaged data) in <bench_dir>/runs, or a subset
-      of size (1, n_pdbs) if n_pdbs < 120.
+      of size (1, n_pdbs) if n_pdbs < N_PDBS.
     - Soft-link the relevant pdb as "prot.pdb";
     - Copy the "queue book" and default script files (BENCH.BENCH_Q_BOOK, BENCH.DEFAULT_JOB_SH)
       in <bench_dir>/runs;
@@ -408,39 +401,40 @@ def setup_expl_runs(bench_dir: str, n_pdbs: int, pdbids_file: str) -> None:
             logger.debug(f"Creating {str(bench_dir)}.")
             bench_dir.mkdir()
 
-    by_ids = False
     if pdbids_file:
         logger.info(f"Loading pdbids from file {pdbids_file}.")
         PDBIDS = list_user_pdbids(pdbids_file)
         if not PDBIDS:
             logger.error("Empty pdbids list.")
             sys.exit(1)
-        by_ids = True
     elif n_pdbs < N_PDBS:
         # create pdbids file with n_pdbs smallest
-        get_pkdb_list(n_pdbs=n_pdbs)
-        pdbids_file = f"PDBIDS_WT_{n_pdbs}_smallest"
+        pdbids_file = get_pkdb_list(subcmd, n_pdbs=n_pdbs)
         PDBIDS = list_user_pdbids(pdbids_file)
         if not PDBIDS:
             logger.error("Empty pdbids list.")
             sys.exit(1)
-        by_ids = True
 
     runs_dir = bench_dir.joinpath(RUNS_DIR)
     if not runs_dir.exists():
         runs_dir.mkdir()
 
-    valid, invalid = audit.list_all_valid_pdbs()
-    for i, v in enumerate(valid):
-        if not by_ids and i == n_pdbs:
-            break
+    BENCH = BenchResources(subcmd)
+    # if subcmd == SUB1:
+    #     valid, invalid = audit.list_all_valid_pdbs()
+    # else:
+    valid = [f"{d.name}/{d.name.lower()}.pdb"
+                for d in list(BENCH.BENCH_PDBS.glob("./*"))
+                if (d.is_dir() and d.name in PDBIDS)]
 
+    for i, v in enumerate(valid):
+        if i == n_pdbs:
+            break
         # v :: PDBID/pdbid.pdb
         p = runs_dir.joinpath(v)
         d = p.parent
-        if by_ids and d.name not in PDBIDS:
-            continue
-
+        #if d.name not in PDBIDS:
+        #    continue
         if not d.is_dir():
             logger.info(f"Creating {d!s}.")
             d.mkdir()
@@ -448,19 +442,20 @@ def setup_expl_runs(bench_dir: str, n_pdbs: int, pdbids_file: str) -> None:
         if not p.exists():
             shutil.copy(BENCH.BENCH_PDBS.joinpath(v), p)
 
-        # also copy full if prot is multi;
-        # needed for name validation in audit.valid_pdb:
-        if p.name.startswith(f"{d.name.lower()}_"):
-            if not d.joinpath(f"{d.name.lower()}.pdb.full").exists():
-                try:
-                    shutil.copy(
-                        BENCH.BENCH_PDBS.joinpath(d.name, f"{d.name.lower()}.pdb.full"),
-                        d,
-                    )
-                    # logger.info(f"Copied .pdb.full for {d.name}")
-                except Exception as e:
-                    logger.exception(f".pdb.full not found for {d.name}?", e)
-                    raise
+        # if subcmd == SUB1:
+        #     # also copy full if prot is multi;
+        #     # needed for name validation in audit.valid_pdb:
+        #     if p.name.startswith(f"{d.name.lower()}_"):
+        #         if not d.joinpath(f"{d.name.lower()}.pdb.full").exists():
+        #             try:
+        #                 shutil.copy(
+        #                     BENCH.BENCH_PDBS.joinpath(d.name, f"{d.name.lower()}.pdb.full"),
+        #                     d,
+        #                 )
+        #                 # logger.info(f"Copied .pdb.full for {d.name}")
+        #             except Exception as e:
+        #                 logger.exception(f".pdb.full not found for {d.name}?", e)
+        #                 raise
 
         # cd to avoid links with long names:
         os.chdir(d)
@@ -497,19 +492,19 @@ def delete_sentinel(bench_dir: str, sentinel_file: str) -> None:
 
 
 def get_default_script(pdb_dir: str) -> Path:
-    """Re-install BENCH.DEFAULT_JOB_SH in pdb_dir if not found.
+    """Re-install BENCH_DATA/DEFAULT_JOB_SH in pdb_dir if not found.
     Return its path.
     """
     pdb_dir = Path(pdb_dir)
-    sh_path = pdb_dir.joinpath(BENCH.DEFAULT_JOB_SH.name)
+    sh_path = pdb_dir.joinpath(DEFAULT_JOB_SH)
     if not sh_path.exists():
-        shutil.copy(BENCH.DEFAULT_JOB_SH, sh_path)
-        logger.info(f"Re-installed {BENCH.DEFAULT_JOB_SH.name}")
+        shutil.copy(BENCH_DATA.joinpath(DEFAULT_JOB_SH), sh_path)
+        logger.info(f"Re-installed {DEFAULT_JOB_SH}")
 
     return sh_path
 
 
-def write_default_run_script(bench_dir: str, job_name: str = BENCH.DEFAULT_JOB) -> None:
+def write_default_run_script(bench_dir: str, job_name: str = DEFAULT_JOB) -> None:
     """
     To use when cli args are all default.
     If job_name is different from "default_run", the default script is soft-linked to it
@@ -527,7 +522,7 @@ def write_default_run_script(bench_dir: str, job_name: str = BENCH.DEFAULT_JOB) 
     default_sh = get_default_script(user_pdbs)
 
     sh_name = f"{job_name}.sh"
-    if job_name == BENCH.DEFAULT_JOB:
+    if job_name == DEFAULT_JOB:
         sh_path = default_sh
     else:
         # soft-link default_sh to sh_name
@@ -538,12 +533,12 @@ def write_default_run_script(bench_dir: str, job_name: str = BENCH.DEFAULT_JOB) 
 
         sh_path = Path(sh_name)
         try:
-            sh_path.symlink_to(BENCH.DEFAULT_JOB_SH.name)
+            sh_path.symlink_to(default_sh)
         except FileExistsError:
             sh_path.unlink()
-            sh_path.symlink_to(BENCH.DEFAULT_JOB_SH.name)
+            sh_path.symlink_to(default_sh)
 
-        logger.info(f"Soft-linked {BENCH.DEFAULT_JOB_SH.name} as {sh_name}")
+        logger.info(f"Soft-linked {default_sh} as {sh_name}")
 
         # reset path:
         sh_path = user_pdbs.joinpath(sh_name)

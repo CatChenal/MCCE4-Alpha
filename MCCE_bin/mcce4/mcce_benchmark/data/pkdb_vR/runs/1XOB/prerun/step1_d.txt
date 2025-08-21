@@ -1,0 +1,34 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.53: " CA  NTR A   1" to " CB  SER '
+                                     'A   1"',
+                                     'd= 1.86: " OD1 ASP A  20" to "HD22 ASN '
+                                     'A  83"',
+                                     'd= 1.73: " OE1 GLU A  30" to "HD22 ASN '
+                                     'A  59"',
+                                     'd= 1.82: " O   ASP A  47" to "HE21 GLN '
+                                     'A  50"',
+                                     'd= 1.84: " OD1 ASN A  59" to "HE21 GLN '
+                                     'A  62"',
+                                     'd= 1.90: " O   ASN A  59" to "HD21 ASN '
+                                     'A  63"',
+                                     'd= 1.89: "HE21 GLN A  98" to " OE2 GLU A '
+                                     '101"',
+                                     'd= 1.81: " O   PHE A 102" to "HD21 ASN A '
+                                     '106"',
+                                     'end_clash'],
+                'Free Cofactors': ["NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05'],
+                'Labeling': [],
+                'Load Structure': [],
+                'Missing Heavy Atoms': ['   Missing heavy atoms for CTR01 in '
+                                        '"CTR A 108":   OXT'],
+                'Renamed': [],
+                'Termini': [('NTR', ['"SER A   1"']),
+                            ('CTR', ['"ALA A 108"'])]}}

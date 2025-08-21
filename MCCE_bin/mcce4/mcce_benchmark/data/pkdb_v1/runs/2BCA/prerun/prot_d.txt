@@ -1,0 +1,25 @@
+# prot dict 
+{'Name': '2BCA :: High-Resolution Solution Structure Of Calcium-Loaded '
+         'Calbindin D9K',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '18-AUG-93',
+                   'Function': 'CALCIUM-BINDING PROTEIN',
+                   'Method': 'SOLUTION NMR',
+                   'Missing': {'Residues': {'A': [('MET', 0), ('Count', 1)]}},
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 2, ASN: 2, '
+                                                           'ASP: 4, GLN: 4, '
+                                                           'GLU: 13, GLY: 6, '
+                                                           'ILE: 2, LEU: 12, '
+                                                           'LYS: 10, PHE: 5, '
+                                                           'PRO: 3, SER: 6, '
+                                                           'THR: 2, TYR: 1, '
+                                                           'VAL: 3',
+                                                           'Total: 75',
+                                                           'Ionizable: 28',
+                                                           'Ratio: 37.3%')}},
+                   'Models': '1',
+                   'Molecule': 'CALBINDIN D9K',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:76; Total: 76'}}

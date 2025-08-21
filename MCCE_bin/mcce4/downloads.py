@@ -157,12 +157,12 @@ def cli_parser():
         "-bioassembly_id",
         type=int,
         default=1,
-        help="Which bioassembly to download (default: 1). Typically, chain A is 1, B is 2, etc."
+        help="Which bioassembly to download (default: 1)."
     )
     p.add_argument(
-        "-keep_bioassembly",
-        type=bool,
+        "--keep_bioassembly",
         default=False,
+        action="store_true",
         help="Whether to retain the downloaded bioassembly file (default: False)"
     )
     

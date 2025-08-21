@@ -1,0 +1,62 @@
+---
+# 4LZT :: Atomic Resolution Refinement Of Triclinic Hew Lysozyme At 295K
+## PDB.Structure
+### Function: HYDROLASE
+### First Release: 31-MAR-97
+### Method: X-RAY DIFFRACTION
+### Resolution: 0.95 ANGSTROMS.
+### Molecule: LYSOZYME, NITRATE IONS PRESENT
+### Seqres Species: Residues: A:129; Total: 129
+### Cofactors:
+  - NO3:
+ 'NITRATE ION', 6
+
+### Total cofactors: 6
+### Total waters: 139
+### Biounits: MONOMERIC: A;
+### Models: 1
+### Chains: A
+### Model 1 Residues:
+  - A:
+ 'RESIDUES': ('ALA: 12, ARG: 11, ASN: 14, ASP: 7, CYS: 8, GLN: 3, GLU: 2, GLY: 12, HIS: 1, ILE: 6, LEU: 8, LYS: 6, MET: 2, PHE: 3, PRO: 2, SER: 10, THR: 7, TRP: 6, TYR: 3, VAL: 6', 'Total: 129', 'Ionizable: 38',
+              'Ratio: 29.5%')
+
+### Model 1 Free Cofactors & Waters:
+  - A:
+ 'HOH': 139, 'NO3': 6
+
+### Disulfides:
+  - CYS A  6 -- 2.04 Å --> CYS A 127
+  - CYS A  30 -- 2.03 Å --> CYS A 115
+  - CYS A  64 -- 2.02 Å --> CYS A  80
+  - CYS A  76 -- 2.02 Å --> CYS A  94
+
+### Sites:
+  - AC1: ['BINDING SITE FOR RESIDUE NO3 A 201', 'ASN A  65', 'ASN A  74', 'ASN A  77', 'ILE A  78', 'PRO A  79', 'ARG A 112', 'LYS A 116']
+  - AC2: ['BINDING SITE FOR RESIDUE NO3 A 202', 'ARG A  21', 'ASN A  65', 'ASP A  66', 'PRO A  79', 'CYS A  80', 'SER A  81', 'HOH A1028']
+  - AC3: ['BINDING SITE FOR RESIDUE NO3 A 203', 'LYS A  33', 'PHE A  38', 'TRP A  62', 'ARG A  73']
+  - AC4: ['BINDING SITE FOR RESIDUE NO3 A 204', 'ALA A  11', 'HIS A  15', 'ASP A  87', 'ILE A  88', 'THR A  89', 'HOH A1129', 'HOH A1130']
+  - AC5: ['BINDING SITE FOR RESIDUE NO3 A 205', 'SER A  24', 'LEU A  25', 'GLY A  26', 'GLN A  41', 'VAL A 120', 'GLN A 121', 'ILE A 124', 'HOH A1107']
+  - AC6: ['BINDING SITE FOR RESIDUE NO3 A 206', 'TYR A  23', 'ARG A  45', 'ARG A  68', 'MET A 105', 'ASN A 106', 'HOH A1059']
+
+## MCCE.Step1
+### Termini:
+ - <strong>NTR</strong>: "LYS A   1"
+ - <strong>CTR</strong>: "LEU A 129"
+
+### Free Cofactors:
+  - NOTE: Include the '--wet' option at the command line to keep buried waters and cofactors. Alternatively, change the water SAS cutoff to a non-zero, positive number using the command line 'u' option:
+  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05
+  - Total deleted cofactors = 144.
+  - Species and properties with assigned default values in debug.log:
+
+  - NO3-1: ['VDW_RAD', 'VDW_EPS']
+
+
+### Distance Clashes:
+<details><summary>Clashes found</summary>
+
+- d= 1.55: " CA  NTR A   1" to " CB  LYS A   1"
+
+</details>
+

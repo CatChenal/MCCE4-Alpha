@@ -1,0 +1,38 @@
+# prot dict 
+{'Name': '1RDD :: Crystal Structure Of Escherichia Coli Rnase Hi In Complex '
+         'With Mg2+ At 2.8 Angstroms Resolution: Proof For A Single Mg2+ Site;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {' MG': ('MAGNESIUM ION', 1)},
+                   'First Release': '23-JUN-93',
+                   'Function': 'HYDROLASE(ENDORIBONUCLEASE)',
+                   'Links': ['OD1 ASP A 10 -- 1.97 Å --> MG  MG A 300',
+                             'O  GLY A 11 -- 2.44 Å --> MG  MG A 300',
+                             'OE2 GLU A 48 -- 2.45 Å --> MG  MG A 300'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 35,
+                                                             '_MG': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 14, ARG: 10, '
+                                                           'ASN: 7, ASP: 7, '
+                                                           'CYS: 3, GLN: 8, '
+                                                           'GLU: 12, GLY: 14, '
+                                                           'HIS: 5, ILE: 7, '
+                                                           'LEU: 12, LYS: 11, '
+                                                           'MET: 4, PHE: 2, '
+                                                           'PRO: 5, SER: 4, '
+                                                           'THR: 10, TRP: 6, '
+                                                           'TYR: 5, VAL: 9',
+                                                           'Total: 155',
+                                                           'Ionizable: 53',
+                                                           'Ratio: 34.2%')}},
+                   'Models': '1',
+                   'Molecule': 'RIBONUCLEASE H',
+                   'Resolution': '2.80 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:155; Total: 155',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE MG A 300',
+                                     'ASP A  10',
+                                     'GLY A  11',
+                                     'ASN A  44',
+                                     'GLU A  48']},
+                   'Total cofactors': 1,
+                   'Total waters': 35}}

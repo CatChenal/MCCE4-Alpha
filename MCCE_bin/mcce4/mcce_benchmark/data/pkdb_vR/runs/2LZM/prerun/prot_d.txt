@@ -1,0 +1,27 @@
+# prot dict 
+{'Name': '2LZM :: Structure Of Bacteriophage T4 Lysozyme Refined At 1.7 '
+         'Angstroms Resolution;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '18-AUG-86',
+                   'Function': 'HYDROLASE (O-GLYCOSYL)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 118}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 15, ARG: 13, '
+                                                           'ASN: 12, ASP: 10, '
+                                                           'CYS: 2, GLN: 5, '
+                                                           'GLU: 8, GLY: 11, '
+                                                           'HIS: 1, ILE: 10, '
+                                                           'LEU: 16, LYS: 13, '
+                                                           'MET: 5, PHE: 5, '
+                                                           'PRO: 3, SER: 6, '
+                                                           'THR: 11, TRP: 3, '
+                                                           'TYR: 6, VAL: 9',
+                                                           'Total: 164',
+                                                           'Ionizable: 53',
+                                                           'Ratio: 32.3%')}},
+                   'Models': '1',
+                   'Molecule': 'T4 LYSOZYME',
+                   'Resolution': '1.70 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:164; Total: 164',
+                   'Total waters': 118}}

@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 
 """
-Cli end point for comparison of two sets of runs. `compare`.
+Module: pkanalysis.py
 
-Cli parser with 2 sub-commands with same options:
-  -dir1 <path/to/set/of/runs1>; must exists
-  -dir2 <path/to/set/of/runs2>; must exists
+Purpose: Codebase for the benchmark app command `bench_analyze`.
 
-1. pkdb_pdbs (SUB1)
-2. user_pdbs (SUB2)
+Description:
+Analyze a set of runs and output files to <bench_dir>/analysis.
+
+The main command is `bench_analyze` along with one of these sub-commands:
+1. pkdb_v1 (SUB1)
+   Analyze dataset of completed runs viz pkdb_v1
+2. pkdb_vR (SUB2)
+   Analyze dataset of completed runs viz pkdb_vR
+3. pkdb_snase (SUB3)
+   Analyze dataset of completed runs viz pkdb_snase
+4. user_pdbs (SUB4)
+   Analyze dataset of completed runs of user-provided pdbs.
 """
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, Namespace
@@ -17,21 +25,20 @@ import logging
 from pathlib import Path
 from typing import Tuple, Union
 import sys
+
 import numpy as np
 import pandas as pd
-from mcce4.io_utils import mccepdbline_positions, mcfile2df, mf
+
 from mcce4.mcce_benchmark import (
-    BENCH,
-    ENTRY_POINTS,
-    SUB1,
-    SUB2,
-    FILES,
-    cli_opts,
+    BenchResources, ENTRY_POINTS, FILES, Q_BOOK, RUNS_DIR,
+    SUB1, SUB2, SUB3, SUB4,
     ANALYZE_DIR,
-    RUNS_DIR,
+    cli_opts, 
 )
-from mcce4.mcce_benchmark import io_utils as iou, mcce_env as mcenv, plots
-from mcce4.mcce_benchmark.cleanup import clear_folder
+from mcce4.mcce_benchmark import io_utils as iou
+from mcce4.io_utils import mccepdbline_positions, mcfile2df, mf
+from mcce4.mcce_benchmark import mcce_env as mcenv
+from mcce4.mcce_benchmark import plots
 
 
 logger = logging.getLogger(__name__)
@@ -369,14 +376,10 @@ def job_pks_to_dict(book_fpath: str) -> dict:
     return calc_pks
 
 
-def expl_pks_masterfile_to_df(
-    infile: Path = BENCH.BENCH_WT, drop_na: bool = False
-) -> pd.DataFrame:
+def expl_pks_masterfile_to_df(infile: Path = BenchResources(SUB1).BENCH_WT,
+                              drop_na: bool = False) -> pd.DataFrame:
     """Load an experimental pKas master file into a pandas.DataFrame.
-    Currently, there is only one file for wild-type proteins:
-    /data/pkadbv1/WT_pkas.csv'.
     """
-
     def to_float(value: str):
         value = value.strip()
         try:
@@ -392,7 +395,6 @@ def expl_pks_masterfile_to_df(
     expl_df = pd.read_csv(
         infile,
         usecols=["PDB ID", "Res Name", "Chain", "Res ID", "Expt. pKa"],
-        comment="#",
         converters={
             "PDB ID": to_upper,
             "Res Name": to_upper,
@@ -401,15 +403,14 @@ def expl_pks_masterfile_to_df(
     )
     if drop_na:
         expl_df.dropna(how="any", inplace=True)
+    expl_df = expl_df[~expl_df["PDB ID"].str.startswith("#")]
     return expl_df.sort_values(by=["PDB ID", "Res ID"], ignore_index=True)
 
 
-def expl_pks_to_dict(expl_type: str = "WT") -> dict:
+def expl_pks_to_dict(pkas_fp: Path) -> dict:
     """Uses packaged resource proteins file specified by expl_type.
     Args:
-      - expl_type (str, "WT"): Which protein type experimental data to use.
-    Note:
-      Currently, only "WT" is available as expl_type.
+      - pkas_fp (Path): Path to a dataset pkas.csv file.
     Return:
       - A dict with 2-tuple keys, e.g.: ('135L', 'GLU-A0007_').
     """
@@ -424,11 +425,7 @@ def expl_pks_to_dict(expl_type: str = "WT") -> dict:
         "C-TERM": "CTR-",
         "TYR": "TYR-",
     }
-    if expl_type.upper() != "WT":
-        logger.error("Only WT experimental pkas file is available; in use.")
-        expl_type = "WT"
-    pkas_df = expl_pks_masterfile_to_df(drop_na=True)
-
+    pkas_df = expl_pks_masterfile_to_df(infile=pkas_fp, drop_na=True)
     expl_pks = {}
     for _, row in pkas_df.iterrows():
         key = (
@@ -720,13 +717,13 @@ def analyze_runs(bench_dir: Path, subcmd: str):
     """Create all analysis output files."""
     bench = iou.Pathok(bench_dir)
     pdbs = bench.joinpath(RUNS_DIR)
-    book_fp = pdbs.joinpath(BENCH.Q_BOOK)
+    book_fp = pdbs.joinpath(Q_BOOK)
 
     analyze = bench.joinpath(ANALYZE_DIR)
     if not analyze.exists():
         analyze.mkdir()
     else:
-        clear_folder(analyze)
+        iou.clear_folder(analyze)
 
     get_mcce_version(pdbs)
 
@@ -774,9 +771,9 @@ def analyze_runs(bench_dir: Path, subcmd: str):
     titr_type = env.runprm["TITR_TYPE"]
     titr_bounds = env.get_titr_bounds()
 
-    if subcmd == SUB1:
+    if subcmd != SUB4:
         logger.info("Getting experimental pKas to dict.")
-        expl_pkas = expl_pks_to_dict()
+        expl_pkas = expl_pks_to_dict(BenchResources(subcmd).BENCH_WT)
         # calc_pkas: done
 
         logger.info("Matching the pkas and saving list to file.")
@@ -835,28 +832,29 @@ CLI_NAME = ENTRY_POINTS["analyze"]  # as per pyproject.toml entry point
 DESC = """
 Description:
 Create analysis output files for a set of runs in <bench_dir>/analysis.
-
-The main command is {} along with one of 2 sub-commands:
-- Sub-command 1: {}: analyze pKas against pKaDBv1;
-- Sub-command 2: {}: analyze pKas for user's pdbs;
+The main command is {} along with one of these sub-commands:
+- Sub-command 1: {}: analyze pKas against pkdb_v1;
+- Sub-command 2: {}: analyze pKas against pkdb_vR;
+- Sub-command 3: {}: analyze pKas against pkdb_snase;
+- Sub-command 4: {}: analyze pKas for user's pdbs;
 
 Output files: listed in benchmark.info.
-"""
+""".format(CLI_NAME, SUB1, SUB2, SUB3, SUB4)
 
 
 def pkdb_pdbs_analysis(args: Union[dict, Namespace]) -> None:
-    """Processing tied to sub-command 1: pkdb_pdbs."""
+    """Processing tied to sub-commands: pkdb_x."""
     if isinstance(args, dict):
         args = Namespace(**args)
-    analyze_runs(args.bench_dir, SUB1)
+    analyze_runs(args.bench_dir, args.subparser_name)
     return
 
 
 def user_pdbs_analysis(args: Union[dict, Namespace]) -> None:
-    """Processing tied to sub-command 2: user_pdbs."""
+    """Processing tied to sub-command: user_pdbs."""
     if isinstance(args, dict):
         args = Namespace(**args)
-    analyze_runs(args.bench_dir, SUB2)
+    analyze_runs(args.bench_dir, SUB4)
     return
 
 
@@ -880,11 +878,11 @@ def arg_valid_dirpath(p: str):
 def analyze_parser():
     """Cli arguments parser with sub-commands for use in benchmark analysis."""
     p = ArgumentParser(
-        description=DESC.format(CLI_NAME, SUB1, SUB2),
+        description=DESC,
         formatter_class=RawDescriptionHelpFormatter,
         epilog="""
         Post an issue for all errors and feature requests at:
-        https://github.com/CatChenal/MCCE4/issues
+        https://github.com/GunnerLab/MCCE4/issues
         """,
     )
 
@@ -893,45 +891,59 @@ def analyze_parser():
         title=f"{CLI_NAME} sub-commands",
         dest="subparser_name",
         description="Sub-commands of MCCE benchmarking analysis cli.",
-        help=f"""
-        The 2 choices for the benchmarking process:
-            1) Analyze dataset of completed runs viz pKaDBv1: {SUB1}
-            2) Analyze dataset of completed runs of user-provided pdbs : {SUB2}
-        """
     )
 
     sub1 = subparsers.add_parser(
         SUB1,
         formatter_class=RawDescriptionHelpFormatter,
-        help="""
-        Sub-command for analyzing a benchmarking set against the pKaDBv1
-        using the same dataset and structure: <bench_dir>/runs folder."
-        """,
+        help="Sub-command for analyzing a benchmarking set against the pkdb_v1 pkas.",
     )
     sub1.add_argument(
         "-bench_dir",
         required=True,
         type=arg_valid_dirpath,
-        help="""The user's directory where the /runs subfolder is setup.
-        """,
+        help="The user's directory where the /runs subfolder is setup.",
     )
     sub1.set_defaults(func=pkdb_pdbs_analysis)
 
     sub2 = subparsers.add_parser(
         SUB2,
         formatter_class=RawDescriptionHelpFormatter,
-        help="""
-        Sub-command for analyzing a benchmarking set of user's pdbs.
-        """,
+        help="Sub-command for analyzing a benchmarking set against the pkdb_vR pkas.",
     )
     sub2.add_argument(
         "-bench_dir",
         required=True,
         type=arg_valid_dirpath,
-        help="""The user's directory where the /runs subfolder is setup.
-        """,
+        help="The user's directory where the /runs subfolder is setup.",
     )
-    sub2.set_defaults(func=user_pdbs_analysis)
+    sub2.set_defaults(func=pkdb_pdbs_analysis)
+
+    sub3 = subparsers.add_parser(
+        SUB3,
+        formatter_class=RawDescriptionHelpFormatter,
+        help="Sub-command for analyzing a benchmarking set against the pkdb_snase pkas.",
+    )
+    sub3.add_argument(
+        "-bench_dir",
+        required=True,
+        type=arg_valid_dirpath,
+        help="The user's directory where the /runs subfolder is setup.",
+    )
+    sub3.set_defaults(func=pkdb_pdbs_analysis)
+
+    sub4 = subparsers.add_parser(
+        SUB4,
+        formatter_class=RawDescriptionHelpFormatter,
+        help="Sub-command for analyzing a benchmarking set of user's pdbs.",
+    )
+    sub4.add_argument(
+        "-bench_dir",
+        required=True,
+        type=arg_valid_dirpath,
+        help="The user's directory where the /runs subfolder is setup.",
+    )
+    sub4.set_defaults(func=user_pdbs_analysis)
     return p
 
 
@@ -948,7 +960,7 @@ def analyze_cli(argv=None):
 
     # OK to analyze?
     bench = iou.Pathok(args.bench_dir)
-    book_fp = bench.joinpath(RUNS_DIR, BENCH.Q_BOOK)
+    book_fp = bench.joinpath(RUNS_DIR, Q_BOOK)
     logger.info(f"book_fp: {book_fp}")
     pct = iou.pct_completed(book_fp)
     if pct is None:

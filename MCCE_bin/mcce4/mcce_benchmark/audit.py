@@ -3,10 +3,12 @@
 """Module: audit.py
 Contains functions to query and manage data.
 
+TODO: Remove all function pertaining to validation check on pkdb_v1 multi-models prots
+      after they are removed from their runs folder: never used
 
 Main functions:
 --------------
-Note: proteins.tsv should be considered the ground truth.
+Note: proteins.tsv should be considered the ground truth (index).
 
 def list_complete_runs(benchmarks_dir:str, like_runs:bool=False) -> list:
 def cp_completed_runs(src_dir:str, dest_dir:str) -> None:
@@ -37,7 +39,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from mcce4.mcce_benchmark import BENCH, RUNS_DIR, SUB1, SUB2
+from mcce4.mcce_benchmark import BenchResources, Q_BOOK, RUNS_DIR, SUB1, SUB2
 from mcce4.mcce_benchmark.pkanalysis import analyze_runs, expl_pks_masterfile_to_df
 
 
@@ -53,24 +55,10 @@ The function audit.reset_multi_models() must be re-run to fix the problem.
 """
 
 
-def pdb_is_obsolete(pdb_fp: str) -> Union[None, str]:
-    """Returns the pdb id of the superseding structure if found,
-    else returns None.
-    """
-    cmd = f"egrep '^OBSLTE' {pdb_fp}"
-    found = subprocess.run(cmd,
-                           check=True,
-                           capture_output=True,
-                           text = True,
-                           shell = True)
-    if isinstance(found, subprocess.CompletedProcess):
-        return found.stdout.split()[-1]
-    else:
-        return None
-
-
+# FIX: hard-coded for v1.
 def redo_refset_analysis():
     """Rerun pkanalysis in the reference dataset."""
+    BENCH = BenchResources(SUB1)
     analyze_runs(BENCH.BENCH_PARSE_PHE4, SUB1)
     print("redo_refset_analysis over.")
     return
@@ -98,11 +86,10 @@ def cp_completed_runs(src_dir: str, dest_dir: str) -> None:
     return
 
 
-def proteins_df(
-    prot_tsv_file: Path = BENCH.BENCH_PROTS, return_excluded: bool = None
-) -> pd.DataFrame:
+def proteins_df(prot_tsv_file: Path = BenchResources(SUB1).BENCH_PROTS,
+                return_excluded: bool = None) -> pd.DataFrame:
     """
-    Load data/pkadbv1/proteins.tsv into a pandas.DataFrame.
+    Load data/<pkadb>/proteins.tsv into a pandas.DataFrame.
     Args:
     return_excluded (bool, None): If None: return entire set;
     If True: return df of commented out entries; If False, return the
@@ -113,13 +100,14 @@ def proteins_df(
     df.sort_values(by="PDB", inplace=True)
     if return_excluded is None:
         return df
+    msk = df.PDB.str.startswith("#")
     if return_excluded:
-        return df[df.Use.isna()]
+        return df[msk]
     else:
-        return df[~df.Use.isna()]
+        return df[~msk]
 
 
-def get_usable_prots(prot_tsv_file: Path = BENCH.BENCH_PROTS) -> list:
+def get_usable_prots(prot_tsv_file: Path = BenchResources(SUB1).BENCH_PROTS) -> list:
     """
     Return a list of uncommented pdb ids from proteins.tsv.
     """
@@ -142,39 +130,8 @@ def valid_pdb(pdb_dir: str, return_name: bool = False) -> Union[bool, Path, None
         else:
             return ok
 
-    # multi-model protein: main pdb was renamed with .full extension
-    files = [
-        fp for fp in pdb_dir.glob("*.[pdb full]*") if not fp.name.startswith("model")
-    ]
-    found_full = False
-    found_active = False
-    active = []
-    for f in files:
-        if f.suffix == ".full":
-            found_full = True
-            continue
-        if f.name.startswith(f"{pdb_dir.name.lower()}_"):
-            found_active = True
-            if return_name:
-                pdb = f
-            # to check if several are 'valid'
-            active.append(True)
-            if len(active) > 1:
-                logger.error(MULTI_ACTIVE_MSG.format(pdb_dir.name, f.name))
-                found_active = False
-                break
 
-    # FIX: 'and' => will fail if all multi prots are removed:
-    valid = found_full and found_active
-    if return_name:
-        if not valid:
-            return None
-        return pdb
-    else:
-        return valid
-
-
-def list_all_valid_pdbs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> tuple:
+def list_all_valid_pdbs(pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS) -> tuple:
     """Return a list ["PDB/pdb[_*].pdb", ..] of valid pdb.
     Return a 2-tuple of lists: (valid_folders, invalid_folders), with
     each list = ["PDB/pdb[_*].pdb", ..].
@@ -202,7 +159,7 @@ def list_all_valid_pdbs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> tuple:
     return valid, invalid
 
 
-def list_all_valid_pdbs_dirs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> tuple:
+def list_all_valid_pdbs_dirs(pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS) -> tuple:
     """Check that all subfolders of RUNS_DIR contain a pdb file with
     the same name.
     Return a 2-tuple: (valid_folders, invalid_folders).
@@ -228,7 +185,147 @@ def list_all_valid_pdbs_dirs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> tuple:
     return valid, invalid
 
 
-def multi_model_pdbs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> Union[np.ndarray, None]:
+def rewrite_book_file(book_file: Path, subcmd: str = SUB1) -> None:
+    """Re-write RUNS_DIR/book file with validated entries if subcmd is
+    'pkdb_v1', else with the directories names found in book_file parent folder.
+    """
+    if subcmd == SUB1:
+        valid, invalid = list_all_valid_pdbs_dirs(book_file.parent)
+    else:
+        valid = [d.name for d in list(book_file.parent.glob("./*/"))
+                 if (d.is_dir() and d.name.isupper())]
+    with open(book_file, "w") as book:
+        book.writelines([f"{v}\ti\n" for v in valid])
+
+    return
+
+
+def pdb_list_from_book(book_file: Path = Path(Q_BOOK)) -> list:
+    pdbs = []
+    with open(book_file) as book:
+        for line in book:
+            rawtxt = line.strip().split("#")[0]
+            pdbs.append(rawtxt.split()[0])
+
+    return pdbs
+
+
+def pdb_list_from_runs_folder(pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS) -> list:
+    """pdbs_dir: folder with one PDBID folder for each pdbid.pdb file"""
+    pdbs_dirs = [
+        fp.name
+        for fp in pdbs_dir.glob("*")
+        if fp.is_dir() and not fp.name.startswith(".")
+    ]
+    pdbs_dirs.sort()
+
+    return pdbs_dirs
+
+
+def prots_symdiff_runs(prot_tsv_file: Path = BenchResources(SUB1).BENCH_PROTS,
+                       pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS) -> tuple:
+    """Get the symmetric difference btw the list of usable proteins
+    and the runs/subfolders list.
+    Return a tuple of lists: extra_dirs, missing_dirs.
+    Package data management.
+    """
+    # list from "ground truth" file, proteins.tsv:
+    curated_ok = get_usable_prots(prot_tsv_file)
+
+    # list from folder setup: would differ if a change occured
+    # without related change in proteins.tsv
+    dir_list = pdb_list_from_runs_folder(pdbs_dir)
+
+    s1 = set(curated_ok)
+    s2 = set(dir_list)
+
+    extra = s1.symmetric_difference(s2)
+    extra_dirs = []
+    missing_dirs = []
+
+    for x in extra:
+        if x not in s1:
+            # print(f"Extra dir: {x}")
+            extra_dirs.append(x)
+        else:
+            # print(f"Missing dir for: {x}")
+            missing_dirs.append(x)
+
+    return extra_dirs, missing_dirs
+
+
+def update_data(prot_tsv_file: Path = BenchResources(SUB1).BENCH_PROTS,
+                pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS) -> None:
+    """Delete extra subfolders from runs/ when corresponding pdb is not
+    in proteins.tsv.
+    """
+    # Note: if missing dirs: no pdb => will need to be downloaded again and
+    # processed (mannually) as per jmao.
+
+    extra_dirs, missing_dirs = prots_symdiff_runs(prot_tsv_file, pdbs_dir)
+    if not extra_dirs:
+        logger.info("No extra dirs.")
+    else:
+        for x in extra_dirs:
+            dx = pdbs_dir.joinpath(x)
+            shutil.rmtree(dx)
+        logger.info("Removed extra dirs.")
+
+    book = pdbs_dir.joinpath(Q_BOOK)
+    rewrite_book_file(book)
+    logger.info("Wrote fresh book file.")
+
+    return
+
+
+def same_pdbs_book_vs_runs() -> bool:
+    """
+    Compares the list of pdbs in the Q_BOOK with the list
+    obtained from the runs/ folder.
+    For managing packaged data.
+    """
+    book_pbs = pdb_list_from_book()
+    pdbs = pdb_list_from_runs_folder()
+    same = len(book_pbs) == len(pdbs)
+    if not same:
+        logger.warning(
+            f"The lists differ in lengths:\n\t{len(book_pbs) = }; {len(pdbs) = }"
+        )
+        return same
+
+    df = pd.DataFrame(zip(book_pbs, pdbs), columns=["book", "runs_dir"])
+    comp = df[df.book != df.runs_dir]
+    same = len(comp) == 0
+    if not same:
+        logger.warning(f"The lists differ in data:\n{comp}")
+
+    return same
+
+
+def to_float(value):
+    """Conversion function to be used in pd.read_csv.
+    Return NA on conversion failure.
+    """
+    try:
+        new = float(value)
+    except TypeError:
+        new = np.nan
+
+    return new
+
+
+def pdb_list_from_experimental_pkas(pkas_file: Path = BenchResources(SUB1).BENCH_WT) -> list:
+    """Parses valid pKa values from an experimental pKa file and return
+    their pdb ids in a list.
+    """
+    pks_df = expl_pks_masterfile_to_df(drop_na=True)
+    pdbs = pks_df["PDB ID"].unique().tolist()
+
+    return sorted(pdbs)
+
+
+# TODO: Deprecate
+def _multi_model_pdbs(pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS) -> Union[np.ndarray, None]:
     """
     Query RUNS_DIR for pdb with multiple models.
     Return dir/pdb name in a numpy array or None.
@@ -239,7 +336,12 @@ def multi_model_pdbs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> Union[np.ndarray, Non
     f1 = n_parts - 2
     f2 = n_parts - 1
     prt_fields = "{print $" + str(f1) + '","$' + str(f2) + "}"
-    cmd = f"grep '^MODEL' {query_path}/*.pdb|sed -e '/model/d; s/:MODEL/\//g'|gawk -F'/|:' '{prt_fields}'|uniq"  # noqa W605
+    cmd = ("grep '^MODEL' "
+           f"{query_path}/*.pdb | sed -e '/model/d; s/:MODEL//g' | "
+           'gawk -F "|:" '
+           f" '{prt_fields}'|uniq"
+    )
+    #print("audit, mulit model pdb cmd:\n", cmd)
     try:
         data = subprocess.check_output(
             cmd, stderr=subprocess.STDOUT, check=True, text=True, shell=True
@@ -253,9 +355,9 @@ def multi_model_pdbs(pdbs_dir: Path = BENCH.BENCH_PDBS) -> Union[np.ndarray, Non
 
     return multi_models
 
-
-def reset_multi_models(pdbs_dir: Path = BENCH.BENCH_PDBS, debug: bool = False) -> list:
-    """Use multi model entries in 'data/pkadbv1/proteins.tsv' to select the
+# TODO: Deprecate
+def _reset_multi_models(pdbs_dir: Path = BenchResources(SUB1).BENCH_PDBS, debug: bool = False) -> list:
+    """Use multi model entries in 'data//pkadb>/proteins.tsv' to select the
     model<x>.pdbs corresponding to the proteins 'Use' column, if found.
 
     Rename pdbid.pdb -> pdbid.pdb.full
@@ -327,12 +429,13 @@ def reset_multi_models(pdbs_dir: Path = BENCH.BENCH_PDBS, debug: bool = False) -
     return missing_data
 
 
-def update_proteins_multi(proteins_file: Path = BENCH.BENCH_PROTS):
+# TODO: Deprecate
+def _update_proteins_multi(proteins_file: Path = BenchResources(SUB1).BENCH_PROTS):
     """Update 'data/pkadbv1/proteins.tsv' Model column from
     list of multi-model proteins.
     For managing packaged data.
     """
-    multi_models = multi_model_pdbs()
+    multi_models = _multi_model_pdbs()
     if multi_models is None:
         print("No multi model pdbs.")
         return
@@ -341,163 +444,15 @@ def update_proteins_multi(proteins_file: Path = BENCH.BENCH_PROTS):
     for pdb in multi_models[:, 0]:
         prots_df.loc[prots_df.PDB == pdb, "Model"] = "multi"
 
-    prots_df.to_csv(BENCH.BENCH_PROTS, index=False, sep="\t")
+    prots_df.to_csv(proteins_file, index=False, sep="\t")
 
     return
 
 
-def rewrite_book_file(book_file: Path, subcmd: str = SUB1) -> None:
-    """Re-write RUNS_DIR/book file with validated entries if subcmd is
-    'pkdb_pdbs', else with the directories names found in book_file parent folder.
-    """
-    if subcmd == SUB1:
-        valid, invalid = list_all_valid_pdbs_dirs(book_file.parent)
-    else:
-        valid = [d.name for d in list(book_file.parent.glob("./*/"))
-                 if (d.is_dir() and d.name.isupper())]
-    with open(book_file, "w") as book:
-        book.writelines([f"{v}\ti\n" for v in valid])
-
-    return
-
-
-def pdb_list_from_book(book_file: Path = Path(BENCH.Q_BOOK)) -> list:
-    pdbs = []
-    with open(book_file) as book:
-        for line in book:
-            rawtxt = line.strip().split("#")[0]
-            pdbs.append(rawtxt.split()[0])
-
-    return pdbs
-
-
-def pdb_list_from_runs_folder(pdbs_dir: Path = BENCH.BENCH_PDBS) -> list:
-    """pdbs_dir: folder with one PDBID folder for each pdbid.pdb file"""
-    pdbs_dirs = [
-        fp.name
-        for fp in pdbs_dir.glob("*")
-        if fp.is_dir() and not fp.name.startswith(".")
-    ]
-    pdbs_dirs.sort()
-
-    return pdbs_dirs
-
-
-def prots_symdiff_runs(
-    prot_tsv_file: Path = BENCH.BENCH_PROTS, pdbs_dir: Path = BENCH.BENCH_PDBS
-) -> tuple:
-    """Get the symmetric difference btw the list of usable proteins
-    and the runs/subfolders list.
-    Return a tuple of lists: extra_dirs, missing_dirs.
-    Package data management.
-    """
-    # list from "ground truth" file, proteins.tsv:
-    curated_ok = get_usable_prots(prot_tsv_file)
-
-    # list from folder setup: would differ if a change occured
-    # without related change in proteins.tsv
-    dir_list = pdb_list_from_runs_folder(pdbs_dir)
-
-    s1 = set(curated_ok)
-    s2 = set(dir_list)
-
-    extra = s1.symmetric_difference(s2)
-    extra_dirs = []
-    missing_dirs = []
-
-    for x in extra:
-        if x not in s1:
-            # print(f"Extra dir: {x}")
-            extra_dirs.append(x)
-        else:
-            # print(f"Missing dir for: {x}")
-            missing_dirs.append(x)
-
-    return extra_dirs, missing_dirs
-
-
-def update_data(
-    prot_tsv_file: Path = BENCH.BENCH_PROTS, pdbs_dir: Path = BENCH.BENCH_PDBS
-) -> None:
-    """Delete extra subfolders from runs/ when corresponding pdb is not
-    in proteins.tsv.
-    """
-    # Note: if missing dirs: no pdb => will need to be downloaded again and
-    # processed (mannually) as per jmao.
-
-    extra_dirs, missing_dirs = prots_symdiff_runs(prot_tsv_file, pdbs_dir)
-    if not extra_dirs:
-        logger.info("No extra dirs.")
-    else:
-        for x in extra_dirs:
-            dx = pdbs_dir.joinpath(x)
-            shutil.rmtree(dx)
-        logger.info("Removed extra dirs.")
-
-    book = pdbs_dir.joinpath(BENCH.Q_BOOK)
-    rewrite_book_file(book)
-    logger.info("Wrote fresh book file.")
-
-    return
-
-
-def same_pdbs_book_vs_runs() -> bool:
-    """
-    Compares the list of pdbs in the Q_BOOK with the list
-    obtained from the runs/ folder.
-    For managing packaged data.
-    """
-    book_pbs = pdb_list_from_book()
-    pdbs = pdb_list_from_runs_folder()
-    same = len(book_pbs) == len(pdbs)
-    if not same:
-        logger.warning(
-            f"The lists differ in lengths:\n\t{len(book_pbs) = }; {len(pdbs) = }"
-        )
-        return same
-
-    df = pd.DataFrame(zip(book_pbs, pdbs), columns=["book", "runs_dir"])
-    comp = df[df.book != df.runs_dir]
-    same = len(comp) == 0
-    if not same:
-        logger.warning(f"The lists differ in data:\n{comp}")
-
-    return same
-
-
-def to_float(value):
-    """Conversion function to be used in pd.read_csv.
-    Return NA on conversion failure.
-    """
-    try:
-        new = float(value)
-    except TypeError:
-        new = np.nan
-
-    return new
-
-
-def pdb_list_from_experimental_pkas(pkas_file: Path = BENCH.BENCH_WT) -> list:
-    """Parses valid pKa values from an experimental pKa file and return
-    their pdb ids in a list.
-    """
-    if pkas_file.name != BENCH.BENCH_WT.name:
-        raise TypeError(
-            "Only wild type proteins listed in 'WT_pkas.csv' are currently considered."
-        )
-
-    pks_df = expl_pks_masterfile_to_df(drop_na=True)
-    pdbs = pks_df["PDB ID"].unique().tolist()
-
-    return sorted(pdbs)
-
-
-##############################################################
-# transformation of legacy files
-
-
-def proteins_to_tsv(prot_file: str) -> list:
-    """Transform initial text file to a tab separated file (.tsv)
+# TODO: Deprecate
+def _proteins_to_tsv(prot_file: str) -> list:
+    """Legacy code.
+    Transform initial text file to a tab separated file (.tsv)
     with additional column 'Model' to indicate whether pdb is single- or
     multi-modelled. No duplicates.
     """

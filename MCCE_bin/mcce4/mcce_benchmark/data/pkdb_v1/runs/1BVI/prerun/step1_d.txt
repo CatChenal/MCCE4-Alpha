@@ -1,0 +1,54 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.53: " CA  NTR A   1" to " CB  ALA '
+                                     'A   1"',
+                                     'd= 1.52: " CA  NTR B   1" to " CB  ALA '
+                                     'B   1"',
+                                     'd= 1.52: " CA  NTR C   1" to " CB  ALA '
+                                     'C   1"',
+                                     'd= 1.53: " CA  NTR D   1" to " CB  ALA '
+                                     'D   1"',
+                                     'end_clash'],
+                'Free Cofactors': ['Removed all 47 HOH in A. Removed all 61 '
+                                   'HOH in B. Removed all 61 HOH in C. Removed '
+                                   'all 73 HOH in D.',
+                                   "NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05',
+                                   'Total deleted cofactors = 242.',
+                                   'Species and properties with assigned '
+                                   'default values in debug.log:\n',
+                                   "2GPBK: ['VDW_RAD', 'VDW_EPS']\n",
+                                   "_CA+2: ['VDW_RAD', 'VDW_EPS']\n",
+                                   'Empty connection slot(s):\n',
+                                   "SG: ['CYD 2 to atom  ?', 'CYD 10 to atom  "
+                                   "?']\n"],
+                'Labeling': ['Generic topology file created for',
+                             '2GP: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=2GP&tab=substance; '],
+                'Load Structure': [],
+                'Missing Heavy Atoms': ['   Missing heavy atoms for GLU01 in '
+                                        '"GLU A 102":   CG ,  CD ,  OE1,  OE2',
+                                        '   Missing heavy atoms for GLU01 in '
+                                        '"GLU B 102":   CG ,  CD ,  OE1,  OE2',
+                                        '   Missing heavy atoms for GLU01 in '
+                                        '"GLU C 102":   CG ,  CD ,  OE1,  OE2',
+                                        '   Missing heavy atoms for GLU01 in '
+                                        '"GLU D 102":   CG ,  CD ,  OE1,  OE2'],
+                'Renamed': ['"CA    CA C 250" to "CA   _CA C 250"',
+                            '"CA    CA D 251" to "CA   _CA D 251"'],
+                'Termini': [('NTR',
+                             ['"ALA A   1"',
+                              '"ALA B   1"',
+                              '"ALA C   1"',
+                              '"ALA D   1"']),
+                            ('CTR',
+                             ['"THR A 104"',
+                              '"THR B 104"',
+                              '"THR C 104"',
+                              '"THR D 104"'])]}}

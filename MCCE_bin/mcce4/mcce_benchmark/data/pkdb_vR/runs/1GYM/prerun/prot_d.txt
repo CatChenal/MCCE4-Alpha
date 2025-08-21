@@ -1,0 +1,33 @@
+# prot dict 
+{'Name': '1GYM :: Phosphatidylinositol-Specific Phospholipase C In Complex '
+         'With Glucosamine-(Alpha-1-6)-Myo-Inositol;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'MYG': ('2-AMINO-2-DEOXY-GLUCOSIDE', 1)},
+                   'First Release': '02-MAY-96',
+                   'Function': 'HYDROLASE (PHOSPHORIC DIESTER)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'Residues': {'A': [('LYS', 297),
+                                                  ('GLU', 298),
+                                                  ('Count', 2)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 127,
+                                                             'MYG': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 12, ARG: 9, '
+                                                           'ASN: 24, ASP: 19, '
+                                                           'GLN: 11, GLU: 19, '
+                                                           'GLY: 16, HIS: 6, '
+                                                           'ILE: 23, LEU: 20, '
+                                                           'LYS: 23, MET: 7, '
+                                                           'PHE: 12, PRO: 14, '
+                                                           'SER: 23, THR: 18, '
+                                                           'TRP: 7, TYR: 19, '
+                                                           'VAL: 14',
+                                                           'Total: 296',
+                                                           'Ionizable: 95',
+                                                           'Ratio: 32.1%')}},
+                   'Models': '1',
+                   'Molecule': 'PHOSPHATIDYLINOSITOL-SPECIFIC PHOSPHOLIPASE C',
+                   'Resolution': '2.20 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:298; Total: 298',
+                   'Total cofactors': 1,
+                   'Total waters': 127}}

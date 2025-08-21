@@ -1,0 +1,50 @@
+# prot dict 
+{'Name': '1LJU :: X-Ray Structure Of C15A Arsenate Reductase From Pi258 '
+         'Complexed With Arsenite;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'  K': ('POTASSIUM ION', 1),
+                                 'CSR': ('S-ARSONOCYSTEINE', 1)},
+                   'Disulfides': ['CYS A  82 -- 2.05 Å --> CYS A  89'],
+                   'First Release': '22-APR-02',
+                   'Function': 'OXIDOREDUCTASE',
+                   'Links': ['C  ILE A  9 -- 1.34 Å --> N  CSR A 10',
+                             'C  CSR A 10 -- 1.32 Å --> N  THR A 11',
+                             'OD1 ASN A 13 -- 2.88 Å --> K   K A 134',
+                             'OE2 GLU A 21 -- 3.12 Å --> K   K A 134',
+                             'OG SER A 36 -- 2.89 Å --> K   K A 134',
+                             'O  SER A 36 -- 2.76 Å --> K   K A 134',
+                             'O  THR A 63 -- 2.73 Å --> K   K A 134',
+                             'OD2 ASP A 65 -- 2.78 Å --> K   K A 134',
+                             'K   K A 134 -- 2.80 Å --> O  HOH A 141',
+                             'K   K A 134 -- 3.12 Å --> O  HOH A 158'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'CSR': 1,
+                                                             'HOH': 229,
+                                                             '__K': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 8, ARG: 4, '
+                                                           'ASN: 8, ASP: 12, '
+                                                           'CYS: 2, GLN: 3, '
+                                                           'GLU: 11, GLY: 9, '
+                                                           'HIS: 3, ILE: 12, '
+                                                           'LEU: 8, LYS: 12, '
+                                                           'MET: 3, PHE: 4, '
+                                                           'PRO: 5, SER: 8, '
+                                                           'THR: 5, TRP: 4, '
+                                                           'TYR: 2, VAL: 7',
+                                                           'Total: 130',
+                                                           'Ionizable: 46',
+                                                           'Ratio: 35.4%')}},
+                   'Models': '1',
+                   'Molecule': 'ARSENATE REDUCTASE, OXIDISED',
+                   'Resolution': '1.40 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:131; Total: 131',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE K A 134',
+                                     'ASN A  13',
+                                     'GLU A  21',
+                                     'SER A  36',
+                                     'THR A  63',
+                                     'ASP A  65',
+                                     'HOH A 141']},
+                   'Total cofactors': 2,
+                   'Total waters': 229}}

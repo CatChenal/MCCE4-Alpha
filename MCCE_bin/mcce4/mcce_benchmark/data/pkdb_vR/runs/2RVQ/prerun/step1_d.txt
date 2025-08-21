@@ -1,0 +1,33 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.95: " O   GLY C   4" to "HE22 GLN '
+                                     'C   6"',
+                                     'd= 1.99: "HE22 GLN C  24" to " O   PHE '
+                                     'C  25"',
+                                     'd= 1.84: " OE1 GLU C  91" to "HD22 ASN '
+                                     'C  94"',
+                                     'd= 1.87: " O   ASN C 110" to "HE22 GLN C '
+                                     '112"',
+                                     'd= 1.97: " O   LYS D  20" to "HE22 GLN '
+                                     'D  22"',
+                                     'd= 1.94: " OG  SER D  38" to "HD21 ASN '
+                                     'D  63"',
+                                     'd= 1.75: "HD22 ASN D  84" to " OE2 GLU '
+                                     'D  93"',
+                                     'd= 1.90: " O   SER D  91" to "HE22 GLN '
+                                     'D  95"',
+                                     'end_clash'],
+                'Free Cofactors': ["NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05'],
+                'Labeling': [],
+                'Load Structure': [],
+                'Missing Heavy Atoms': [],
+                'Renamed': [],
+                'Termini': [('NTG', ['"GLY C  -3"', '"GLY D  -3"']),
+                            ('CTR', ['"LYS C 129"', '"LYS D 125"'])]}}

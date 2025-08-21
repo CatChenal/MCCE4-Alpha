@@ -10,7 +10,7 @@ Main entry point: "bench_setup"
  0. "pdbids"
     List the available pdbids from pkDBv1 & save as file.
 
- 1. "pkdb_pdbs"
+ 1. "pkdb_v1"
     Sub-command for setting up <bench_dir>/runs folder
     using the pdbs in pKaDBv1 & <job_name>.sh script.
 
@@ -25,17 +25,20 @@ Main entry point: "bench_setup"
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, Namespace
 import logging
 import os
-# set virtual cores for NumExpr
-# 64 == default, max virtual cores in NumExpr:
-os.environ['NUMEXPR_MAX_THREADS'] = "64"
-os.environ['NUMEXPR_NUM_THREADS'] = "32"
+
+# # set virtual cores for NumExpr:: what should it be?
+# # 64 == default, max virtual cores in NumExpr:
+# os.environ['NUMEXPR_MAX_THREADS'] = "64"
+# os.environ['NUMEXPR_NUM_THREADS'] = "32"
 
 from pathlib import Path
 import shutil
 import sys
 
-from mcce4.mcce_benchmark import BENCH, LOG_HDR, ENTRY_POINTS, SUB0, SUB1, SUB2, SUB3
-from mcce4.mcce_benchmark import FILES, RUNS_DIR, N_BATCH, N_PDBS, cli_opts
+from mcce4.mcce_benchmark import BenchResources, BENCH_DATA, datasets_dict
+from mcce4.mcce_benchmark import DEFAULT_JOB, LOG_HDR, RUNS_DIR
+from mcce4.mcce_benchmark import ENTRY_POINTS, SUB0, SUB1, SUB2, SUB3, SUB4, SUB5
+from mcce4.mcce_benchmark import FILES, Q_BOOK, N_BATCH, N_PDBS, cli_opts
 # modules:
 from mcce4.mcce_benchmark import io_utils as iou, cli_utils as cliu
 from mcce4.mcce_benchmark import job_setup, scheduling, custom_sh
@@ -63,7 +66,6 @@ with open(info_fh, "w") as fh:
 
 CLI_NAME = ENTRY_POINTS["setup"]
 
-bench_default_jobname = BENCH.DEFAULT_JOB
 
 # help as empty f-strings: interpolated only if called
 HELP_0 = """
@@ -75,14 +77,15 @@ HELP_1 = """
 Sub-command for setting up <bench_dir>/runs folder & run.sh script, e.g.:
 >{} {} -bench_dir <folder name> -n_pdbs 5  # max/default = {}
 """
-
-HELP_2 = """
+HELP_2 = HELP_1
+HELP_3 = HELP_1
+HELP_4 = """
 Sub-command for setting up <bench_dir>/runs folder using user's pdb_list
 & job_name_run.sh script, e.g.:
 >{} {} -bench_dir <folder name>
 """
 
-HELP_3 = """Sub-command for scheduling the processing of the set in batches; e.g.:
+HELP_5 = """Sub-command for scheduling the processing of the set in batches; e.g.:
 >{} {} -bench_dir <folder name> -n_batch 15
 Note: if provided, the value for the -job_name option must match the one used in the
 `bench_setup [pkdb_pdbs, user_pdbs]` command.
@@ -90,65 +93,66 @@ Note: if provided, the value for the -job_name option must match the one used in
 
 DESC = """
 Description:
-Setup or launch a MCCE benchmarking job using either the curated structures from pKaDBv1
+Setup or launch a MCCE benchmarking job using either a dataset's curated structures
 or the user's pdbs list.
-
-The main command is {} along with one of 4 sub-commands:
-- Sub-command 0: {}: show & save the list of available pdbids;
-- Sub-command 1: {}: setup the dataset and run script to run mcce steps 1 through 4;
-- Sub-command 2: {}: setup the user dataset and run script to run mcce steps 1 through 4;
-- Sub-command 3: {}: launch the cron-scheduled batch runs;
-""".format(CLI_NAME, SUB0, SUB1, SUB2, SUB3)
+"""
+# The main command is {} along with one of 4 sub-commands:
+# - Sub-command 0: {}: Show & save the list of available pdbids;
+# - Sub-command 1: {}: Setup the dataset and run script to run mcce steps 1 through 4;
+# - Sub-command 4: {}: Setup the user dataset and run script to run mcce steps 1 through 4;
+# - Sub-command 5: {}: Launch the cron-scheduled batch runs;
+# """.format(CLI_NAME, SUB0, SUB1, SUB2, SUB3)
 
 def get_usage() -> str:
     u = f"""
-    {CLI_NAME} <+ 1 sub-command: {SUB0} or {SUB1} or {SUB2} or {SUB3} > <related args>\n
     Examples (cd to bench_dir, first):
-    0. {SUB0}: Data & script setup using pkDBv1 pdbs:
+    0. {SUB0}: Show & save the list of available pdbids:
     - Minimal input:
-        >{CLI_NAME} {SUB0}
+        > {CLI_NAME} {SUB0} -kind pkdb_vR
 
-    1. {SUB1}: Data & script setup using pdbs from pkDBv1 (the runs use --dry by default):
+    1. {SUB1}: Data & script setup using pdbs from pkdb_v1 (the runs use --dry by default):
     - Minimal input: -bench_dir option:
-        >{CLI_NAME} {SUB1} -bench_dir .
+        > {CLI_NAME} {SUB1} -bench_dir .
 
     - Using non-default option(s) (then job_name is required!):
-        >{CLI_NAME} {SUB1} -bench_dir . --wet -job_name <wet_run>
-        >{CLI_NAME} {SUB1} -bench_dir . -d 8 -job_name <job_e8>
+        > {CLI_NAME} {SUB1} -bench_dir . --wet -job_name <wet_run>
+        > {CLI_NAME} {SUB1} -bench_dir . -d 8 -job_name <job_e8>
+    2. & 3. {SUB2}, {SUB3}:
+      > {CLI_NAME} {SUB2} -bench_dir . 
+      > {CLI_NAME} {SUB3} -bench_dir . 
 
-    2. {SUB2}: Data & script setup using user's pdb list:
+    4. {SUB4}: Data & script setup using user's pdb list:
     - Minimal input: value for -bench_dir option, -pdb_list:
-        >{CLI_NAME} {SUB2} -bench_dir . -pdb_list <path to dir with pdb files OR file listing pdbs paths>
+        >{CLI_NAME} {SUB4} -bench_dir . -pdb_list <path to dir with pdb files OR file listing pdbs paths>
 
     - Using non-default option(s) (then job_name is required! ):
-        >{CLI_NAME} {SUB2} -bench_dir . -pdb_list <path> -d 8 -job_name <job_e8>
+        >{CLI_NAME} {SUB4} -bench_dir . -pdb_list <path> -d 8 -job_name <job_e8>
 
-    3. {SUB3}: Launch the scheduled processing:
+    5. {SUB5}: Launch the scheduled processing:
     - Minimal input: value for -bench_dir option: IFF no non-default job_name & sentinel_file were passed in {SUB1}
-        >{CLI_NAME} {SUB3} -bench_dir .
+        >{CLI_NAME} {SUB5} -bench_dir .
 
     - Using non-default option(s):
-        >{CLI_NAME} {SUB3} -bench_dir . -n_batch <jobs to maintain>
+        >{CLI_NAME} {SUB5} -bench_dir . -n_batch <jobs to maintain>
 
         Note: if changing the default sentinel_file="pk.out" to, e.g. step2_out.pdb,
             then the 'norun' script parameters for step 3 & 4 must be set accordingly:
-            >{CLI_NAME} {SUB3} -bench_dir . -sentinel_file step2_out.pdb --s3_norun --s4_norun
+            >{CLI_NAME} {SUB5} -bench_dir . -sentinel_file step2_out.pdb --s3_norun --s4_norun
     """
     return u
+
 
 def do_pdbids(args: Namespace):
     """
     Get the list of available pdbs from an experimental data file;
-    currently, the only one available is "WT_pkas.csv", so its kind is 'WT'.
+    CHANGELOG (7-15-25): args.kind now refers to a dataset folder name.
     """
-    kind = args.kind.upper()
-    if kind != "WT":
-        logger.error(f"This kind: {kind!r} does not exists or is not yet setup.")
+    if args.kind not in datasets_dict.keys():
+        logger.error(f"This dataset kind: {args.kind!r} does not exists or is not yet setup.")
         sys.exit(1)
 
-    job_setup.get_pkdb_list()
+    out_fp = job_setup.get_pkdb_list(args.kind, n_pdbs=args.n_pdbs)
     # show
-    out_fp = Path("PDBIDS_WT")
     if out_fp.exists():
         logger.info(f"Displaying the PDBIDs list saved as: {str(out_fp)!r}\n")
         print(out_fp.read_text())
@@ -167,9 +171,11 @@ def do_prerun(args: Namespace):
         "u": args.u,
         "wet": args.wet,
         "noter": args.noter,
+        "fetch": False,
+        "save_dicts": True,
     }
     # use local book file, as per setup:
-    all_pdbs = runs_dir.joinpath(BENCH.Q_BOOK).read_text().splitlines()
+    all_pdbs = runs_dir.joinpath(Q_BOOK).read_text().splitlines()
     # previously used globbing: does not preserve order; problem with debugging
     for dirname in all_pdbs:
         d = dirname.split()[0]
@@ -183,7 +189,7 @@ def do_prerun(args: Namespace):
 
         #pre_dir = runs_dir.joinpath(d, "prerun")
         if not args.redo_prerun and prot.parent.joinpath(f"{prot.readlink().stem}_protinfo.md").exists():
-            logger.info(f"redo_prerun=False; md report already in {d!s}.")
+            logger.info(f"Not redoing: report found in {d!s} but redo_prerun is False.")
             continue
 
         # enter prot folder to run protinfo main fn:
@@ -231,7 +237,7 @@ def populate_prerun_folder(bench_dir: Path, clear_folder: bool = False):
 
 
 def bench_job_setup(args: Namespace) -> None:
-    """Benchmark cli function for sub-commands 1 and 2.
+    """Benchmark cli function for sub-commands 1,2,3,4.
     Processing steps:
      - Create args.bench_dir/runs/ subfolders.
      - Write fresh book file
@@ -253,7 +259,7 @@ def bench_job_setup(args: Namespace) -> None:
             """
         )
     # TODO:
-    #if args.job_name != bench_default_jobname:
+    #if args.job_name != DEFAULT_JOB:
     #    args.sentinel_file = iou.sentinel_from_args(args)
     # ok to automate sentinel_file name detection after issue with pickled args is resolved.
     # possible resolution: keep pickle file (for now) but transform cli_args to dict with
@@ -295,20 +301,20 @@ def bench_job_setup(args: Namespace) -> None:
             cli_opts.all["salt"] = 0.05
             logger.warning("Reset args.salt to 0.05 due to ZAP instability at higher concentrations.")
 
-    if args.subparser_name == SUB2:
+    if args.subparser_name == SUB4:
         job_setup.setup_user_runs(args)
     else:
         if args.pdbids_file:
             logger.info("Using args.pdbids_file.")
         # note: args.n_pdbs will stay set to N_PDBS even with pdbids_file
-        job_setup.setup_expl_runs(args.bench_dir, args.n_pdbs, args.pdbids_file)
+        job_setup.setup_pkdb_runs(args.bench_dir, args.n_pdbs, args.pdbids_file, args.subparser_name)
 
     # maybe link customized files into the prot subfolders:
     if args.load_runprm or args.u:
         args = job_setup.setup_customized_files(args)
         # reset saved args:
         cli_opts.all = vars(args)
-        logger.info(f"Options post 'setup_customized_files':\n{cli_opts}")
+        logger.info(f"Options after 'setup_customized_files':\n{cli_opts}")
 
     # determine if args are all defaults
     use_default_sh = custom_sh.all_opts_are_defaults(args)
@@ -390,7 +396,7 @@ def bench_launch_batch(args: Namespace) -> None:
     sh_name = f"{args.job_name}.sh"
     sh_path = iou.Pathok(args.bench_dir.joinpath(RUNS_DIR, sh_name))
 
-    if args.job_name != bench_default_jobname:
+    if args.job_name != DEFAULT_JOB:
         steps_noruns = iou.sh_steps(sh_path)
         if all(steps_noruns.values()):
             msg = f"This script: {sh_path!s} has no 'stepx.py' command to run."
@@ -428,7 +434,7 @@ def bench_parser():
         fromfile_prefix_chars="@",
         epilog="""
         Post an issue for all errors and feature requests at:
-        https://github.com/CatChenal/MCCE4/issues
+        https://github.com/GunnerLab/MCCE4/issues
         """,
     )
     p.convert_arg_line_to_args = cliu.sh_split
@@ -440,17 +446,17 @@ def bench_parser():
         required=True,
         type=cliu.arg_valid_dirpath,
         help="""The user's choice of directory for setting up the benchmarking job(s);
-        this is where the /runs subfolder is setup. The directory is created if it does not exists
-        unless this cli is called within that directory.
+        The directory is created if it does not exists unless this cli is called within 
+        that directory.
         """,
     )
     cp.add_argument(
         "-job_name",
         type=str,
-        default=bench_default_jobname,
-        help="""The descriptive name, devoid of spaces, for the current job (don't make it too long!); required.
+        default=DEFAULT_JOB,
+        help="""The descriptive name, without spaces, for the current job; required.
         This job_name is used to identify the shell script in 'bench_dir' that launches the MCCE simulation
-        in 'bench_dir'/RUNS_DIR subfolders; default: %(default)s.
+        in 'bench_dir'/runs subfolders; default: %(default)s.
         """,
     )
     # sentinel_file (e.g. pK.out) is part of script setup to ensure it is deleted prior to using launch sub-command.
@@ -475,9 +481,8 @@ def bench_parser():
         action="store_true",
         help="Do not label terminal residues (for making ftpl); %(default)s.",
     )
-    # NEW: common to all steps: used for relinking customized EXTRA and RENAME_RULE files.
     # TODO Add warning if other keys are set & no load_runprm -> custom run.prm created
-    #
+    # Common to all mcce steps: used for relinking customized EXTRA and RENAME_RULE files.
     # steps 1-3:
     cp.add_argument(
         "-d",
@@ -491,10 +496,8 @@ def bench_parser():
         metavar="Key=Value",
         type=str,
         default="",
-        help="""
-        User selected, comma-separated KEY=var pairs from run.prm; e.g.:
-        -u H2O_SASCUTOFF=0.05,EXTRA=./extra.tpl; default: %(default)s.
-        Note: No space after a comma!""",
+        help="""User selected, comma-separated KEY=var pairs from run.prm; e.g.: 
+        -u H2O_SASCUTOFF=0.05,EXTRA=./extra.tpl; default: %(default)s.""",
     )
     # norun option for each steps:
     cp.add_argument(
@@ -555,7 +558,7 @@ def bench_parser():
     )
     cp.add_argument(
         "-s",
-        metavar="pbes_name",
+        metavar="pbe_solver",
         type=str,
         choices=["delphi", "ngpb", "apbs", "zap", "template"],
         default="ngpb",
@@ -619,7 +622,6 @@ def bench_parser():
         action="store_true",
         help="Log debug information and keep pb solver tmp/ folder; default: %(default)s.",
     )
-
     # step4.py --xts {titr_type}{i}{interval}{n}{ms}{s4_norun}{e}{u}
     cp.add_argument(
         "-titr_type",
@@ -659,7 +661,7 @@ def bench_parser():
         "--launch",
         default=False,
         action="store_true",
-        help="""Schedule the job right away with default n_batch
+        help="""Schedule the job right away with default n_batch 
         (no chance of inspecting <job_name>.sh!); default: %(default)s.""",
     )
 
@@ -668,11 +670,6 @@ def bench_parser():
         title=f"{CLI_NAME} sub-commands",
         dest="subparser_name",
         description="Sub-commands of MCCE benchmarking cli.",
-        help=f"""The 3 choices for the benchmarking process:
-                                  1) Setup pkdbv1 data & run-script: {SUB1}
-                                  2) Setup user data & run-script: {SUB2}
-                                  3) Schedule batch runs for mcce steps 1 through 4: {SUB3}
-                                  """,
     )
 
     # show pdbids
@@ -683,98 +680,154 @@ def bench_parser():
     )
     sub0.add_argument(
         "-kind",
-        default="WT",
         type=str,
-        help="""The kind of experimental data whose PDBIDs are to be listed.
-        Currently, there is only one kind, thus it's the default; default: %(default)s.
+        help=f"""The name the experimental dataset whose PDBIDs are to be listed;
+        One of: [{', '.join(datasets_dict.keys())}].
         """,
+    )
+    sub0.add_argument(
+        "-n_pdbs",
+        default=N_PDBS,
+        type=int,
+        help="To return this number of smallest pdbs; max=default: %(default)s.",
     )
     sub0.set_defaults(func=do_pdbids)
 
-    # pkdb_pdbs
+    # pkdb_v1
     sub1 = subparsers.add_parser(
         SUB1,
         help=HELP_1.format(CLI_NAME, SUB1, N_PDBS),
         formatter_class=RawDescriptionHelpFormatter,
         parents=[cp],
     )
-    mutex = sub1.add_mutually_exclusive_group()
-    mutex.add_argument(
+    mutex1 = sub1.add_mutually_exclusive_group()
+    mutex1.add_argument(
         "-n_pdbs",
         default=N_PDBS,
         type=int,
-        help="""The number of curated pdbs to setup for the benchmarking job; max=default: %(default)s.
-        """,
+        help="The number of curated pdbs to setup for the benchmarking job; max=default: %(default)s.",
     )
-    mutex.add_argument(
+    mutex1.add_argument(
         "-pdbids_file",
         default="",
         type=str,
-        help="""Use this file of pkDB pdbids as a dataset; default: %(default)s.
-        """,
+        help="Use this file of pkDB pdbids as a dataset; default: %(default)s.",
     )
     sub1.add_argument(
         "--redo_prerun",
         default=False,
         action="store_true",
-        help="""Redo the pre-run report even if ProtInfo.md exists; default: %(default)s.""",
+        help="Redo the pre-run report even if ProtInfo.md exists; default: %(default)s.",
     )
     sub1.set_defaults(func=bench_job_setup)
 
-    # user_pdbs
+    # pkdb_vR
     sub2 = subparsers.add_parser(
         SUB2,
-        help=HELP_2.format(CLI_NAME, SUB2),
+        help=HELP_2.format(CLI_NAME, SUB2, N_PDBS),
         formatter_class=RawDescriptionHelpFormatter,
         parents=[cp],
     )
-    sub2.add_argument(
-        "-pdbs_list",
-        type=cliu.arg_valid_dir_or_file,
-        help="""The path to a dir containing pdb files OR the path to a file listing the
-        pdbs file paths.
-        """,
+    mutex2 = sub2.add_mutually_exclusive_group()
+    mutex2.add_argument(
+        "-n_pdbs",
+        default=N_PDBS,
+        type=int,
+        help="The number of curated pdbs to setup for the benchmarking job; max=default: %(default)s.",
+    )
+    mutex2.add_argument(
+        "-pdbids_file",
+        default="",
+        type=str,
+        help="Use this file of pkDB pdbids as a dataset; default: %(default)s.",
     )
     sub2.add_argument(
         "--redo_prerun",
         default=False,
         action="store_true",
-        help="""Redo the pre-run report even if ProtInfo.md exists; default: %(default)s.""",
+        help="Redo the pre-run report even if ProtInfo.md exists; default: %(default)s.",
     )
     sub2.set_defaults(func=bench_job_setup)
 
-    # launch
+    # pkdb_snase
     sub3 = subparsers.add_parser(
         SUB3,
-        help=HELP_3.format(CLI_NAME, SUB3),
+        help=HELP_3.format(CLI_NAME, SUB3, N_PDBS),
         formatter_class=RawDescriptionHelpFormatter,
+        parents=[cp],
+    )
+    mutex3 = sub3.add_mutually_exclusive_group()
+    mutex3.add_argument(
+        "-n_pdbs",
+        default=N_PDBS,
+        type=int,
+        help="The number of curated pdbs to setup for the benchmarking job; max=default: %(default)s.",
+    )
+    mutex3.add_argument(
+        "-pdbids_file",
+        default="",
+        type=str,
+        help="Use this file of pkDB pdbids as a dataset; default: %(default)s.",
     )
     sub3.add_argument(
+        "--redo_prerun",
+        default=False,
+        action="store_true",
+        help="Redo the pre-run report even if ProtInfo.md exists; default: %(default)s.",
+    )
+    sub3.set_defaults(func=bench_job_setup)
+
+    # user_pdbs
+    sub4 = subparsers.add_parser(
+        SUB4,
+        help=HELP_4.format(CLI_NAME, SUB4),
+        formatter_class=RawDescriptionHelpFormatter,
+        parents=[cp],
+    )
+    sub4.add_argument(
+        "-pdbs_list",
+        type=cliu.arg_valid_dir_or_file,
+        help="""The path to a dir containing pdb files OR the path to a file listing 
+        the pdbs file paths.""",
+    )
+    sub4.add_argument(
+        "--redo_prerun",
+        default=False,
+        action="store_true",
+        help="Redo the pre-run report even if ProtInfo.md exists; default: %(default)s.",
+    )
+    sub4.set_defaults(func=bench_job_setup)
+
+    # launch
+    sub5 = subparsers.add_parser(
+        SUB5,
+        help=HELP_5.format(CLI_NAME, SUB5),
+        formatter_class=RawDescriptionHelpFormatter,
+    )
+    sub5.add_argument(
         "-bench_dir",
         required=True,
         type=cliu.arg_valid_dirpath,
         help="""The user's choice of directory for setting up the benchmarking job(s);
         this is where the runs/ folder reside. The directory is created if it does not exists
-        unless this cli is called within that directory.
-        """,
+        unless this cli is called within that directory.""",
     )
-    sub3.add_argument(
+    sub5.add_argument(
         "-job_name",
         type=str,
-        default=bench_default_jobname,
+        default=DEFAULT_JOB,
         help="""The descriptive name, devoid of spaces, for the current job (don't make it too long!); required.
         This job_name is used to identify the shell script in 'bench_dir' that launches the MCCE simulation
         in 'bench_dir'/RUNS_DIR subfolders; default: %(default)s.
         """,
     )
-    sub3.add_argument(
+    sub5.add_argument(
         "-n_batch",
         type=int,
         default=N_BATCH,
-        help="""The number of jobs to keep launching; default: %(default)s.
-        """,
+        help="The number of jobs to keep launching; default: %(default)s.",
     )
-    sub3.add_argument(
+    sub5.add_argument(
         "-sentinel_file",
         type=str,
         default="pK.out",
@@ -782,7 +835,7 @@ def bench_parser():
         Note: Can be ignored: it is set/reset by the cli options or the script prior to launch.
         """,
     )
-    sub3.set_defaults(func=bench_launch_batch)
+    sub5.set_defaults(func=bench_launch_batch)
 
     return p
 
@@ -796,7 +849,8 @@ def bench_cli(argv=None):
 
     cli_parser = bench_parser()
     args = cli_parser.parse_args(argv)
-
+    print(f"args:\n{args}")
+    
     cli_opts.cli_name = CLI_NAME
     cli_opts.all = vars(args)
     args.func(args)

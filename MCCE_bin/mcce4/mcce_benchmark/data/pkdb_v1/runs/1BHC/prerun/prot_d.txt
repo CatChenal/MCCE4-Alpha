@@ -1,0 +1,262 @@
+# prot dict 
+{'Name': '1BHC :: Bovine Pancreatic Trypsin Inhibitor Crystallized From '
+         'Thiocyanate',
+ 'PDB.Structure': {'Biounits': 'DECAMERIC: A, B, C, D, E, F, G, H, I, J;',
+                   'Chains': 'A, B, C, D, E, F, G, H, I, J',
+                   'Cofactors': {'SCN': ('THIOCYANATE ION', 10)},
+                   'Disulfides': ['CYS A  5 -- 2.02 Å --> CYS A  55',
+                                  'CYS A  14 -- 2.03 Å --> CYS A  38',
+                                  'CYS A  30 -- 2.00 Å --> CYS A  51',
+                                  'CYS B  5 -- 2.02 Å --> CYS B  55',
+                                  'CYS B  14 -- 2.02 Å --> CYS B  38',
+                                  'CYS B  30 -- 2.02 Å --> CYS B  51',
+                                  'CYS C  5 -- 2.02 Å --> CYS C  55',
+                                  'CYS C  14 -- 2.01 Å --> CYS C  38',
+                                  'CYS C  30 -- 2.02 Å --> CYS C  51',
+                                  'CYS D  5 -- 2.03 Å --> CYS D  55',
+                                  'CYS D  14 -- 2.02 Å --> CYS D  38',
+                                  'CYS D  30 -- 2.03 Å --> CYS D  51',
+                                  'CYS E  5 -- 2.02 Å --> CYS E  55',
+                                  'CYS E  14 -- 2.03 Å --> CYS E  38',
+                                  'CYS E  30 -- 2.02 Å --> CYS E  51',
+                                  'CYS F  5 -- 2.03 Å --> CYS F  55',
+                                  'CYS F  14 -- 2.02 Å --> CYS F  38',
+                                  'CYS F  30 -- 2.04 Å --> CYS F  51',
+                                  'CYS G  5 -- 2.01 Å --> CYS G  55',
+                                  'CYS G  14 -- 2.03 Å --> CYS G  38',
+                                  'CYS G  30 -- 2.01 Å --> CYS G  51',
+                                  'CYS H  5 -- 2.03 Å --> CYS H  55',
+                                  'CYS H  14 -- 2.01 Å --> CYS H  38',
+                                  'CYS H  30 -- 2.03 Å --> CYS H  51',
+                                  'CYS I  5 -- 2.03 Å --> CYS I  55',
+                                  'CYS I  14 -- 2.03 Å --> CYS I  38',
+                                  'CYS I  30 -- 2.03 Å --> CYS I  51',
+                                  'CYS J  5 -- 2.02 Å --> CYS J  55',
+                                  'CYS J  14 -- 2.02 Å --> CYS J  38',
+                                  'CYS J  30 -- 2.01 Å --> CYS J  51'],
+                   'First Release': '05-JUN-98',
+                   'Function': 'PROTEASE INHIBITOR',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'Residues': {'A': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'B': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'C': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'D': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'E': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'F': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'G': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'H': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'I': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)],
+                                            'J': [('GLY', 57),
+                                                  ('ALA', 58),
+                                                  ('Count', 2)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 20,
+                                                             'SCN': 2},
+                                                       'B': {'HOH': 14,
+                                                             'SCN': 2},
+                                                       'C': {'HOH': 14,
+                                                             'SCN': 1},
+                                                       'D': {'HOH': 7},
+                                                       'E': {'HOH': 6},
+                                                       'F': {'HOH': 10,
+                                                             'SCN': 2},
+                                                       'G': {'HOH': 11},
+                                                       'H': {'HOH': 4,
+                                                             'SCN': 1},
+                                                       'I': {'HOH': 9,
+                                                             'SCN': 2},
+                                                       'J': {'HOH': 23}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'B': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'C': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'D': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'E': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'F': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'G': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'H': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'I': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')},
+                                        'J': {'RESIDUES': ('ALA: 5, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 5, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 56',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 42.9%')}},
+                   'Models': '1',
+                   'Molecule': 'BOVINE PANCREATIC TRYPSIN INHIBITOR',
+                   'Resolution': '2.70 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:58, B:58, C:58, D:58, E:58, '
+                                     'F:58, G:58, H:58, I:58, J:58; Total: 580',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE SCN F 59',
+                                     'GLN F  31',
+                                     'THR F  32',
+                                     'ARG G  39',
+                                     'ALA G  40'],
+                             'AC2': ['BINDING SITE FOR RESIDUE SCN B 59',
+                                     'GLN B  31',
+                                     'THR B  32',
+                                     'ARG J  53'],
+                             'AC3': ['BINDING SITE FOR RESIDUE SCN C 59',
+                                     'ARG C  53',
+                                     'GLN I  31',
+                                     'THR I  32',
+                                     'ALA J  40',
+                                     'HOH J  66'],
+                             'AC4': ['BINDING SITE FOR RESIDUE SCN B 60',
+                                     'SER B  47',
+                                     'ALA B  48',
+                                     'GLU B  49',
+                                     'HOH C  62',
+                                     'TYR J  21',
+                                     'ALA J  48'],
+                             'AC5': ['BINDING SITE FOR RESIDUE SCN I 59',
+                                     'ALA C  48',
+                                     'TYR I  21',
+                                     'ALA I  48',
+                                     'LYS J  46'],
+                             'AC6': ['BINDING SITE FOR RESIDUE SCN A 59',
+                                     'LYS A  46',
+                                     'TYR E  21',
+                                     'ALA E  48',
+                                     'ALA G  48'],
+                             'AC7': ['BINDING SITE FOR RESIDUE SCN A 60',
+                                     'SER A  47',
+                                     'ALA A  48',
+                                     'GLU A  49',
+                                     'HOH A  71',
+                                     'TYR F  21',
+                                     'ALA F  48',
+                                     'LYS G  46'],
+                             'AC8': ['BINDING SITE FOR RESIDUE SCN I 60',
+                                     'SER D  47',
+                                     'LYS I  46'],
+                             'AC9': ['BINDING SITE FOR RESIDUE SCN F 60',
+                                     'LYS B  46',
+                                     'LYS F  46'],
+                             'BC1': ['BINDING SITE FOR RESIDUE SCN H 59',
+                                     'SER E  47',
+                                     'LYS H  46',
+                                     'SER H  47']},
+                   'Total cofactors': 10,
+                   'Total waters': 118}}

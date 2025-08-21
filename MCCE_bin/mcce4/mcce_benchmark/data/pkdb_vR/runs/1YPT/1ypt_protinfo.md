@@ -1,0 +1,56 @@
+---
+# 1YPT :: Crystal Structure Of Yersinia Protein Tyrosine Phosphatase At 2.5 Angstroms And The Complex With Tungstate;
+## PDB.Structure
+### Function: HYDROLASE
+### First Release: 16-SEP-94
+### Method: X-RAY DIFFRACTION
+### Resolution: 2.50 ANGSTROMS.
+### Molecule: PROTEIN-TYROSINE PHOSPHATASE YERSINIA (CATALYTIC DOMAIN)
+### Seqres Species: Residues: A:305, B:305; Total: 610
+### Total waters: 65
+### Missing:
+  - Residues:
+ 'A': [('ARG', 164), ('GLU', 165), ('ARG', 166), ('PRO', 167), ('HIS', 168), ('THR', 169), ('SER', 170), ('GLY', 171), ('HIS', 172), ('HIS', 173), ('GLY', 174), ('ALA', 175), ('GLY', 176), ('GLU', 177), ('ALA', 178), ('ARG', 179), ('ALA', 180), ('THR', 181), ('ALA', 182), ('PRO', 183), ('SER', 184), ('THR', 185), ('VAL', 186), ('SER', 187), ('PRO', 188), ('TYR', 189), ('GLY', 190), ('Count', 27)],
+ 'B': [('ARG', 164), ('GLU', 165), ('ARG', 166), ('PRO', 167), ('HIS', 168), ('THR', 169), ('SER', 170), ('GLY', 171), ('HIS', 172), ('HIS', 173), ('GLY', 174), ('ALA', 175), ('GLY', 176), ('GLU', 177), ('ALA', 178), ('ARG', 179), ('ALA', 180), ('THR', 181), ('ALA', 182), ('PRO', 183), ('SER', 184), ('THR', 185), ('VAL', 186), ('SER', 187), ('PRO', 188), ('Count', 25)]
+
+### Biounits: DIMERIC: A, B;
+### Models: 1
+### Chains: A, B
+### Model 1 Residues:
+  - A:
+ 'RESIDUES': ('ALA: 25, ARG: 23, ASN: 14, ASP: 14, CYS: 5, GLN: 21, GLU: 14, GLY: 18, HIS: 3, ILE: 12, LEU: 24, LYS: 9, MET: 11, PHE: 4, PRO: 10, SER: 23, THR: 19, TRP: 1, TYR: 7, VAL: 21', 'Total: 278', 'Ionizable: 75',
+              'Ratio: 27.0%')
+  - B:
+ 'RESIDUES': ('ALA: 25, ARG: 23, ASN: 14, ASP: 14, CYS: 5, GLN: 21, GLU: 14, GLY: 19, HIS: 3, ILE: 12, LEU: 24, LYS: 9, MET: 11, PHE: 4, PRO: 10, SER: 23, THR: 19, TRP: 1, TYR: 8, VAL: 21', 'Total: 280', 'Ionizable: 76',
+              'Ratio: 27.1%')
+
+### Model 1 Free Cofactors & Waters:
+  - A:
+ 'HOH': 36
+  - B:
+ 'HOH': 29
+
+### Sites:
+  - APL: ['THE PHOSPHATE BINDING LOOP WHICH IS BELIEVED TO', 'HIS A 402', 'CYS A 403', 'ARG A 404', 'ALA A 405', 'GLY A 406', 'VAL A 407', 'GLY A 408', 'ARG A 409', 'THR A 410']
+  - BPL: ['THE PHOSPHATE BINDING LOOP WHICH IS BELIEVED TO', 'HIS B 402', 'CYS B 403', 'ARG B 404', 'ALA B 405', 'GLY B 406', 'VAL B 407', 'GLY B 408', 'ARG B 409', 'THR B 410']
+  - WPD: ['THE FLEXIBLE LOOP FROM MOLECULE B CONTAINING THE', 'HIS B 350', 'VAL B 351', 'GLY B 352', 'ASN B 353', 'TRP B 354', 'PRO B 355', 'ASP B 356', 'GLN B 357', 'THR B 358', 'ALA B 359', 'VAL B 360']
+
+## MCCE.Step1
+### Termini:
+ - <strong>NTR</strong>: "PRO A 191", "TYR B 189"
+ - <strong>CTR</strong>: "SER A 468", "SER B 468"
+
+### Free Cofactors:
+  - NOTE: Include the '--wet' option at the command line to keep buried waters and cofactors. Alternatively, change the water SAS cutoff to a non-zero, positive number using the command line 'u' option:
+  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05
+  - Total deleted cofactors = 65.
+
+### Distance Clashes:
+<details><summary>Clashes found</summary>
+
+- d= 1.52: " CA  NTR A 191" to " CB  PRO A 191"
+- d= 1.46: " N   NTR A 191" to " CD  PRO A 191"
+- d= 1.54: " CA  NTR B 189" to " CB  TYR B 189"
+
+</details>
+

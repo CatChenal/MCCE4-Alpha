@@ -1,0 +1,85 @@
+---
+# 3P75 :: Crystal Structure Of Staphylococcal Nuclease Variant Delta+Phs V104D At Cryogenic Temperature;
+## PDB.Structure
+### Function: HYDROLASE
+### First Release: 12-OCT-10
+### Method: X-RAY DIFFRACTION
+### Resolution: 1.90 ANGSTROMS.
+### Molecule: THERMONUCLEASE
+### Seqres Species: Residues: A:129; Total: 129
+### Cofactors:
+  -  CA:
+ 'CALCIUM ION', 2
+  - THP:
+ "THYMIDINE-3',5'-DIPHOSPHATE", 1
+
+### Total cofactors: 3
+### Total waters: 54
+### Biounits: MONOMERIC: A;
+### Models: 1
+### Chains: A
+### Model 1 Residues:
+  - A:
+ 'RESIDUES': ('ALA: 13, ARG: 5, ASN: 6, ASP: 7, GLN: 5, GLU: 11, GLY: 9, HIS: 2, ILE: 5, LEU: 12, LYS: 18, MET: 4, PHE: 4, PRO: 4, SER: 2, THR: 7, TRP: 1, TYR: 7, VAL: 7', 'Total: 129', 'Ionizable: 50',
+              'Ratio: 38.8%')
+
+### Model 1 Free Cofactors & Waters:
+  - A:
+ 'HOH': 54, 'THP': 1, '_CA': 2
+
+### Links:
+  - CA  CA A  1 -- 2.43 Å --> OD2 ASP A 21
+  - CA  CA A  1 -- 2.30 Å --> OD1 ASP A 40
+  - CA  CA A  1 -- 2.47 Å --> O  THR A 41
+  - CA  CA A  1 -- 2.35 Å --> O  HOH A 162
+  - CA  CA A  1 -- 2.59 Å --> O  HOH A 163
+  - CA  CA A  1 -- 2.24 Å --> O  HOH A 177
+  - CA  CA A  1 -- 2.21 Å --> O  HOH A 191
+  - OD2 ASP A 19 -- 2.80 Å --> CA  CA A 143
+  - OD1 ASP A 19 -- 2.85 Å --> CA  CA A 143
+  - OD1 ASP A 21 -- 2.23 Å --> CA  CA A 143
+  - OG1ATHR A 22 -- 2.67 Å --> CA  CA A 143
+  - O5P THP A 142 -- 2.32 Å --> CA  CA A 143
+  - CA  CA A 143 -- 2.27 Å --> O  HOH A 166
+  - CA  CA A 143 -- 2.31 Å --> O  HOH A 177
+
+### Sites:
+  - AC1: ['BINDING SITE FOR RESIDUE CA A 1', 'ASP A  21', 'ASP A  40', 'THR A  41', 'HOH A 162', 'HOH A 163', 'HOH A 177', 'HOH A 191']
+  - AC2: ['BINDING SITE FOR RESIDUE THP A 142', 'ASP A  21', 'THR A  22', 'ARG A  35', 'LEU A  36', 'ASP A  83', 'LYS A  84', 'TYR A  85', 'ARG A  87', 'LEU A  89', 'TYR A 113', 'LYS A 127', 'CA A 143', 'HOH A 147', 'HOH A 162', 'HOH A 165', 'HOH A 169', 'HOH A 177', 'HOH A 183', 'HOH A 188']
+  - AC3: ['BINDING SITE FOR RESIDUE CA A 143', 'ASP A  19', 'ASP A  21', 'THR A  22', 'THP A 142', 'HOH A 166', 'HOH A 177']
+
+## MCCE.Step1
+### Renamed:
+  - "CA    CA A   1" to "CA   _CA A   1"
+  - "CA    CA A 143" to "CA   _CA A 143"
+
+### Termini:
+ - <strong>NTR</strong>: "LEU A   7"
+ - <strong>CTR</strong>: "SER A 141"
+
+### Labeling:
+<strong><font color='red'>Generic topology file created for:</font></strong>  
+THP: https://pubchem.ncbi.nlm.nih.gov/#query=THP&tab=substance; 
+
+### Free Cofactors:
+  - Removed all 54 HOH in A.
+  - NOTE: Include the '--wet' option at the command line to keep buried waters and cofactors. Alternatively, change the water SAS cutoff to a non-zero, positive number using the command line 'u' option:
+  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05
+  - Total deleted cofactors = 54.
+  - Species and properties with assigned default values in debug.log:
+
+  - _CA+2: ['VDW_RAD', 'VDW_EPS']
+
+  - THPBK: ['VDW_RAD', 'VDW_EPS']
+
+
+### Missing Heavy Atoms:
+  -    Missing heavy atoms for CTR01 in "CTR A 141":   OXT
+
+### Distance Clashes:
+<details><summary>Clashes found</summary>
+
+- d= 1.54: " CA  NTR A   7" to " CB  LEU A   7"
+
+</details>
+

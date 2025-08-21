@@ -1,0 +1,85 @@
+### This is a temporary parameter file made for residue P4P ###
+### Make sure that all the parameters are verified before using this file as a global parameter file ###
+
+CONFLIST P4P        P4PBK 
+
+NATOM    P4PBK      25
+
+IATOM    P4PBK  P      0
+IATOM    P4PBK  C1A    1
+IATOM    P4PBK  C2A    2
+IATOM    P4PBK  C3A    3
+IATOM    P4PBK  C4A    4
+IATOM    P4PBK  C5A    5
+IATOM    P4PBK  C6A    6
+IATOM    P4PBK  C1C    7
+IATOM    P4PBK  C6C    8
+IATOM    P4PBK  C5C    9
+IATOM    P4PBK  C4C   10
+IATOM    P4PBK  C3C   11
+IATOM    P4PBK  C2C   12
+IATOM    P4PBK  C1D   13
+IATOM    P4PBK  C6D   14
+IATOM    P4PBK  C5D   15
+IATOM    P4PBK  C4D   16
+IATOM    P4PBK  C3D   17
+IATOM    P4PBK  C2D   18
+IATOM    P4PBK  C6B   19
+IATOM    P4PBK  C5B   20
+IATOM    P4PBK  C4B   21
+IATOM    P4PBK  C3B   22
+IATOM    P4PBK  C2B   23
+IATOM    P4PBK  C1B   24
+
+ATOMNAME P4PBK    0  P  
+ATOMNAME P4PBK    1  C1A
+ATOMNAME P4PBK    2  C2A
+ATOMNAME P4PBK    3  C3A
+ATOMNAME P4PBK    4  C4A
+ATOMNAME P4PBK    5  C5A
+ATOMNAME P4PBK    6  C6A
+ATOMNAME P4PBK    7  C1C
+ATOMNAME P4PBK    8  C6C
+ATOMNAME P4PBK    9  C5C
+ATOMNAME P4PBK   10  C4C
+ATOMNAME P4PBK   11  C3C
+ATOMNAME P4PBK   12  C2C
+ATOMNAME P4PBK   13  C1D
+ATOMNAME P4PBK   14  C6D
+ATOMNAME P4PBK   15  C5D
+ATOMNAME P4PBK   16  C4D
+ATOMNAME P4PBK   17  C3D
+ATOMNAME P4PBK   18  C2D
+ATOMNAME P4PBK   19  C6B
+ATOMNAME P4PBK   20  C5B
+ATOMNAME P4PBK   21  C4B
+ATOMNAME P4PBK   22  C3B
+ATOMNAME P4PBK   23  C2B
+ATOMNAME P4PBK   24  C1B
+
+CONNECT  P4PBK  P   ion        0    C1A  0    C1C  0    C1D  0    C1B
+CONNECT  P4PBK  C1A ion        0    P    0    C2A  0    C6A
+CONNECT  P4PBK  C2A ion        0    C1A  0    C3A
+CONNECT  P4PBK  C3A ion        0    C2A  0    C4A
+CONNECT  P4PBK  C4A ion        0    C3A  0    C5A
+CONNECT  P4PBK  C5A ion        0    C4A  0    C6A
+CONNECT  P4PBK  C6A ion        0    C1A  0    C5A
+CONNECT  P4PBK  C1C ion        0    P    0    C6C  0    C2C
+CONNECT  P4PBK  C6C ion        0    C1C  0    C5C
+CONNECT  P4PBK  C5C ion        0    C6C  0    C4C
+CONNECT  P4PBK  C4C ion        0    C5C  0    C3C
+CONNECT  P4PBK  C3C ion        0    C4C  0    C2C
+CONNECT  P4PBK  C2C ion        0    C1C  0    C3C
+CONNECT  P4PBK  C1D ion        0    P    0    C6D  0    C2D
+CONNECT  P4PBK  C6D ion        0    C1D  0    C5D
+CONNECT  P4PBK  C5D ion        0    C6D  0    C4D
+CONNECT  P4PBK  C4D ion        0    C5D  0    C3D
+CONNECT  P4PBK  C3D ion        0    C4D  0    C2D
+CONNECT  P4PBK  C2D ion        0    C1D  0    C3D
+CONNECT  P4PBK  C6B ion        0    C5B  0    C1B
+CONNECT  P4PBK  C5B ion        0    C6B  0    C4B
+CONNECT  P4PBK  C4B ion        0    C5B  0    C3B
+CONNECT  P4PBK  C3B ion        0    C4B  0    C2B
+CONNECT  P4PBK  C2B ion        0    C3B  0    C1B
+CONNECT  P4PBK  C1B ion        0    P    0    C6B  0    C2B
+

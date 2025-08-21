@@ -1,0 +1,40 @@
+# prot dict 
+{'Name': '1QH7 :: Catalysis And Specificity In Enzymatic Glycoside Hydrolases: '
+         'A 2,5B Conformation For The Glycosyl-Enzyme Intermidiate Revealed By '
+         'The; Structure Of The Bacillus Agaradhaerens Family 11 Xylanase;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A,B;',
+                   'Chains': 'A',
+                   'Cofactors': {'PCA': ('PYROGLUTAMIC ACID', 2),
+                                 'XYP': ('BETA-D-XYLOSE; D-XYLOSE; XYLOSE', 2)},
+                   'First Release': '11-MAY-99',
+                   'Function': 'HYDROLASE',
+                   'Links': ['C  PCA A  1 -- 1.41 Å --> N  ILE A  2',
+                             'C  PCA B  1 -- 1.39 Å --> N  ILE B  2'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 318,
+                                                             'PCA': 1,
+                                                             'XYP': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 8, ARG: 8, '
+                                                           'ASN: 22, ASP: 8, '
+                                                           'CYS: 1, GLN: 8, '
+                                                           'GLU: 7, GLY: 24, '
+                                                           'HIS: 4, ILE: 12, '
+                                                           'LEU: 9, LYS: 9, '
+                                                           'MET: 5, PHE: 7, '
+                                                           'PRO: 7, SER: 17, '
+                                                           'THR: 16, TRP: 7, '
+                                                           'TYR: 13, VAL: 14',
+                                                           'Total: 206',
+                                                           'Ionizable: 50',
+                                                           'Ratio: 24.3%')}},
+                   'Models': '1',
+                   'Molecule': 'XYLANASE, B-D-XYLANOPYRANOSIDE PRESENT IN THE '
+                               'ACTIVE SITE',
+                   'Resolution': '1.78 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:207, B:207; Total: 414',
+                   'Sites': {'ACA': ['CATALYTIC ACID / BASE', 'GLU A 184'],
+                             'ACB': ['CATALYTIC ACID / BASE', 'GLU B 184'],
+                             'NUA': ['CATALYTIC NUCLEOPHILE', 'GLU A  94'],
+                             'NUB': ['CATALYTIC NUCLEOPHILE', 'GLU B  94']},
+                   'Total cofactors': 4,
+                   'Total waters': 611}}

@@ -1,0 +1,29 @@
+# prot dict 
+{'Name': '4PTI :: The Geometry Of The Reactive Site And Of The Peptide Groups '
+         'In Trypsin, Trypsinogen And Its Complexes With Inhibitors;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Disulfides': ['CYS A  5 -- 2.05 Å --> CYS A  55',
+                                  'CYS A  14 -- 2.09 Å --> CYS A  38',
+                                  'CYS A  30 -- 2.02 Å --> CYS A  51'],
+                   'First Release': '27-SEP-82',
+                   'Function': 'PROTEINASE INHIBITOR (TRYPSIN)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 60}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 6, ARG: 6, '
+                                                           'ASN: 3, ASP: 2, '
+                                                           'CYS: 6, GLN: 1, '
+                                                           'GLU: 2, GLY: 6, '
+                                                           'ILE: 2, LEU: 2, '
+                                                           'LYS: 4, MET: 1, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 1, THR: 3, '
+                                                           'TYR: 4, VAL: 1',
+                                                           'Total: 58',
+                                                           'Ionizable: 24',
+                                                           'Ratio: 41.4%')}},
+                   'Models': '1',
+                   'Molecule': 'TRYPSIN INHIBITOR',
+                   'Resolution': '1.50 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:58; Total: 58',
+                   'Total waters': 60}}

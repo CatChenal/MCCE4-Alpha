@@ -1,0 +1,29 @@
+# prot dict 
+{'Name': '2OVO :: The Crystal And Molecular Structure Of The Third Domain Of '
+         'Silver Pheasant Ovomucoid (Omsvp3);',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Disulfides': ['CYS A  8 -- 2.00 Å --> CYS A  38',
+                                  'CYS A  16 -- 2.03 Å --> CYS A  35',
+                                  'CYS A  24 -- 1.99 Å --> CYS A  56'],
+                   'First Release': '11-JUN-85',
+                   'Function': 'PROTEINASE INHIBITOR (KAZAL)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 31}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 4, ARG: 1, '
+                                                           'ASN: 5, ASP: 2, '
+                                                           'CYS: 6, GLU: 3, '
+                                                           'GLY: 4, HIS: 1, '
+                                                           'LEU: 4, LYS: 4, '
+                                                           'MET: 1, PHE: 2, '
+                                                           'PRO: 3, SER: 5, '
+                                                           'THR: 4, TYR: 3, '
+                                                           'VAL: 4',
+                                                           'Total: 56',
+                                                           'Ionizable: 20',
+                                                           'Ratio: 35.7%')}},
+                   'Models': '1',
+                   'Molecule': 'OVOMUCOID THIRD DOMAIN',
+                   'Resolution': '1.50 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:56; Total: 56',
+                   'Total waters': 31}}

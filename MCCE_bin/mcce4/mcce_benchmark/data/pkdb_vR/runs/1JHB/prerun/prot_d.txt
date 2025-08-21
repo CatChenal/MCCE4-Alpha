@@ -1,0 +1,28 @@
+# prot dict 
+{'Name': '1JHB :: Human Glutaredoxin In Fully Reduced Form, Nmr, 20 Structures',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '17-FEB-98',
+                   'Function': 'ELECTRON TRANSPORT',
+                   'Method': 'SOLUTION NMR',
+                   'Missing': {'Residues': {'A': [('MET', 1), ('Count', 1)]}},
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 5, ARG: 5, '
+                                                           'ASN: 3, ASP: 4, '
+                                                           'CYS: 5, GLN: 12, '
+                                                           'GLU: 5, GLY: 8, '
+                                                           'HIS: 1, ILE: 9, '
+                                                           'LEU: 12, LYS: 6, '
+                                                           'PHE: 4, PRO: 5, '
+                                                           'SER: 4, THR: 7, '
+                                                           'TYR: 2, VAL: 8',
+                                                           'Total: 105',
+                                                           'Ionizable: 28',
+                                                           'Ratio: 26.7%')}},
+                   'Models': '1',
+                   'Molecule': 'GLUTAREDOXIN',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:106; Total: 106',
+                   'Sites': {'AVE': ['ACTIVE SITE.',
+                                     'CYS A  23',
+                                     'CYS A  26']}}}

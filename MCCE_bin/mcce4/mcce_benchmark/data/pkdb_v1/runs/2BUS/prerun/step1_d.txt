@@ -1,0 +1,48 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.32: " C_  PCA A   1" to " N   NTG '
+                                     'A   2"',
+                                     'd= 1.92: " SG  CYS A  25" to " SG  CYS '
+                                     'A  57"',
+                                     'end_clash'],
+                'Free Cofactors': ["NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05',
+                                   'Species and properties with assigned '
+                                   'default values in debug.log:\n',
+                                   "PCABK: ['VDW_RAD', 'VDW_EPS']\n",
+                                   "NTG01: ['TORSION']\n"],
+                'Labeling': ['Generic topology file created for',
+                             'PCA: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=PCA&tab=substance; '],
+                'Load Structure': ['   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " N_  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " CA  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " CB  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " CG  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " CD  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " OE  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " C_  PCA A   1".',
+                                   '   Warning: load_pdb(): "Duplicate '
+                                   'backbone atom ignored, " O_  PCA A   1".'],
+                'Missing Heavy Atoms': ['   Missing heavy atoms for CTR01 in '
+                                        '"CTR A  57":   OXT'],
+                'Renamed': ['" C   PCA A   1" to " C_  PCA A   1"',
+                            '" C   PCA A   1" to " C_  PCA A   1"',
+                            '" N   PCA A   1" to " N_  PCA A   1"',
+                            '" N   PCA A   1" to " N_  PCA A   1"',
+                            '" O   PCA A   1" to " O_  PCA A   1"',
+                            '" O   PCA A   1" to " O_  PCA A   1"'],
+                'Termini': [('NTG', ['"GLY A   2"']),
+                            ('CTR', ['"CYS A  57"'])]}}

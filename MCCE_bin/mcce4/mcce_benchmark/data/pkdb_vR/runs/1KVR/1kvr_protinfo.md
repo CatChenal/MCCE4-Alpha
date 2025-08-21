@@ -1,0 +1,70 @@
+---
+# 1KVR :: Udp-Galactose 4-Epimerase Complexed With Udp-Phenol
+## PDB.Structure
+### Function: ISOMERASE
+### First Release: 07-MAR-97
+### Method: X-RAY DIFFRACTION
+### Resolution: 1.90 ANGSTROMS.
+### Molecule: UDP-GALACTOSE 4-EPIMERASE
+### Seqres Species: Residues: A:338; Total: 338
+### Cofactors:
+  -  NA:
+ 'SODIUM ION', 4
+  - NAD:
+ 'NICOTINAMIDE-ADENINE-DINUCLEOTIDE', 1
+  - UDP:
+ "URIDINE-5'-DIPHOSPHATE", 1
+  - EDO:
+ 'ETHYLENE GLYCOL', 1
+  - PEG:
+ 'DI(HYDROXYETHYL)ETHER', 1
+
+### Total cofactors: 8
+### Total waters: 532
+### Biounits: DIMERIC: A;
+### Models: 2
+### Chains: A
+### Model 1 Residues:
+  - A:
+ 'RESIDUES': ('ALA: 27, ARG: 16, ASN: 19, ASP: 24, CYS: 3, GLN: 13, GLU: 14, GLY: 30, HIS: 13, ILE: 18, LEU: 27, LYS: 14, MET: 9, PHE: 9, PRO: 21, SER: 18, THR: 15, TRP: 5, TYR: 14, VAL: 29', 'Total: 338', 'Ionizable: 98',
+              'Ratio: 29.0%')
+
+### Model 1 Free Cofactors & Waters:
+  - A:
+ 'EDO': 1, 'HOH': 532, 'NAD': 1, 'PEG': 1, 'UDP': 1, '_NA': 4
+
+### Links:
+  - OE1 GLN A 91 -- 2.22 Å --> NA  NA A 412
+  - O  ASN A 115 -- 2.66 Å --> NA  NA A 415
+  - O  GLN A 194 -- 2.25 Å --> NA  NA A 413
+  - O  GLN A 334 -- 2.08 Å --> NA  NA A 414
+  - NA  NA A 412 -- 2.52 Å --> O  HOH A 552
+  - NA  NA A 412 -- 2.38 Å --> O  HOH A 553
+  - NA  NA A 412 -- 2.30 Å --> O  HOH A 639
+  - NA  NA A 412 -- 2.45 Å --> O  HOH A 817
+  - NA  NA A 413 -- 2.37 Å --> O  HOH A 467
+  - NA  NA A 413 -- 2.71 Å --> O  HOH A 471
+  - NA  NA A 413 -- 2.12 Å --> O  HOH A 668
+  - NA  NA A 413 -- 3.07 Å --> O  HOH A 672
+  - NA  NA A 413 -- 2.48 Å --> O  HOH A 833
+  - NA  NA A 414 -- 2.54 Å --> O  HOH A 793
+  - NA  NA A 414 -- 2.55 Å --> O  HOH A 794
+  - NA  NA A 414 -- 2.59 Å --> O  HOH A 795
+  - NA  NA A 414 -- 2.60 Å --> O  HOH A 866
+  - NA  NA A 415 -- 2.06 Å --> O  HOH A 518
+  - NA  NA A 415 -- 2.24 Å --> O  HOH A 519
+  - NA  NA A 415 -- 2.57 Å --> O  HOH A 820
+  - NA  NA A 415 -- 2.82 Å --> O  HOH A 821
+  - NA  NA A 415 -- 3.11 Å --> O  HOH A 871
+
+### Sites:
+  - AC1: ['BINDING SITE FOR RESIDUE NA A 412', 'GLN A  91', 'HOH A 552', 'HOH A 553', 'HOH A 636', 'HOH A 639', 'HOH A 817']
+  - AC2: ['BINDING SITE FOR RESIDUE NA A 413', 'GLN A 194', 'HOH A 467', 'HOH A 471', 'HOH A 668', 'HOH A 672', 'HOH A 833']
+  - AC3: ['BINDING SITE FOR RESIDUE NA A 414', 'GLN A 334', 'HOH A 793', 'HOH A 794', 'HOH A 795', 'HOH A 866']
+  - AC4: ['BINDING SITE FOR RESIDUE NA A 415', 'ASN A 115', 'HOH A 518', 'HOH A 519', 'HOH A 820', 'HOH A 821']
+  - AC5: ['BINDING SITE FOR RESIDUE NAD A 340', 'GLY A   7', 'GLY A  10', 'TYR A  11', 'ILE A  12', 'ASP A  31', 'ASN A  32', 'LEU A  33', 'CYS A  34', 'ASN A  35', 'SER A  36', 'GLY A  57', 'ASP A  58', 'ILE A  59', 'PHE A  80', 'ALA A  81', 'GLY A  82', 'LYS A  84', 'ASN A  99', 'SER A 122', 'SER A 123', 'ALA A 124', 'TYR A 149', 'LYS A 153', 'TYR A 177', 'PRO A 180', 'EDO A 410', 'HOH A 429', 'HOH A 456', 'HOH A 474', 'HOH A 523', 'HOH A 643', 'HOH A 651']
+  - AC6: ['BINDING SITE FOR RESIDUE UDP A 341', 'ASN A 179', 'ASN A 198', 'ASN A 199', 'LEU A 200', 'LEU A 215', 'ALA A 216', 'ILE A 217', 'PHE A 218', 'GLY A 229', 'ARG A 231', 'TYR A 233', 'ARG A 292', 'ASP A 295', 'TYR A 299', 'HOH A 534', 'HOH A 535', 'HOH A 583', 'HOH A 649', 'HOH A 678', 'HOH A 775', 'HOH A 781', 'HOH A 798', 'HOH A 829']
+  - AC7: ['BINDING SITE FOR RESIDUE EDO A 410', 'TYR A  11', 'ASN A  35', 'ASP A 192', 'NAD A 340', 'HOH A 430', 'HOH A 666']
+  - AC8: ['BINDING SITE FOR RESIDUE PEG A 411', 'LEU A 250', 'LYS A 253', 'GLU A 309', 'HOH A 731', 'HOH A 852']
+
+### MultiModels: MCCE cannot handle multi-model proteins; Model 1 is parsed by default to obtain basic information, but MCCE4 pdb loader can only handle single model pdbs.

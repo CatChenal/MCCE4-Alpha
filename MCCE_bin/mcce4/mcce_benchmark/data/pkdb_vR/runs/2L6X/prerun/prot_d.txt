@@ -1,0 +1,48 @@
+# prot dict 
+{'Name': '2L6X :: Solution Nmr Structure Of Proteorhodopsin.',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'RET': ('RETINAL', 1)},
+                   'First Release': '29-NOV-10',
+                   'Function': 'PROTON TRANSPORT',
+                   'Links': ['NZ LYS A 231 -- 1.33 Å --> C15 RET A 301'],
+                   'Method': 'SOLUTION NMR',
+                   'Missing': {'Residues': {'A': [('GLY', 253),
+                                                  ('SER', 254),
+                                                  ('HIS', 255),
+                                                  ('HIS', 256),
+                                                  ('HIS', 257),
+                                                  ('HIS', 258),
+                                                  ('HIS', 259),
+                                                  ('HIS', 260),
+                                                  ('Count', 8)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'RET': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 25, ARG: 4, '
+                                                           'ASN: 9, ASP: 8, '
+                                                           'CYS: 3, GLN: 1, '
+                                                           'GLU: 7, GLY: 25, '
+                                                           'HIS: 1, ILE: 17, '
+                                                           'LEU: 26, LYS: 7, '
+                                                           'MET: 10, PHE: 14, '
+                                                           'PRO: 6, SER: 15, '
+                                                           'THR: 13, TRP: 10, '
+                                                           'TYR: 14, VAL: 20',
+                                                           'Total: 235',
+                                                           'Ionizable: 44',
+                                                           'Ratio: 18.7%')}},
+                   'Models': '1',
+                   'Molecule': 'GREEN-LIGHT ABSORBING PROTEORHODOPSIN',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:243; Total: 243',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE RET A 301',
+                                     'TRP A  98',
+                                     'VAL A 133',
+                                     'PHE A 137',
+                                     'ALA A 151',
+                                     'ILE A 154',
+                                     'TRP A 197',
+                                     'TYR A 200',
+                                     'ASP A 227',
+                                     'ASN A 230',
+                                     'LYS A 231']},
+                   'Total cofactors': 1}}

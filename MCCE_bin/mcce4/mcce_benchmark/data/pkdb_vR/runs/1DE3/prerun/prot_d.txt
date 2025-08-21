@@ -1,0 +1,28 @@
+# prot dict 
+{'Name': '1DE3 :: Solution Structure Of The Cytotoxic Ribonuclease '
+         'Alpha-Sarcin',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Disulfides': ['CYS A  6 -- 2.04 Å --> CYS A 148',
+                                  'CYS A  76 -- 2.04 Å --> CYS A 132'],
+                   'First Release': '12-NOV-99',
+                   'Function': 'HYDROLASE',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 5, ARG: 4, '
+                                                           'ASN: 11, ASP: 11, '
+                                                           'CYS: 4, GLN: 3, '
+                                                           'GLU: 6, GLY: 13, '
+                                                           'HIS: 8, ILE: 4, '
+                                                           'LEU: 9, LYS: 20, '
+                                                           'PHE: 6, PRO: 13, '
+                                                           'SER: 9, THR: 11, '
+                                                           'TRP: 2, TYR: 8, '
+                                                           'VAL: 3',
+                                                           'Total: 150',
+                                                           'Ionizable: 61',
+                                                           'Ratio: 40.7%')}},
+                   'Models': '1',
+                   'Molecule': 'RIBONUCLEASE ALPHA-SARCIN',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:150; Total: 150'}}

@@ -1,0 +1,35 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.54: " CA  NTR A   8" to " CB  LEU '
+                                     'A   8"',
+                                     'd= 1.52: " CA  NTR B   7" to " CB  LEU '
+                                     'B   7"',
+                                     'end_clash'],
+                'Free Cofactors': ['Removed all 24 HOH in A.',
+                                   "NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05',
+                                   'Total deleted cofactors = 41.',
+                                   'Species and properties with assigned '
+                                   'default values in debug.log:\n',
+                                   "GOLBK: ['VDW_RAD', 'VDW_EPS']\n"],
+                'Labeling': ['Generic topology file created for',
+                             'GOL: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=GOL&tab=substance; '],
+                'Load Structure': [],
+                'Missing Heavy Atoms': ['   Missing heavy atoms for ASP01 in '
+                                        '"ASP A  52":   CG ,  OD1,  OD2',
+                                        '   Missing heavy atoms for CTR01 in '
+                                        '"CTR A  52":   OXT',
+                                        '   Missing heavy atoms for ASP01 in '
+                                        '"ASP B  52":   CG ,  OD1,  OD2',
+                                        '   Missing heavy atoms for CTR01 in '
+                                        '"CTR B  52":   OXT'],
+                'Renamed': [],
+                'Termini': [('NTR', ['"LEU A   8"', '"LEU B   7"']),
+                            ('CTR', ['"ASP A  52"', '"ASP B  52"'])]}}

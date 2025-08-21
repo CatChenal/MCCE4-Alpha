@@ -1,0 +1,30 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.54: " CA  NTR A   1" to " CB  MET '
+                                     'A   1"',
+                                     'd= 1.85: "HE21 GLN A  35" to " OE2 GLU '
+                                     'A  58"',
+                                     'd= 1.96: " O   TRP A  36" to "HD21 ASN '
+                                     'A  37"',
+                                     'd= 1.85: "HD21 ASN A  80" to " O   CYS '
+                                     'A  88"',
+                                     'd= 1.87: "HE21 GLN A 128" to " OE2 GLU A '
+                                     '132"',
+                                     'd= 1.83: " O   ALA A 143" to "HE21 GLN A '
+                                     '147"',
+                                     'end_clash'],
+                'Free Cofactors': ["NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05'],
+                'Labeling': [],
+                'Load Structure': [],
+                'Missing Heavy Atoms': ['   Missing heavy atoms for CTR01 in '
+                                        '"CTR A 152":   OXT'],
+                'Renamed': [],
+                'Termini': [('NTR', ['"MET A   1"']),
+                            ('CTR', ['"SER A 152"'])]}}

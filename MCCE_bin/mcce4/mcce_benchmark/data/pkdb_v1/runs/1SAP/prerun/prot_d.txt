@@ -1,0 +1,25 @@
+# prot dict 
+{'Name': '1SAP :: Hyperthermophile Protein, Relaxation Matrix Refinement '
+         'Structure',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '25-APR-95',
+                   'Function': 'DNA BINDING PROTEIN',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 4, ARG: 4, '
+                                                           'ASN: 1, ASP: 5, '
+                                                           'GLU: 7, GLY: 5, '
+                                                           'ILE: 1, LEU: 3, '
+                                                           'LYS: 14, MET: 3, '
+                                                           'PHE: 2, PRO: 1, '
+                                                           'SER: 3, THR: 3, '
+                                                           'TRP: 1, TYR: 2, '
+                                                           'VAL: 7',
+                                                           'Total: 66',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 48.5%')}},
+                   'Models': '1',
+                   'Molecule': 'SAC7D',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:66; Total: 66'}}

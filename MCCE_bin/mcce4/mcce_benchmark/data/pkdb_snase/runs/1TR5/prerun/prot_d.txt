@@ -1,0 +1,66 @@
+# prot dict 
+{'Name': '1TR5 :: Room Temperature Structure Of Staphylococcal Nuclease '
+         'Variant Truncated Delta+Phs I92E;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {' CA': ('CALCIUM ION', 1),
+                                 'THP': ("THYMIDINE-3',5'-DIPHOSPHATE", 1)},
+                   'First Release': '20-JUN-04',
+                   'Function': 'HYDROLASE',
+                   'Links': ['OD2 ASP A 21 -- 2.82 Å --> CA  CA A 301',
+                             'OD1 ASP A 40 -- 2.91 Å --> CA  CA A 301',
+                             'O  THR A 41 -- 2.92 Å --> CA  CA A 301',
+                             'OE1 GLU A 43 -- 3.38 Å --> CA  CA A 301',
+                             'O4P THP A 300 -- 3.04 Å --> CA  CA A 301'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'Residues': {'A': [('ALA', 1),
+                                                  ('THR', 2),
+                                                  ('SER', 3),
+                                                  ('THR', 4),
+                                                  ('LYS', 5),
+                                                  ('GLU', 142),
+                                                  ('ASP', 143),
+                                                  ('ASN', 144),
+                                                  ('Count', 8)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 32,
+                                                             'THP': 1,
+                                                             '_CA': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 13, ARG: 5, '
+                                                           'ASN: 6, ASP: 6, '
+                                                           'GLN: 5, GLU: 12, '
+                                                           'GLY: 9, HIS: 2, '
+                                                           'ILE: 4, LEU: 12, '
+                                                           'LYS: 19, MET: 4, '
+                                                           'PHE: 4, PRO: 4, '
+                                                           'SER: 2, THR: 7, '
+                                                           'TRP: 1, TYR: 7, '
+                                                           'VAL: 8',
+                                                           'Total: 130',
+                                                           'Ionizable: 51',
+                                                           'Ratio: 39.2%')}},
+                   'Models': '1',
+                   'Molecule': 'THERMONUCLEASE',
+                   'Resolution': '2.10 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:138; Total: 138',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE CA A 301',
+                                     'ASP A  21',
+                                     'ASP A  40',
+                                     'THR A  41',
+                                     'GLU A  43',
+                                     'THP A 300'],
+                             'AC2': ['BINDING SITE FOR RESIDUE THP A 300',
+                                     'ARG A  35',
+                                     'ASP A  40',
+                                     'LYS A  84',
+                                     'TYR A  85',
+                                     'ARG A  87',
+                                     'LEU A  89',
+                                     'TYR A 113',
+                                     'LYS A 127',
+                                     'HOH A 203',
+                                     'HOH A 204',
+                                     'HOH A 211',
+                                     'HOH A 212',
+                                     'CA A 301']},
+                   'Total cofactors': 2,
+                   'Total waters': 32}}

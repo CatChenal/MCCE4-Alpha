@@ -1,0 +1,587 @@
+# prot dict 
+{'Name': '1NLX :: Crystal Structure Of Phl P 6, A Major Timothy Grass Pollen '
+         'Allergen Co-Crystallized With Zinc;',
+ 'PDB.Structure': {'Biounits': 'TETRADECAMERIC: A, B, C, D, E, F, G, H, I, '
+                               'J,,K, L, M, N; : A, N,B,I, M,D, F,G, K,E, L,I, '
+                               'J,C, D,K, L,E, F,A, B,G, H,M, N;',
+                   'Chains': 'A, B, C, D, E, F, G, H, I, J, K, L, M, N',
+                   'Cofactors': {' ZN': ('ZINC ION', 28),
+                                 'ARS': ('ARSENIC', 7)},
+                   'First Release': '07-JAN-03',
+                   'Function': 'ALLERGEN',
+                   'Links': ['OD2 ASP A 476 -- 2.48 Å --> ZN  ZN A5001',
+                             'NE2 HIS A 477 -- 2.08 Å --> ZN  ZN B5002',
+                             'NE2 HIS A 490 -- 2.09 Å --> ZN  ZN A6001',
+                             'OE1 GLU A 493 -- 2.16 Å --> ZN  ZN N6014',
+                             'OE2 GLU A 503 -- 2.12 Å --> ZN  ZN M5013',
+                             'ND1 HIS A 505 -- 2.07 Å --> ZN  ZN N6014',
+                             'ZN  ZN A5001 -- 2.09 Å --> NE2 HIS B 677',
+                             'ZN  ZN A5001 -- 2.14 Å --> OE2 GLU H1903',
+                             'ZN  ZN A6001 -- 2.19 Å --> OE1 GLU N3093',
+                             'ZN  ZN A6001 -- 2.23 Å --> ND1 HIS N3105',
+                             'OD2 ASP B 676 -- 2.50 Å --> ZN  ZN B5002',
+                             'NE2 HIS B 690 -- 2.07 Å --> ZN  ZN B6002',
+                             'OE1 GLU B 693 -- 2.12 Å --> ZN  ZN H6008',
+                             'OE2 GLU B 703 -- 2.10 Å --> ZN  ZN G5007',
+                             'ND1 HIS B 705 -- 2.01 Å --> ZN  ZN H6008',
+                             'ZN  ZN B5002 -- 2.73 Å --> OE1 GLU N3103',
+                             'ZN  ZN B5002 -- 2.07 Å --> OE2 GLU N3103',
+                             'ZN  ZN B6002 -- 2.17 Å --> OE1 GLU H1893',
+                             'ZN  ZN B6002 -- 2.21 Å --> ND1 HIS H1905',
+                             'OD2 ASP C 876 -- 2.59 Å --> ZN  ZN C5003',
+                             'NE2 HIS C 877 -- 2.07 Å --> ZN  ZN D5004',
+                             'NE2 HIS C 890 -- 2.15 Å --> ZN  ZN C6003',
+                             'OE1 GLU C 893 -- 2.21 Å --> ZN  ZN J6010',
+                             'OE2 GLU C 903 -- 2.11 Å --> ZN  ZN I5009',
+                             'ND1 HIS C 905 -- 2.20 Å --> ZN  ZN J6010',
+                             'ZN  ZN C5003 -- 2.09 Å --> NE2 HIS D1077',
+                             'ZN  ZN C5003 -- 2.07 Å --> OE2 GLU F1503',
+                             'ZN  ZN C6003 -- 2.04 Å --> OE1 GLU J2293',
+                             'ZN  ZN C6003 -- 2.09 Å --> ND1 HIS J2305',
+                             'OD1 ASP D1076 -- 2.75 Å --> ZN  ZN D5004',
+                             'OD2 ASP D1076 -- 2.45 Å --> ZN  ZN D5004',
+                             'NE2 HIS D1090 -- 2.12 Å --> ZN  ZN D6004',
+                             'OE1 GLU D1093 -- 2.17 Å --> ZN  ZN F6006',
+                             'OE2 GLU D1103 -- 2.08 Å --> ZN  ZN E5005',
+                             'ND1 HIS D1105 -- 2.07 Å --> ZN  ZN F6006',
+                             'ZN  ZN D5004 -- 1.98 Å --> OE2 GLU J2303',
+                             'ZN  ZN D6004 -- 2.20 Å --> OE1 GLU F1493',
+                             'ZN  ZN D6004 -- 2.07 Å --> ND1 HIS F1505',
+                             'OD2 ASP E1276 -- 2.59 Å --> ZN  ZN E5005',
+                             'NE2 HIS E1277 -- 2.12 Å --> ZN  ZN F5006',
+                             'NE2 HIS E1290 -- 2.19 Å --> ZN  ZN E6005',
+                             'OE1 GLU E1293 -- 2.22 Å --> ZN  ZN L6012',
+                             'OE2 GLU E1303 -- 2.12 Å --> ZN  ZN K5011',
+                             'ND1 HIS E1305 -- 2.22 Å --> ZN  ZN L6012',
+                             'ZN  ZN E5005 -- 2.09 Å --> NE2 HIS F1477',
+                             'ZN  ZN E6005 -- 2.07 Å --> OE1 GLU L2693',
+                             'ZN  ZN E6005 -- 2.11 Å --> ND1 HIS L2705',
+                             'OD2 ASP F1476 -- 2.49 Å --> ZN  ZN F5006',
+                             'NE2 HIS F1490 -- 2.14 Å --> ZN  ZN F6006',
+                             'ZN  ZN F5006 -- 2.05 Å --> OE2 GLU L2703',
+                             'OD2 ASP G1676 -- 2.48 Å --> ZN  ZN G5007',
+                             'NE2 HIS G1677 -- 2.16 Å --> ZN  ZN H5008',
+                             'NE2 HIS G1690 -- 2.19 Å --> ZN  ZN G6007',
+                             'OE1 GLU G1693 -- 2.19 Å --> ZN  ZN K6011',
+                             'OE2 GLU G1703 -- 2.07 Å --> ZN  ZN L5012',
+                             'ND1 HIS G1705 -- 2.17 Å --> ZN  ZN K6011',
+                             'ZN  ZN G5007 -- 2.09 Å --> NE2 HIS H1877',
+                             'ZN  ZN G6007 -- 2.11 Å --> OE1 GLU K2493',
+                             'ZN  ZN G6007 -- 2.09 Å --> ND1 HIS K2505',
+                             'OD2 ASP H1876 -- 2.51 Å --> ZN  ZN H5008',
+                             'NE2 HIS H1890 -- 2.13 Å --> ZN  ZN H6008',
+                             'ZN  ZN H5008 -- 2.05 Å --> OE2 GLU K2503',
+                             'OD2 ASP I2076 -- 2.49 Å --> ZN  ZN I5009',
+                             'NE2 HIS I2077 -- 2.06 Å --> ZN  ZN J5010',
+                             'NE2 HIS I2090 -- 2.15 Å --> ZN  ZN I6009',
+                             'OE1 GLU I2093 -- 2.06 Å --> ZN  ZN M6013',
+                             'OE2 GLU I2103 -- 2.07 Å --> ZN  ZN N5014',
+                             'ND1 HIS I2105 -- 2.08 Å --> ZN  ZN M6013',
+                             'ZN  ZN I5009 -- 2.02 Å --> NE2 HIS J2277',
+                             'ZN  ZN I6009 -- 2.16 Å --> OE1 GLU M2893',
+                             'ZN  ZN I6009 -- 2.19 Å --> ND1 HIS M2905',
+                             'OD2 ASP J2276 -- 2.36 Å --> ZN  ZN J5010',
+                             'NE2 HIS J2290 -- 2.14 Å --> ZN  ZN J6010',
+                             'ZN  ZN J5010 -- 2.03 Å --> OE2 GLU M2903',
+                             'OD2 ASP K2476 -- 2.50 Å --> ZN  ZN K5011',
+                             'NE2 HIS K2477 -- 2.13 Å --> ZN  ZN L5012',
+                             'NE2 HIS K2490 -- 2.12 Å --> ZN  ZN K6011',
+                             'ZN  ZN K5011 -- 2.02 Å --> NE2 HIS L2677',
+                             'OD2 ASP L2676 -- 2.30 Å --> ZN  ZN L5012',
+                             'NE2 HIS L2690 -- 2.15 Å --> ZN  ZN L6012',
+                             'OD2 ASP M2876 -- 2.51 Å --> ZN  ZN M5013',
+                             'NE2 HIS M2877 -- 2.17 Å --> ZN  ZN N5014',
+                             'NE2 HIS M2890 -- 2.15 Å --> ZN  ZN M6013',
+                             'ZN  ZN M5013 -- 2.00 Å --> NE2 HIS N3077',
+                             'OD2 ASP N3076 -- 2.53 Å --> ZN  ZN N5014',
+                             'NE2 HIS N3090 -- 2.19 Å --> ZN  ZN N6014'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'Residues': {'A': [('MET', 401),
+                                                  ('GLY', 402),
+                                                  ('LYS', 403),
+                                                  ('LYS', 508),
+                                                  ('PRO', 509),
+                                                  ('GLY', 510),
+                                                  ('ALA', 511),
+                                                  ('Count', 7)],
+                                            'B': [('MET', 601),
+                                                  ('GLY', 602),
+                                                  ('LYS', 603),
+                                                  ('LYS', 708),
+                                                  ('PRO', 709),
+                                                  ('GLY', 710),
+                                                  ('ALA', 711),
+                                                  ('Count', 7)],
+                                            'C': [('MET', 801),
+                                                  ('GLY', 802),
+                                                  ('LYS', 803),
+                                                  ('LYS', 908),
+                                                  ('PRO', 909),
+                                                  ('GLY', 910),
+                                                  ('ALA', 911),
+                                                  ('Count', 7)],
+                                            'D': [('MET', 1001),
+                                                  ('GLY', 1002),
+                                                  ('LYS', 1003),
+                                                  ('LYS', 1108),
+                                                  ('PRO', 1109),
+                                                  ('GLY', 1110),
+                                                  ('ALA', 1111),
+                                                  ('Count', 7)],
+                                            'E': [('MET', 1201),
+                                                  ('GLY', 1202),
+                                                  ('LYS', 1203),
+                                                  ('LYS', 1308),
+                                                  ('PRO', 1309),
+                                                  ('GLY', 1310),
+                                                  ('ALA', 1311),
+                                                  ('Count', 7)],
+                                            'F': [('MET', 1401),
+                                                  ('GLY', 1402),
+                                                  ('LYS', 1403),
+                                                  ('LYS', 1508),
+                                                  ('PRO', 1509),
+                                                  ('GLY', 1510),
+                                                  ('ALA', 1511),
+                                                  ('Count', 7)],
+                                            'G': [('MET', 1601),
+                                                  ('GLY', 1602),
+                                                  ('LYS', 1603),
+                                                  ('LYS', 1708),
+                                                  ('PRO', 1709),
+                                                  ('GLY', 1710),
+                                                  ('ALA', 1711),
+                                                  ('Count', 7)],
+                                            'H': [('MET', 1801),
+                                                  ('GLY', 1802),
+                                                  ('LYS', 1803),
+                                                  ('LYS', 1908),
+                                                  ('PRO', 1909),
+                                                  ('GLY', 1910),
+                                                  ('ALA', 1911),
+                                                  ('Count', 7)],
+                                            'I': [('MET', 2001),
+                                                  ('GLY', 2002),
+                                                  ('LYS', 2003),
+                                                  ('LYS', 2108),
+                                                  ('PRO', 2109),
+                                                  ('GLY', 2110),
+                                                  ('ALA', 2111),
+                                                  ('Count', 7)],
+                                            'J': [('MET', 2201),
+                                                  ('GLY', 2202),
+                                                  ('LYS', 2203),
+                                                  ('LYS', 2308),
+                                                  ('PRO', 2309),
+                                                  ('GLY', 2310),
+                                                  ('ALA', 2311),
+                                                  ('Count', 7)],
+                                            'K': [('MET', 2401),
+                                                  ('GLY', 2402),
+                                                  ('LYS', 2403),
+                                                  ('LYS', 2508),
+                                                  ('PRO', 2509),
+                                                  ('GLY', 2510),
+                                                  ('ALA', 2511),
+                                                  ('Count', 7)],
+                                            'L': [('MET', 2601),
+                                                  ('GLY', 2602),
+                                                  ('LYS', 2603),
+                                                  ('LYS', 2708),
+                                                  ('PRO', 2709),
+                                                  ('GLY', 2710),
+                                                  ('ALA', 2711),
+                                                  ('Count', 7)],
+                                            'M': [('MET', 2801),
+                                                  ('GLY', 2802),
+                                                  ('LYS', 2803),
+                                                  ('LYS', 2908),
+                                                  ('PRO', 2909),
+                                                  ('GLY', 2910),
+                                                  ('ALA', 2911),
+                                                  ('Count', 7)],
+                                            'N': [('MET', 3001),
+                                                  ('GLY', 3002),
+                                                  ('LYS', 3003),
+                                                  ('LYS', 3108),
+                                                  ('PRO', 3109),
+                                                  ('GLY', 3110),
+                                                  ('ALA', 3111),
+                                                  ('Count', 7)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'_ZN': 2},
+                                                       'B': {'ARS': 1,
+                                                             '_ZN': 2},
+                                                       'C': {'ARS': 1,
+                                                             '_ZN': 2},
+                                                       'D': {'ARS': 1,
+                                                             '_ZN': 2},
+                                                       'E': {'_ZN': 2},
+                                                       'F': {'_ZN': 2},
+                                                       'G': {'_ZN': 2},
+                                                       'H': {'_ZN': 2},
+                                                       'I': {'ARS': 1,
+                                                             '_ZN': 2},
+                                                       'J': {'_ZN': 2},
+                                                       'K': {'ARS': 1,
+                                                             '_ZN': 2},
+                                                       'L': {'ARS': 1,
+                                                             '_ZN': 2},
+                                                       'M': {'_ZN': 2},
+                                                       'N': {'ARS': 1,
+                                                             '_ZN': 2}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'B': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'C': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'D': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'E': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'F': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'G': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'H': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'I': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'J': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'K': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'L': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'M': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')},
+                                        'N': {'RESIDUES': ('ALA: 22, ARG: 3, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 2, GLU: 9, '
+                                                           'GLY: 1, HIS: 3, '
+                                                           'ILE: 3, LEU: 6, '
+                                                           'LYS: 7, MET: 1, '
+                                                           'PHE: 5, PRO: 6, '
+                                                           'SER: 5, THR: 7, '
+                                                           'TYR: 4, VAL: 9',
+                                                           'Total: 104',
+                                                           'Ionizable: 32',
+                                                           'Ratio: 30.8%')}},
+                   'Models': '1',
+                   'Molecule': 'POLLEN ALLERGEN PHL P 6',
+                   'Resolution': '2.80 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:111, B:111, C:111, D:111, '
+                                     'E:111, F:111, G:111, H:111, I:111, '
+                                     'J:111, K:111, L:111, M:111, N:111; '
+                                     'Total: 1554',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE ZN A 5001',
+                                     'ASP A 476',
+                                     'ASN B 673',
+                                     'ASP B 676',
+                                     'HIS B 677',
+                                     'GLU H1903'],
+                             'AC2': ['BINDING SITE FOR RESIDUE ZN B 5002',
+                                     'ASN A 473',
+                                     'ASP A 476',
+                                     'HIS A 477',
+                                     'ASP B 676',
+                                     'GLU N3103'],
+                             'AC3': ['BINDING SITE FOR RESIDUE ZN C 5003',
+                                     'ASP C 876',
+                                     'ASN D1073',
+                                     'ASP D1076',
+                                     'HIS D1077',
+                                     'GLU F1503'],
+                             'AC4': ['BINDING SITE FOR RESIDUE ZN D 5004',
+                                     'ASN C 873',
+                                     'ASP C 876',
+                                     'HIS C 877',
+                                     'ASP D1076',
+                                     'GLU J2303'],
+                             'AC5': ['BINDING SITE FOR RESIDUE ZN E 5005',
+                                     'GLU D1103',
+                                     'ASP E1276',
+                                     'ASN F1473',
+                                     'ASP F1476',
+                                     'HIS F1477'],
+                             'AC6': ['BINDING SITE FOR RESIDUE ZN F 5006',
+                                     'ASN E1273',
+                                     'ASP E1276',
+                                     'HIS E1277',
+                                     'ASP F1476',
+                                     'GLU L2703'],
+                             'AC7': ['BINDING SITE FOR RESIDUE ZN G 5007',
+                                     'GLU B 703',
+                                     'ASP G1676',
+                                     'ASN H1873',
+                                     'ASP H1876',
+                                     'HIS H1877'],
+                             'AC8': ['BINDING SITE FOR RESIDUE ZN H 5008',
+                                     'ASN G1673',
+                                     'ASP G1676',
+                                     'HIS G1677',
+                                     'ASP H1876',
+                                     'GLU K2503'],
+                             'AC9': ['BINDING SITE FOR RESIDUE ZN I 5009',
+                                     'GLU C 903',
+                                     'ASP I2076',
+                                     'ASN J2273',
+                                     'ASP J2276',
+                                     'HIS J2277'],
+                             'BC1': ['BINDING SITE FOR RESIDUE ZN J 5010',
+                                     'ASN I2073',
+                                     'ASP I2076',
+                                     'HIS I2077',
+                                     'ASP J2276',
+                                     'GLU M2903'],
+                             'BC2': ['BINDING SITE FOR RESIDUE ZN K 5011',
+                                     'GLU E1303',
+                                     'ASP K2476',
+                                     'ASN L2673',
+                                     'ASP L2676',
+                                     'HIS L2677'],
+                             'BC3': ['BINDING SITE FOR RESIDUE ZN L 5012',
+                                     'GLU G1703',
+                                     'ASN K2473',
+                                     'ASP K2476',
+                                     'HIS K2477',
+                                     'ASP L2676'],
+                             'BC4': ['BINDING SITE FOR RESIDUE ZN M 5013',
+                                     'GLU A 503',
+                                     'ASP M2876',
+                                     'ASN N3073',
+                                     'ASP N3076',
+                                     'HIS N3077'],
+                             'BC5': ['BINDING SITE FOR RESIDUE ZN N 5014',
+                                     'GLU I2103',
+                                     'ASN M2873',
+                                     'ASP M2876',
+                                     'HIS M2877',
+                                     'ASP N3076'],
+                             'BC6': ['BINDING SITE FOR RESIDUE ZN A 6001',
+                                     'HIS A 490',
+                                     'GLU N3093',
+                                     'HIS N3105',
+                                     'ARS N7001'],
+                             'BC7': ['BINDING SITE FOR RESIDUE ZN B 6002',
+                                     'HIS B 690',
+                                     'ARS B7002',
+                                     'GLU H1893',
+                                     'HIS H1905'],
+                             'BC8': ['BINDING SITE FOR RESIDUE ZN C 6003',
+                                     'HIS C 890',
+                                     'ARS C7003',
+                                     'GLU J2293',
+                                     'HIS J2305'],
+                             'BC9': ['BINDING SITE FOR RESIDUE ZN D 6004',
+                                     'HIS D1090',
+                                     'ARS D7004',
+                                     'GLU F1493',
+                                     'HIS F1505'],
+                             'CC1': ['BINDING SITE FOR RESIDUE ZN E 6005',
+                                     'HIS E1290',
+                                     'GLU L2693',
+                                     'HIS L2705',
+                                     'ARS L7005'],
+                             'CC2': ['BINDING SITE FOR RESIDUE ZN F 6006',
+                                     'GLU D1093',
+                                     'HIS D1105',
+                                     'ARS D7004',
+                                     'HIS F1490'],
+                             'CC3': ['BINDING SITE FOR RESIDUE ZN G 6007',
+                                     'HIS G1690',
+                                     'GLU K2493',
+                                     'HIS K2505',
+                                     'ARS K7007'],
+                             'CC4': ['BINDING SITE FOR RESIDUE ZN H 6008',
+                                     'GLU B 693',
+                                     'HIS B 705',
+                                     'ARS B7002',
+                                     'HIS H1890'],
+                             'CC5': ['BINDING SITE FOR RESIDUE ZN I 6009',
+                                     'HIS I2090',
+                                     'ARS I7009',
+                                     'GLU M2893',
+                                     'HIS M2905'],
+                             'CC6': ['BINDING SITE FOR RESIDUE ZN J 6010',
+                                     'GLU C 893',
+                                     'HIS C 905',
+                                     'ARS C7003',
+                                     'HIS J2290'],
+                             'CC7': ['BINDING SITE FOR RESIDUE ZN K 6011',
+                                     'GLU G1693',
+                                     'HIS G1705',
+                                     'HIS K2490',
+                                     'ARS K7007'],
+                             'CC8': ['BINDING SITE FOR RESIDUE ZN L 6012',
+                                     'GLU E1293',
+                                     'HIS E1305',
+                                     'HIS L2690',
+                                     'ARS L7005'],
+                             'CC9': ['BINDING SITE FOR RESIDUE ZN M 6013',
+                                     'GLU I2093',
+                                     'HIS I2105',
+                                     'ARS I7009',
+                                     'HIS M2890'],
+                             'DC1': ['BINDING SITE FOR RESIDUE ZN N 6014',
+                                     'GLU A 493',
+                                     'HIS A 505',
+                                     'HIS N3090',
+                                     'ARS N7001'],
+                             'DC2': ['BINDING SITE FOR RESIDUE ARS N 7001',
+                                     'ZN A6001',
+                                     'ZN N6014'],
+                             'DC3': ['BINDING SITE FOR RESIDUE ARS B 7002',
+                                     'ZN B6002',
+                                     'ZN H6008'],
+                             'DC4': ['BINDING SITE FOR RESIDUE ARS C 7003',
+                                     'ZN C6003',
+                                     'GLU J2293',
+                                     'ZN J6010'],
+                             'DC5': ['BINDING SITE FOR RESIDUE ARS D 7004',
+                                     'ZN D6004',
+                                     'ZN F6006'],
+                             'DC6': ['BINDING SITE FOR RESIDUE ARS L 7005',
+                                     'ZN E6005',
+                                     'GLU L2693',
+                                     'ZN L6012'],
+                             'DC7': ['BINDING SITE FOR RESIDUE ARS K 7007',
+                                     'GLU G1693',
+                                     'ZN G6007',
+                                     'ZN K6011'],
+                             'DC8': ['BINDING SITE FOR RESIDUE ARS I 7009',
+                                     'GLU I2093',
+                                     'ZN I6009',
+                                     'GLU M2893',
+                                     'ZN M6013']},
+                   'Total cofactors': 35}}

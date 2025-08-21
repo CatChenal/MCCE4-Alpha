@@ -7,7 +7,7 @@ Cli parser with options:
   -dir1: path to run set 1
   -dir2: path to run set 2
   -o: path of output folder
-  --user_pdbs: Absence means 'pkdb_pdbs'
+  --user_pdbs: Absence means 'pkdb_x'
                Flag enabling the creation of the analysis output files
                in each of the sets if analysis folder not found.
                Thus, this switch enables by-passing the 'intra set'
@@ -21,28 +21,30 @@ USAGE:
 
 Flag options:
 1. With 'user_pdbs' flag: the 2 sets were created with 'bench_setup user_pdbs':
-   >bench_compare -dir1 <path to set 1> -dir2 <path to set 2> -o <comp> --user_pdbs
+   > bench_compare -dir1 <path to set 1> -dir2 <path to set 2> -o <comp> --user_pdbs
 
-2. With 'pkdb_pdbs' flag: the 2 sets were created with 'bench_setup pkdb_pdbs':
-   The analysis for these runs outputs pKa stats against the experimental values in pKDBv1.
-   >bench_compare -dir1 <path to set 1> -dir2 <path to set 2> -o <comp> --pkdb_pdbs
+2. With 'pkdb_<dataset name>' flag: the 2 sets were created with 'bench_setup pkdb_<dataset name>':
+   The analysis for these runs outputs pKa stats against the experimental values in the dataset.
+   > bench_compare -dir1 <path to set 1> -dir2 <path to set 2> -o <comp> --pkdb_<dataset name> 
 
-3. With 'dir2_is_refset' flag: indicates that dir2 is a refset name;
-   If used, --pkdb_pdbs must also be present.
-   >bench_compare -dir1 <d1> dir2 parse.e4 -o <comp> --dir2_is_refset --pkdb_pdbs
+3. With 'dir2_is_refset' flag: indicates that dir2 is a stored reference run name;
+   If used, --pkdb_<dataset name> must also be present.
+   > bench_compare -dir1 <d1> dir2 parse.e4 -o <comp> --dir2_is_refset --pkdb_pdbs
 """
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, Namespace
 import logging
-import pandas as pd
 from pathlib import Path
 from typing import Union
 import sys
+
+import pandas as pd
+
 from mcce4.io_utils import files_diff
-from mcce4.mcce_benchmark import BENCH, ENTRY_POINTS, SUB1, SUB2, FILES, cli_opts
-from mcce4.mcce_benchmark import ANALYZE_DIR, RUNS_DIR
-from mcce4.mcce_benchmark import cli_utils as clu, io_utils as iou
-from mcce4.mcce_benchmark.cleanup import clear_folder
+from mcce4.mcce_benchmark import ENTRY_POINTS, SUB1, SUB4, Q_BOOK
+from mcce4.mcce_benchmark import ANALYZE_DIR, RUNS_DIR, FILES, cli_opts
+from mcce4.mcce_benchmark import cli_utils as clu
+from mcce4.mcce_benchmark import io_utils as iou
 from mcce4.mcce_benchmark import mcce_env as mcenv, pkanalysis, plots
 
 
@@ -86,7 +88,7 @@ def get_allsumcrg_diff(
     titr_type = titr_type.lower()
     if titr.lower() != titr_type:
         logger.error("Mismatched titr types in sum_crg files viz runprm.")
-        raise TypeError("Mismatched titr types in sum_crg files viz runprm.")
+        sys.exit("Mismatched titr types in sum_crg files viz runprm.")
 
     prec = 0
     if titr.lower() != "ph":
@@ -131,15 +133,15 @@ def compare_runs(args: Union[dict, Namespace]):
 
     if args.dir2_is_refset and args.subcmd != SUB1:
         logger.error(f"The reference dataset {args.dir2} is only available via {SUB1}.")
-        raise TypeError(
+        sys.exit(
             f"The reference dataset {args.dir2} is only available via {SUB1}."
         )
 
     # check: analysis was run?
     analyze1 = args.dir1.joinpath(ANALYZE_DIR)
-    if not analyze1.exists():
+    if not analyze1.exists() and args.subcmd != SUB4:
         logger.error(f"Analysis folder missing for {args.dir1}.")
-        raise ValueError(f"Analysis folder missing for {args.dir1}.")
+        sys.exit(f"Analysis folder missing for {args.dir1}.")
 
     if args.dir2_is_refset:
         ref_path = mcenv.get_ref_set(args.dir2)
@@ -147,16 +149,18 @@ def compare_runs(args: Union[dict, Namespace]):
     else:
         args.dir2 = Path(args.dir2)
         analyze2 = args.dir2.joinpath(ANALYZE_DIR)
-    if not analyze2.exists():
+
+    if not analyze2.exists() and args.subcmd != SUB4:
         logger.error(f"Analysis folder missing for {args.dir2}.")
-        raise ValueError(f"Analysis folder missing for {args.dir2}.")
+        sys.exit(f"Analysis folder missing for {args.dir2}.")
 
     ok, msg = mcenv.validate_envs(
         args.dir1, args.dir2, subcmd=args.subcmd, dir2_is_refset=args.dir2_is_refset
     )
     if not ok:
         logger.error(f"Runs failed validation:\n{msg}")
-        raise ValueError(f"Runs failed validation:\n{msg}")
+        sys.exit(f"Runs failed validation:\n{msg}")
+
     if ok and msg != "OK":
         logger.warning(f"Runs validation warning:\n{msg}")
 
@@ -180,7 +184,7 @@ def compare_runs(args: Union[dict, Namespace]):
     if not out_dir.exists():
         out_dir.mkdir()
     else:
-        clear_folder(out_dir)
+        iou.clear_folder(out_dir)
         logger.info(f"Cleared comparison output folder: {out_dir}")
 
     # 1. get collated sum_crg.out diff:
@@ -283,28 +287,11 @@ def compare_runs(args: Union[dict, Namespace]):
     return
 
 
-# ........................................................................
 CLI_NAME = ENTRY_POINTS["compare"]  # as per pyproject.toml entry point
-
 DESC = """
 Description:
 Compare two sets of runs, ~ A/B testing; (convention: B is 'reference', i.e.: A - B).
 IMPORTANT: 'bench_analyze' must be run on each set before comparing them.
-
-Options:
-  -dir1: path to run set 1
-  -dir2: path to run set 2
-  -o:    path to output dir
-  --user_pdbs: Absence means 'pkdb_pdbs'
-               Flag enabling the creation of the analysis output files
-               in each of the sets if analysis folder not found.
-               Thus, this switch enables by-passing the 'intra set'
-               analysis files generation using `bench_analyze <sub-command>`.
-
-  --dir2_is_refset: Flag presence indicates that dir2 value is a refset name;
-               If used, --user_pdbs must NOT be present.
-
-  (mce) >bench_compare -dir1 <d1> -dir2 parse.e4 --dir2_is_refset -o output/dir/path
 """
 
 
@@ -317,7 +304,7 @@ def compare_parser():
         formatter_class=RawDescriptionHelpFormatter,
         epilog="""
         Post an issue for all errors and feature requests at:
-        https://github.com/CatChenal/MCCE4/issues
+        https://github.com/GunnerLab/MCCE4/issues
         """,
     )
 
@@ -325,27 +312,25 @@ def compare_parser():
         "-dir1",
         required=True,
         type=clu.arg_valid_dirpath,
-        help="""Path to run set 1.""",
+        help="Path to run set 1.",
     )
     p.add_argument(
         "-dir2",
         required=True,
         type=str,
-        help="""Path to run set 2 OR name of a reference set.""",
+        help="Path to run set 2 OR name of a reference set.",
     )
     p.add_argument(
         "-diff_point",
         default=7.0,
         type=float,
-        help="""
-        Titration point at which the sum_crg diff is calculated;
-        default for pH titrations: %(default)s.""",
+        help="Titration point at which the sum_crg diff is calculated; default for pH titrations: %(default)s.",
     )
     p.add_argument(
         "-o",
         required=True,
         type=clu.arg_valid_dirpath,
-        help="""Path to comparison results folder.""",
+        help="Path to comparison results folder.",
     )
     # cannot have --user_pdbs & --dir2_is_refset together:
     mutex = p.add_mutually_exclusive_group()
@@ -353,20 +338,17 @@ def compare_parser():
         "--user_pdbs",
         default=False,
         action="store_true",
-        help="""
-        Flag enabling the creation of the analysis output files on
-        runs setup with user's pdbs in each of the sets if their analysis
-        folder is not found.
-        Thus, this switch enables the by-passing of the
-        bench_analyze <sub-command> step.
+        help="""Flag used for internal checks; Enables the by-passing of the
+        bench_analyze <pkdb_x> step.
         """,
     )
     mutex.add_argument(
         "--dir2_is_refset",
         default=False,
         action="store_true",
-        help="""
-        Flag presence indicate dir2 holds the NAME of a reference dataset, currently 'parse.e4'.
+        help="""Flag presence indicate dir2 holds the NAME of a reference dataset, currently 'parse.e4'. 
+        If used, --user_pdbs must NOT be present, i.e.: 
+        " > bench_compare -dir1 <d1> -dir2 parse.e4 --dir2_is_refset -o outdir"
         """,
     )
 
@@ -387,7 +369,7 @@ def compare_cli(argv=None):
     for d in [args.dir1, args.dir2]:
         if isinstance(d, Path):
             bench = iou.Pathok(d)
-            pct = iou.pct_completed(bench.joinpath(RUNS_DIR, BENCH.Q_BOOK))
+            pct = iou.pct_completed(bench.joinpath(RUNS_DIR, Q_BOOK))
             if pct < 1.0:
                 logger.info(
                     f"Runs not 100% processed in {d}, try again later; {pct = :.1%}"
@@ -397,12 +379,11 @@ def compare_cli(argv=None):
     # Add subcmd to args to hold inferred comp type:
     subcmd = SUB1
     if args.user_pdbs:
-        subcmd = SUB2
+        subcmd = SUB4
     setattr(args, "subcmd", subcmd)
     env = mcenv.get_run_env(Path(args.dir1), subcmd=subcmd)
     # Add titr to args set:
     setattr(args, "titr", env.runprm["TITR_TYPE"])
-
     compare_runs(args)
 
     return

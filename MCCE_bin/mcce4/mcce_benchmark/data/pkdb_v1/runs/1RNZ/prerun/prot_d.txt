@@ -1,0 +1,43 @@
+# prot dict 
+{'Name': '1RNZ :: Ribonuclease A Crystallized From 2.5M Sodium Chloride, 3.3M '
+         'Sodium Formate;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {' CL': ('CHLORIDE ION', 3)},
+                   'Disulfides': ['CYS A  26 -- 2.00 Å --> CYS A  84',
+                                  'CYS A  40 -- 1.97 Å --> CYS A  95',
+                                  'CYS A  58 -- 2.01 Å --> CYS A 110',
+                                  'CYS A  65 -- 2.00 Å --> CYS A  72'],
+                   'First Release': '08-NOV-96',
+                   'Function': 'ENDONUCLEASE',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 95,
+                                                             '_CL': 3}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 12, ARG: 4, '
+                                                           'ASN: 10, ASP: 5, '
+                                                           'CYS: 8, GLN: 7, '
+                                                           'GLU: 5, GLY: 3, '
+                                                           'HIS: 4, ILE: 3, '
+                                                           'LEU: 2, LYS: 10, '
+                                                           'MET: 4, PHE: 3, '
+                                                           'PRO: 4, SER: 15, '
+                                                           'THR: 10, TYR: 6, '
+                                                           'VAL: 9',
+                                                           'Total: 124',
+                                                           'Ionizable: 42',
+                                                           'Ratio: 33.9%')}},
+                   'Models': '1',
+                   'Molecule': 'RIBONUCLEASE A',
+                   'Resolution': '1.90 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:124; Total: 124',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE CL A 126',
+                                     'ARG A  10',
+                                     'ASN A  34',
+                                     'THR A  78'],
+                             'AC2': ['BINDING SITE FOR RESIDUE CL A 127',
+                                     'THR A  45'],
+                             'AC3': ['BINDING SITE FOR RESIDUE CL A 128',
+                                     'THR A   3',
+                                     'HOH A 219']},
+                   'Total cofactors': 3,
+                   'Total waters': 95}}

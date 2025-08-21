@@ -1,0 +1,27 @@
+# prot dict 
+{'Name': '1BEG :: Structure Of Fungal Elicitor, Nmr, 18 Structures',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Disulfides': ['CYS A  3 -- 2.02 Å --> CYS A  71',
+                                  'CYS A  27 -- 2.02 Å --> CYS A  56',
+                                  'CYS A  51 -- 2.02 Å --> CYS A  95'],
+                   'First Release': '26-NOV-96',
+                   'Function': 'SIGNAL',
+                   'Method': 'SOLUTION NMR',
+                   'Missing': {'ResAtoms': {'A': ['LEU_98=(O)']}},
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 11, ASN: 7, '
+                                                           'ASP: 3, CYS: 6, '
+                                                           'GLN: 4, GLY: 3, '
+                                                           'ILE: 3, LEU: 10, '
+                                                           'LYS: 6, MET: 3, '
+                                                           'PHE: 2, PRO: 4, '
+                                                           'SER: 12, THR: 14, '
+                                                           'TYR: 5, VAL: 5',
+                                                           'Total: 98',
+                                                           'Ionizable: 20',
+                                                           'Ratio: 20.4%')}},
+                   'Models': '1',
+                   'Molecule': 'BETA-ELICITIN CRYPTOGEIN',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:98; Total: 98'}}

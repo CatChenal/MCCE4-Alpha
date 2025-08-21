@@ -1,0 +1,54 @@
+---
+# 1PNT :: Crystal Structure Of Bovine Heart Phosphotyrosyl Phosphatase At 2.2 Angstroms Resolution;
+## PDB.Structure
+### Function: HYDROLASE
+### First Release: 05-AUG-94
+### Method: X-RAY DIFFRACTION
+### Resolution: 2.20 ANGSTROMS.
+### Molecule: ACID PHOSPHATASE
+### Seqres Species: Residues: A:157; Total: 157
+### Cofactors:
+  - PO4:
+ 'PHOSPHATE ION', 1
+
+### Total cofactors: 1
+### Biounits: MONOMERIC: A;
+### Models: 1
+### Chains: A
+### Model 1 Residues:
+  - A:
+ 'RESIDUES': ('ALA: 10, ARG: 12, ASN: 11, ASP: 13, CYS: 8, GLN: 8, GLU: 8, GLY: 6, HIS: 2, ILE: 9, LEU: 11, LYS: 9, MET: 1, PHE: 6, PRO: 5, SER: 10, THR: 6, TRP: 2, TYR: 5, VAL: 15', 'Total: 157', 'Ionizable: 57',
+              'Ratio: 36.3%')
+
+### Model 1 Free Cofactors & Waters:
+  - A:
+ 'PO4': 1
+
+### Sites:
+  - ACT: ['ACTIVE SITE', 'CYS A  12', 'LEU A  13', 'GLY A  14', 'ASN A  15', 'ILE A  16', 'CYS A  17', 'ARG A  18', 'SER A  19']
+  - AC1: ['BINDING SITE FOR RESIDUE PO4 A 158', 'CYS A  12', 'LEU A  13', 'GLY A  14', 'ASN A  15', 'ILE A  16', 'CYS A  17', 'ARG A  18', 'ASP A 129']
+
+## MCCE.Step1
+### Termini:
+ - <strong>NTR</strong>: "ALA A   1"
+ - <strong>CTR</strong>: "ARG A 157"
+
+### Labeling:
+<strong><font color='red'>Generic topology file created for:</font></strong>  
+PO4: https://pubchem.ncbi.nlm.nih.gov/#query=PO4&tab=substance; 
+
+### Free Cofactors:
+  - NOTE: Include the '--wet' option at the command line to keep buried waters and cofactors. Alternatively, change the water SAS cutoff to a non-zero, positive number using the command line 'u' option:
+  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05
+  - Species and properties with assigned default values in debug.log:
+
+  - PO4BK: ['VDW_RAD', 'VDW_EPS']
+
+
+### Distance Clashes:
+<details><summary>Clashes found</summary>
+
+- d= 1.53: " CA  NTR A   1" to " CB  ALA A   1"
+
+</details>
+

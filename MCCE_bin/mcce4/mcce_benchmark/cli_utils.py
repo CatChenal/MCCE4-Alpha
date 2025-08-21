@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 Module: cli_utils.py
 
@@ -10,11 +9,11 @@ for args type/validation.
   - comparison.py
   - batch_submit.py
 """
-
 import logging
 from pathlib import Path
 import shlex
 from typing import Union
+
 from mcce4.mcce_benchmark import N_PDBS
 
 

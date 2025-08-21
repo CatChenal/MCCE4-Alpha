@@ -1,0 +1,58 @@
+# prot dict 
+{'Name': '2RKS :: Crystal Structure Of Staphylococcal Nuclease Variant Phs '
+         'L38K At Cryogenic Temperature;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'PO4': ('PHOSPHATE ION', 2)},
+                   'First Release': '17-OCT-07',
+                   'Function': 'HYDROLASE',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'Residues': {'A': [('ALA', 1),
+                                                  ('THR', 2),
+                                                  ('SER', 3),
+                                                  ('THR', 4),
+                                                  ('LYS', 5),
+                                                  ('LYS', 6),
+                                                  ('GLU', 142),
+                                                  ('ASP', 143),
+                                                  ('ASN', 144),
+                                                  ('ALA', 145),
+                                                  ('ASP', 146),
+                                                  ('SER', 147),
+                                                  ('GLY', 148),
+                                                  ('GLN', 149),
+                                                  ('Count', 14)]}},
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 86,
+                                                             'PO4': 2}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 13, ARG: 5, '
+                                                           'ASN: 5, ASP: 6, '
+                                                           'GLN: 5, GLU: 11, '
+                                                           'GLY: 10, HIS: 3, '
+                                                           'ILE: 5, LEU: 11, '
+                                                           'LYS: 22, MET: 4, '
+                                                           'PHE: 3, PRO: 5, '
+                                                           'SER: 2, THR: 8, '
+                                                           'TRP: 1, TYR: 7, '
+                                                           'VAL: 9',
+                                                           'Total: 135',
+                                                           'Ionizable: 54',
+                                                           'Ratio: 40.0%')}},
+                   'Models': '1',
+                   'Molecule': 'THERMONUCLEASE',
+                   'Resolution': '2.01 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:149; Total: 149',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE PO4 A 251',
+                                     'LYS A  71',
+                                     'LYS A  84',
+                                     'TYR A  85'],
+                             'AC2': ['BINDING SITE FOR RESIDUE PO4 A 252',
+                                     'ARG A  35',
+                                     'LYS A  71',
+                                     'ARG A  87',
+                                     'HOH A 273',
+                                     'HOH A 277',
+                                     'HOH A 330',
+                                     'HOH A 334',
+                                     'HOH A 335']},
+                   'Total cofactors': 2,
+                   'Total waters': 86}}

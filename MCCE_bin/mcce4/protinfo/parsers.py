@@ -29,14 +29,18 @@ from mcce4.protinfo.io_utils import ENV, get_path_keys, retry
 logger = logging.getLogger(__name__)
 
 
-WARN_MULTI_MODELS = """MCCE cannot handle multi-model proteins; Model 1 is parsed by default
-to obtain basic information, but MCCE4 pdb loader can only handle single model pdbs."""
-WARN_MALFORMED_PDB = """MCCE could not parse the pdb into at least one model, possibly due to
-a missing MODEL line."""
-MSG_KEEP_H2O = """NOTE: Include the '--wet' option at the command line to keep buried waters and cofactors. \
-Alternatively, change the water SAS cutoff to a non-zero, positive number using the command line 'u' option:
-  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05
-"""
+WARN_MULTI_MODELS = ("MCCE cannot handle multi-model proteins; Model 1 is parsed by default "
+                     "to obtain basic information, but MCCE4 pdb loader can only handle single "
+                     "model pdbs."
+                     )
+WARN_MALFORMED_PDB = ("MCCE could not parse the pdb into at least one model, possibly "
+                      "due to a missing MODEL line."
+                      )
+MSG_KEEP_H2O = ("NOTE: Include the '--wet' option at the command line to keep buried "
+                "waters and cofactors. Alternatively, change the water SAS cutoff to a "
+                "non-zero, positive number using the command line 'u' option:\n"
+                "  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05"
+                )
 
 # kept from when biopython was used to output buried res;
 # may be useful if/when acc.files are parsed.
@@ -658,9 +662,10 @@ def collect_info(pdb: Path, args: Namespace) -> Tuple[dict, Union[dict, None]]:
     # structural info:
     prot_d = info_input_prot(pdb)
 
-    is_multi = prot_d["PDB.Structure"].get("MultiModels") is not None
-    is_malformed = prot_d["PDB.Structure"].get("Malformed PDB") is not None
-    DO_STEP1 = USER_MCCE is not None and not is_multi and not is_malformed
+    DO_STEP1 = (USER_MCCE is not None
+                and prot_d["PDB.Structure"].get("MultiModels") is None
+                and prot_d["PDB.Structure"].get("UNUSABLE") is None
+    )
 
     if DO_STEP1:
         result = run.do_step1(pdb, args)
@@ -714,11 +719,15 @@ def write_report(pdb: Path, prot_d: dict, s1_d: Union[dict, None]):
                     elif isinstance(subd[h2][k], dict):
                         for kk, vv in subd[h2][k].items():
                             if isinstance(vv, (dict, tuple)):
-                                out = pformat(vv, sort_dicts=True, compact=True, width=160)[1:-1]
+                                if isinstance(vv, dict):
+                                    wid = max(len(str(list(vv.values()))), 100)
+                                else:
+                                    wid = max(len(str(vv)), 100)
+                                out = pformat(vv, sort_dicts=True, compact=True, width=wid)[1:-1]
                                 rpt.write(f"  - {kk}:\n {out}\n")
                             else:
                                 rpt.write(f"  - {kk}: {vv}\n")
-                else:
+                else: 
                     rpt.write(f"### {k}:\n")
                     for val in subd[h2][k]:
                         if k == "Distance Clashes":

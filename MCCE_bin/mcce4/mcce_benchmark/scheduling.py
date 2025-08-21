@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-
 """
 Module: scheduling.py
 
 For automating the crontab creation for scheduling batch_submit every minute.
 """
-
 from argparse import Namespace
 import logging
 from pathlib import Path
@@ -30,10 +28,7 @@ def create_single_crontab(args: Namespace, debug: bool = False) -> Union[None, s
 
     # get_pbe_solver_with_env returns the PBE solvers KNOWN to need a special environment
     pbes = iou.get_pbe_solver_with_env(bdir)
-    if pbes is None or pbes == "NGPB":
-        # NGPB:
-        # system-wide LDLIB setup in batch_submit.py; no special settings in scheduler needed
-        # because of system-wide software install on server
+    if pbes is None or pbes != "ZAP":
         PATH = "PATH={}:{}:/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin/env:/sbin:/bin\n"
         ct_text = PATH.format(USER_MCCE, tools_dir)
 

@@ -11,7 +11,11 @@ import logging
 from pathlib import Path
 import pickle
 from typing import Any, List, Tuple, Union
+import shutil
+
 import pandas as pd
+
+from mcce4.mcce_benchmark import RUNS_DIR
 from mcce4.io_utils import subprocess, subprocess_run
 from mcce4.mcce_benchmark import FILES
 
@@ -215,12 +219,7 @@ def get_setup_args_vals(dirpath: Path, option: Union[str, List[str]]) -> list:
 
 def get_pbe_solver_with_env(dirpath: Path) -> Union[None, str]:
     """Get the pdb solver string from the cli options.
-    Return either 'NGPB' or 'ZAP' as these solvers need
-    special environment, or None for other cases.
-    Notes:
-    `get_pbe_solver_with_env` returns the PBE solvers KNOWN to need a special environment;
-    currently, only NGPB and ZAP need special environment.
-    `get_pbe_solver_with_env` returns only the PBE solvers KNOWN to need a special environment.
+    Return either 'ZAP' as this solver needs a special environment, or None for other cases.
     """
     vals = get_setup_args_vals(dirpath, "s")
     if not vals:
@@ -230,7 +229,7 @@ def get_pbe_solver_with_env(dirpath: Path) -> Union[None, str]:
         return None
 
     pbe_solver = vals[0].upper()
-    if pbe_solver in ["NGPB", "ZAP"]:
+    if pbe_solver == "ZAP":
         return pbe_solver
     else:
         return None
@@ -375,4 +374,148 @@ def update_pkl_args_from_sh(args: argparse.Namespace, new_values: dict):
 
     to_pickle(argparse.Namespace(**args_d), pkl_fp)
 
+    return
+
+
+MCCE_OUTPUTS = [
+    "acc.atm",
+    "acc.res",
+    "entropy.out",
+    "fort.38",
+    "head1.lst",
+    "head2.lst",
+    "head3.lst",
+    "mc_out",
+    "new.tpl",
+    "null",
+    "pK.out",
+    "progress.log",
+    "respair.lst",
+    "rot_stat",
+    "run.log",
+    #"run.prm",
+    #"run.prm.record",
+    "step0_out.pdb",
+    "step1_out.pdb",
+    "step2_out.pdb",
+    "sum_crg.out",
+    "vdw0.lst",
+]
+
+
+def delete_mcce_outputs(
+    mcce_dir: str, files_to_keep: list = None, del_original_pdb: bool = True
+) -> None:
+    """Delete all MCCE output files or folders from a MCCE run folder;
+    Only keep files in files_to_keep if not None.
+    Note: All subfolders within `mcce_dir` are automatically deleted.
+    """
+    folder = Path(mcce_dir)
+    if not folder.is_dir():
+        print(f"{folder = } does not exist.")
+        return
+
+    if files_to_keep is None:
+        check_list = MCCE_OUTPUTS
+    else:
+        # deletion list:
+        check_list = list(
+            set(files_to_keep).symmetric_difference(set(MCCE_OUTPUTS + ["prot.pdb"]))
+        )
+
+    for fp in folder.iterdir():
+        if fp.is_dir():
+            shutil.rmtree(fp)
+        else:
+            if fp.name in check_list:
+                fp.unlink()
+            else:
+                if del_original_pdb:
+                    # delete original pdb file:
+                    if (
+                        fp.name == f"{folder.name.lower()}.pdb"
+                        or (fp.name.startswith(f"{folder.name.lower()}_")
+                            and fp.suffix == ".pdb"
+                            )
+                        ):
+                        fp.unlink()
+    return
+
+
+def prep_refset(
+    bench_dir: str, keep_files: list = None, del_original_pdb: bool = True
+) -> None:
+    """
+    ASSUME 'standard' structure: <bench_dir>/RUNS_DIR, which is a folder of folders
+    named after the pdb id they contain, i.e. <bench_dir>/runs/.
+    Delete all MCCE output files that are not in the 'keep_files' list.
+    Delete all mcce subfolders.
+    """
+    pdbs = Path(bench_dir) / RUNS_DIR
+    if not pdbs.exists():
+        raise FileNotFoundError(f"Not found: {pdbs}")
+
+    for fp in pdbs.iterdir():
+        if fp.is_dir():
+            delete_mcce_outputs(
+                fp, files_to_keep=keep_files, del_original_pdb=del_original_pdb
+            )
+        else:
+            print(f"{fp = }: remaining")
+
+    return
+
+
+def clean_job_folder(job_dir: str) -> None:
+    """Delete all MCCE output files and folders from a directory `job_dir`,
+    which is a folder of folders named after the pdb id they contain, i.e. like runs/.
+    """
+
+    pdbs_dir = Path(job_dir)
+    for fp in pdbs_dir.iterdir():
+        if fp.is_dir():
+            delete_mcce_outputs(fp)
+        else:
+            print(f"{fp = }: remaining")
+
+    return
+
+
+def clear_folder(
+    dir_path: str,
+    file_type: str = None,
+    del_subdir: bool = False,
+    del_subdir_begin: str = None,
+) -> None:
+    """Delete all files in folder.
+    Only delete subfolders if `del_subdir` is True and the subdir
+    name starts with `del_subdir_begin` if non-zero length str.
+    Note: `del_subdir_begin` must neither be None or "" if `del_subdir`
+    is True.
+    """
+    # validate del_subdir_begin:
+    if del_subdir:
+        if del_subdir_begin is None or not del_subdir_begin == 0:
+            del_subdir = False
+
+    p = Path(dir_path)
+    if not p.is_dir():
+        # no folder, nothing to clear
+        return
+
+    if file_type is None:
+        for f in p.iterdir():
+            if not f.is_dir():
+                f.unlink()
+            else:
+                if del_subdir and f.name.startswith(del_subdir_begin):
+                    shutil.rmtree(str(f))
+    else:
+        if file_type.startswith("."):
+            fname = f"*{file_type}"
+        else:
+            fname = f"*.{file_type}"
+
+        for f in p.glob(fname):
+            f.unlink()
     return

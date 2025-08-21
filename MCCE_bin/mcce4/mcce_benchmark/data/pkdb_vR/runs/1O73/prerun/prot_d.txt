@@ -1,0 +1,27 @@
+# prot dict 
+{'Name': '1O73 :: Tryparedoxin From Trypanosoma Brucei',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Disulfides': ['CYS A  40 -- 2.03 Å --> CYS A  43'],
+                   'First Release': '23-OCT-02',
+                   'Function': 'ELECTRON TRANSPORT',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 63}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 10, ARG: 4, '
+                                                           'ASN: 6, ASP: 7, '
+                                                           'CYS: 2, GLN: 2, '
+                                                           'GLU: 9, GLY: 12, '
+                                                           'HIS: 3, ILE: 7, '
+                                                           'LEU: 13, LYS: 7, '
+                                                           'MET: 2, PHE: 9, '
+                                                           'PRO: 10, SER: 12, '
+                                                           'THR: 10, TRP: 4, '
+                                                           'TYR: 5, VAL: 10',
+                                                           'Total: 144',
+                                                           'Ionizable: 37',
+                                                           'Ratio: 25.7%')}},
+                   'Models': '1',
+                   'Molecule': 'TRYPAREDOXIN',
+                   'Resolution': '2.28 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:144; Total: 144',
+                   'Total waters': 63}}

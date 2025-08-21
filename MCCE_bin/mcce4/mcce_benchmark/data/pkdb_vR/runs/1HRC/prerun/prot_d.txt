@@ -1,0 +1,63 @@
+# prot dict 
+{'Name': '1HRC :: High-Resolution Three-Dimensional Structure Of Horse Heart '
+         'Cytochrome C;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'ACE': ('ACETYL GROUP', 1),
+                                 'HEC': ('HEME C', 1)},
+                   'First Release': '16-AUG-94',
+                   'Function': 'ELECTRON TRANSPORT(CYTOCHROME)',
+                   'Links': ['C  ACE A  0 -- 1.33 Å --> N  GLY A  1',
+                             'SG CYS A 14 -- 1.75 Å --> CAB HEC A 105',
+                             'SG CYS A 17 -- 1.86 Å --> CAC HEC A 105',
+                             'NE2 HIS A 18 -- 2.04 Å --> FE  HEC A 105',
+                             'SD MET A 80 -- 2.32 Å --> FE  HEC A 105'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'ACE': 1,
+                                                             'HEM': 1,
+                                                             'HOH': 124,
+                                                             'PAA': 1,
+                                                             'PDD': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 6, ARG: 2, '
+                                                           'ASN: 5, ASP: 3, '
+                                                           'CYS: 2, GLN: 3, '
+                                                           'GLU: 9, GLY: 12, '
+                                                           'HIS: 3, ILE: 6, '
+                                                           'LEU: 6, LYS: 19, '
+                                                           'MET: 2, PHE: 4, '
+                                                           'PRO: 4, THR: 10, '
+                                                           'TRP: 1, TYR: 4, '
+                                                           'VAL: 3',
+                                                           'Total: 104',
+                                                           'Ionizable: 42',
+                                                           'Ratio: 40.4%')}},
+                   'Models': '1',
+                   'Molecule': 'CYTOCHROME C',
+                   'Resolution': '1.90 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:105; Total: 105',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE HEC A 105',
+                                     'LYS A  13',
+                                     'CYS A  14',
+                                     'CYS A  17',
+                                     'HIS A  18',
+                                     'THR A  28',
+                                     'GLY A  29',
+                                     'PRO A  30',
+                                     'LEU A  35',
+                                     'THR A  40',
+                                     'GLY A  41',
+                                     'TYR A  48',
+                                     'THR A  49',
+                                     'ASN A  52',
+                                     'LYS A  55',
+                                     'TRP A  59',
+                                     'TYR A  67',
+                                     'THR A  78',
+                                     'LYS A  79',
+                                     'MET A  80',
+                                     'ILE A  81',
+                                     'PHE A  82',
+                                     'ILE A  85',
+                                     'HOH A 125']},
+                   'Total cofactors': 2,
+                   'Total waters': 124}}

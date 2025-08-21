@@ -814,12 +814,15 @@ class _Biounit:
     """
     Define biounit properties
     """
-
     def __init__(self) -> None:
         self.serial = ""  # biounit serial number
+        self.biounit = "" # BIOLOGICAL UNIT, eg DIMER
         self.author_determined = None  # biounit determination by author
         self.software_determined = None  # biounit determination by software
         self.chains = []  # biounit chains
+
+    def __str__(self):
+        return f"{self.serial}: {self.biounit}; {self.chains}"
 
 
 class _Model:
@@ -1000,7 +1003,7 @@ class Structure:
         self.ter_res = []  # terminal res -> CTR in step1
         self.models = []  # list of lists of ATOM, HETATM lines for each model
         self.chains = []
-        self.units_per_chain = []  # units per chain grouped by type (AAs or NTs)
+        self.units_per_chain = []  # units per chain grouped by type (AAs or [d]NTPs)
         self.missing = None  # dict to store missing re, res atoms, ligand atoms
         self.biounits = []  # biounits, if no record of biounits, all placed
         self.ssbonds = None  # disulfide bonds; list of 3-tuples: CYS1, dist, CYS2
@@ -1079,7 +1082,7 @@ class Structure:
         if detected_model:  # model ended with ATOM or HETATM, push this last model
             self.models.append(model)
             detected_model = False
-        # some files, e.g. 1b16.pdb, 4lzt.pdb may not have a "MODEL" line:
+        # some files may not have a "MODEL" line:
         if not self.models:
             self.n_models = 0
             logger.warning(f"{self.pdb_fp!s} is missing a MODEL line.")
@@ -1090,7 +1093,7 @@ class Structure:
 
         # Use the first model to list unique polymeric chains
         self.chains = list(
-            set([line[21] for line in self.models[0].lines if line.startswith("ATOM")])
+            set([line[21] for line in self.models[0].lines if line.startswith(("ATOM  ","HETATM"))])
         )
         self.chains.sort()
         self.ter_res = [
@@ -1103,9 +1106,8 @@ class Structure:
     def process_headers(self, nonatomlines: list):
         """Process a list of pdb lines other than the coordinate lines.
         """
-        nogo_kws = ["CAVEAT", "REMARK 5,"]
         for line in nonatomlines:
-            if line.startswith(nogo_kws[0]) or line.startswith(nogo_kws[1]):
+            if line.startswith(("CAVEAT", "OBSLTE", "REMARK 5,")):
                 self.DO_NOT_USE = True
                 break
 
@@ -1148,7 +1150,9 @@ class Structure:
             if line.startswith(keyword):
                 _, data = line[len(keyword):].split(maxsplit=1)
                 if data.startswith("MOLECULE") or data.startswith("OTHER_DETAILS"):
-                    molecules.append(data.split(":")[-1].strip(" ;\n"))
+                    mol = data.split(":")[-1].strip(" ;\n")
+                    if mol not in molecules:
+                        molecules.append(mol)
         self.molecule = ", ".join(molecules)
 
         keyword = "HEADER    "
@@ -1259,14 +1263,14 @@ class Structure:
         if chain_doxy:
             tot = f"; Total: {sum(int(n) for n in chain_doxy.values())}"
             self.units_per_chain.append(
-                "dRNTs: "
+                "dNTPs: "  # deoxyriboNucleoside Triphosphates, DNA
                 + ", ".join(v for v in [f"{d}:{n}" for d, n in chain_doxy.items()])
                 + tot
             )
         if chain_oxy:
             tot = f"; Total: {sum(int(n) for n in chain_oxy.values())}"
             self.units_per_chain.append(
-                "RNTs: "
+                "NTPs: " # Nucleoside Triphosphates, RNA
                 + ", ".join(v for v in [f"{o}:{n}" for o, n in chain_oxy.items()])
                 + tot
             )
@@ -1360,33 +1364,78 @@ class Structure:
             self.missing = miss_d
         # end missing species -----------------------------------------
 
-        # load biounits
-        keyword = "REMARK 350"
-        biounit_lines = [
-            line[len(keyword):].strip()
-            for line in nonatomlines
-            if line.startswith(keyword)
-        ]
+        # load biounits if any
+        # REMARK 300 BIOMOLECULE: 1, 2 # multi
+        # REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT: DODECAMERIC
+        # REMARK 350 SOFTWARE DETERMINED BIOLOGICAL UNIT: DODECAMERIC
+        # REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C, D, E, F, G, H, I, 
+        # REMARK 350                    AND CHAINS: J, K, L, M, N, O, P, Q, T, 
+        # REMARK 350                    AND CHAINS: S, T, U 
         detected_biounit = False
-        for line in biounit_lines:
-            if line.startswith("BIOMOLECULE:"):
+        TO_chain = False
+        AND_chain_lines = []
+        mol_ids = []
+
+        for line in nonatomlines:
+
+            keyword1 = "REMARK 300 BIOMOLECULE:"
+            if line.startswith(keyword1):
+                _, biomols = line.split(": ")
+                mol_ids = biomols.split(", ")
+                continue
+
+            keyword2 = "REMARK 350 SOFTWARE DETERMINED BIOLOGICAL UNIT"
+            if detected_biounit and line.startswith(keyword2):
+                _, biounit.software_determined = line.split(":")
+                continue
+            
+            kw1 = "REMARK 350 BIOMOLECULE"  # : 1 .serial
+            what = tuple([f"{kw1}: {m}" for m in mol_ids])
+            if line.startswith(what):
                 detected_biounit = True
+                all_chains = []
                 biounit = _Biounit()
-                _, biounit.serial = line.split(":")
-            if detected_biounit and "DETERMINED" in line:
-                if "AUTHOR" in line:
-                    _, biounit.author_determined = line.split(":")
-                else:
-                    _, biounit.software_determined = line.split(":")
-            if detected_biounit and "TO CHAINS:" in line:
+                _, ser = line.split(":")
+                biounit.serial = ser.strip()
+                continue
+              
+            kw2 = "REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT"  # : DODECAMERIC
+            if detected_biounit and line.startswith(kw2):
+                _, bio = line.split(":")
+                biounit.biounit = bio.strip()
+                biounit.author_determined = bio.strip()
+                continue
+
+            #REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C, D, E, F, G, H, I, 
+            #REMARK 350                    AND CHAINS: J, K,  L 
+            kw3 = "REMARK 350 APPLY THE FOLLOWING TO CHAINS"
+            if detected_biounit and line.startswith(kw3):
+                TO_chain = True
                 _, chns = line.split(":")
-                biounit.chains = chns
-            if detected_biounit and "AND CHAINS:" in line:
+                all_chains = [chns.strip()]
+                continue
+                
+            kw4 = "REMARK 350                    AND CHAINS"
+            if detected_biounit and line.startswith(kw4):
                 _, chns = line.split(":")
-                biounit.chains += chns
-                # done:
+                AND_chain_lines.append(chns.strip())
+                continue
+
+            # done:
+            if detected_biounit and TO_chain:
+                if AND_chain_lines:
+                    all_chains += AND_chain_lines
+                    all_chains.sort()
+                biounit.chains = all_chains
                 self.biounits.append(biounit)
+
+                TO_chain = False
+                all_chains = []
+                AND_chain_lines = []
+                # check
+                #assert len(self.biounits) == len(mol_ids)
                 detected_biounit = False
+        # end biounits
 
         if not self.pdbid or self.pdbid == "XXXX":
             self.pdbid = self.pdb_fp.stem.upper()
@@ -1484,6 +1533,7 @@ class Structure:
             # x: [ATOM | HETATM], resName, chainID, seqNum, iCode
             mdl_data[x[2]].add((x[0], x[1], x[3]))
 
+        model_dict = defaultdict(dict)
         for chn in mdl_data:
             toti, toto = 0, 0
             res_data = defaultdict(list)
@@ -1508,11 +1558,9 @@ class Structure:
                                      f"Total: {tot_chn_res}",
                                      f"Ionizable: {toti}",
                                      f"Ratio: {toti/tot_chn_res:.1%}",
-                                     ),
+                                     )
                         }
-
-        model_dict = defaultdict(dict)
-        model_dict[chn] = chn_dict
+            model_dict[chn] = chn_dict
 
         return dict(model_dict)
 
@@ -1537,7 +1585,7 @@ class Structure:
             d["Molecule"] = self.molecule
             d["Seqres Species"] = "; ".join(self.units_per_chain)
             if self.hetero_names:
-                d["Cofactors"] = self.hetero_names
+                d["Cofactors"] = dict(self.hetero_names)
                 d["Total cofactors"] = self.tot_cofactors
             if self.tot_waters:
                 d["Total waters"] = self.tot_waters
@@ -1545,10 +1593,15 @@ class Structure:
             if self.missing is not None:
                 d["Missing"] = self.missing
             if self.biounits:
-                d["Biounits"] = (
-                    len(self.biounits),
-                    "; ".join(f"{b.serial}: {b.chains}" for b in self.biounits),
-                )
+                smry = defaultdict(list)
+                for b in self.biounits:
+                    smry[b.biounit].extend(b.chains)
+                final = ""
+                for k in smry:
+                    ch = ",".join(c for c in smry[k])
+                    final += f"{k}: {ch}; "
+                d["Biounits"] = final.strip()
+
             d["Models"] = str(self.n_models)
             if self.splits:
                 d["Splits"] = " ".join(s for s in self.splits)

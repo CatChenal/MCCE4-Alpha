@@ -17,7 +17,7 @@ from pathlib import Path
 import shutil
 import sys
 from typing import Union
-from mcce4.mcce_benchmark import BENCH, RUNS_DIR, SUB1
+from mcce4.mcce_benchmark import BenchResources, RUNS_DIR, SUB1
 from mcce4.mcce_benchmark import io_utils as iou
 
 
@@ -164,7 +164,7 @@ def get_ref_set(refset_name: str, subcmd: str = SUB1) -> Path:
         logger.error(msg)
         raise ValueError(msg)
 
-    fp = Path(BENCH.BENCH_PH_REFS.joinpath(refset_name))
+    fp = Path(BenchResources(SUB1).BENCH_PARSE_PHE4)
 
     return fp
 
@@ -175,11 +175,6 @@ def get_mcce_env_dir(
     """Return a path where to get run.prm.record.
     If is_refset is True then subcmd = SUB1 and bench_dir is the reference
     dataset name, e.g. 'parse.e4'."""
-
-    if is_refset and subcmd != SUB1:
-        raise ValueError(
-            f"The reference dataset {bench_dir} is only available via {SUB1}."
-        )
 
     bdir = Path(bench_dir)
     if is_refset:
@@ -240,27 +235,6 @@ def export_path(
     if run_cmd:
         return iou.subprocess_run(cmd, check=True)
     return cmd
-
-
-def set_LDLIB():
-    """Export LD_LIBRARY_PATH if not found in the environment.
-    This variable holds references to dynamically loaded libraries used by
-    PBE solver 'ngpb'.
-    """
-    if "LD_LIBRARY_PATH" in os.environ:
-        return
-
-    ngpb_tools_d = iou.from_json(BENCH.BENCH_NGPB_TOOLS)
-    lib_name = list(ngpb_tools_d.keys())[0]
-    lib_paths = ngpb_tools_d[lib_name]
-
-    result = export_path(lib_name, lib_paths)
-    if isinstance(result, iou.subprocess.CalledProcessError):
-        logger.error(result)
-
-    set_envkey(lib_name, lib_paths)
-
-    return
 
 
 def get_user_env() -> str:

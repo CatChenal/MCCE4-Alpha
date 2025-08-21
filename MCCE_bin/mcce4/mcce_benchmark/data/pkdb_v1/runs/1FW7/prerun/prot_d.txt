@@ -1,0 +1,24 @@
+# prot dict 
+{'Name': '1FW7 :: Nmr Structure Of 15N-Labeled Barnase',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '22-SEP-00',
+                   'Function': 'HYDROLASE',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 8, ARG: 6, '
+                                                           'ASN: 6, ASP: 9, '
+                                                           'GLN: 4, GLU: 3, '
+                                                           'GLY: 10, HIS: 2, '
+                                                           'ILE: 8, LEU: 7, '
+                                                           'LYS: 8, PHE: 4, '
+                                                           'PRO: 3, SER: 9, '
+                                                           'THR: 9, TRP: 3, '
+                                                           'TYR: 7, VAL: 4',
+                                                           'Total: 110',
+                                                           'Ionizable: 35',
+                                                           'Ratio: 31.8%')}},
+                   'Models': '1',
+                   'Molecule': 'BARNASE',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:110; Total: 110'}}

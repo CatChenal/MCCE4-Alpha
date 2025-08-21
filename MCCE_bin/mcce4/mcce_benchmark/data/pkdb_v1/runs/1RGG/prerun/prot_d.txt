@@ -1,0 +1,60 @@
+# prot dict 
+{'Name': '1RGG :: Hydrolase, Guanyloribonuclease',
+ 'PDB.Structure': {'Biounits': 'DIMERIC: A, B;',
+                   'Chains': 'A, B',
+                   'Cofactors': {'SO4': ('SULFATE ION', 2)},
+                   'Disulfides': ['CYS A  7 -- 2.03 Å --> CYS A  96',
+                                  'CYS B  7 -- 2.04 Å --> CYS B  96'],
+                   'First Release': '05-JUN-95',
+                   'Function': 'HYDROLASE (GUANYLORIBONUCLEASE)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 180,
+                                                             'SO4': 2},
+                                                       'B': {'HOH': 158}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 6, ARG: 5, '
+                                                           'ASN: 2, ASP: 7, '
+                                                           'CYS: 2, GLN: 5, '
+                                                           'GLU: 5, GLY: 8, '
+                                                           'HIS: 2, ILE: 5, '
+                                                           'LEU: 6, PHE: 3, '
+                                                           'PRO: 6, SER: 7, '
+                                                           'THR: 13, TYR: 8, '
+                                                           'VAL: 6',
+                                                           'Total: 96',
+                                                           'Ionizable: 29',
+                                                           'Ratio: 30.2%')},
+                                        'B': {'RESIDUES': ('ALA: 6, ARG: 5, '
+                                                           'ASN: 2, ASP: 7, '
+                                                           'CYS: 2, GLN: 5, '
+                                                           'GLU: 5, GLY: 8, '
+                                                           'HIS: 2, ILE: 5, '
+                                                           'LEU: 6, PHE: 3, '
+                                                           'PRO: 6, SER: 7, '
+                                                           'THR: 13, TYR: 8, '
+                                                           'VAL: 6',
+                                                           'Total: 96',
+                                                           'Ionizable: 29',
+                                                           'Ratio: 30.2%')}},
+                   'Models': '1',
+                   'Molecule': 'RIBONUCLEASE',
+                   'Resolution': '1.20 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:96, B:96; Total: 192',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE SO4 A 97',
+                                     'ALA A  62',
+                                     'ARG A  63',
+                                     'THR A  64',
+                                     'HOH A 208',
+                                     'HOH A 211',
+                                     'PRO B  12',
+                                     'ARG B  68'],
+                             'AC2': ['BINDING SITE FOR RESIDUE SO4 A 98',
+                                     'GLU A  54',
+                                     'ARG A  65',
+                                     'ARG A  69',
+                                     'HIS A  85',
+                                     'TYR A  86',
+                                     'HOH A 175',
+                                     'HOH A 222',
+                                     'HOH A 247']},
+                   'Total cofactors': 2,
+                   'Total waters': 338}}

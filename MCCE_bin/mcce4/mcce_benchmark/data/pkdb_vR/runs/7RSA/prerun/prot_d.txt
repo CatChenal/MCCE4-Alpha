@@ -1,0 +1,30 @@
+# prot dict 
+{'Name': '7RSA :: Structure Of Phosphate-Free Ribonuclease A Refined At 1.26 '
+         'Angstroms',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'TBU': ('2-METHYL-2-PROPANOL', 1)},
+                   'First Release': '10-JUN-88',
+                   'Function': 'HYDROLASE (PHOSPHORIC DIESTER)',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 188,
+                                                             'TBU': 1}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 12, ARG: 4, '
+                                                           'ASN: 10, ASP: 5, '
+                                                           'CYS: 8, GLN: 7, '
+                                                           'GLU: 5, GLY: 3, '
+                                                           'HIS: 4, ILE: 3, '
+                                                           'LEU: 2, LYS: 10, '
+                                                           'MET: 4, PHE: 3, '
+                                                           'PRO: 4, SER: 15, '
+                                                           'THR: 10, TYR: 6, '
+                                                           'VAL: 9',
+                                                           'Total: 124',
+                                                           'Ionizable: 42',
+                                                           'Ratio: 33.9%')}},
+                   'Models': '1',
+                   'Molecule': 'RIBONUCLEASE A',
+                   'Resolution': '1.26 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:124; Total: 124',
+                   'Total cofactors': 1,
+                   'Total waters': 188}}

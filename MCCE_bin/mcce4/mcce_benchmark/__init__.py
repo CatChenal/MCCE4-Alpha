@@ -11,15 +11,17 @@ import getpass
 from importlib import resources
 from inspect import signature
 import logging
-import os
 from pathlib import Path
 from shutil import which
+import sys
 
 
-# set virtual cores for NumExpr
-# 64 == default, max virtual cores in NumExpr:
-os.environ['NUMEXPR_MAX_THREADS'] = "64"
-os.environ['NUMEXPR_NUM_THREADS'] = "32"
+# TODO: To discuss whether this should rather be a setting in
+# a scheduling script:
+# # set virtual cores for NumExpr
+# # 64 == default, max virtual cores in NumExpr:
+# os.environ['NUMEXPR_MAX_THREADS'] = "64"
+# os.environ['NUMEXPR_NUM_THREADS'] = "32"
 
 
 APP_NAME = "mcce4.mcce_benchmark"
@@ -27,24 +29,30 @@ APP_NAME = "mcce4.mcce_benchmark"
 # fail fast:
 USER_MCCE = which("mcce")
 if USER_MCCE is None:
-    raise EnvironmentError(f"{APP_NAME}, init :: mcce executable not found.")
+    #raise EnvironmentError(f"{APP_NAME}, init :: mcce executable not found.")
+    sys.exit(f"EnvironmentError - {APP_NAME}, init :: mcce executable not found.")
+
 USER_MCCE = Path(USER_MCCE).parent
 
 
 ENTRY_POINTS = {
     "setup": "bench_setup",
-    "launch": "bench_batch",  # used by crontab :: launch 1 batch
+    "launch": "bench_batch",  # used by crontab :: launch 1 batch of size 10
     "analyze": "bench_analyze",
     "compare": "bench_compare",
 }
 
-# bench_setup sub-commands, also used throughout:
+# bench_setup sub-commands; sub-commands SUB1, SUB2, SUB3 are the datasets folder names:
 SUB0 = "pdbids"
-SUB1 = "pkdb_pdbs"
-SUB2 = "user_pdbs"
-SUB3 = "launch"  # :: crontab job scheduler step of setup.
+SUB1 = "pkdb_v1"
+SUB2 = "pkdb_vR"
+SUB3 = "pkdb_snase"
+SUB4 = "user_pdbs"
+SUB5 = "launch" # :: crontab job scheduler step of setup.
+
+
 # full path of the launch EP for scheduling:
-LAUNCHJOB = which(ENTRY_POINTS[SUB3])
+LAUNCHJOB = which(ENTRY_POINTS[SUB5])
 DELTA = "\u0394"
 
 
@@ -66,7 +74,6 @@ class FILES(Enum):
     ALL_PKAS_TXT = "all_pK.out.txt"
     ALL_PKAS_OOB = "all_pkas_oob.txt"  # out of bounds pKas
     JOB_PKAS_PKL = "job_pkas.pickle"    
-    # not saved: EXPL_PKAS_PKL
     MATCHED_PKAS_TXT = "matched_pkas.txt"
     MATCHED_PKAS_STATS_PKL = "matched_pkas_stats.pickle"
     MATCHED_PKAS_STATS = "matched_pkas_stats.txt"  # saved pka_stats_dict["report"]
@@ -85,137 +92,57 @@ class FILES(Enum):
     VERSIONS = "versions.txt"
 
 
+# dataset-specific pdb count is now in BenchResources
+N_PDBS = 156   # : size of the largest dataset, pkdb_vR 
+
 RUNS_DIR = "runs"
 ANALYZE_DIR = "analysis"
 MCCE_EPS = 4  # default dielectric constant (epsilon) in MCCE
 N_BATCH = 10  # number of jobs to maintain in the process queue
-N_PDBS = 118  # UPDATE if change in packaged data!
-
-MCCE_OUTPUTS = [
-    "acc.atm",
-    "acc.res",
-    "entropy.out",
-    "extra.tpl",
-    "fort.38",
-    "head1.lst",
-    "head2.lst",
-    "head3.lst",
-    "mc_out",
-    "name.txt",
-    "new.tpl",
-    "null",
-    "pK.out",
-    "respair.lst",
-    "rot_stat",
-    "run.log",
-    "run.prm",
-    "run.prm.record",
-    "step0_out.pdb",
-    "step1_out.pdb",
-    "step2_out.pdb",
-    "sum_crg.out",
-    "vdw0.lst",
-]
+DEFAULT_JOB = "default_run"
+DEFAULT_JOB_SH = f"{DEFAULT_JOB}.sh"
+Q_BOOK = "book.txt"
+BENCH_DATA = resources.files(f"{APP_NAME}.data")
+datasets_dict = dict((d.name, d) for d in BENCH_DATA.glob("pkdb_*"))
 
 
-class Bench_Resources:
-    """Immutable class to store package data paths and main constants."""
-    __slots__ = (
-        "_BENCH_DATA",
-        "_BENCH_NGPB_TOOLS",
-        "_BENCH_DB",
-        "_BENCH_WT",
-        "_BENCH_PROTS",
-        "_BENCH_PDBS",
-        "_DEFAULT_JOB",
-        "_DEFAULT_JOB_SH",
-        "_Q_BOOK",
-        "_BENCH_Q_BOOK",
-        "_BENCH_PH_REFS",
-        "_BENCH_PARSE_PHE4",
-    )
+class BenchResources:
+    """Class to store package data paths and main constants for a selected dataset."""
 
-    def __init__(self, res_files=resources.files(f"{APP_NAME}.data")):
-        self._BENCH_DATA = res_files
-        self._BENCH_NGPB_TOOLS = self._BENCH_DATA.joinpath("ngpb_deps_paths.json")
-        self._BENCH_DB = self._BENCH_DATA.joinpath("pkadbv1")
-        self._BENCH_WT = self._BENCH_DB.joinpath("WT_pkas.csv")
-        self._BENCH_PROTS = self._BENCH_DB.joinpath("proteins.tsv")
-        self._BENCH_PDBS = self._BENCH_DB.joinpath(RUNS_DIR)
-        self._DEFAULT_JOB = "default_run"
-        self._DEFAULT_JOB_SH = self._BENCH_PDBS.joinpath(f"{self._DEFAULT_JOB}.sh")
-        self._Q_BOOK = "book.txt"
-        self._BENCH_Q_BOOK = self._BENCH_PDBS.joinpath(self._Q_BOOK)
-        self._BENCH_PH_REFS = self._BENCH_DB.joinpath("refsets")
-        self._BENCH_PARSE_PHE4 = self._BENCH_PH_REFS.joinpath("parse.e4")
+    def __init__(self, dataset: str, data_dir=BENCH_DATA):
+        # check given dataset corresponds to an existing folder:
+        if not data_dir.joinpath(dataset).is_dir():
+            sys.exit(f"Dataset: {dataset!r} is not setup.")
+        
+        self.BENCH_DATA = data_dir
+        self.BENCH_DB = self.BENCH_DATA.joinpath(dataset)
+        self.BENCH_WT = self.BENCH_DB.joinpath("pkas.csv")
+        self.BENCH_PROTS = self.BENCH_DB.joinpath("proteins.tsv")
+        self.N_PDBS = self.prots_count()
+        self.BENCH_PDBS = self.BENCH_DB.joinpath(RUNS_DIR)
+        #self.DEFAULT_JOB_SH = self.BENCH_PDBS.joinpath(f"{DEFAULT_JOB}.sh")
+        self.DEFAULT_JOB_SH = self.BENCH_DB.joinpath(DEFAULT_JOB_SH)        
+        self.BENCH_Q_BOOK = self.BENCH_PDBS.joinpath(Q_BOOK)
+        if dataset == "pkdb_v1":
+            self.BENCH_PH_REFS = self.BENCH_DB.joinpath("refsets")
+            self.BENCH_PARSE_PHE4 = self.BENCH_PH_REFS.joinpath("parse.e4")
 
-    @property
-    def BENCH_DATA(self):
-        return self._BENCH_DATA
-
-    @property
-    def BENCH_NGPB_TOOLS(self):
-        return self._BENCH_NGPB_TOOLS
-
-    @property
-    def BENCH_DB(self):
-        return self._BENCH_DB
-
-    @property
-    def BENCH_PH_REFS(self):
-        return self._BENCH_PH_REFS
-
-    @property
-    def BENCH_PARSE_PHE4(self):
-        return self._BENCH_PARSE_PHE4
-
-    @property
-    def BENCH_WT(self):
-        return self._BENCH_WT
-
-    @property
-    def BENCH_PROTS(self):
-        return self._BENCH_PROTS
-
-    @property
-    def BENCH_PDBS(self):
-        return self._BENCH_PDBS
-
-    @property
-    def Q_BOOK(self):
-        return self._Q_BOOK
-
-    @property
-    def BENCH_Q_BOOK(self):
-        return self._BENCH_Q_BOOK
-
-    @property
-    def DEFAULT_JOB(self):
-        return self._DEFAULT_JOB
-
-    @property
-    def DEFAULT_JOB_SH(self):
-        return self._DEFAULT_JOB_SH
+    def prots_count(self) -> int:
+        with open(self.BENCH_PROTS) as fp:
+            lines = fp.readlines()
+        return len([ln for ln in lines if not ln.startswith("#")])
 
     def __str__(self):
         return f"""
-        BENCH_DATA = {str(self.BENCH_DATA)}
-        BENCH_NGPB_TOOLS = {str(self.BENCH_NGPB_TOOLS)}
-        BENCH_PH_REFS = {str(self.BENCH_PH_REFS)}
-        BENCH_PARSE_PHE4 = {str(self.BENCH_PARSE_PHE4)}
-        BENCH_DB = {str(self.BENCH_DB)}
-        BENCH_WT = {str(self.BENCH_WT)}
-        BENCH_PROTS = {str(self.BENCH_PROTS)}
-        BENCH_PDBS = {str(self.BENCH_PDBS)}
-        DEFAULT_JOB = {str(self.DEFAULT_JOB)}
+        BENCH_DATA     = {str(self.BENCH_DATA)}
+        BENCH_DB       = {str(self.BENCH_DB)}
+        BENCH_WT       = {str(self.BENCH_WT)}
+        BENCH_PROTS    = {str(self.BENCH_PROTS)}
+        BENCH_PDBS     = {str(self.BENCH_PDBS)}
         DEFAULT_JOB_SH = {str(self.DEFAULT_JOB_SH)}
-        BENCH_Q_BOOK = {str(self.BENCH_Q_BOOK)}
-        Q_BOOK = {str(self.Q_BOOK)}
+        BENCH_Q_BOOK   = {str(self.BENCH_Q_BOOK)}
+        N_PDBS = {self.N_PDBS}
         """
-
-
-BENCH = Bench_Resources()
-
 
 class Opts:
     def __init__(
@@ -255,21 +182,7 @@ cli_opts = Opts()
 
 # Config for root logger:
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-# console/screen handler
-# ch = logging.StreamHandler()
-# ch.setLevel(logging.INFO)
-# ch_formatter = logging.Formatter("%(levelname)s - %(funcName)s: %(message)s")
-# ch.setFormatter(ch_formatter)
-# logger.addHandler(ch)
-# # file handlers
-# flog_format = "[%(asctime)s - %(levelname)s]: %(name)s, %(funcName)s:\n\t%(message)s"
-# fh = logging.FileHandler("benchmark.log", encoding="utf-8")
-# fh.setLevel(logging.INFO)
-# fh_formatter = logging.Formatter(flog_format)
-# fh.setFormatter(fh_formatter)
-# # add to logger
-# logger.addHandler(fh)
+logger.setLevel(logging.INFO)
 
 
 USER = getpass.getuser()
@@ -282,7 +195,6 @@ Globals:
 {USER_MCCE = } :: mcce executable in use
 {MCCE_EPS = } :: default protein epsilon
 {N_BATCH = } :: default batch size for job submission
-{N_PDBS = } : number of pdbs in the dataset
 Saved setup options:
   CLI_ARGS_PKL: {FILES.CLI_ARGS_PKL.value}
   CLI_ARGS_TXT: {FILES.CLI_ARGS_TXT.value}

@@ -1,0 +1,25 @@
+# prot dict 
+{'Name': '2V8N :: Wild-Type Structure Of Lactose Permease',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A,B;',
+                   'Chains': 'A',
+                   'First Release': '09-AUG-07',
+                   'Function': 'TRANSPORT PROTEIN',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 35, ARG: 12, '
+                                                           'ASN: 16, ASP: 6, '
+                                                           'CYS: 8, GLN: 11, '
+                                                           'GLU: 11, GLY: 36, '
+                                                           'HIS: 4, ILE: 33, '
+                                                           'LEU: 54, LYS: 12, '
+                                                           'MET: 14, PHE: 56, '
+                                                           'PRO: 12, SER: 29, '
+                                                           'THR: 19, TRP: 6, '
+                                                           'TYR: 14, VAL: 29',
+                                                           'Total: 417',
+                                                           'Ionizable: 67',
+                                                           'Ratio: 16.1%')}},
+                   'Models': '1',
+                   'Molecule': 'LACTOSE PERMEASE',
+                   'Resolution': '3.60 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:417, B:417; Total: 834'}}

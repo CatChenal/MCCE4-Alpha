@@ -1,0 +1,23 @@
+# prot dict 
+{'Name': '3GB1 :: Structures Of B1 Domain Of Streptococcal Protein G',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '02-MAY-99',
+                   'Function': 'IMMUNOGLOBULIN BINDING PROTEIN',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 6, ASN: 3, '
+                                                           'ASP: 5, GLN: 1, '
+                                                           'GLU: 5, GLY: 4, '
+                                                           'ILE: 1, LEU: 3, '
+                                                           'LYS: 6, MET: 1, '
+                                                           'PHE: 2, THR: 11, '
+                                                           'TRP: 1, TYR: 3, '
+                                                           'VAL: 4',
+                                                           'Total: 56',
+                                                           'Ionizable: 19',
+                                                           'Ratio: 33.9%')}},
+                   'Models': '1',
+                   'Molecule': 'PROTEIN (B1 DOMAIN OF STREPTOCOCCAL PROTEIN G)',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:56; Total: 56'}}

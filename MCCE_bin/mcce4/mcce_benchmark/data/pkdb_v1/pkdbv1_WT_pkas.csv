@@ -1,0 +1,1318 @@
+PDB ID,Res Name,Chain,Res ID,Expt. pKa,Expt. Uncertainty,%SASA,Expt. method,Expt. salt conc,Expt. pH,Expt. temp,Reference,Res#
+1A2P,ASP,C,8.0,3.1,0.1,96.6,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,12.0,3.8,0.1,73.5,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,HIS,C,18.0,7.75,0.02,45.5,1H NMR,10mM,5.6-8.7,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00241a021,327.0
+1A2P,ASP,C,22.0,3.3,0.1,123.8,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,GLU,C,29.0,3.75,0.05,66.1,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,44.0,3.6,0.1,114.4,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,54.0,2.2,0.3,29.2,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,GLU,C,60.0,3,0.1,112.0,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,GLU,C,73.0,2.1,0.1,8.3,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,75.0,3.1,0.2,0.2,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,86.0,4.2,0.1,25.4,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,93.0,<2.0,,69.7,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,ASP,C,101.0,2,0.2,38.3,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A2P,HIS,C,102.0,6.3,0.05,71.0,NMR,5M,6.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/3173493,327.0
+1A2P,C-term,C,110.0,3.3,0.1,41.8,2D 1H NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,327.0
+1A6K,HIS,A,12.0,6.29,0.05-0.4,50.8,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,24.0,6.2,0.05-0.4,1.3,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,36.0,8.06,0.05-0.4,25.8,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,48.0,5.25,0.05-0.4,76.1,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,64.0,<5,0.05-0.4,23.0,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,81.0,6.68,0.05-0.4,85.9,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,82.0,<5,0.05-0.4,2.4,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,93.0,<5,0.05-0.4,33.0,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,97.0,5.63,0.05-0.4,50.7,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,113.0,5.44,0.7,46.7,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,116.0,6.49,0.05-0.4,61.6,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6K,HIS,A,119.0,6.13,0.05-0.4,16.8,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,154.0
+1A6M,HIS,A,12.0,6.29,0.05-0.4,49.9,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,24.0,6.2,0.05-0.4,1.2,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,36.0,8.06,0.05-0.4,25.6,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,48.0,5.25,0.05-0.4,76.9,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,64.0,<5,0.05-0.4,22.3,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,81.0,6.68,0.05-0.4,85.7,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,82.0,<5,0.05-0.4,2.7,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,93.0,<5,0.05-0.4,35.3,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,97.0,5.63,0.05-0.4,50.4,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,113.0,5.44,0.7,46.2,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,116.0,6.49,0.05-0.4,61.4,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1A6M,HIS,A,119.0,6.13,0.05-0.4,16.5,NMR,0.1 M,4.2-8.80,308 K,https://pubs.acs.org/doi/abs/10.1021/bi00082a027,155.0
+1B2X,ASP,A,8.0,3.1,0.1,97.6,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,ASP,A,12.0,3.8,0.1,80.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,HIS,A,18.0,7.75,0.02,71.6,NMR,10 mM,5.6-8.7,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00241a021,326.0
+1B2X,ASP,A,22.0,3.3,0.1,80.4,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,GLU,A,29.0,3.75,0.05,54.9,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,ASP,A,44.0,3.6,0.1,133.8,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,GLU,A,60.0,3,0.1,120.6,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,GLU,A,73.0,2.1,0.1,19.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,ASP,A,75.0,3.1,0.2,0.1,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,ASP,A,86.0,4.2,0.1,25.7,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,326.0
+1B2X,HIS,A,102.0,6.3,0.05,69.2,NMR,5M,6.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/3173493,326.0
+1BEG,ASP,A,21.0,2.49,0.05,41.5,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,ASP,A,30.0,2.51,0.09,91.1,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,ASP,A,72.0,2.61,0.15,30.8,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,TYR,A,12.0,11.5,,60.2,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,TYR,A,33.0,>12.0,,13.8,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,TYR,A,47.0,>12.0,,6.1,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,LYS,A,61.0,10.1,,77.5,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,TYR,A,85.0,10.35,0.15,53.6,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,TYR,A,87.0,>12.0,,16.7,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,LYS,A,94.0,9.4,,69.4,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,N-term,A,1.0,7.43,,196.5,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEG,C-term,A,98.0,3.51,0.01,49.9,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,ASP,A,21.0,2.49,0.05,39.7,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,ASP,A,30.0,2.51,0.09,62.5,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,TYR,A,33.0,>12.0,,3.2,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,TYR,A,47.0,>12.0,,7.0,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,TYR,A,87.0,>12.0,,4.1,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,ASP,A,72.0,2.61,0.15,58.7,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,LYS,A,61.0,10.1,,78.6,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,LYS,A,94.0,9.4,,58.6,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,TYR,A,12.0,11.5,,42.1,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,TYR,A,85.0,10.35,0.15,47.2,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,C-term,A,98.0,3.51,0.01,80.4,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BEO,N-term,A,1.0,7.43,,138.6,NMR,,1.5-11.2,313 K,https://www.ncbi.nlm.nih.gov/pubmed/9862128,98.0
+1BHC,ASP,J,3.0,3,0.1,129.9,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,GLU,J,7.0,3.7,0.1,48.4,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,LYS,J,15.0,10.6,0.1,53.5,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,LYS,J,26.0,10.6,0.1,129.8,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,LYS,J,41.0,10.8,0.1,52.9,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,LYS,J,46.0,10.6,0.1,64.0,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,GLU,J,49.0,3.8,0.1,4.7,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BHC,ASP,J,50.0,3.4,0.1,0.0,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,570.0
+1BNI,ASP,B,8.0,3.1,0.1,96.9,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,ASP,B,12.0,3.8,0.1,78.1,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,HIS,B,18.0,7.75,0.02,61.6,NMR,10 mM,5.6-8.7,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00241a021,324.0
+1BNI,ASP,B,22.0,3.3,0.1,123.9,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,GLU,B,29.0,3.75,0.05,72.4,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,ASP,B,44.0,3.6,0.1,131.9,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,GLU,B,60.0,3,0.1,71.7,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,GLU,B,73.0,2.1,0.1,11.5,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,ASP,B,75.0,3.1,0.2,0.1,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,ASP,B,86.0,4.2,0.1,29.5,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNI,HIS,B,102.0,6.3,0.05,77.1,NMR,5M,6.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/3173493,324.0
+1BNJ,ASP,A,8.0,3.1,0.1,93.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,ASP,A,12.0,3.8,0.1,75.2,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,HIS,A,18.0,7.75,0.02,67.8,NMR,10 mM,5.6-8.7,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00241a021,324.0
+1BNJ,ASP,A,22.0,3.3,0.1,131.5,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,GLU,A,29.0,3.75,0.05,74.6,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,ASP,A,44.0,3.6,0.1,139.6,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,GLU,A,60.0,3,0.1,52.3,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,GLU,A,73.0,2.1,0.1,19.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,ASP,A,75.0,3.1,0.2,0.1,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,ASP,A,86.0,4.2,0.1,25.3,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,324.0
+1BNJ,HIS,A,102.0,6.3,0.05,65.5,NMR,5M,6.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/3173493,324.0
+1BNR,ASP,A,8.0,3.1,0.1,75.3,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,ASP,A,12.0,3.8,0.1,64.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,HIS,A,18.0,7.75,0.02,90.7,NMR,10 mM,5.6-8.7,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00241a021,110.0
+1BNR,ASP,A,22.0,3.3,0.1,144.5,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,GLU,A,29.0,3.75,0.05,66.9,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,ASP,A,44.0,3.6,0.1,110.2,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,GLU,A,60.0,3,0.1,69.7,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,GLU,A,73.0,2.1,0.1,2.3,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,ASP,A,75.0,3.1,0.2,0.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,ASP,A,86.0,4.2,0.1,24.5,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1BNR,HIS,A,102.0,6.3,0.05,43.6,NMR,5M,6.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/3173493,110.0
+1BPI,ASP,A,3.0,3,0.1,127.2,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,GLU,A,7.0,3.7,0.1,39.1,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,LYS,A,15.0,10.6,0.1,114.7,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,LYS,A,26.0,10.6,0.1,132.4,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,LYS,A,41.0,10.8,0.1,58.5,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,LYS,A,46.0,10.6,0.1,102.3,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,GLU,A,49.0,3.8,0.1,94.1,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,ASP,A,50.0,3.4,0.1,57.8,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,N-term,A,1.0,8.1,0.1,79.4,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BPI,C-term,A,58.0,2.9,0.1,250.3,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,59.0
+1BUS,ASP,A,6.0,4.1,,13.3,1H NMR,0.1 M,3.0-6.0,318 K,https://www.ncbi.nlm.nih.gov/pubmed/6094827,58.0
+1BUS,GLU,A,9.0,4.5,,2.3,1H NMR,0.1 M,3.0-6.0,318 K,https://www.ncbi.nlm.nih.gov/pubmed/6094827,58.0
+1BUS,ASP,A,12.0,3.6,,8.8,1H NMR,0.1 M,3.0-6.0,318 K,https://www.ncbi.nlm.nih.gov/pubmed/6094827,58.0
+1BUS,GLU,A,20.0,4.4,,43.7,1H NMR,0.1 M,3.0-6.0,318 K,https://www.ncbi.nlm.nih.gov/pubmed/6094827,58.0
+1BVI,ASP,B,3.0,3.54,0.02,60.9,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,ASP,B,15.0,3.52,0.02,60.7,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,HIS,B,27.0,7.57,0.12,27.0,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,GLU,B,28.0,5.61,0.03,92.8,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,ASP,B,29.0,4.26,0.03,80.1,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,GLU,B,31.0,5.36,0.07,79.0,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,HIS,B,40.0,7.44,0.05-0.4,32.8,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,GLU,B,46.0,3.62,0.04,39.2,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,ASP,B,49.0,4.22,0.05,120.5,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,GLU,B,58.0,3.96,0.03,11.1,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,ASP,B,66.0,3.9,0.01,104.3,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,ASP,B,76.0,0.5,,1.5,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,GLU,B,82.0,3.27,0.02,59.8,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,HIS,B,92.0,7.31,0.04,32.8,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1BVI,GLU,B,102.0,5.3,0.02,29.2,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,423.0
+1C8C,LYS,A,7.0,>11.5,,67.9,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,GLU,A,11.0,3.5,,106.3,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,GLU,A,12.0,3.5,,97.4,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,LYS,A,13.0,>10,,42.9,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,ASP,A,16.0,2.9,,62.8,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,LYS,A,19.0,>10,,82.1,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,ASP,A,35.0,2.6,,70.9,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,GLU,A,36.0,5.4,,36.7,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,GLU,A,48.0,3.5,,38.6,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,ASP,A,50.0,3,,153.6,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,GLU,A,54.0,3.2,,36.0,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,TYR,A,8.0,>9.3,,6.3,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,TYR,A,34.0,>10.0,,6.4,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,N-term,A,1.0,7,,128.8,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1C8C,C-term,A,64.0,3.4,,211.3,NMR,,1.5-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/12578354,
+1CDC,ASP,A,25.0,3.53,0.02,138.9,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,ASP,A,26.0,3.58,0.02,100.3,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,ASP,A,28.0,3.57,0.06,17.2,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,GLU,A,29.0,4.42,0.04,3.8,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,GLU,A,33.0,4.16,0.02,21.2,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,GLU,A,41.0,6.73,0.05,2.4,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,GLU,A,56.0,3.92,0.01,48.7,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,ASP,A,62.0,4.15,0.02,3.8,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,ASP,A,71.0,3.18,0.04,120.3,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,ASP,A,72.0,4.14,0.05,20.2,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,ASP,A,94.0,3.87,0.04,35.0,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CDC,GLU,A,99.0,4.25,0.04,152.9,NMR,100-300 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,194.0
+1CVO,GLU,A,17.0,4,,89.1,1H NMR,,2.5-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,62.0
+1CVO,ASP,A,42.0,3.2,,22.5,1H NMR,,2.5-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,62.0
+1CVO,ASP,A,59.0,2.3,,39.8,1H NMR,,2.5-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,62.0
+1D0D,ASP,B,3.0,3,,126.2,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,GLU,B,7.0,3.7,,70.7,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,LYS,B,15.0,10.6,,120.5,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,LYS,B,26.0,10.6,,96.1,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,LYS,B,41.0,10.8,,56.9,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,LYS,B,46.0,10.6,,105.9,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,GLU,B,49.0,3.8,,110.4,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,ASP,B,50.0,3.4,,63.3,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,N-term,B,1.0,8.1,,56.0,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1D0D,C-term,B,58.0,2.9,,115.5,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,118.0
+1DE3,ASP,A,9.0,3.9,0.1,26.9,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,GLU,A,19.0,4.6,0.2,40.7,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,GLU,A,31.0,4.6,0.2,35.8,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,35.0,6.3,0.1,72.6,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,36.0,6.8,0.1,108.5,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,41.0,<3.0,,6.2,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,50.0,7.7,0.2,35.9,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,57.0,4.3,0.1,86.6,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,59.0,4.1,0.1,62.5,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,75.0,3.9,0.1,40.7,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,77.0,<3.0,,52.7,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,82.0,7.3,0.1,24.6,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,85.0,3.8,0.1,44.0,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,91.0,<3.0,,3.4,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,92.0,6.9,0.1,29.1,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,GLU,A,96.0,5.1,0.1,0.3,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,102.0,<3.0,,124.9,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,104.0,6.6,0.2,59.4,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,105.0,<3.0,,62.7,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,ASP,A,109.0,3.7,0.2,101.1,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,GLU,A,115.0,4.9,0.1,82.9,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,137.0,5.8,0.1,12.4,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,GLU,A,140.0,4.3,0.1,39.0,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,GLU,A,144.0,4.3,0.1,99.9,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DE3,HIS,A,150.0,7.6,0.2,109.5,NMR,0.1 M,3.0-8.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi981672t,150.0
+1DG9,HIS,A,66.0,8.29,0.01,45.3,NMR,0.1 M,5.0-10.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9712448,158.0
+1DG9,HIS,A,72.0,9.19,0.01,14.0,NMR,0.1 M,5.0-10.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9712448,158.0
+1DWR,HIS,A,36.0,7.8,0.02,34.7,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1DWR,HIS,A,48.0,5.62,0.01,78.9,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1DWR,HIS,A,81.0,6.94,0.01,101.3,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1DWR,HIS,A,113.0,5.87,0.02,47.9,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1DWR,HIS,A,116.0,6.79,0.01,44.7,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1DWR,HIS,A,119.0,6.56,0.01,21.6,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1EGF,ASP,A,11.0,3.9,0.05,139.3,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EGF,GLU,A,24.0,4.1,0.1,73.7,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EGF,ASP,A,27.0,4,0.1,115.2,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EGF,ASP,A,40.0,3.6,0.1,62.8,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EGF,ASP,A,46.0,3.8,0.1,85.1,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EGF,GLU,A,51.0,4,,86.7,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPG,ASP,A,11.0,3.9,0.05,134.1,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPG,GLU,A,24.0,4.1,0.1,41.3,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPG,ASP,A,27.0,4,0.1,77.5,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPG,ASP,A,40.0,3.6,0.1,122.5,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPG,ASP,A,46.0,3.8,0.1,71.8,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPG,GLU,A,51.0,4,,101.8,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,ASP,A,11.0,3.9,0.05,128.7,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,GLU,A,24.0,4.1,0.1,40.6,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,ASP,A,27.0,4,0.1,86.9,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,ASP,A,40.0,3.6,0.1,132.5,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,ASP,A,46.0,3.8,0.1,68.3,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,GLU,A,51.0,4,,60.5,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,HIS,A,22.0,6.8,0.1,13.2,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,N-term,A,1.0,7.7,0.1,133.9,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1EPH,C-term,A,53.0,3.5,0.1,133.7,1H NMR,,1.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+1FW7,ASP,A,8.0,3.1,0.1,103.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,ASP,A,12.0,3.8,0.1,78.3,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,HIS,A,18.0,7.75,0.02,86.6,NMR,10 mM,5.6-8.7,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00241a021,110.0
+1FW7,ASP,A,22.0,3.3,0.1,111.8,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,GLU,A,29.0,3.75,0.05,68.4,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,ASP,A,44.0,3.6,0.1,105.1,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,GLU,A,60.0,3,0.1,99.2,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,GLU,A,73.0,2.1,0.1,0.3,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,ASP,A,75.0,3.1,0.2,0.0,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,ASP,A,86.0,4.2,0.1,30.7,NMR,50mM-600mM,0.2-6.3,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00029a018,110.0
+1FW7,HIS,A,102.0,6.3,0.05,80.3,NMR,5M,6.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/3173493,110.0
+1GB1,LYS,A,10.0,11,,134.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,LYS,A,13.0,>11,,100.3,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,GLU,A,15.0,4.4,0.1,87.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,ASP,A,22.0,2.9,0.1,68.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,GLU,A,27.0,4.5,0.1,53.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,LYS,A,28.0,10.9,,99.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,ASP,A,36.0,3.8,0.1,120.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,ASP,A,40.0,4,0.2,69.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,ASP,A,46.0,3.6,0.1,51.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,ASP,A,47.0,3.4,0.3,113.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GB1,GLU,A,56.0,4,0.1,68.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1GOA,GLU,A,6.0,4.5,,44.7,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,ASP,A,10.0,6.1,,9.6,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,32.0,3.6,,68.6,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,48.0,4.4,,20.0,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,57.0,3.2,,62.5,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,61.0,3.9,,77.7,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,HIS,A,62.0,7,,94.0,NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1GOA,GLU,A,64.0,4.4,,57.6,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,ASP,A,70.0,2.6,,48.0,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,HIS,A,83.0,5.5,,71.2,NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1GOA,ASP,A,94.0,3.2,,105.3,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,ASP,A,102.0,<2,,49.2,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,ASP,A,108.0,3.2,,31.8,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,HIS,A,114.0,<5,,8.4,NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1GOA,GLU,A,119.0,4.1,,50.5,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,HIS,A,124.0,7.1,,42.0,NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1GOA,HIS,A,127.0,7.9,,31.8,NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1GOA,GLU,A,129.0,3.6,,32.6,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,131.0,4.3,,66.1,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,ASP,A,134.0,4.1,,32.2,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,135.0,4.3,,79.1,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,147.0,4.2,,98.7,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,ASP,A,148.0,<2,,14.8,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1GOA,GLU,A,154.0,4.4,,120.5,NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1H4G,ASP,B,5.0,3.84,0.02,99.5,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,HIS,B,11.0,6.52,0.26,33.8,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,12.0,3.94,0.14,89.6,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,15.0,3.35,0.14,25.1,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,17.0,4.31,0.07,18.8,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,21.0,3.46,0.13,53.2,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,HIS,B,32.0,6.68,0.03,88.6,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,56.0,4.55,0.02,49.7,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,HIS,B,60.0,4.01,0.02,1.3,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,90.0,3.88,0.07,147.2,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,94.0,3.94,0.04,8.5,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,99.0,<2.7,,0.4,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,118.0,<2.7,,39.8,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,ASP,B,123.0,<2.7,,11.3,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,126.0,4.51,0.02,51.0,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,HIS,B,162.0,<2.7,<0.08,0.0,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,167.0,3.58,0.13,43.6,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,178.0,4.1,0.2,0.0,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1H4G,GLU,B,184.0,6.5,0.2,7.8,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,
+1I0V,ASP,A,3.0,3.54,0.02,79.0,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,ASP,A,15.0,3.52,0.02,49.9,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,HIS,A,27.0,7.57,0.12,25.5,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,GLU,A,28.0,5.61,0.03,76.9,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,ASP,A,29.0,4.26,0.03,101.6,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,GLU,A,31.0,5.36,0.07,78.7,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,HIS,A,40.0,7.44,0.05-0.4,36.1,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,GLU,A,46.0,3.62,0.04,45.6,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,ASP,A,49.0,4.22,0.05,115.1,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,GLU,A,58.0,3.96,0.03,10.5,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,ASP,A,66.0,3.9,0.01,106.1,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,ASP,A,76.0,0.5,,1.0,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,GLU,A,82.0,3.27,0.02,53.1,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,HIS,A,92.0,7.31,0.04,31.0,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1I0V,GLU,A,102.0,5.3,0.02,71.8,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1IG5,LYS,A,1.0,10.59,0.04,91.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,GLU,A,4.0,3.77,0.02,113.0,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,GLU,A,5.0,3.4,0.02,73.7,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,LYS,A,7.0,11.36,0.03,53.9,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,GLU,A,11.0,4.74,0.02,76.4,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,LYS,A,12.0,11.06,0.07,71.4,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,LYS,A,16.0,11.06,0.03,87.4,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,GLU,A,17.0,3.62,,67.4,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,LYS,A,25.0,11.81,0.06,38.3,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,GLU,A,26.0,4.08,0.04,109.4,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,LYS,A,29.0,11.28,0.03,58.2,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,LYS,A,41.0,10.93,0.02,98.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,ASP,A,47.0,3.04,0.09,73.0,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,GLU,A,48.0,4.62,0.06,81.7,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,LYS,A,55.0,12.12,0.13,86.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,GLU,A,64.0,3.84,0.02,88.9,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IG5,LYS,A,71.0,10.73,0.05,77.9,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IG5,LYS,A,72.0,11.33,0.08,64.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGC,GLU,A,20.0,4.3,0.1,51.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,ASP,A,27.0,2.9,0.1,81.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,GLU,A,29.0,4.2,0.1,92.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,GLU,A,32.0,4.6,0.1,39.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,ASP,A,41.0,3.9,0.1,42.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,ASP,A,45.0,4.4,0.1,132.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,ASP,A,51.0,3.6,0.1,74.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,ASP,A,52.0,3.4,0.1,92.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGC,GLU,A,61.0,4.2,0.1,76.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,493.0
+1IGD,GLU,A,20.0,4.3,0.1,97.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,LYS,A,24.0,10.7,0.1,87.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,ASP,A,27.0,2.9,0.1,56.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,GLU,A,29.0,4.2,0.1,88.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,GLU,A,32.0,4.6,0.1,56.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,ASP,A,41.0,3.9,0.1,120.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,ASP,A,45.0,4.4,0.1,135.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,ASP,A,51.0,3.6,0.1,71.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,ASP,A,52.0,3.4,0.1,91.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGD,GLU,A,61.0,4.2,0.1,61.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+1IGV,LYS,A,1.0,10.59,0.04,90.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,GLU,A,4.0,3.77,0.02,113.0,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,GLU,A,5.0,3.4,0.02,74.2,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,LYS,A,7.0,11.36,0.03,53.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,GLU,A,11.0,4.74,0.02,73.2,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,LYS,A,12.0,11.06,0.07,70.7,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,LYS,A,16.0,11.06,0.03,90.7,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,GLU,A,17.0,3.62,,72.6,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,LYS,A,25.0,11.81,0.06,37.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,GLU,A,26.0,4.08,0.04,102.7,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,LYS,A,29.0,11.28,0.03,58.5,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,LYS,A,41.0,10.93,0.02,94.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,ASP,A,47.0,3.04,0.09,73.4,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,GLU,A,48.0,4.62,0.06,81.5,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,LYS,A,55.0,12.12,0.13,87.9,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,GLU,A,64.0,3.84,0.02,88.9,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,76.0
+1IGV,LYS,A,71.0,10.73,0.05,79.5,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1IGV,LYS,A,72.0,11.33,0.08,66.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,76.0
+1KF3,GLU,A,2.0,2.7,0.08,72.9,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,GLU,A,9.0,4,,59.6,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,HIS,A,12.0,6,0.1,6.6,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,ASP,A,38.0,2.1,0.1,124.0,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,GLU,A,49.0,4.3,0.1,34.5,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,ASP,A,53.0,3.7,0.1,84.9,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,ASP,A,83.0,3.3,0.1,22.2,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,GLU,A,86.0,4,0.1,55.2,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,HIS,A,105.0,6.5,0.1,33.3,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,GLU,A,111.0,3.5,,77.3,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,HIS,A,119.0,6.5,0.1,52.1,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KF3,ASP,A,121.0,3,0.1,26.5,NMR,1 M,1.2-7.9,303 K,https://www.ncbi.nlm.nih.gov/pubmed/8615690,124.0
+1KXI,HIS,A,4.0,5.6,,10.9,NMR,,2.5-7.0,293 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,124.0
+1KXI,GLU,A,17.0,4,,149.9,NMR,,2.5-7.0,293 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,124.0
+1KXI,ASP,A,42.0,3.2,,100.3,NMR,,2.5-7.0,293 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,124.0
+1KXI,ASP,A,59.0,2.3,,85.4,NMR,,2.5-7.0,293 K,https://pubs.acs.org/doi/abs/10.1021/bi960077t,124.0
+1LNI,ASP,A,1.0,3.44,0.02-0.07,125.6,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,GLU,A,14.0,5.02,0.02-0.07,29.0,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,ASP,A,17.0,3.72,0.02-0.07,88.1,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,ASP,A,25.0,4.87,0.02-0.07,140.1,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,ASP,A,33.0,2.39,0.02-0.07,17.3,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,GLU,A,41.0,4.14,0.02-0.07,68.5,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,HIS,A,53.0,8.27,0.02-0.07,35.4,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,GLU,A,74.0,3.47,0.02-0.07,106.4,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,GLU,A,78.0,3.13,0.02-0.07,14.3,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,ASP,A,79.0,7.37,0.02-0.07,12.8,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,ASP,A,84.0,3.01,0.02-0.07,59.0,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,HIS,A,85.0,6.35,0.02-0.07,69.1,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LNI,ASP,A,93.0,3.09,0.02-0.07,56.8,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,195.0
+1LSE,LYS,A,1.0,10.8,0.1,59.3,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+1LSE,GLU,A,7.0,2.85,0.25,69.5,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,LYS,A,13.0,10.5,0.1,65.3,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+1LSE,ASP,A,18.0,2.66,0.08,61.7,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,LYS,A,33.0,10.6,0.1,51.6,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+1LSE,GLU,A,35.0,6.2,0.1,22.1,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,ASP,A,48.0,1.6,0.4,102.3,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,ASP,A,52.0,3.68,0.08,23.4,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,ASP,A,66.0,0.9,0.5,36.1,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,ASP,A,87.0,2.07,0.15,59.8,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,LYS,A,96.0,10.8,0.1,34.1,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+1LSE,LYS,A,97.0,10.3,0.1,81.7,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+1LSE,ASP,A,101.0,4.09,0.07,101.4,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LSE,LYS,A,116.0,10.4,0.1,79.6,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+1LSE,ASP,A,119.0,3.2,0.09,93.9,Potentiometric titration,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LYS,LYS,A,1.0,10.8,0.1,49.9,NMR,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,258.0
+1LYS,GLU,A,7.0,2.85,0.25,69.3,Potentiometric titration,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,LYS,A,13.0,10.5,0.1,52.1,NMR,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,258.0
+1LYS,ASP,A,18.0,2.66,0.08,68.2,Potentiometric titration,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,LYS,A,33.0,10.6,0.1,39.6,NMR,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,258.0
+1LYS,GLU,A,35.0,6.2,0.1,30.0,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,ASP,A,48.0,1.6,0.4,94.6,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,ASP,A,52.0,3.68,0.08,22.9,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,ASP,A,66.0,0.9,0.5,27.5,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,ASP,A,87.0,2.07,0.15,79.6,Potentiometric titration,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,LYS,A,96.0,10.8,0.1,24.5,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,258.0
+1LYS,LYS,A,97.0,10.3,0.1,51.3,NMR,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,258.0
+1LYS,ASP,A,101.0,4.09,0.07,113.0,Potentiometric titration,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1LYS,LYS,A,116.0,10.4,0.1,22.7,1H NMR,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,258.0
+1LYS,ASP,A,119.0,3.2,0.09,48.6,Potentiometric titration,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,258.0
+1PGA,LYS,A,10.0,11,,103.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,LYS,A,13.0,>11,,77.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,GLU,A,15.0,4.4,0.1,93.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,GLU,A,19.0,3.7,0.15,105.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,ASP,A,22.0,2.9,0.1,67.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,GLU,A,27.0,4.5,0.1,45.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,LYS,A,28.0,10.9,,67.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,ASP,A,36.0,3.8,0.1,127.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,ASP,A,40.0,4,0.2,133.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,GLU,A,42.0,4.4,0.1,116.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,ASP,A,46.0,3.6,0.1,74.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,ASP,A,47.0,3.4,0.3,85.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,GLU,A,56.0,4,0.1,62.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,LYS,A,10.0,11,,101.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,LYS,A,13.0,>11,,80.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,GLU,A,15.0,4.4,0.1,94.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,GLU,A,19.0,3.7,0.15,101.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,ASP,A,22.0,2.9,0.1,64.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,GLU,A,27.0,4.5,0.1,53.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,LYS,A,28.0,10.9,,73.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,ASP,A,36.0,3.8,0.1,129.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,ASP,A,40.0,4,0.2,128.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,GLU,A,42.0,4.4,0.1,109.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,ASP,A,46.0,3.6,0.1,73.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,ASP,A,47.0,3.4,0.3,90.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,GLU,A,56.0,4,0.1,65.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1QH7,ASP,A,5.0,3.84,0.02,101.5,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,HIS,A,11.0,6.52,0.26,37.1,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,12.0,3.94,0.14,101.1,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,15.0,3.35,0.14,24.7,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,17.0,4.31,0.07,10.4,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,21.0,3.46,0.13,54.1,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,HIS,A,32.0,6.68,0.03,89.4,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,56.0,4.55,0.02,51.8,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,HIS,A,60.0,4.01,0.02,1.3,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,90.0,3.88,0.07,138.9,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,94.0,3.94,0.04,7.4,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,99.0,<2.7,,0.2,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,118.0,<2.7,,45.2,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,ASP,A,123.0,<2.7,,12.0,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,126.0,4.51,0.02,34.8,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,HIS,A,162.0,<2.7,,0.0,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,167.0,3.58,0.13,50.2,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,178.0,4.1,0.2,0.0,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,GLU,A,184.0,6.5,0.2,0.2,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1QH7,C-term,A,207.0,3.9,0.1,185.9,NMR,1 M,3.2-8.7,303 K,https://pubs.acs.org/doi/abs/10.1021/bi049948m,416.0
+1RDD,GLU,A,6.0,4.5,,32.7,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,ASP,A,10.0,6.1,,15.0,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,32.0,3.6,,47.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,48.0,4.4,,10.0,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,57.0,3.2,,77.2,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,61.0,3.9,,64.3,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,HIS,A,62.0,7,,101.4,1H NMR,10 mM,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1RDD,GLU,A,64.0,4.4,,60.6,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,ASP,A,70.0,2.6,,56.4,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,HIS,A,83.0,5.5,,99.4,1H NMR,10 mM,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1RDD,ASP,A,94.0,3.2,,135.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,ASP,A,102.0,<2,,63.9,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,ASP,A,108.0,3.2,,29.8,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,HIS,A,114.0,<5,,13.5,1H NMR,10 mM,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1RDD,GLU,A,119.0,4.1,,51.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,HIS,A,124.0,7.1,,87.8,1H NMR,10 mM,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1RDD,HIS,A,127.0,7.9,,56.5,1H NMR,10 mM,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,156.0
+1RDD,GLU,A,129.0,3.6,,10.5,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,131.0,4.3,,69.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,ASP,A,134.0,4.3,,45.8,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,135.0,4.3,,96.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,147.0,4.2,,104.3,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,ASP,A,148.0,<2,,16.6,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RDD,GLU,A,154.0,4.4,,72.8,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,156.0
+1RGG,ASP,A,1.0,3.44,0.02-0.07,129.6,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,GLU,A,14.0,5.02,0.02-0.07,22.5,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,ASP,A,17.0,3.72,0.02-0.07,82.6,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,ASP,A,25.0,4.87,0.02-0.07,130.1,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,ASP,A,33.0,2.39,0.02-0.07,11.3,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,GLU,A,41.0,4.14,0.02-0.07,77.0,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,HIS,A,53.0,8.27,0.02-0.07,34.8,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,GLU,A,74.0,3.47,0.02-0.07,89.0,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,GLU,A,78.0,3.13,0.02-0.07,15.3,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,ASP,A,79.0,7.37,0.02-0.07,10.4,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,ASP,A,84.0,3.01,0.02-0.07,71.6,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,HIS,A,85.0,6.35,0.02-0.07,57.0,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,ASP,A,93.0,3.09,0.02-0.07,44.5,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RNZ,GLU,A,2.0,2.7,0.08,54.3,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,GLU,A,9.0,4,,53.8,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,HIS,A,12.0,6,0.1,6.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,ASP,A,38.0,2.1,0.1,143.0,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,GLU,A,49.0,4.3,0.1,33.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,ASP,A,53.0,3.7,0.1,81.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,ASP,A,83.0,3.3,0.1,34.2,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,GLU,A,86.0,4,0.1,43.6,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,HIS,A,105.0,6.5,0.1,33.5,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,GLU,A,111.0,3.5,,72.0,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,HIS,A,119.0,6.5,0.1,46.0,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1RNZ,ASP,A,121.0,3,0.1,35.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,127.0
+1WLA,HIS,A,36.0,7.8,0.02,36.3,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1WLA,HIS,A,48.0,5.62,0.01,70.5,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1WLA,HIS,A,81.0,6.94,0.01,94.6,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1WLA,HIS,A,113.0,5.87,0.02,55.4,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1WLA,HIS,A,116.0,6.79,0.01,45.3,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1WLA,HIS,A,119.0,6.56,0.01,18.8,1H NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1XNB,ASP,A,4.0,3,0.1,101.3,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,ASP,A,11.0,2.5,0.1,91.0,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,GLU,A,78.0,4.6,0.1,8.8,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,ASP,A,83.0,<2.0,0.1,0.6,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,ASP,A,101.0,<2.0,0.1,45.6,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,ASP,A,106.0,2.7,0.1,16.5,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,ASP,A,119.0,3.2,0.1,98.8,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,ASP,A,121.0,3.6,0.1,142.0,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,HIS,A,149.0,<2.3,0.1,0.0,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,HIS,A,156.0,6.5,0.1,45.8,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1XNB,GLU,A,172.0,7.2,0.1,11.7,NMR,25 mM,2.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+1Z12,HIS,A,66.0,8.36,,42.7,1H NMR,100 mM,4.8-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi990381x,157.0
+1Z12,HIS,A,72.0,9.19,,13.3,1H NMR,100 mM,4.8-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi990381x,157.0
+2BUS,ASP,A,6.0,4,,33.4,NMR,0.1 M,3.0-6.0,291 K,https://www.sciencedirect.com/science/article/pii/0022283684904698?via%3Dihub,58.0
+2BUS,GLU,A,9.0,4.3,,107.5,NMR,0.1 M,3.0-6.0,291 K,https://www.sciencedirect.com/science/article/pii/0022283684904698?via%3Dihub,58.0
+2BUS,ASP,A,12.0,3.6,,149.8,NMR,0.1 M,3.0-6.0,291 K,https://www.sciencedirect.com/science/article/pii/0022283684904698?via%3Dihub,58.0
+2BUS,GLU,A,20.0,4.1,,102.5,NMR,0.1 M,3.0-6.0,291 K,https://www.sciencedirect.com/science/article/pii/0022283684904698?via%3Dihub,58.0
+2CI2,GLU,I,23.0,3.2,,62.0,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,GLU,I,26.0,3.3,,66.3,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,GLU,I,33.0,4.2,,73.7,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,GLU,I,34.0,3.8,,77.4,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,ASP,I,42.0,3.3,,71.6,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,GLU,I,45.0,3.9,,70.8,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,GLU,I,60.0,3.5,,72.3,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,ASP,I,64.0,3.8,,35.3,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,ASP,I,71.0,2.8,,62.1,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2CI2,ASP,I,74.0,5,,78.8,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,65.0
+2GB1,LYS,A,10.0,11,,129.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,LYS,A,13.0,>11,,117.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,GLU,A,15.0,4.4,0.1,78.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,GLU,A,19.0,3.7,0.15,111.3,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,ASP,A,22.0,2.9,0.1,67.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,GLU,A,27.0,4.5,0.1,55.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,LYS,A,28.0,10.9,,100.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,ASP,A,36.0,3.8,0.1,126.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,ASP,A,40.0,4,0.2,59.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,GLU,A,42.0,4.4,0.1,102.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,ASP,A,46.0,3.6,0.1,49.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,ASP,A,47.0,3.4,0.3,115.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2GB1,GLU,A,56.0,4,0.1,68.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2IGD,GLU,A,20.0,4.3,0.1,97.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,ASP,A,27.0,2.9,0.1,58.3,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,GLU,A,29.0,4.2,0.1,89.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,GLU,A,32.0,4.6,0.1,54.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,ASP,A,41.0,3.9,0.1,114.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,ASP,A,45.0,4.4,0.1,135.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,ASP,A,51.0,3.6,0.1,76.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,ASP,A,52.0,3.4,0.1,90.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGD,GLU,A,61.0,4.2,0.1,55.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,GLU,A,20.0,4.3,0.1,71.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,ASP,A,27.0,2.9,0.1,75.3,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,GLU,A,29.0,4.2,0.1,94.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,GLU,A,32.0,4.6,0.1,31.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,ASP,A,41.0,3.9,0.1,123.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,ASP,A,45.0,4.4,0.1,62.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,ASP,A,51.0,3.6,0.1,33.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,ASP,A,52.0,3.4,0.1,97.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2IGH,GLU,A,61.0,4.2,0.1,95.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,61.0
+2LZT,LYS,A,1.0,10.9,0.1,64.7,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,GLU,A,7.0,2.85,0.25,86.0,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,LYS,A,13.0,10.6,0.1,56.9,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,ASP,A,18.0,2.66,0.08,81.0,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,LYS,A,33.0,10.6,0.1,36.5,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,GLU,A,35.0,6.2,0.1,29.9,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,ASP,A,48.0,1.6,0.4,78.6,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,ASP,A,52.0,3.68,0.08,25.0,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,ASP,A,66.0,0.9,0.5,31.8,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,ASP,A,87.0,2.07,0.15,84.2,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,LYS,A,96.0,10.8,0.1,27.6,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,LYS,A,97.0,10.3,0.1,50.5,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,ASP,A,101.0,4.09,0.07,75.4,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,LYS,A,116.0,10.4,0.1,70.9,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,ASP,A,119.0,3.2,0.09,90.1,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2QMT,LYS,A,10.0,11,,98.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,LYS,A,13.0,>11,,77.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,GLU,A,15.0,4.4,0.1,96.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,GLU,A,19.0,3.7,0.15,91.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,ASP,A,22.0,2.9,0.1,65.3,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,GLU,A,27.0,4.5,0.1,54.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,LYS,A,28.0,10.9,,82.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,ASP,A,36.0,3.8,0.1,120.5,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,ASP,A,40.0,4,0.2,134.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,GLU,A,42.0,4.4,0.1,107.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,ASP,A,46.0,3.6,0.1,79.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,ASP,A,47.0,3.4,0.3,93.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2QMT,GLU,A,56.0,4,0.1,56.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,60.0
+2RN2,GLU,A,6.0,4.5,,32.2,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,ASP,A,10.0,6.1,,11.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,32.0,3.6,,66.0,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,48.0,4.4,,14.6,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,57.0,3.2,,61.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,61.0,3.9,,53.7,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,HIS,A,62.0,7,,97.8,1H NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,155.0
+2RN2,GLU,A,64.0,4.4,,68.8,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,ASP,A,70.0,2.6,,55.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,HIS,A,83.0,5.5,,83.2,1H NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,155.0
+2RN2,ASP,A,94.0,3.2,,112.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,ASP,A,102.0,<2,,53.4,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,ASP,A,108.0,3.2,,43.0,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,HIS,A,114.0,<5,,17.6,1H NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,155.0
+2RN2,GLU,A,119.0,4.1,,45.1,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,HIS,A,124.0,7.1,,113.1,1H NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,155.0
+2RN2,HIS,A,127.0,7.9,,45.0,1H NMR,0.1 M,3.5-10.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8380173,155.0
+2RN2,GLU,A,129.0,3.6,,26.0,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,131.0,4.3,,86.2,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,ASP,A,134.0,4.3,,53.0,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,135.0,4.3,,90.9,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,147.0,4.2,,111.2,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,ASP,A,148.0,<2,,10.6,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2RN2,GLU,A,154.0,4.4,,93.3,13C NMR,0.1 M,2.0-8.0,300 K,https://pubs.acs.org/doi/abs/10.1021/bi00183a034,155.0
+2SNI,GLU,I,23.0,3.2,,68.9,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,GLU,I,26.0,3.3,,59.5,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,GLU,I,33.0,4.2,,83.4,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,GLU,I,34.0,3.8,,66.8,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,ASP,I,42.0,3.3,,63.4,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,GLU,I,45.0,3.9,,69.9,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,GLU,I,60.0,3.5,,1.4,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,ASP,I,64.0,3.8,,58.5,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,ASP,I,71.0,2.8,,45.8,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+2SNI,ASP,I,74.0,5,,81.9,NMR,200 mM,2.0-5.9,315 K,https://www.sciencedirect.com/science/article/pii/S0022283685706705?via%3Dihub,341.0
+3EGF,ASP,A,11.0,3.9,0.05,155.1,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3EGF,GLU,A,24.0,4.1,0.1,75.8,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3EGF,ASP,A,27.0,4,0.1,122.2,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3EGF,ASP,A,40.0,3.6,0.1,70.3,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3EGF,ASP,A,46.0,3.8,0.1,77.0,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3EGF,GLU,A,51.0,4,,51.2,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3EGF,HIS,A,22.0,6.8,0.1,8.1,1H NMR,,1.5-9,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00234a009,53.0
+3GB1,LYS,A,10.0,11,,120.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,LYS,A,13.0,>11,,110.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,GLU,A,15.0,4.4,0.1,83.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,GLU,A,19.0,3.7,0.15,116.0,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,ASP,A,22.0,2.9,0.1,64.7,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,GLU,A,27.0,4.5,0.1,58.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,LYS,A,28.0,10.9,,107.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,ASP,A,36.0,3.8,0.1,120.1,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,ASP,A,40.0,4,0.2,99.6,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,GLU,A,42.0,4.4,0.1,109.4,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,ASP,A,46.0,3.6,0.1,61.3,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,ASP,A,47.0,3.4,0.3,104.2,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3GB1,GLU,A,56.0,4,0.1,45.8,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+3ICB,LYS,A,1.0,10.61,0.04,74.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,GLU,A,4.0,3.77,0.02,105.1,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,GLU,A,5.0,3.4,0.02,71.8,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,LYS,A,7.0,11.39,0.03,47.2,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,GLU,A,11.0,4.74,0.02,79.3,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,LYS,A,12.0,11.06,0.07,76.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,LYS,A,16.0,10.06,0.05,83.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,GLU,A,17.0,3.62,,62.6,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,LYS,A,25.0,11.72,0.06,55.3,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,GLU,A,26.0,4.08,0.04,89.4,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,LYS,A,29.0,11.05,0.09,44.1,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,LYS,A,41.0,10.95,0.06,111.1,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,ASP,A,47.0,3.04,0.09,89.0,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,GLU,A,48.0,4.62,0.06,70.2,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,LYS,A,55.0,11.43,0.04,66.4,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,GLU,A,64.0,3.84,0.02,101.3,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3ICB,LYS,A,71.0,10.73,0.05,86.5,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,LYS,A,72.0,11.01,0.05,56.7,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,77.0
+3ICB,C-term,A,75.0,3.2,0.05,123.6,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,77.0
+3RN3,GLU,A,2.0,2.8,0.2,71.3,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,GLU,A,9.0,4,0.2,59.7,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,HIS,A,12.0,6.2,0.2,10.0,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,ASP,A,38.0,3.5,0.2,140.5,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,GLU,A,49.0,4.7,0.2,34.2,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,ASP,A,53.0,3.9,0.2,82.2,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,ASP,A,83.0,3.5,0.2,24.0,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,GLU,A,86.0,4.1,0.2,51.2,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,HIS,A,105.0,6.7,0.2,34.7,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,GLU,A,111.0,3.5,0.2,77.5,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,HIS,A,119.0,6.1,0.2,54.6,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,ASP,A,121.0,3.1,0.2,19.5,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,Asp,A,14.0,<2.0,,4.6,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,His,A,48.0,6,0.2,7.2,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,N-term,A,1.0,7.6,0.2,137.7,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,C-term,A,124.0,2.4,0.2,78.5,NMR,30 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+4ICB,LYS,A,1.0,10.59,0.04,44.7,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,GLU,A,4.0,3.77,0.02,103.8,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,GLU,A,5.0,3.4,0.02,67.9,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,LYS,A,7.0,11.36,0.03,43.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,GLU,A,11.0,4.74,0.02,70.8,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,LYS,A,12.0,11.06,0.07,73.7,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,LYS,A,16.0,10.06,0.03,78.1,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,GLU,A,17.0,3.62,,59.4,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,LYS,A,25.0,11.81,0.06,46.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,GLU,A,26.0,4.08,0.04,92.5,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,LYS,A,29.0,11.28,0.03,52.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,LYS,A,41.0,10.93,0.03,109.6,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,ASP,A,47.0,3.04,0.09,82.0,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,GLU,A,48.0,4.62,0.06,74.9,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,LYS,A,55.0,12.12,0.13,86.9,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,GLU,A,64.0,3.84,0.02,123.1,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4ICB,LYS,A,71.0,10.72,0.02,80.9,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,LYS,A,72.0,11.33,0.07,49.9,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,78.0
+4ICB,C-term,A,75.0,3.2,0.05,120.9,NMR,1 M,2.4-7.6,300 K,https://onlinelibrary.wiley.com/doi/full/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,78.0
+4LZT,LYS,A,1.0,10.9,0.1,72.0,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4LZT,GLU,A,7.0,2.85,0.25,88.2,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,LYS,A,13.0,10.6,0.1,57.7,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4LZT,HIS,A,15.0,5.36,0.07,32.9,Potentiometric titration,0.1 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,18.0,2.66,0.08,85.2,NMR,2.5 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4LZT,LYS,A,33.0,10.6,0.1,38.5,Potentiometric titration,0.1 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,GLU,A,35.0,6.2,0.1,29.1,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,48.0,1.6,0.4,79.5,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,52.0,3.68,0.08,25.3,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,66.0,0.9,0.5,31.4,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,87.0,2.07,0.15,91.7,NMR,2.5 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4LZT,LYS,A,96.0,10.8,0.1,28.6,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4LZT,LYS,A,97.0,10.3,0.1,54.3,Potentiometric titration,0.1 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,101.0,4.09,0.07,81.6,NMR,2.5 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4LZT,LYS,A,116.0,10.4,0.1,72.8,Potentiometric titration,0.1 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+4LZT,ASP,A,119.0,3.2,0.09,92.3,NMR,2.5 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+4PTI,ASP,A,3.0,3,0.1,139.1,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,GLU,A,7.0,3.7,0.1,41.1,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,LYS,A,15.0,10.6,0.1,110.2,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,LYS,A,26.0,10.6,0.1,129.7,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,LYS,A,41.0,10.8,0.1,59.6,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,LYS,A,46.0,10.6,0.1,100.9,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,GLU,A,49.0,3.8,0.1,97.8,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,ASP,A,50.0,3.4,0.1,62.1,NMR,150 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+7RSA,GLU,A,2.0,2.7,0.08,53.6,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,GLU,A,9.0,4,,50.5,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,HIS,A,12.0,6,0.1,1.1,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,ASP,A,38.0,2.1,0.1,99.9,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,GLU,A,49.0,4.3,0.1,31.0,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,ASP,A,53.0,3.7,0.1,71.3,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,ASP,A,83.0,3.3,0.1,12.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,GLU,A,86.0,4,0.1,35.4,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,HIS,A,105.0,6.5,0.1,48.5,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,GLU,A,111.0,3.5,,68.8,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,HIS,A,119.0,6.5,0.1,68.6,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+7RSA,ASP,A,121.0,3,0.1,1.5,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,125.0
+9RAT,GLU,A,2.0,2.7,0.08,60.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,GLU,A,9.0,4,,61.7,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,HIS,A,12.0,6,0.1,5.8,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,ASP,A,38.0,2.1,0.1,139.6,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,GLU,A,49.0,4.3,0.1,36.2,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,ASP,A,53.0,3.7,0.1,83.6,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,ASP,A,83.0,3.3,0.1,15.5,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,GLU,A,86.0,4,0.1,49.9,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,HIS,A,105.0,6.5,0.1,32.1,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,GLU,A,111.0,3.5,,77.2,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,HIS,A,119.0,6.5,0.1,52.1,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+9RAT,ASP,A,121.0,3,0.1,23.8,NMR,1 M,1.2-7.9,303 K,https://www.sciencedirect.com/science/article/pii/S0003986196901083?via%3Dihub,124.0
+1QLP,CYS,A,232.0,6.86,0.05,23.3,Reaction kinetics,100 mM,5.0-10.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/11991955,
+4MA9,CYS,A,46.0,5.94,0.1,0.0,NMR,100 mM,3.0-10.0,297 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2645924/,
+1P5F,CYS,A,106.0,5.4,0.1,12.3,Spectrophotometric titration,0.2 M,,303 K,https://pubs.acs.org/doi/abs/10.1021/bi011208f,186.0
+1I0E,CYS,A,283.0,5.6,0.05,36.6,Spectrophotometric titration,30 mM,,303 K,https://pubs.acs.org/doi/abs/10.1021/bi011208f,
+2L90,CYS,A,72.0,7.2,0.2,0.0,NMR,200 mM,5.0-10.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/22661719,
+1EH6,CYS,A,145.0,5.3,0.2,2.9,UV spectrophotometry,0.25 M,,296 K,https://www.ncbi.nlm.nih.gov/pubmed/12974631,169.0
+1PPN,CYS,A,25.0,3.32,,11.9,Spectrophotometric titration,0.1 M,,98 K,https://www.ncbi.nlm.nih.gov/pubmed/9254592,213.0
+2HNP,CYS,A,215.0,5.57,0.12,6.8,Reaction kinetics,1 M,4.5-9.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi963094r,278.0
+1PPO,CYS,A,25.0,2.88,0.02,14.4,Reaction kinetics,0.1 M,,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9705974,217.0
+1YPT,CYS,A,403.0,4.67,0.15,6.2,Reaction kinetics,0.15 M,4.0-6.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00087a012,
+1RGG,TYR,A,30.0,11.3,0.02-0.07,31.9,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1RGG,TYR,A,49.0,10.6,0.02-0.07,108.6,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1PGB,TYR,A,33.0,11,,42.9,NMR,,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+2OVO,ASP,A,7.0,2.67,0.06,91.1,1H NMR,10 mM,1.4-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00014a028,56.0
+2OVO,ASP,A,27.0,2.3,0.06,74.0,1H NMR,10 mM,1.4-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00014a028,56.0
+2OVO,GLU,A,10.0,4.14,0.06,110.1,1H NMR,10 mM,1.4-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00014a028,56.0
+2OVO,GLU,A,19.0,3.21,0.02,61.2,1H NMR,10 mM,1.4-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00014a028,56.0
+2OVO,GLU,A,43.0,4.81,0.1,130.2,1H NMR,10 mM,1.4-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00014a028,56.0
+2OVO,HIS,A,52.0,7.5,,46.0,1H NMR,10 mM,1.4-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00014a028,56.0
+2OVO,TYR,A,11.0,10.16,0.05,23.6,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+2OVO,TYR,A,20.0,11.07,0.11,79.9,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+2OVO,TYR,A,31.0,>12.5,,17.4,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+2OVO,LYS,A,13.0,9.86,0.03,51.8,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+2OVO,LYS,A,29.0,11.12,0.02,68.3,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+2OVO,LYS,A,34.0,10.13,0.05,49.0,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+2OVO,LYS,A,55.0,11.1,0.06,73.8,NMR,0.015 M,5.0-12.7,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9628726,56.0
+4PTI,TYR,A,10.0,10.4,0.2,44.8,1H NMR,0.1 M,5.0-13.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00688a008,58.0
+4PTI,TYR,A,21.0,11.1,0.2,38.5,1H NMR,0.1 M,5.0-13.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00688a008,58.0
+4PTI,TYR,A,23.0,11.7,0.2,4.7,1H NMR,0.1 M,5.0-13.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00688a008,58.0
+4PTI,TYR,A,35.0,11.1,0.2,8.5,1H NMR,0.1 M,5.0-13.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00688a008,58.0
+3RN3,HIS,A,48.0,6,0.2,7.2,NMR,200 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,N-term,A,1.0,7.6,0.2,137.7,NMR,200 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+3RN3,C-term,A,124.0,2.4,0.2,78.5,NMR,200 mM,1.5-11.0,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,124.0
+1RGG,GLU,A,54.0,3.42,0.02-0.07,7.5,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1RGG,TYR,A,86.0,>11.5,0.02-0.07,31.9,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1RGG,TYR,A,52.0,>11.5,0.02-0.07,0.1,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1RGG,TYR,A,55.0,>11.5,0.02-0.07,12.1,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1RGG,TYR,A,80.0,>11.5,0.02-0.07,6.6,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+1RGG,TYR,A,81.0,>11.5,0.02-0.07,13.5,NMR,0.1 M,1.78-7.25,293 K,https://www.sciencedirect.com/science/article/pii/S0022283602012731?via%3Dihub,192.0
+2CPL,HIS,A,70.0,5.84,0.05,66.6,NMR,0.1 M,4.6-10.7,293 K,https://www.sciencedirect.com/science/article/pii/0167483894901325?via%3Dihub,164.0
+2CPL,HIS,A,126.0,6.34,0.01,16.4,NMR,0.1 M,4.6-10.7,293 K,https://www.sciencedirect.com/science/article/pii/0167483894901325?via%3Dihub,164.0
+1LZ1,HIS,A,78.0,7.12,0.04,108.1,NMR,0.022 M,,296 K,https://onlinelibrary.wiley.com/doi/pdf/10.1002/bip.360320802,130.0
+1YMB,HIS,A,24.0,<4.8,,5.4,NMR,0.2 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1YMB,HIS,A,81.0,6.72,0.01,92.4,NMR,0.02 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1YMB,HIS,A,36.0,7.98,<0.01,32.6,NMR,0.2 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1YMB,HIS,A,48.0,5.61,0.02,73.4,NMR,0.2 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1YMB,HIS,A,113.0,5.51,0.02,55.2,NMR,0.2 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1YMB,HIS,A,116.0,6.7,0.01,42.2,NMR,0.2 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1YMB,HIS,A,119.0,6.37,0.01,16.3,NMR,0.2 M,4.8-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,157.0
+1GYM,HIS,A,92.0,5.4,,58.2,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,
+1GYM,HIS,A,82.0,6.9,,30.7,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,
+1GYM,HIS,A,32.0,7.6,,14.0,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,
+1GYM,HIS,A,227.0,6.9,,9.2,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,
+1STG,HIS,A,46.0,5.8,0.1,69.3,NMR,0.3 M,4.8-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00406a051,
+1STG,HIS,A,8.0,6.82,0.1,62.8,NMR,0.3 M,4.8-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00406a051,
+1STG,HIS,A,124.0,5.99,0.1,54.3,NMR,0.3 M,4.8-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00406a051,
+1HPX,ASP,A,125.0,<2.5,,14.8,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+1HPX,ASP,A,29.0,3.19,,56.8,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+1HPX,ASP,A,30.0,3.88,,45.3,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+1HPX,ASP,A,60.0,2.99,,69.2,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+135L,ASP,A,18.0,2.68,0.1,57.9,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+135L,ASP,A,52.0,3.78,0.08,26.8,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+135L,ASP,A,87.0,2.13,0.16,95.4,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+135L,ASP,A,119.0,3.35,0.11,93.1,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+135L,GLU,A,7.0,2.68,0.09,68.1,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+135L,GLU,A,35.0,6.06,0.12,26.2,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1DIV,ASP,A,8.0,2.99,0.05,106.3,NMR,100 mM,1.5-12.5,298 K,pKa Values and the pH Dependent Stability of the N-Terminal Domain of L9 as Probes of Electrostatic Interactions in the Denatured State. Differentiation between Local and Nonlocal Interactions,149.0
+1DIV,ASP,A,23.0,3.05,0.04,104.0,NMR,101 mM,1.5-12.5,298 K,pKa Values and the pH Dependent Stability of the N-Terminal Domain of L9 as Probes of Electrostatic Interactions in the Denatured State. Differentiation between Local and Nonlocal Interactions,149.0
+1DIV,GLU,A,17.0,3.57,0.05,51.7,NMR,102 mM,1.5-12.5,298 K,pKa Values and the pH Dependent Stability of the N-Terminal Domain of L9 as Probes of Electrostatic Interactions in the Denatured State. Differentiation between Local and Nonlocal Interactions,149.0
+1DIV,GLU,A,38.0,4.04,0.05,59.8,NMR,103 mM,1.5-12.5,298 K,pKa Values and the pH Dependent Stability of the N-Terminal Domain of L9 as Probes of Electrostatic Interactions in the Denatured State. Differentiation between Local and Nonlocal Interactions,149.0
+1DIV,GLU,A,48.0,4.21,0.08,43.7,NMR,104 mM,1.5-12.5,298 K,pKa Values and the pH Dependent Stability of the N-Terminal Domain of L9 as Probes of Electrostatic Interactions in the Denatured State. Differentiation between Local and Nonlocal Interactions,149.0
+1DIV,GLU,A,54.0,4.21,0.08,35.7,NMR,105 mM,1.5-12.5,298 K,pKa Values and the pH Dependent Stability of the N-Terminal Domain of L9 as Probes of Electrostatic Interactions in the Denatured State. Differentiation between Local and Nonlocal Interactions,149.0
+4HHB,HIS,A,20.0,7.6,0.1,50.9,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,A,50.0,7.2,0.1,108.2,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,A,72.0,7.3,0.1,61.0,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,A,89.0,7.2,0.1,69.6,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,A,112.0,8.1,0.1,40.6,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,B,2.0,6.7,0.1,100.5,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,B,77.0,7.8,0.1,61.2,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,B,143.0,5.6,0.1,65.0,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,HIS,B,146.0,8.1,0.1,84.9,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,N-term,A,1.0,7.83,0.1,108.5,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+4HHB,N-term,B,1.0,6.91,0.1,92.0,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,588.0
+1HHO,HIS,A,20.0,7,0.1,60.0,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,A,50.0,7.1,0.1,92.1,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,A,72.0,7.1,0.1,79.0,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,A,89.0,5.6,0.1,53.2,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,A,112.0,8.1,0.1,26.4,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,B,2.0,6.7,0.1,103.7,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,B,77.0,7.8,0.1,67.8,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,HIS,B,146.0,7,0.1,107.7,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,N-term,A,1.0,7.16,0.1,154.2,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+1HHO,N-term,B,1.0,7,0.1,76.6,NMR,,5.0-9.0,309.5 K,https://pubs.acs.org/doi/abs/10.1021/bi00560a010,296.0
+2MB5,HIS,A,12.0,6.4,,73.6,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,36.0,8.2,,34.2,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,48.0,5.5,,95.3,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,81.0,6.7,,122.4,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,97.0,5.6,,70.7,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,TYR,A,103.0,10.3,,19.9,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,113.0,5.4,,74.5,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,116.0,6.6,,69.7,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,HIS,A,119.0,6.1,,19.7,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+2MB5,TYR,A,151.0,10.5,0.2,50.6,NMR,0.1 M,7.0-10.8,311 K,https://www.ncbi.nlm.nih.gov/pubmed/8455,
+1ERT,GLU,A,6.0,4.8,0.08,75.8,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,13.0,4.8,0.2,94.9,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1ERT,ASP,A,16.0,3.7,0.1,127.8,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1ERT,ASP,A,20.0,3.6,0.1,121.1,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1ERT,ASP,A,26.0,9.9,0.1,0.2,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+# CYS32 - CYS35,,,,,,,,,,,,
+"#""1ERT""",CYS,A,32.0,6.3,0.1,12.8,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,
+1ERT,HIS,A,43.0,5.5,0.1,44.1,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1ERT,GLU,A,47.0,4.1,0.1,90.3,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,56.0,5,0.1,12.5,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,ASP,A,58.0,3.1,0.2,14.9,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1ERT,ASP,A,60.0,4.2,0.2,63.4,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,ASP,A,61.0,5.3,0.3,90.9,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,ASP,A,64.0,3.1,0.2,70.3,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1ERT,GLU,A,68.0,4.9,0.07,97.6,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,70.0,4.6,0.08,95.7,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,88.0,3.7,0.08,67.7,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,95.0,4.1,0.02,119.2,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,98.0,3.9,0.02,29.4,NMR,100 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,GLU,A,103.0,4.4,0.07,106.7,NMR,101 mM,1.9-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERT,C-term,A,105.0,3.2,0.1,74.0,1H NMR,75-100 mM,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1FNA,GLU,A,38.0,3.8,<0.05,41.6,NMR,0.1 M,1.5-7.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi010916y,91.0
+1FNA,GLU,A,47.0,3.9,<0.05,72.8,NMR,0.1 M,1.5-7.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi010916y,91.0
+1FNA,ASP,A,67.0,4.2,<0.05,61.0,NMR,0.1 M,1.5-7.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi010916y,91.0
+1FNA,ASP,A,80.0,3.4,<0.05,105.3,NMR,0.1 M,1.5-7.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi010916y,91.0
+3SRN,HIS,A,12.0,6.03,0.02,8.0,NMR,0.3 M,4.0-8.5,313 K,https://www.pnas.org/content/88/18/8116,124.0
+3SRN,HIS,A,105.0,6.82,0.01,31.6,NMR,0.3 M,4.0-8.5,313 K,https://www.pnas.org/content/88/18/8116,124.0
+3SRN,HIS,B,119.0,6.33,0.01,69.3,NMR,0.3 M,4.0-8.5,313 K,https://www.pnas.org/content/88/18/8116,124.0
+6GST,HIS,A,83.0,5.18,0.05,47.8,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/1918058,
+6GST,HIS,A,84.0,7.08,0.01,102.9,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/1918058,
+6GST,HIS,A,167.0,7.77,0.03,39.1,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/1918058,
+3SSI,HIS,A,43.0,3.25,,5.7,NMR,,2.0-9.0,303 K,https://www.ncbi.nlm.nih.gov/pubmed/6998977,108.0
+3SSI,HIS,A,106.0,6,0.1,13.6,NMR,,2.0-9.0,303 K,https://www.ncbi.nlm.nih.gov/pubmed/6998977,108.0
+3EBX,HIS,A,6.0,2.8,,6.9,NMR,,,296-326 K,https://www.ncbi.nlm.nih.gov/pubmed/710401,62.0
+3EBX,HIS,A,26.0,5.8,,22.0,NMR,,,296-326 K,https://www.ncbi.nlm.nih.gov/pubmed/710401,62.0
+1YGW,ASP,A,3.0,3.54,0.02,87.3,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,ASP,A,15.0,3.52,0.02,49.5,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,ASP,A,29.0,4.26,0.03,86.5,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,ASP,A,49.0,4.22,0.05,128.2,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,ASP,A,66.0,3.9,0.01,89.1,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,GLU,A,28.0,5.61,0.03,71.1,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,GLU,A,31.0,5.36,0.07,84.6,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,GLU,A,46.0,3.62,0.04,82.4,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,GLU,A,58.0,3.96,0.03,2.7,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,GLU,A,82.0,3.27,0.02,70.1,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,GLU,A,102.0,5.3,0.02,51.7,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,HIS,A,27.0,7.57,0.12,22.3,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,HIS,A,40.0,7.44,0.05-0.4,41.7,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1YGW,HIS,A,92.0,7.31,0.04,40.1,NMR,1 M,2.1-9.6,308 K,https://link.springer.com/article/10.1007/s002490100138,104.0
+1BI6,GLU,L,5.0,4,0.1,74.4,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,ASP,H,9.0,3,0.2,15.2,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,ASP,H,13.0,3.8,0.1,88.5,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,ASP,H,32.0,3.1,0.2,17.3,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,ASP,H,38.0,3.7,0.2,96.8,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,GLU,H,1.0,3.3,0.1,48.3,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,GLU,H,2.0,3.3,0.1,20.7,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1BI6,GLU,H,24.0,4.2,0.1,53.2,NMR,,1.5-7.0,313 K,https://www.ncbi.nlm.nih.gov/pubmed/12674503,52.0
+1FKS,HIS,A,25.0,<3.6,,46.9,NMR,0.1 M,4.6-10.7,298 K,https://www.sciencedirect.com/science/article/pii/0167483894901325?via%3Dihub,108.0
+1FKS,HIS,A,94.0,5.84,0.02,95.7,NMR,0.1 M,4.6-10.7,298 K,https://www.sciencedirect.com/science/article/pii/0167483894901325?via%3Dihub,108.0
+1FKS,HIS,A,87.0,6.51,0.01,87.7,NMR,0.1 M,4.6-10.7,298 K,https://www.sciencedirect.com/science/article/pii/0167483894901325?via%3Dihub,108.0
+2BCA,LYS,A,1.0,10.59,0.04,92.5,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,7.0,11.36,0.03,75.4,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,12.0,11.06,0.07,90.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,16.0,11.06,0.03,95.3,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,GLU,A,26.0,4.08,0.04,91.0,NMR,1 M,,300 K,https://onlinelibrary.wiley.com/doi/pdf/10.1002/%28SICI%291097-0134%2819991001%2937%3A1%3C106%3A%3AAID-PROT10%3E3.0.CO%3B2-M,75.0
+2BCA,LYS,A,29.0,11.28,0.03,46.4,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,41.0,10.93,0.02,90.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,55.0,12.12,0.13,116.0,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,71.0,10.73,0.05,98.8,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+2BCA,LYS,A,72.0,11.33,0.08,69.4,NMR,,5.25-12.25,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8683586,75.0
+1EPI,ASP,A,11.0,3.9,0.05,142.0,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,HIS,A,22.0,6.8,0.1,36.8,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,GLU,A,24.0,4.1,0.1,92.6,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,ASP,A,27.0,4,0.1,78.1,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,ASP,A,40.0,3.6,0.1,118.1,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,ASP,A,46.0,3.8,0.1,90.8,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,N-term,A,1.0,7.7,0.1,133.9,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+1EPI,C-term,A,53.0,3.5,0.1,133.7,1H NMR,,1.5-9,298 K,https://www.ncbi.nlm.nih.gov/pubmed/2036358,53.0
+4PTI,N-term,A,1.0,8.1,0.1,69.0,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+4PTI,C-term,A,58.0,2.9,0.1,247.0,NMR,200 mM,0-16,293 K,https://www.sciencedirect.com/science/article/pii/S0022283684713015?via%3Dihub,58.0
+1TRE,HIS,A,97.0,<4.5,,7.0,NMR,1 M,4.5-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00067a024,
+5TIM,HIS,A,95.0,<4.5,,4.0,NMR,1 M,4.5-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00067a024,
+1YPI,HIS,A,95.0,<4.5,,3.6,NMR,1 M,4.5-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00067a024,
+1YPI,HIS,A,103.0,7.29,,88.4,NMR,1 M,4.5-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00067a024,
+1STN,HIS,A,8.0,6.52,0.03,71.1,1H NMR,0.1 M,4.0-9.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi0119417,136.0
+1STN,HIS,A,46.0,5.86,0.04,32.0,1H NMR,0.1 M,4.0-9.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi0119417,136.0
+1STN,HIS,A,121.0,5.3,0.06,25.2,1H NMR,0.1 M,4.0-9.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi0119417,136.0
+1STN,HIS,A,124.0,5.73,0.02,65.3,1H NMR,0.1 M,4.0-9.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi0119417,136.0
+1STN,ASP,A,19.0,"2.21,6.54",0.06-0.07,3.6,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,ASP,A,21.0,"3.01,6.54",0.01-0.02,4.7,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,ASP,A,40.0,3.87,0.09,71.0,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,ASP,A,77.0,<2.2,,2.5,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,ASP,A,83.0,<2.2,,33.2,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,ASP,A,95.0,2.16,0.07,66.4,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,10.0,2.82,0.09,17.0,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,43.0,4.32,0.04,32.3,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,52.0,3.93,0.08,27.9,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,57.0,3.49,0.09,72.7,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,67.0,3.76,0.07,75.7,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,73.0,3.31,0.01,41.0,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,75.0,3.26,0.05,4.8,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,101.0,3.81,0.1,31.8,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,122.0,3.89,0.09,26.2,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,129.0,3.75,0.09,11.8,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+1STN,GLU,A,135.0,3.76,0.08,63.3,NMR,0.1 M,2.5-7.5,298 K,https://www.ncbi.nlm.nih.gov/pubmed/19533744,136.0
+9RNT,ASP,A,3.0,3.54,0.02,82.6,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,ASP,A,15.0,3.52,0.02-0.07,43.9,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,HIS,A,27.0,7.57,0.12,30.6,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,ASP,A,29.0,4.26,0.03,92.9,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,ASP,A,49.0,4.22,0.05,150.1,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,ASP,A,66.0,3.9,0.01,104.6,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,ASP,A,76.0,0.5,,1.2,13C NMR,1 M,2.0-9.0,308 K,https://pubs.acs.org/doi/10.1021/bi991422s,105.0
+9RNT,GLU,A,28.0,5.61,0.03,88.2,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,GLU,A,31.0,5.36,0.07,81.1,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,GLU,A,46.0,3.62,0.04,59.4,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,GLU,A,58.0,3.96,0.03,11.6,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,GLU,A,82.0,3.27,0.02,49.1,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,GLU,A,102.0,5.3,0.02,68.5,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,HIS,A,40.0,7.44,0.05-4,35.7,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,HIS,A,92.0,7.31,0.04,28.1,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+9RNT,N-term,A,1.0,8.1,0.1,213.7,13C NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,105.0
+1PPF,ASP,I,7.0,2.67,0.06,89.6,NMR,10 mM,7.3-7.6,298 K,https://www.ncbi.nlm.nih.gov/pubmed/7718577,290.0
+1PPF,ASP,I,27.0,2.22,0.06,67.7,NMR,10 mM,7.3-7.6,298 K,https://www.ncbi.nlm.nih.gov/pubmed/7718577,290.0
+1PPF,GLU,I,10.0,4.14,0.06,97.4,NMR,10 mM,7.3-7.6,298 K,https://www.ncbi.nlm.nih.gov/pubmed/7718577,290.0
+1PPF,GLU,I,19.0,3.21,0.02,24.8,NMR,10 mM,7.3-7.6,298 K,https://www.ncbi.nlm.nih.gov/pubmed/7718577,290.0
+1PPF,GLU,I,43.0,4.81,0.1,127.3,NMR,10 mM,7.3-7.6,298 K,https://www.ncbi.nlm.nih.gov/pubmed/7718577,290.0
+1PPF,HIS,I,52.0,7.5,,44.9,NMR,0.015 M,5.0-13.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi980187v,290.0
+1PPF,LYS,I,13.0,9.87,0.04,38.8,NMR,0.5 M,5.0-13.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi980187v,290.0
+1PPF,LYS,I,29.0,11.12,0.02-0.07,61.8,NMR,0.015 M,5.0-13.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi980187v,290.0
+1PPF,LYS,I,34.0,10.13,0.05,45.5,NMR,0.015 M,5.0-13.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi980187v,290.0
+1PPF,LYS,I,55.0,11.1,0.06,79.1,NMR,0.015 M,5.0-13.0,298 K,https://pubs.acs.org/doi/pdf/10.1021/bi980187v,290.0
+1PGA,TYR,A,3.0,>11,,1.9,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,LYS,A,4.0,>11,,39.6,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,TYR,A,45.0,>12,,46.8,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGA,TYR,A,33.0,11,,47.2,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,TYR,A,3.0,>11,,4.9,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,LYS,A,4.0,>11,,32.8,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1PGB,TYR,A,45.0,>12,,50.0,NMR,100 mM,1.5-11.6,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9630927,56.0
+1RGG,GLU,A,54.0,3.42,0.02-0.07,7.5,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,TYR,A,30.0,11.3,0.02-0.07,31.9,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,TYR,A,49.0,10.6,0.02-0.07,108.6,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,C-term,A,96.0,2.42,0.02-0.07,77.7,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1RGG,N-term,A,1.0,9.14,0.02-0.07,129.6,NMR,0.1 M,1.68-8.83,293 K,https://www.ncbi.nlm.nih.gov/pubmed/12527309,192.0
+1XNB,C-term,A,185.0,2.7,0.1,38.5,NMR,2.5 M,2.0-9.0,308 K,https://www.ncbi.nlm.nih.gov/pubmed/9416621,185.0
+2LZT,HIS,A,15.0,5.36,0.07,33.4,NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+2LZT,TYR,A,20.0,10.3,,28.7,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,TYR,A,23.0,9.8,,25.5,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,TYR,A,53.0,12.1,,6.9,Potentiometric titration,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,N-term,A,1.0,7.9,0.1,64.7,NMR,0.1 M,1.8-11.1,298 K,https://www.ncbi.nlm.nih.gov/pubmed/6771251,129.0
+2LZT,C-term,A,129.0,2.75,0.12,73.7,NMR,2.5 mM,1.0-7.0,293 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1ERU,GLU,A,13.0,4.4,0.07,98.1,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,16.0,4.2,0.03,128.4,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,20.0,3.8,0.03,120.4,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,26.0,8.1,0.02,0.0,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,6.0,4.9,0.04,75.6,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,47.0,4.3,0.05,79.6,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,56.0,5.1,0.08,10.2,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,58.0,2.7,0.06,22.3,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,68.0,5.1,0.04,84.8,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,60.0,3.9,0.1,64.2,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,61.0,5.2,0.1,93.8,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,ASP,A,64.0,3.2,0.05,86.0,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,70.0,4.8,0.05,86.2,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,88.0,3.6,0.05,65.4,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,95.0,4.1,0.04,118.4,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,98.0,3.9,0.04,30.8,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1ERU,GLU,A,103.0,4.5,0.06,103.0,NMR,,1.9-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1PNT,HIS,A,66.0,8.29,0.01,45.3,1H NMR,0.1 M,5.0-10.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9712448,158.0
+1PNT,HIS,A,72.0,9.19,0.01,13.6,1H NMR,0.1 M,5.0-10.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9712448,158.0
+1THE,CYS,A,29.0,3.6,,14.6,Reaction kinetics,250 mM,3.2-8.4,297 K,https://www.ncbi.nlm.nih.gov/pubmed/1537854,
+1THE,HIS,A,110.0,6.9,,7.8,Reaction kinetics,250 mM,3.2-8.4,297 K,https://www.ncbi.nlm.nih.gov/pubmed/1537854,
+1THE,HIS,A,111.0,7.7,,77.7,Reaction kinetics,250 mM,3.2-8.4,297 K,https://www.ncbi.nlm.nih.gov/pubmed/1537854,
+1THE,HIS,A,199.0,8.6,,6.5,Reaction kinetics,250 mM,3.2-8.4,297 K,https://www.ncbi.nlm.nih.gov/pubmed/1537854,
+2TGA,HIS,A,40.0,4.57,0.02,30.7,NMR,0.5 M,3.0-9.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,224.0
+2TGA,HIS,A,57.0,7.33,0.02,43.8,NMR,0.5 M,3.0-9.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,224.0
+#CYS30-CYS33,,,,,,,,,,,,
+"#""1DSB""",CYS,A,30.0,3.5,,1.8,Spectrophotometric titration,0.1 M,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00185a039,
+2TRX,HIS,A,6.0,6.2,,85.2,NMR,1 M,,298-308 K,https://pubs.acs.org/doi/abs/10.1021/bi961801a,
+2TRX,ASP,A,20.0,3.8,,61.8,NMR,1 M,,298-308 K,https://pubs.acs.org/doi/abs/10.1021/bi961801a,
+2TRX,ASP,A,26.0,7.5,,1.2,NMR,1 M,,298-308 K,https://pubs.acs.org/doi/abs/10.1021/bi961801a,
+# CYS32-CYS35,,,,,,,,,,,,
+"#""2TRX""",CYS,A,32.0,7.1,,4.4,UV spectrophotometry,1 M,,298-308 K,https://pubs.acs.org/doi/abs/10.1021/bi961801a,
+"#""2TRX""",CYS,A,35.0,9.9,,2.4,UV spectrophotometry,1 M,,298-308 K,https://pubs.acs.org/doi/abs/10.1021/bi961801a,
+2TRX,N-term,A,1.0,7.4,,121.9,NMR,1 M,,298-308 K,https://pubs.acs.org/doi/abs/10.1021/bi961801a,
+1EGO,CYS,A,11.0,<5.5,,27.5,,,,,https://onlinelibrary.wiley.com/doi/full/10.1002/prot.20660,
+1EGO,CYS,A,14.0,>10.5,,0.0,,,,,https://onlinelibrary.wiley.com/doi/full/10.1002/prot.20660,
+# CYS36-CYS39,,,,,,,,,,,,
+"#""1MEK""",CYS,A,36.0,4.5,0.04,6.7,UV spectrophotometry,0.1 M,3.5-7.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi9617724,
+1SAP,GLU,A,11.0,4.19,0.01,97.1,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,GLU,A,12.0,4.41,0.01,66.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,GLU,A,14.0,4,0.01,51.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,ASP,A,16.0,2.89,0.01,56.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,ASP,A,35.0,3.42,0.01,18.6,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,ASP,A,36.0,3.12,0.01,19.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,GLU,A,47.0,4.21,0.01,59.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,ASP,A,49.0,3.55,0.01,75.6,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,GLU,A,53.0,3.53,0.01,27.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,ASP,A,56.0,3.35,0.01,49.5,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,GLU,A,62.0,3.99,0.01,18.5,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1SAP,GLU,A,64.0,4.23,0.01,119.2,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,66.0
+1AZP,GLU,A,11.0,4.19,0.01,71.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,GLU,A,12.0,4.41,0.01,91.1,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,GLU,A,14.0,4,0.01,65.8,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,ASP,A,16.0,2.89,0.01,34.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,ASP,A,35.0,3.42,0.01,32.4,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,ASP,A,36.0,3.12,0.01,51.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,GLU,A,47.0,4.21,0.01,52.8,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,ASP,A,49.0,3.55,0.01,77.4,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,GLU,A,53.0,3.53,0.01,56.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,ASP,A,56.0,3.35,0.01,50.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,GLU,A,62.0,3.99,0.01,84.1,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1AZP,GLU,A,64.0,4.23,0.01,95.0,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,GLU,A,11.0,4.17,0.01,66.5,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,GLU,A,12.0,4.33,0.01,73.7,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,ASP,A,16.0,2.62,0.01,87.1,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,ASP,A,35.0,2.67,0.01,33.8,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,GLU,A,36.0,4.89,0.01,41.5,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,GLU,A,48.0,4.03,0.01,52.5,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,ASP,A,50.0,3.55,0.01,84.4,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,GLU,A,54.0,3.56,0.01,14.1,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1BNZ,GLU,A,60.0,4.24,0.01,109.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,11.0,4.19,0.01,104.4,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,12.0,4.41,0.01,68.1,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,14.0,4,0.01,78.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,ASP,A,16.0,2.89,0.01,55.9,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,ASP,A,35.0,3.42,0.01,37.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,ASP,A,36.0,3.12,0.01,96.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,47.0,4.21,0.01,43.8,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,ASP,A,49.0,3.55,0.01,100.6,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,53.0,3.53,0.01,47.2,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,ASP,A,56.0,3.35,0.01,50.3,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,62.0,3.99,0.01,71.2,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1CA5,GLU,A,64.0,4.23,0.01,78.5,13C NMR,0.3 M,0-8,273-373 K,https://www.sciencedirect.com/science/article/pii/S0022283607008972,
+1HNG,ASP,A,2.0,3.55,0.04,143.1,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,25.0,3.53,0.02,133.3,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,26.0,3.58,0.02,104.4,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,28.0,3.57,0.06,31.8,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,62.0,4.15,0.02,15.6,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,71.0,3.18,0.04,129.9,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,72.0,4.14,0.05,16.1,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,ASP,A,94.0,3.87,0.04,44.7,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,GLU,A,29.0,4.42,0.04,20.5,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,GLU,A,33.0,4.16,0.02,44.5,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,GLU,A,41.0,6.73,0.05,17.5,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,GLU,A,56.0,3.92,0.01,51.6,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,GLU,A,99.0,4.25,0.04,42.5,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1HNG,C-term,A,176.0,3.11,0.05,189.6,NMR,100 mM,2.0-10.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi992209z,350.0
+1PTD,HIS,A,32.0,7.6,,12.4,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,296.0
+1PTD,HIS,A,82.0,6.9,,25.9,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,296.0
+1PTD,HIS,A,92.0,5.4,,58.3,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,296.0
+1PTD,HIS,A,227.0,6.9,,11.5,NMR,,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9300493,296.0
+1MBC,HIS,A,12.0,6.4,,79.7,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+1MBC,HIS,A,36.0,8.2,,30.3,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+1MBC,HIS,A,48.0,5.5,,79.8,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+1MBC,HIS,A,81.0,6.7,,89.9,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+# HIS93-HEM-HIS97,,,,,,,,,,,,
+"#""1MBC""",HIS,A,97.0,5.6,,55.1,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,
+1MBC,HIS,A,113.0,5.4,,51.8,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+1MBC,HIS,A,116.0,6.6,,67.0,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+1MBC,HIS,A,119.0,6.1,,11.5,NMR,0.1 M,,298 K,https://www.ncbi.nlm.nih.gov/pubmed/9414234,157.0
+1MBC,TYR,A,103.0,10.3,,26.1,NMR,0.1 M,,311 K,https://www.ncbi.nlm.nih.gov/pubmed/8455,157.0
+1MBC,TYR,A,151.0,10.5,0.2,41.7,NMR,0.1 M,,311 K,https://www.ncbi.nlm.nih.gov/pubmed/8455,157.0
+2ZTA,ASP,A,7.0,3.48,0.02,70.1,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,GLU,A,6.0,4.6,0.15,62.2,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,GLU,A,10.0,3.94,0.1,89.6,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,GLU,A,11.0,4.05,0.03,67.4,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,GLU,A,20.0,4.38,0.01,54.0,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,GLU,A,22.0,4.2,0.08,31.5,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,HIS,A,18.0,6.24,0.06,72.7,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,TYR,A,17.0,9.82,0.08,69.6,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,LYS,A,3.0,10.78,0.03,73.4,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,LYS,A,8.0,11.26,0.05,48.7,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,LYS,A,15.0,10.62,0.06,54.5,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,LYS,A,27.0,11.1,0.02,71.5,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,LYS,A,28.0,10.64,0.12,96.8,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,C-term,A,31.0,4.03,0.06,325.6,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+2ZTA,N-term,A,1.0,7.88,0.02,82.2,NMR,150 mM,1.0-13.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2105789/,
+4MBN,HIS,A,12.0,6.49,,77.6,NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+4MBN,HIS,A,36.0,7.83,0.02,31.2,NMR,1.5 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+4MBN,HIS,A,48.0,5.57,,79.5,NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+4MBN,HIS,A,81.0,6.89,,89.0,NMR,0.2 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+4MBN,HIS,A,113.0,5.51,0.02,48.2,NMR,0.02 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+4MBN,HIS,A,116.0,6.66,0.02,70.4,NMR,0.02 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+4MBN,HIS,A,119.0,6.38,0.02,13.5,NMR,0.02 M,5.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/10969024,156.0
+3FX5,ASP,A,29.0,3.19,,50.1,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+3FX5,ASP,A,30.0,3.88,,14.0,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+3FX5,ASP,A,60.0,2.99,,56.9,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+3FX5,ASP,B,129.0,3.65,,47.6,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+3FX5,ASP,B,130.0,3.78,,15.6,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+3FX5,ASP,B,160.0,2.99,,61.9,NMR,50 mM,2.2-7.0,307 K,https://pubs.acs.org/doi/10.1021/bi961268z,
+1EX3,ASP,A,102.0,1.36,0.03,0.6,1H NMR,,,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,245.0
+1EX3,ASP,A,194.0,2.29,0.06,4.5,1H NMR,,,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,245.0
+1YPH,ASP,C,102.0,2.77,0.25,0.3,1H NMR,0.5 M,,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,
+1YPH,HIS,C,40.0,7.2,0.03,6.0,1H NMR,0.5 M,,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,
+1YPH,HIS,C,57.0,6.14,0.04,2.6,1H NMR,0.5 M,,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00615a008,
+1ANS,TYR,A,7.0,9.7,0.2,129.3,NMR,,1.8-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8102051,27.0
+1ANS,TYR,A,18.0,10.1,0.2,10.4,NMR,,1.8-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8102051,27.0
+1ANS,GLU,A,20.0,5.4,0.2,140.6,NMR,,1.8-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8102051,27.0
+1ANS,C-term,A,27.0,3.3,0.3,80.2,NMR,,1.8-12.0,300 K,https://www.ncbi.nlm.nih.gov/pubmed/8102051,27.0
+1U2U,GLU,A,1.0,4.1,0.04,125.6,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,6.0,4.9,0.05,103.0,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,8.0,4.89,0.05,63.3,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,13.0,4.42,0.08,90.2,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,15.0,4.09,0.03,76.4,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,20.0,4.21,0.04,85.3,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,22.0,4.83,0.04,74.8,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,27.0,4.74,0.01,84.3,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,HIS,A,28.0,6.79,0.01,113.1,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+1U2U,GLU,A,29.0,4.63,0.02,149.9,1H NMR,0.1 M,2.0-9.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi048771t,
+2LZM,HIS,A,31.0,9.1,,19.6,NMR,100 mM,0-12,283 K,https://pubs.acs.org/doi/abs/10.1021/bi00461a025,164.0
+2LZM,ASP,A,70.0,0.5,,36.3,NMR,100 mM,0-12,283 K,https://pubs.acs.org/doi/abs/10.1021/bi00461a025,164.0
+3NBS,HIS,A,18.0,2.5,,30.3,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,
+3NBS,HIS,A,26.0,<3.2,,41.0,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,
+3NBS,HIS,A,33.0,6.4,,13.9,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,
+1ERA,HIS,A,26.0,5.8,,19.2,NMR,1 M,3.2-13.0,296 K,https://www.ncbi.nlm.nih.gov/pubmed/710401,62.0
+1DUK,HIS,A,36.0,7.84,0.01,21.8,NMR,0.1 M,5.5-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00143a018,155.0
+1DUK,HIS,A,81.0,6.58,0.02,78.7,NMR,0.1 M,5.5-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00143a018,155.0
+1DUK,HIS,A,113.0,5.46,0.05,45.6,NMR,0.1 M,5.5-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00143a018,155.0
+1DUK,HIS,A,116.0,6.63,0.02,62.8,NMR,0.1 M,5.5-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00143a018,155.0
+1DUK,HIS,A,119.0,6.39,0.02,16.5,NMR,0.1 M,5.5-10,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00143a018,155.0
+1NFN,LYS,A,1.0,10.5,0.1,80.7,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,69.0,10.4,0.1,74.7,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,72.0,10,0.1,69.0,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,75.0,10.1,0.1,15.2,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,95.0,10.1,0.1,102.8,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,143.0,9.5,0.1,86.7,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,146.0,9.2,0.1,85.0,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1NFN,LYS,A,157.0,11.1,0.1,76.7,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,1.0,10.5,0.1,139.9,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,69.0,10.4,0.1,71.9,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,72.0,10,0.1,65.4,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,75.0,10.1,0.1,11.3,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,95.0,10.1,0.1,99.2,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,143.0,9.5,0.1,85.0,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,146.0,9.2,0.1,84.6,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1GS9,LYS,A,157.0,11.1,0.1,90.3,NMR,150 mM,5.5-12.5,310 K,https://www.ncbi.nlm.nih.gov/pubmed/12588864,
+1XSN,LYS,A,312.0,9.58,,15.3,NMR,100 mM,7.0-10.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi051856p,
+1FEZ,LYS,A,53.0,9.3,,25.7,Potentiometric titration,10 mM,8.5-10.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi026388n,1030.0
+1L54,LYS,A,102.0,6.5,,1.8,NMR,100 mM,3.0-10.4,310 K,https://pubs.acs.org/doi/abs/10.1021/bi00113a006,164.0
+1MUT,LYS,A,39.0,8.4,0.4,79.3,NMR,,5.5-10.5,296 K,https://pubs.acs.org/doi/abs/10.1021/bi9918745,129.0
+1NZP,LYS,A,312.0,9.58,,2.8,NMR,100 mM,7.0-10.5,298 K,https://pubs.acs.org/doi/abs/10.1021/bi051856p,86.0
+1POH,HIS,A,76.0,6,,39.7,NMR,,4.2-11.0,308 K,https://www.ncbi.nlm.nih.gov/pubmed/6809041,85.0
+6LYZ,HIS,A,15.0,5.5,,22.6,NMR,0.022 M,,296 K,https://www.ncbi.nlm.nih.gov/pubmed/1420975,129.0
+1FMH,GLU,A,1.0,4.14,0.02,108.0,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,6.0,4.82,0.07,72.3,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,8.0,4.52,0.01,37.8,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,13.0,4.37,0.03,49.3,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,15.0,4.11,0.02,34.5,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,20.0,4.41,0.07,39.4,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,22.0,4.82,0.03,50.7,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,27.0,4.65,0.04,29.5,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,A,29.0,4.63,0.03,102.4,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1FMH,GLU,B,1.0,4.22,0.02,118.4,1H NMR,0.1 M,1.2-8.0,310 K,https://pubs.acs.org/doi/abs/10.1021/bi001242e,
+1HV1,GLU,A,78.0,4.6,0.1,7.5,NMR,0.05 M,2.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi0105429,185.0
+1HV1,GLU,A,172.0,7.2,0.1,12.4,NMR,0.05 M,2.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi0105429,185.0
+1HV0,GLU,A,78.0,4.6,0.1,9.6,NMR,0.05 M,2.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi0105429,185.0
+1HV0,GLU,A,172.0,7.2,0.1,15.8,NMR,0.05 M,2.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi0105429,185.0
+1BCX,GLU,A,78.0,4.6,0.1,8.9,NMR,0.05 M,2.5-9.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi0105429,
+1RGA,HIS,A,27.0,7.57,0.12,25.4,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1RGA,GLU,A,28.0,5.61,0.03,79.6,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1RGA,HIS,A,40.0,7.44,0.05-0.4,34.8,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1RGA,GLU,A,58.0,3.96,0.03,10.7,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1RGA,ASP,A,76.0,0.5,,0.9,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+1RGA,HIS,A,92.0,7.31,0.04,24.7,NMR,1 M,2.0-9.0,308 K,https://link.springer.com/article/10.1007/s002490100138,
+# HIS18 - HEM,,,,,,,,,,,,
+"#""1HRC""",HIS,A,18.0,2.5,,22.2,Potentiometric titration,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,
+1HRC,HIS,A,26.0,<3.2,,41.5,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,108.0
+1HRC,HIS,A,33.0,6.4,,22.3,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,108.0
+1HRC,TYR,A,67.0,11,,11.5,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,108.0
+1HRC,LYS,A,79.0,9,,64.5,NMR,0.1 M,3.0-11.0,303 K,https://pubs.acs.org/doi/abs/10.1021/bi00654a018,108.0
+1EY0,HIS,A,8.0,6.52,0.03,68.3,1H NMR,0.1 M,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/11969427,136.0
+1EY0,HIS,A,46.0,5.86,0.04,37.3,1H NMR,0.1 M,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/11969427,136.0
+1EY0,HIS,A,121.0,5.3,0.06,24.4,1H NMR,0.1 M,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/11969427,136.0
+1EY0,HIS,A,124.0,5.73,0.02,64.8,1H NMR,0.1 M,4.0-9.0,298 K,https://www.ncbi.nlm.nih.gov/pubmed/11969427,136.0
+3TRX,N-term,A,1.0,7.3,0.2,121.9,NMR,,2.1-10.6,313 K,https://pubs.acs.org/doi/abs/10.1021/bi00128a019,105.0
+1A93,HIS,A,29.0,6.85,0.03,66.9,NMR,50 mM,2.0-11.0,298 K,https://www.sciencedirect.com/science/article/pii/S0022283685706341?via%3Dihub,
+1HIC,ASP,A,5.0,4.25,0.09,94.3,1H NMR,,2.0-6.5,295 K,https://www.ncbi.nlm.nih.gov/pubmed/8049231,51.0
+1HIC,ASP,A,33.0,4.24,0.17,121.2,1H NMR,,2.0-6.5,295 K,https://www.ncbi.nlm.nih.gov/pubmed/8049231,51.0
+1HIC,GLU,A,8.0,4.28,0.17,67.6,1H NMR,,2.0-6.5,295 K,https://www.ncbi.nlm.nih.gov/pubmed/8049231,51.0
+1HIC,GLU,A,17.0,3.79,0.17,94.5,1H NMR,,2.0-6.5,295 K,https://www.ncbi.nlm.nih.gov/pubmed/8049231,51.0
+1HIC,GLU,A,35.0,4.32,0.12,76.3,1H NMR,,2.0-6.5,295 K,https://www.ncbi.nlm.nih.gov/pubmed/8049231,51.0
+1HIC,GLU,A,43.0,4.24,0.07,104.6,1H NMR,,2.0-6.5,295 K,https://www.ncbi.nlm.nih.gov/pubmed/8049231,51.0
+1LZ3,ASP,A,18.0,2.68,0.1,63.2,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,ASP,A,48.0,<2.5,,86.9,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,ASP,A,52.0,3.78,0.08,27.4,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,ASP,A,66.0,<2.0,,41.9,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,ASP,A,87.0,2.13,0.16,93.9,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,ASP,A,119.0,3.35,0.11,92.3,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,GLU,A,7.0,2.68,0.09,69.5,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1LZ3,GLU,A,35.0,6.06,0.12,27.2,1H NMR,2.5 M,1.0-7.0,308 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1275825/,129.0
+1A91,ASP,A,7.0,5.6,0.3,0.0,NMR,50 mM,3.3-8.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00049a034,
+1A91,ASP,A,44.0,5.6,0.1,0.0,NMR,50 mM,3.3-8.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00049a034,
+1A91,ASP,A,61.0,7.1,0.2,4.4,NMR,50 mM,3.3-8.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00049a034,
+1A91,GLU,A,2.0,5.5,0.3,13.2,NMR,50 mM,3.3-8.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00049a034,
+1A91,GLU,A,37.0,5.5,0.3,1.2,NMR,50 mM,3.3-8.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi00049a034,
+1TRS,ASP,A,16.0,4.2,0.03,111.4,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,ASP,A,20.0,3.8,0.03,79.6,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,ASP,A,26.0,8.1,0.02,1.3,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,ASP,A,58.0,2.7,0.06,5.4,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,ASP,A,60.0,3.9,0.1,73.0,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,ASP,A,61.0,5.2,0.1,85.1,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,ASP,A,64.0,3.2,0.05,55.0,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,6.0,4.9,0.04,84.4,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,13.0,4.4,0.07,85.8,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,47.0,4.3,0.05,131.8,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,56.0,3.2,0.05,11.6,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,68.0,5.1,0.04,75.4,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,70.0,4.8,0.05,106.2,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,88.0,3.6,0.05,62.8,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,95.0,4.1,0.04,102.9,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,98.0,3.9,0.04,60.5,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRS,GLU,A,103.0,4.5,0.06,101.6,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,16.0,4,0.06,114.6,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,20.0,3.8,0.05,83.1,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,26.0,9.9,0.1,0.0,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,58.0,2.8,0.1,5.9,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,60.0,4.2,0.2,66.6,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,61.0,5.3,0.3,89.1,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,ASP,A,64.0,3.2,0.06,59.1,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,6.0,4.8,0.08,84.7,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,13.0,4.4,0.07,88.0,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,47.0,4.1,0.1,108.0,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,56.0,3.1,0.04,8.7,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,68.0,4.9,0.07,61.3,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,70.0,4.6,0.08,88.7,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,88.0,3.7,0.08,57.7,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,95.0,4.1,0.02,104.3,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,98.0,3.9,0.02,77.8,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1TRW,GLU,A,103.0,4.4,0.07,98.4,NMR,,2.0-7.0,298 K,https://pubs.acs.org/doi/abs/10.1021/bi952299h,105.0
+1JBB,CYS,A,87.0,11.1,0.1,37.8,UV spectrophotometry,30 mM,6.0-12.0,303 K,https://www.ncbi.nlm.nih.gov/pubmed/16342931,295.0
+1JAS,CYS,A,88.0,10.2,0.2,6.5,UV spectrophotometry,30 mM,6.0-12.0,303 K,https://www.ncbi.nlm.nih.gov/pubmed/16342931,152.0
+1B2V,HIS,A,17.0,>8.1,,53.9,NMR,0.1 M,4.0-11.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373534/,177.0
+# HIS32-HEM,,,,,,,,,,,,
+"#""1B2V""",HIS,A,32.0,7.3,,17.7,NMR,0.1 M,4.0-11.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373534/,
+1B2V,HIS,A,83.0,5.6,,51.6,NMR,0.1 M,4.0-11.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373534/,177.0
+1B2V,HIS,A,128.0,7.1,,65.7,NMR,0.1 M,4.0-11.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373534/,177.0
+1B2V,HIS,A,133.0,<4.6,,9.6,NMR,0.1 M,4.0-11.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373534/,177.0
+# not in PDB,,,,,,,,,,,,
+"#""1B2V""",HIS,A,179.0,7.1,,119.2,NMR,0.1 M,4.0-11.0,298 K,https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373534/,

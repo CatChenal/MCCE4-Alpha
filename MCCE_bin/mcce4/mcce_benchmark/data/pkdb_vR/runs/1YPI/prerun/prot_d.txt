@@ -1,0 +1,41 @@
+# prot dict 
+{'Name': '1YPI :: Structure Of Yeast Triosephosphate Isomerase At '
+         '1.9-Angstroms Resolution;',
+ 'PDB.Structure': {'Biounits': 'DIMERIC: A, B;',
+                   'Chains': 'A, B',
+                   'First Release': 'OXIDOREDUCTASE)12-JAN-90',
+                   'Function': 'ISOMERASE(INTRAMOLECULAR',
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Model 1 Free Cofactors & Waters': {'A': {'HOH': 66},
+                                                       'B': {'HOH': 53}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 25, ARG: 8, '
+                                                           'ASN: 12, ASP: 15, '
+                                                           'CYS: 2, GLN: 7, '
+                                                           'GLU: 17, GLY: 22, '
+                                                           'HIS: 3, ILE: 15, '
+                                                           'LEU: 19, LYS: 21, '
+                                                           'PHE: 11, PRO: 7, '
+                                                           'SER: 16, THR: 12, '
+                                                           'TRP: 3, TYR: 6, '
+                                                           'VAL: 26',
+                                                           'Total: 247',
+                                                           'Ionizable: 72',
+                                                           'Ratio: 29.1%')},
+                                        'B': {'RESIDUES': ('ALA: 25, ARG: 8, '
+                                                           'ASN: 12, ASP: 15, '
+                                                           'CYS: 2, GLN: 7, '
+                                                           'GLU: 17, GLY: 22, '
+                                                           'HIS: 3, ILE: 15, '
+                                                           'LEU: 19, LYS: 21, '
+                                                           'PHE: 11, PRO: 7, '
+                                                           'SER: 16, THR: 12, '
+                                                           'TRP: 3, TYR: 6, '
+                                                           'VAL: 26',
+                                                           'Total: 247',
+                                                           'Ionizable: 72',
+                                                           'Ratio: 29.1%')}},
+                   'Models': '1',
+                   'Molecule': 'TRIOSEPHOSPHATE ISOMERASE',
+                   'Resolution': '1.90 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:247, B:247; Total: 494',
+                   'Total waters': 119}}

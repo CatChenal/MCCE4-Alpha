@@ -1,0 +1,56 @@
+# prot dict 
+{'Name': '4MBN :: Refinement Of Myoglobin And Cytochrome C',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Cofactors': {'HEM': ('HEME', 1), 'SO4': ('SULFATE ION', 2)},
+                   'First Release': '14-JAN-88',
+                   'Function': 'OXYGEN STORAGE',
+                   'Links': ['NE2 HIS A 93 -- 2.17 Å --> FE  HEM A 225',
+                             'FE  HEM A 225 -- 2.10 Å --> O  HOH A 226'],
+                   'Method': 'X-RAY DIFFRACTION',
+                   'Missing': {'LigandAtoms': ['A: SO4 216, SO4 224']},
+                   'Model 1 Free Cofactors & Waters': {'A': {'HEM': 1,
+                                                             'HOH': 121,
+                                                             'PAA': 1,
+                                                             'PDD': 1,
+                                                             'SO4': 2}},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 17, ARG: 4, '
+                                                           'ASN: 1, ASP: 7, '
+                                                           'GLN: 5, GLU: 14, '
+                                                           'GLY: 11, HIS: 12, '
+                                                           'ILE: 9, LEU: 18, '
+                                                           'LYS: 19, MET: 2, '
+                                                           'PHE: 6, PRO: 4, '
+                                                           'SER: 6, THR: 5, '
+                                                           'TRP: 2, TYR: 3, '
+                                                           'VAL: 8',
+                                                           'Total: 153',
+                                                           'Ionizable: 59',
+                                                           'Ratio: 38.6%')}},
+                   'Models': '1',
+                   'Molecule': 'MYOGLOBIN',
+                   'Resolution': '2.00 ANGSTROMS.',
+                   'Seqres Species': 'Residues: A:153; Total: 153',
+                   'Sites': {'AC1': ['BINDING SITE FOR RESIDUE SO4 A 224',
+                                     'THR A  67'],
+                             'AC2': ['BINDING SITE FOR RESIDUE HEM A 225',
+                                     'THR A  39',
+                                     'LYS A  42',
+                                     'PHE A  43',
+                                     'ARG A  45',
+                                     'HIS A  64',
+                                     'THR A  67',
+                                     'VAL A  68',
+                                     'SER A  92',
+                                     'HIS A  93',
+                                     'HIS A  97',
+                                     'ILE A  99',
+                                     'TYR A 103',
+                                     'GLN A 128',
+                                     'HOH A 226',
+                                     'HOH A 234',
+                                     'HOH A 300',
+                                     'HOH A 314',
+                                     'HOH A 334']},
+                   'Total cofactors': 3,
+                   'Total waters': 121}}

@@ -1,0 +1,34 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.53: " CA  NTR A   7" to " CB  LEU '
+                                     'A   7"',
+                                     'd= 1.54: " CA  NTR A  53" to " CB  LYS '
+                                     'A  53"',
+                                     'end_clash'],
+                'Free Cofactors': ['Removed all 73 HOH in A.',
+                                   "NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05',
+                                   'Total deleted cofactors = 73.',
+                                   'Species and properties with assigned '
+                                   'default values in debug.log:\n',
+                                   "PO4BK: ['VDW_RAD', 'VDW_EPS']\n",
+                                   "MPDBK: ['VDW_RAD', 'VDW_EPS']\n"],
+                'Labeling': ['Generic topology file created for',
+                             'PO4: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=PO4&tab=substance; '
+                             'MPD: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=MPD&tab=substance; '],
+                'Load Structure': [],
+                'Missing Heavy Atoms': ['   Missing heavy atoms for CTR01 in '
+                                        '"CTR A  43":   OXT',
+                                        '   Missing heavy atoms for CTR01 in '
+                                        '"CTR A 141":   OXT'],
+                'Renamed': [],
+                'Termini': [('NTR', ['"LEU A   7"', '"LYS A  53"']),
+                            ('CTR', ['"GLU A  43"', '"SER A 141"'])]}}

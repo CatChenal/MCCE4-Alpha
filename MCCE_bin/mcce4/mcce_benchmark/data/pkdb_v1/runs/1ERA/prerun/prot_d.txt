@@ -1,0 +1,29 @@
+# prot dict 
+{'Name': '1ERA :: Tertiary Structure Of Erabutoxin B In Aqueous Solution '
+         'Elucidated By Two-Dimensional Nuclear Magnetic Resonance;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'Disulfides': ['CYS A  3 -- 2.02 Å --> CYS A  24',
+                                  'CYS A  17 -- 2.02 Å --> CYS A  41',
+                                  'CYS A  43 -- 2.02 Å --> CYS A  54',
+                                  'CYS A  55 -- 2.02 Å --> CYS A  60'],
+                   'First Release': '28-MAR-94',
+                   'Function': 'TOXIN',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ARG: 3, ASN: 3, '
+                                                           'ASP: 1, CYS: 8, '
+                                                           'GLN: 4, GLU: 4, '
+                                                           'GLY: 5, HIS: 2, '
+                                                           'ILE: 4, LEU: 1, '
+                                                           'LYS: 4, PHE: 2, '
+                                                           'PRO: 4, SER: 8, '
+                                                           'THR: 5, TRP: 1, '
+                                                           'TYR: 1, VAL: 2',
+                                                           'Total: 62',
+                                                           'Ionizable: 23',
+                                                           'Ratio: 37.1%')}},
+                   'Models': '1',
+                   'Molecule': 'ERABUTOXIN B',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:62; Total: 62'}}

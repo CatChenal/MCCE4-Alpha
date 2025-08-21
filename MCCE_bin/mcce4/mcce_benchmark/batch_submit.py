@@ -5,7 +5,7 @@ Module: batch_submit.py
 
 Main functions:
 --------------
-* read_book_entries(book:str = BENCH.Q_BOOK) -> list:
+* read_book_entries(book:str = Q_BOOK) -> list:
     Read book file data using ENTRY class.
     Return a list of entry instances.
 
@@ -28,18 +28,12 @@ Main functions:
 * launch_cli(argv=None)
     Entry point function.
 
-
 Q book status codes:
-     "i": not submitted
+     "i": initial setup (not submitted)
      "r": running
      "c": completed - was running, disapeared from job queue, sentinel_file generated
      "e": error - was running, disapeared from job queue and no sentinel_file
-
-CHANGELOG:
-  2024-09-19:
-    The LD_LIBRARY_PATH is exported by batch_submit.set_LDLIB, simplifying the crontab job.
 """
-
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, Namespace
 from collections import Counter
 import logging
@@ -47,7 +41,8 @@ import os
 from pathlib import Path
 import sys
 from typing import Union
-from mcce4.mcce_benchmark import BENCH, FILES, RUNS_DIR, N_BATCH, USER, ENTRY_POINTS
+
+from mcce4.mcce_benchmark import DEFAULT_JOB, Q_BOOK, FILES, RUNS_DIR, N_BATCH, USER, ENTRY_POINTS
 from mcce4.mcce_benchmark.cli_utils import arg_valid_dirpath
 import mcce4.mcce_benchmark.io_utils as iou
 from mcce4.mcce_benchmark import mcce_env as mcenv
@@ -86,11 +81,11 @@ class ENTRIES:
 
     def get_book_fp(self) -> Path:
         if Path.cwd().name == RUNS_DIR:
-            book_fp = Path(BENCH.Q_BOOK)
+            book_fp = Path(Q_BOOK)
         elif Path.cwd().name == self.bench_dir.name:
-            book_fp = self.bench_dir.joinpath(RUNS_DIR, BENCH.Q_BOOK)
+            book_fp = self.bench_dir.joinpath(RUNS_DIR, Q_BOOK)
         else:
-            book_fp = Path(RUNS_DIR).joinpath(BENCH.Q_BOOK)
+            book_fp = Path(RUNS_DIR).joinpath(Q_BOOK)
         return book_fp
 
     def update_entries(self):
@@ -150,7 +145,7 @@ class ENTRIES:
 """
 
 
-def read_book_entries(book: str = BENCH.Q_BOOK) -> list:
+def read_book_entries(book: str = Q_BOOK) -> list:
     """Read book file data using ENTRY class.
     Return a list of entry instances.
     """
@@ -205,7 +200,7 @@ def batch_run(args: Union[dict, Namespace]) -> None:
 
     Args:
     args.job_name (str): Name of the job and script to use in /runs folder.
-    args.n_batch (int, BENCH.N_BATCH=10): Number of jobs/processes to maintain.
+    args.n_batch (int, 10): Number of jobs/processes to maintain.
     args.sentinel_file (str, "pK.out"): File whose existence signals a completed job;
       When running all 4 MCCE steps (default), this file is 'pK.out', while
       when running only the first 2, this file is 'step2_out.pdb'.
@@ -249,7 +244,7 @@ def batch_run(args: Union[dict, Namespace]) -> None:
         new_entries.append(entry)
 
     # update q-book
-    with open(BENCH.Q_BOOK, "w") as bk:
+    with open(Q_BOOK, "w") as bk:
         bk.writelines([f"{e}\n" for e in new_entries])
 
     return
@@ -263,7 +258,7 @@ def launch_job(args: Namespace) -> None:
     Options from the command line:
       [required] bench_dir (Path, None): Path of the folder containing the /runs folder.
       job_name (str, None): Name of the job and script to use in /runs folder.
-      n_batch (int, BENCH.N_BATCH=10): Number of jobs/processes to maintain.
+      n_batch (int, 10): Number of jobs/processes to maintain.
       sentinel_file (str, "pK.out"): File whose existence signals a completed step;
           When running all 4 MCCE steps (default), this file is 'pK.out', while
           when running only the first 2, this file is 'step2_out.pdb'.
@@ -272,7 +267,7 @@ def launch_job(args: Namespace) -> None:
     if Path.cwd().name != bench_dir.name:
         os.chdir(bench_dir)
     
-    if args.job_name != BENCH.DEFAULT_JOB:
+    if args.job_name != DEFAULT_JOB:
         sh_name = f"{args.job_name}.sh"
         sh_path = bench_dir.joinpath(RUNS_DIR, sh_name)
         sentinel = iou.get_sentinel(sh_path)
@@ -296,10 +291,8 @@ def launch_job(args: Namespace) -> None:
     
     pbes = iou.get_pbe_solver_with_env(bench_dir)
     if pbes is not None:
-        if pbes == "NGPB":
-            mcenv.set_LDLIB()
-        else:
-            # ZAP is currently the only other case:
+        if pbes == "ZAP":
+            # ZAP is currently the only solver with specific envir:
             oepath = mcenv.check_openeye_env_activated()
             if oepath is None:
                 sys.exit("Activate a conda environment for OpenEye software.")
@@ -317,7 +310,7 @@ def launch_job(args: Namespace) -> None:
 def batch_parser():
     """Command line arguments parser for batch_submit.launch_job."""
     parser = ArgumentParser(
-        prog=f"{CLI_NAME} ",
+        prog=CLI_NAME,
         description="Cli for launching one batch of runs.",
         formatter_class=RawDescriptionHelpFormatter,
     )
@@ -333,8 +326,8 @@ def batch_parser():
     parser.add_argument(
         "-job_name",
         type=str,
-        default=BENCH.DEFAULT_JOB,
-        help="""The descriptive name, devoid of spaces, for the current job (don't make it too long!);
+        default=DEFAULT_JOB,
+        help="""The descriptive name, without spaces, for the current job; 
         Required for non-default jobs. Used to identify the shell script in 'bench_dir' that launches
         the MCCE simulation in 'bench_dir/runs/' subfolders; default: %(default)s.
         """,
@@ -343,15 +336,13 @@ def batch_parser():
         "-n_batch",
         type=int,
         default=N_BATCH,
-        help="""The number of jobs to keep launching; default: %(default)s.
-        """,
+        help="The number of jobs to keep launching; default: %(default)s.",
     )
     parser.add_argument(
         "-sentinel_file",
         type=str,
         default="pK.out",
-        help="""File whose existence signals a completed step; default: %(default)s.
-        """,
+        help="File whose existence signals a completed step; default: %(default)s.",
     )
 
     return parser

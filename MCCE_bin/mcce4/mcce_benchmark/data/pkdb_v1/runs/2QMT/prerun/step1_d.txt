@@ -1,0 +1,32 @@
+# step1 dict 
+{'MCCE.Step1': {'Connectivity': [],
+                'Distance Clashes': ['Clashes found',
+                                     'd= 1.52: " CA  NTR A   1" to " CB  MET '
+                                     'A   1"',
+                                     'end_clash'],
+                'Free Cofactors': ['Removed all 135 HOH in A.',
+                                   "NOTE: Include the '--wet' option at the "
+                                   'command line to keep buried waters and '
+                                   'cofactors. Alternatively, change the water '
+                                   'SAS cutoff to a non-zero, positive number '
+                                   "using the command line 'u' option:\n"
+                                   '  > protinfo 1fat.pdb -u '
+                                   'H2O_SASCUTOFF=0.05',
+                                   'Total deleted cofactors = 135.',
+                                   'Species and properties with assigned '
+                                   'default values in debug.log:\n',
+                                   "PO4BK: ['VDW_RAD', 'VDW_EPS']\n",
+                                   "MRDBK: ['VDW_RAD', 'VDW_EPS']\n",
+                                   "IPABK: ['VDW_RAD', 'VDW_EPS']\n"],
+                'Labeling': ['Generic topology file created for',
+                             'PO4: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=PO4&tab=substance; '
+                             'MRD: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=MRD&tab=substance; '
+                             'IPA: '
+                             'https://pubchem.ncbi.nlm.nih.gov/#query=IPA&tab=substance; '],
+                'Load Structure': [],
+                'Missing Heavy Atoms': [],
+                'Renamed': [],
+                'Termini': [('NTR', ['"MET A   1"']),
+                            ('CTR', ['"GLU A  56"'])]}}

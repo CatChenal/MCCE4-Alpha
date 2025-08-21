@@ -1,0 +1,32 @@
+# prot dict 
+{'Name': '1VII :: Thermostable Subdomain From Chicken Villin Headpiece, Nmr, '
+         'Minimized Average Structure;',
+ 'PDB.Structure': {'Biounits': 'MONOMERIC: A;',
+                   'Chains': 'A',
+                   'First Release': '15-JAN-97',
+                   'Function': 'ACTIN BINDING',
+                   'Method': 'SOLUTION NMR',
+                   'Model 1 Free Cofactors & Waters': {},
+                   'Model 1 Residues': {'A': {'RESIDUES': ('ALA: 3, ARG: 1, '
+                                                           'ASN: 2, ASP: 2, '
+                                                           'GLN: 2, GLU: 2, '
+                                                           'GLY: 2, LEU: 5, '
+                                                           'LYS: 5, MET: 2, '
+                                                           'PHE: 4, PRO: 1, '
+                                                           'SER: 2, THR: 1, '
+                                                           'TRP: 1, VAL: 1',
+                                                           'Total: 36',
+                                                           'Ionizable: 10',
+                                                           'Ratio: 27.8%')}},
+                   'Models': '1',
+                   'Molecule': 'VILLIN',
+                   'Resolution': 'NOT APPLICABLE.',
+                   'Seqres Species': 'Residues: A:36; Total: 36',
+                   'Sites': {'ABR': ['RESIDUES IMPLICATED IN ACTIN BINDING.',
+                                     'LYS A  65',
+                                     'LYS A  70',
+                                     'LYS A  71',
+                                     'GLU A  72',
+                                     'LYS A  73',
+                                     'LEU A  75',
+                                     'PHE A  76']}}}
