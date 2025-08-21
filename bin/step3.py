@@ -1346,32 +1346,58 @@ if __name__ == "__main__":
     # as an array that multiprocess module will take in as work load.
     
     if run_options.s.upper() == "NGPB":
+        # Fail fast:
+        container_image = "NextGenPB_MCCE4.sif"
+        # Find the container path (relies on the .sif file being executable)
+        container_path = shutil.which(container_image)
+        if not container_path:
+            logger.critical(f"Container image {container_image!s} not found. Exiting.")
+            sys.exit(1)
+
         bind_path = run_options.t 
         if os.path.commonpath([bind_path, "/tmp"]) == "/tmp":
             parent_dir = bind_path
         else:
             parent_dir = os.path.dirname(bind_path)
+
         instance_name = "my_instance"
-        # Find the container path
-        container_path = shutil.which('NextGenPB_MCCE4.sif')
         check_cmd = ["apptainer", "instance", "list"]
+        instance_running = False
         try:
             check_result = subprocess.run(check_cmd, capture_output=True, text=True, check=True)
-            if instance_name in check_result.stdout:
-                logger.info(f"Instance '{instance_name}' already running. Stopping it...")
-                stop_cmd = ["apptainer", "instance", "stop", instance_name]
-                subprocess.run(stop_cmd, check=True)
-                logger.info(f"Stopped instance '{instance_name}'.")
+            for line in check_result.stdout.splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 1 and parts[0] == instance_name:
+                    instance_running = True
+                    break
+
+            if instance_running:
+                logger.info(f"Instance {instance_name!s} already running. Stopping it...")
+                stop_cmd = ["apptainer", "instance", "stop",  f"{instance_name!s}"]
+                try:
+                    subprocess.run(stop_cmd, check=True)
+                    logger.info(f"Stopped instance {instance_name!s}.")
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Error stopping instance '{instance_name}': {e.stderr.strip()}")
+                    # TODO: Decide whether to re-raise or handle differently based on requirements
+                    # raise e 
         except subprocess.CalledProcessError as e:
             logger.error(f"Error checking instance list: {e.stderr.strip()}")
-        
+            # TODO: Decide whether to re-raise or handle differently based on requirements
+            # raise e
+
         try:
-            result = subprocess.run(
-                    f"apptainer instance start --bind {parent_dir}:{parent_dir} {container_path} {instance_name}",
-                    shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                )
+            start_cmd = ["apptainer", "instance", "start", "--bind",
+                         f"{parent_dir}:{parent_dir}", container_path, instance_name]
+            logger.debug(start_cmd)
+
+            result = subprocess.run(start_cmd,
+                                    shell=True, check=True,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                                    )
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to start apptainer instance: {e.stderr.decode().strip()}")
+            logger.critical(f"Failed to start apptainer instance: {e.stderr.decode().strip()}")
+            sys.exit("Could not start apptainer instance. Exiting.")
 
     if not args.skip_pb:
         work_load = []
