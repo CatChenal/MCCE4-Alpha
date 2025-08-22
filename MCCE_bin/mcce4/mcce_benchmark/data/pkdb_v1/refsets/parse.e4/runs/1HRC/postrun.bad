@@ -1,4 +1,0 @@
-1HRC :: non_canonical: 2  :: LYS+A0086_, LYS+A0087_
-1HRC :: chi2 >= 3.0: 6    :: LYS+A0086_, LYS+A0087_, TYR-A0097_, HEM+A0105_, PAA-A0105_, PDD-A0105_
-1HRC :: new_tpl           :: True
-#

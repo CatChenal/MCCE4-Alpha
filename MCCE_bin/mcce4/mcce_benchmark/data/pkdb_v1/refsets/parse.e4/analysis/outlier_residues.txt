@@ -1,9 +1,0 @@
-                       Out of bounds (0.0, 14.0) Delta over 3
-RES | parse.e4 v. expl                                       
-ASP                                           10            9
-CYS                                            1            4
-GLU                                            8           17
-HIS                                            7           15
-LYS                                            1            3
-TYR                                            4            2
-pct (N:1028)                                3.0%         4.9%

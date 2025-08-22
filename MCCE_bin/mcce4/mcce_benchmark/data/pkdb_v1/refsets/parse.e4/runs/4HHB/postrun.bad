@@ -1,5 +1,0 @@
-4HHB :: WARNING           :: Neutral ARG found in 'non_canonical' list (@ point 7).
-4HHB :: non_canonical: 9  :: NTR+A0001_, ARG+A0092_, NTR+B0001_, NTR+C0001_, ARG+C0092_, NTR+D0001_, GLU-D0006_, ASP-D0052_, LYS+D0082_
-4HHB :: chi2 >= 3.0: 8    :: ASP-A0094_, HEM+A0142_, GLU-B0101_, HIS+B0117_, HEM+B0148_, HIS+C0020_, GLU-C0023_, ASP-C0094_
-4HHB :: new_tpl           :: True
-#

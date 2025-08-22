@@ -1,5 +1,0 @@
-1Z12 :: WARNING           :: Neutral ARG found in 'non_canonical' list (@ point 7).
-1Z12 :: non_canonical: 3  :: CYS-A0012_, ARG+A0064_, LYS+A0102_
-1Z12 :: chi2 >= 3.0: 3    :: ASP-A0042_, ASP-A0081_, ASP-A0092_
-1Z12 :: new_tpl           :: True
-#

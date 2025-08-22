@@ -1,35 +1,10 @@
 Tools in MCCE4/MCCE_bin - Last updated: 06/17/25.
 
-- bench_setup    :: Setup a dataset for multiple runs & write 'prerun' report.
-                 + 4 sub-commands:
-                  0. "pdbids"
-                      To show & save the list of available pdbids.
-                      
-                  1. "pkdb_pdbs"
-                      Sub-command for setting up <bench_dir>/runs folder
-                      using the pdbs in pKaDBv1 & job_name_run.sh script.
-
-                  2. "user_pdbs"
-                       Sub-command for setting up <bench_dir>/runs folder
-                      using the user's pdbs & job_name_run.sh script.
-
-                  3. "launch"
-                      Sub-command for scheduling the processing of the set.
-                      Can be by-passed if 1. or 2. have the --launch flag, meaning 'launch now';
-                      => No chance to review the pre-run report!
-  
-- bench_analyze  :: Do "intrinsic" analysis of a set of runs.
-                 + 2 sub-commands: 1. "pkdb_pdbs", 2. "user_pdbs", as above.
-
-- bench_compare  :: Do "extrinsic" comparison of 2 sets of runs.
-
-- bench_batch    :: Submit a batch of N (10) runs [to be used if scheduler fails].
-
 - glossary       :: Query a glossary of MCCE parameters.
                     - Search is case-sensitive!
                     - To query for a specific step, the query should be 'StepN', e.g. Step0.
 
-- postrun           :: Flags problem residues: non-canonical charge, high chi^2 or no fit.
+- postrun        :: Flags problem residues: non-canonical charge, high chi^2 or no fit.
 
 - precheck       :: Simple check pdb information.
 

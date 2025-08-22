@@ -1,4 +1,0 @@
-1BUS :: non_canonical: 2  :: LYS+A0048_, CTR-A0057_
-1BUS :: chi2 >= 3.0: 3    :: ASP-A0006_, LYS+A0011_, TYR-A0016_
-1BUS :: new_tpl           :: True
-#

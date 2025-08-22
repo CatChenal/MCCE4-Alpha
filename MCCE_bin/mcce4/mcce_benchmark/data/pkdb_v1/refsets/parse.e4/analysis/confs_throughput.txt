@@ -1,3 +1,0 @@
-Empty DataFrame
-Columns: [confs, seconds, confs_per_sec, confs_per_min]
-Index: []
