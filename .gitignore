@@ -8,19 +8,16 @@ _tmp
 benchmark.info
 benchmark.log
 
-
 # Executables
 bin/NextGenPB*.sif
 bin/delphi
 bin/mcce
 lib/mcce.a
 
-
 # Test folder
 4lzt/
 tests/
 .qodo
-
 
 # Byte-compiled / optimized / DLL files/ IDE
 .vscode/
@@ -41,7 +38,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-#lib/
 lib64/
 parts/
 sdist/

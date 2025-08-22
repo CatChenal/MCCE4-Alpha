@@ -36,7 +36,7 @@ def rcsb_download_header(pdb_fname: str) -> requests.Response:
                         headers = {"accept-encoding": "identity"})
 
 
-def get_rcsb_pdb(pdbid: str, 
+def get_rcsb_pdb(pdbid: str,
                  get_bioassembly: bool = True,
                  bioassembly_id: int=1,
                  keep_bioassembly: bool = False) -> Union[Path, Tuple[None, str]]:
@@ -46,10 +46,9 @@ def get_rcsb_pdb(pdbid: str,
     pdb file is attempted.
 
     Arguments:
-     - pdbid(str): The pdb id to doanload
+     - pdbid (str): The pdb id to download
      - get_bioassembly (bool, True): Whether to attempt the bioassembly or the full pdb download
-     - bioassembly_id (int, 1): Which bioassembly to download if get_bioassembly is True. Typically,
-       chain A is 1, and chain B is 2, and so on
+     - bioassembly_id (int, 1): Which bioassembly to download if get_bioassembly is True.
      - keep_bioassembly (bool, False): Whether to retain the downloaded bioassembly file.
 
     Returns:
@@ -68,7 +67,7 @@ def get_rcsb_pdb(pdbid: str,
         else:
             logger.warning(f"Could not download the standard, full pdb: {r0.reason}.")
             return None, "Error: Could not download the standard, full pdb: {r0.reason}."
-        
+
         return Path(pdb).resolve()
 
     biopdb = pdbid + f".pdb{bioassembly_id}"
@@ -88,7 +87,7 @@ def get_rcsb_pdb(pdbid: str,
             fo.write(r1.content)
     else:
         logger.warning(f"Could not download bio assembly {biopdb!r}: {r1.reason}. Trying standard pdb.")
-    
+
     if not which_ba[0]:
         # try standard pdb format:
         r2 = rcsb_download(pdb)
@@ -118,7 +117,7 @@ def get_rcsb_pdb(pdbid: str,
         hdr_has_model_line = False
         with open(pdbhdr) as hdr:
             hdr_has_model_line = hdr.readlines()[-1][:5] == "MODEL"
-       
+
         # append assembly lines to the header file:
         if hdr_has_model_line:
             cmd = "egrep '^ATOM|^HETATM|^ENDMDL|^END' " + biopdb + " >> " + str(pdbhdr)
@@ -165,7 +164,7 @@ def cli_parser():
         action="store_true",
         help="Whether to retain the downloaded bioassembly file (default: False)"
     )
-    
+
     return p
 
 

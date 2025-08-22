@@ -1,6 +1,5 @@
 #!/bin/zsh
 echo "MCCE4 "Quick Install" Zsh Script for macOS"
-echo "Use the -h switch to get help on usage."
 echo ""
 
 set -e

@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "MCCE4 "Quick Install" bash Script"
-echo "Use the -h switch to get help on usage."
 echo ""
 
 set -e
