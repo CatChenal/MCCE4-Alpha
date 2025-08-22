@@ -1293,16 +1293,6 @@ def cli_parser():
 
 
 if __name__ == "__main__":
-    # Unset LD_LIBRARY_PATH and restart
-    if "LD_LIBRARY_PATH" in os.environ:
-        # save env
-        ld_library_path = os.environ["LD_LIBRARY_PATH"]
-        Path(".ld_library_path").write_text(ld_library_path)
-        print("Detected LD_LIBRARY_PATH, will unset it for this process.")
-        del os.environ["LD_LIBRARY_PATH"]
-        # restart self
-        os.execve(__file__, sys.argv, os.environ)
-
     parser = cli_parser()
     args = parser.parse_args()
 
