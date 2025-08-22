@@ -4,36 +4,36 @@
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-## Welcome to the **MCCE4-Alpha**! 
+## Welcome to the __MCCE4-Alpha__! 
 
-**🎬 Let's Get Started:** 
+__🎬 Let's Get Started:__ 
 
-This tutorial walks you through calculating and analyzing **electrostatic interactions** from a PDB structure.  
+This tutorial walks you through calculating and analyzing __electrostatic interactions__ from a PDB structure.  
 You’ll find step-by-step practical examples designed to help new users quickly run simulations and understand key features of MCCE4.
 
-**🛠️ Install Now:** [Installation](https://gunnerlab.github.io/mcce4_tutorial/docs/installation/)  
-**🚀 Run Your First Job:** [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
+__🛠️ Install Now:__ [Installation](https://gunnerlab.github.io/mcce4_tutorial/docs/installation/)  
+__🚀 Run Your First Job:__ [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
 
-**📖 MCCE4-Alpha Tutorial:** [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
+__📖 MCCE4-Alpha Tutorial:__ [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
 
 ## MCCE4-Tools 🔧  
-Please also check out the companion repository **MCCE4-Tools**. 
+Please also check out the companion repository __MCCE4-Tools__. 
 
-🧰 **Explore Now:** [MCCE4-Tools GitHub](https://github.com/GunnerLab/MCCE4-Tools)
+🧰 __Explore Now:__ [MCCE4-Tools GitHub](https://github.com/GunnerLab/MCCE4-Tools)
 
 ---
 
-## **Quick Introduction**
+## __Quick Introduction__
 
-Given the structure of a macromolucule (in a PDB file), **MCCE4** can predict the following:
+Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict the following:
 
-- **pKₐ values**
-- **Protonation states**
-- **Electrostatic properties** of biomolecules
+- __pKₐ values__
+- __Protonation states__
+- __Electrostatic properties__ of biomolecules
 
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
 
-## **Documentation Overview**
+## __Documentation Overview__
 Comprehensive documentation covering:
 - Installation
 - Guide: Detailed explanations of all settings
@@ -50,9 +50,4 @@ Thank You and we hope you enjoy using MCCE4!
 ---
 
 Copyright (C) 2024 GunnerLab
-
 This software is distributed under the terms the terms of the MIT licence
-
-
-
-
