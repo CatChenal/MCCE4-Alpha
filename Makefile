@@ -17,22 +17,21 @@ BIN     = bin
 DELPHI  = $(BIN)/delphi
 MCCE    = $(BIN)/mcce
 
-# default: Build mcce, delphi and NGPB sif
-default: $(MCCE) $(DELPHI) sif
+# default: Build mcce
+default: $(MCCE)
 
 # mcce: Build mcce only
-mcce: $(MCCE) $(DELPHI)
+mcce: $(MCCE)
 
 # delphi: Build delphi only
 delphi: $(DELPHI)
 
-# all = Build  mcce, delphi, sif
-all: $(MCCE) $(DELPHI) sif
-
-# sif = mcce + container
-sif: $(MCCE)
-	@echo "Building Apptainer SIF container..."
+# ngpb = ngpb container
+ngpb:   @echo "Building Apptainer Image for NGPB container (.sif) ..."
 	sudo apptainer build $(BIN)/NextGenPB_MCCE4.sif $(BIN)/recipe_MCCE.def
+
+# all = Build  mcce, delphi, ngpb
+all: $(MCCE) $(DELPHI) ngpb
 
 # bin/mcce = core solver
 $(MCCE): mcce.c $(LIB) $(DEPS) $(STEP6)
