@@ -27,7 +27,8 @@ mcce: $(MCCE)
 delphi: $(DELPHI)
 
 # ngpb = ngpb container
-ngpb:   @echo "Building Apptainer Image for NGPB container (.sif) ..."
+ngpb:
+	@echo "Building Apptainer Image for NGPB container (.sif) ..."
 	sudo apptainer build $(BIN)/NextGenPB_MCCE4.sif $(BIN)/recipe_MCCE.def
 
 # all = Build  mcce, delphi, ngpb
