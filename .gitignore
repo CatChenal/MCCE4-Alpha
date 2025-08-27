@@ -10,9 +10,9 @@ benchmark.log
 
 # Executables
 bin/NextGenPB*.sif
-bin/delphi
-bin/mcce
-lib/mcce.a
+#bin/delphi
+#bin/mcce
+#lib/mcce.a
 
 # Test folder
 4lzt/
@@ -21,7 +21,7 @@ tests/
 
 # Byte-compiled / optimized / DLL files/ IDE
 .vscode/
-*/__pycache__
+__pycache__
 */__pycache__/
 *.py[cod]
 *$py.class
