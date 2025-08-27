@@ -17,11 +17,11 @@ BIN     = bin
 DELPHI  = $(BIN)/delphi
 MCCE    = $(BIN)/mcce
 
-# default: Build mcce and NGPB sif
-default: $(MCCE) sif
+# default: Build mcce, delphi and NGPB sif
+default: $(MCCE) $(DELPHI) sif
 
 # mcce: Build mcce only
-mcce: $(MCCE)
+mcce: $(MCCE) $(DELPHI)
 
 # delphi: Build delphi only
 delphi: $(DELPHI)
