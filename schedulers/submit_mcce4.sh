@@ -54,7 +54,7 @@
 input_pdb="prot.pdb"    # (INPDB)
 
 # Set MCCE4 Parameters
-MCCE_HOME="/home/granepura/MCCE4"
+MCCE_HOME="/path/to/MCCE4-Alpha"
 USER_PARAM="./user_param"
 EXTRA="./user_param/extra.tpl"
 TMP="/tmp"
@@ -89,6 +89,13 @@ STEPC="/path/to/stepC_script.py"  # Optional StepC: Python script to run between
 # NO USER INPUT NECCESARY BELOW THIS LINE
 #------------------------------------------------------------------------------
 #==============================================================================
+
+# Check MCCE_HOME exists before PATH export
+if [[ ! -d "$MCCE_HOME/bin" ]]; then
+    echo -e "\033[0;31m[ERROR]\033[0m MCCE_HOME is not set correctly or $MCCE_HOME/bin does not exist."
+    echo "Please check your MCCE_HOME path in submit_mcce4.sh."
+    exit 1
+fi
 
 # Export environment for downstream script
 export input_pdb MCCE_HOME USER_PARAM EXTRA TMP
