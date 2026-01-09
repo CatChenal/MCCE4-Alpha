@@ -1,0 +1,21 @@
+# Potassium, K
+#
+# INCOMPLETE:
+#    CONFORMER line, __K+1: all 0-values
+#
+
+# Values of the same key are appended and separated by ","
+CONFLIST, __K: __KBK, __K+1, __KDM
+
+# Atom definition
+CONNECT, "K  ", __K+1: ion, 
+
+# Atom charges
+CHARGE, __K+1, "K  ": 1.000
+
+# Atom radius, dielelctric boundary radius, VDW radius, and energy well depth
+RADIUS,  __K+1,  "K  ": 1.960,   2.730,   0.0870
+
+# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn
+CONFORMER, __K+1: Em0=   0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02= 0, rxn04= 0, rxn08= 0
+CONFORMER, __KDM: Em0=   0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02= 0, rxn04= 0, rxn08= 0
