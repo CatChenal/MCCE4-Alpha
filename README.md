@@ -53,8 +53,8 @@ If you want to re-create it, run this command before running the script:
 
 ## Environment update (01-08-2026):
 If your 'mc4' environment predates 01-08-2026, run these commands to update it:
-  ```
-  CLONE=$(dirname $(dirname "$(readlink -f "$(which mcce)")")); echo "$CLONE"
+  ```bash
+  CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which ms_protonation)")"));
   conda env update -n mc4 -f "$CLONE/mc4.yml
   ```
 
