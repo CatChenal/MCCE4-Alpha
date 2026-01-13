@@ -48,7 +48,7 @@ If you want to re-create it, run this command before running the script:
   - Checks for required `apptainer`; If a system Apptainer installation is not found & an 'unprivilege' version cannot be installed, Apptainer is conda-installed in 'mc4'.
   - Downloads the generic image for NGPB in MCCE4/bin.
   - Adds export commands to the PATH variable in ~/.bashrc for:
-    * 'MCCE4/bin' and 'MCCE4/MCCE4_bin'
+    * 'MCCE4-Alpha/bin' and 'MCCE4-Alpha/MCCE_bin'
     * the unprivilege version of Apptainer if installed by the script
 
 ## Environment update (01-08-2026):
