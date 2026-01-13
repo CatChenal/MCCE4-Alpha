@@ -330,11 +330,12 @@ def count_ligands_by_chain(ligands, file_name, full_prot=False):
             for ligand, count in total_ligands.items():
                 print(f"          {ligand}: {count}")
 
-def check_input_files(input_file: str):
+def check_input_files(input_file: str, original_stdout=None):
     """Make sure give files exist. If they do not exist, try to execute step 1 so they do
 
     Args:
-        input file (str): Path to the PDB file."""
+        input file (str): Path to the PDB file.
+        original_stdout: Reference to original stdout for error messages."""
 
     # maybe include multiple model warning- MCCE expects 1 model pdb file
 
@@ -343,8 +344,11 @@ def check_input_files(input_file: str):
             # to get numbers of waters, ligands, aa's in the protein file
             data = file.read()
     except FileNotFoundError:  # If we don't have source protein file, just stop
-        print(f"\n{input_file} not found, aborting p_info...\n")
-        sys.exit()
+        error_msg = f"\n{input_file} not found, aborting p_info...\n"
+        if original_stdout:
+            print(error_msg, file=original_stdout)
+        print(error_msg)
+        sys.exit(1)
     try:
         with open("step1_out.pdb") as file:
             # to get numbers of waters, ligands, aa's, post-step1 processing
@@ -358,16 +362,22 @@ def check_input_files(input_file: str):
               "in the current directory.")
 
     except FileNotFoundError:  # run step1.py if we don't have its product files
-        print(f"\np_info requires {input_file},",
-              "its associated run1.log, and step1_out.pdb",
-              "in the current directory.\n\nRunning step1.py...")
+        msg = f"\np_info requires {input_file},"\
+              "its associated run1.log, and step1_out.pdb"\
+              "in the current directory.\n\nRunning step1.py..."
+        if original_stdout:
+            print(msg, file=original_stdout)
+        print(msg)
 
         script_path = subprocess.run(["which", "step1.py"],
                                      capture_output=True,
                                      text=True
                                      ).stdout.strip()
         if not script_path:
-            print("The executable module 'step1.py' could not be found. ")
+            error_msg = "The executable module 'step1.py' could not be found. "
+            if original_stdout:
+                print(error_msg, file=original_stdout)
+            print(error_msg)
             sys.exit(1)
 
         process = subprocess.run([script_path, input_file],
@@ -376,6 +386,15 @@ def check_input_files(input_file: str):
                                 close_fds=True,
                                 text=True,
                                 )
+        
+        # Check if step1.py ran successfully
+        if process.returncode != 0:
+            error_msg = f"\nERROR: step1.py failed with return code {process.returncode}!\n"\
+                       f"Check run1.log for details on what went wrong.\n"
+            if original_stdout:
+                print(error_msg, file=original_stdout)
+            print(error_msg)
+            sys.exit(1)
 
     try:
         # for how many waters, ligands, aa's, were in protein file
@@ -388,9 +407,14 @@ def check_input_files(input_file: str):
         with open("run1.log", "r") as file:
             log_data = file.read()
 
-    except FileNotFoundError:
-        print("\nStep 1 failed! Check files and try again, or report an error.\n")
-        sys.exit()
+    except FileNotFoundError as e:
+        error_msg = f"\nERROR: step1.py failed! Could not find required output files.\n"\
+                   f"Missing file: {e.filename}\n"\
+                   f"Check run1.log for details on what went wrong.\n"
+        if original_stdout:
+            print(error_msg, file=original_stdout)
+        print(error_msg)
+        sys.exit(1)
 
     return prot_data, mcce_data, log_data
 
@@ -403,7 +427,8 @@ def table_summary(prot_data: str, mcce_data: str, input_file: str):
         input file (str): name of PDB file
 
     Returns:
-        ligand_mcce_names (list): names of ligands from step1_out.pdb"""
+        ligand_mcce_names (list): names of ligands from step1_out.pdb
+        ligand_mcce_count (int): number of ligands in step1_out.pdb"""
 
     # get HOH, ligand names, and amino acid counts
     HOH_count, ligand_names, aa_count = line_counter(prot_data)
@@ -431,13 +456,14 @@ def table_summary(prot_data: str, mcce_data: str, input_file: str):
     ]
     
     display_table(interior_data)
-    return ligand_mcce_names
+    return ligand_mcce_names, aa_count, ligand_count
 
-def chain_summary(input_path: str):
+def chain_summary(input_path: str, aa_count: int = 0):
     """Make sure needed files exist. If they do not exist, try to execute step 1 so 
 
     Args:
         input file (str): Path to the PDB file.
+        aa_count (int): Number of amino acids in the protein from PDB.
 
     Returns:
         ligand_mcce_names (list): names of ligands from step1_out.pdb"""
@@ -475,10 +501,18 @@ def chain_summary(input_path: str):
                 chain_data, graph_name="Chain " + str(chain_labels[i - 1])
             )  # again, adjust to 0-indexed
 
+    # Print protein size assessment
+    if aa_count > 0:
+        if aa_count < 300:
+            print("\nThis is a small sized protein. It will run quickly.")
+        elif aa_count <= 1000:
+            print("\nThis is a moderate sized protein. It will take hours to run.")
+        else:
+            print("\nThis is a large sized protein. MCCE will not run this protein.")
     print("\nWaters and ions stripped if 5% of their Surface Area is exposed to Solvent.")
-    print("\nSAS exposure limit edited in 'run.prm' parameter (H2O_SASCUTOFF)")
-    print("\nGroups that can be deleted listed in [ASK GEHAN]")
-    print("\nNOTE: Default removes all waters. To retain buried waters, do a 'wet' run.")
+    print("\nSAS exposure limit edited in 'run.prm' parameter (H2O_SASCUTOFF).")
+    print("\nGroups that can be deleted listed in 00always_needed.tpl.")
+    print("\nNOTE: By default, waters are retained for an 'explicit solvent' run. Use the '--dry' flag for an 'implicit solvent' run.")
 
     return chains
 
@@ -489,7 +523,8 @@ def ligands_and_modified_residues(log_data: str, ligand_mcce_names: list, chains
         input file (str): Path to the PDB file.
 
     Returns:
-        ligand_mcce_names (list): names of ligands from step1_out.pdb"""
+        tplfound (set): Set of ligands with topology files
+        notpl (str): String of ligands without topology files"""
 
     # NEED TO DETAIL WHAT IONS SPECIFICALLY ARE STRIPPED, INCLUDE EXPLICIT LIST
     (
@@ -515,6 +550,7 @@ def ligands_and_modified_residues(log_data: str, ligand_mcce_names: list, chains
     if not ligand_mcce_names:  # if ligand name list is empty, skip ligands
         print("\nNo ligands detected in step1_out.",
               "\nA list of all atoms that are modified can be found in run1.log.\n")
+        return set(), "", []
     else:
         print("\n### LIGANDS:\n")
         if len(chains) > 1:
@@ -536,6 +572,9 @@ def ligands_and_modified_residues(log_data: str, ligand_mcce_names: list, chains
         # find shared ligands between list of ligands, ligands w/o topology files
         ligand_sifter = set(unique_ligand_names) & set(err_top_files.split())
         ligand_top = set(unique_ligand_names) - ligand_sifter
+        tplfound = ligand_top
+        notpl = err_top_files
+        
         if ligand_top:
             print("\nWe have topology files for these ligands:",
                   "\n      TPLFOUND: ", ligand_top)
@@ -552,6 +591,8 @@ def ligands_and_modified_residues(log_data: str, ligand_mcce_names: list, chains
                   "input pdb and redo step1.",
                   "\n      (3) Repeat step1 after creating topology files for ligands."
                   )
+        
+        return tplfound, notpl, unique_ligand_names
 
 def closer():
     """Close out function, give the current time.
@@ -627,11 +668,77 @@ def process_pdb_file(pdb_file):
 def main(input_path):
     """Collect and summarize all relevant data from a PDB file.
     """
-
-    prot_data, mcce_data, log_data = check_input_files(input_path)
-    ligand_mcce_names = table_summary(prot_data, mcce_data, input_path)
-    chains = chain_summary(input_path)
-    ligands_and_modified_residues(log_data, ligand_mcce_names, chains)
+    # Store original stdout/stderr BEFORE redirecting
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
+    
+    # Open log file and redirect all output to it
+    try:
+        log_file = open("p_info.log", "w")
+    except IOError as e:
+        print(f"ERROR: Could not create p_info.log: {e}", file=original_stdout)
+        sys.exit(1)
+    
+    sys.stdout = log_file
+    sys.stderr = log_file
+    
+    try:
+        try:
+            prot_data, mcce_data, log_data = check_input_files(input_path, original_stdout)
+            ligand_mcce_names, aa_count, ligand_count = table_summary(prot_data, mcce_data, input_path)
+            chains = chain_summary(input_path, aa_count)
+            tplfound, notpl, unique_ligand_names = ligands_and_modified_residues(log_data, ligand_mcce_names, chains)
+            closer()
+            
+            # Restore original stdout/stderr and print specific information to screen
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
+            
+            # Print amino acid count to screen
+            print(f"\nNumber of amino acids in the protein: {aa_count}")
+            
+            # Print protein size assessment
+            if aa_count < 300:
+                print("This is a small sized protein. It will run quickly.")
+            elif aa_count <= 1000:
+                print("This is a moderate sized protein. It will take hours to run.")
+            else:
+                print("This is a large sized protein. MCCE will not run this protein.")
+            
+            # Print number of ligands in the protein
+            print(f"\nNumber of ligands in the protein: {len(set(unique_ligand_names))}")
+            
+            # Print TPLFOUND list if it exists
+            if tplfound:
+                print(f"\nWe have topology files for these ligands:")
+                print(f"TPLFOUND: {tplfound}")
+            
+            # Print NOTPL list if it exists
+            if notpl.strip():
+                print(f"\nWe do not have topology files for these ligands:")
+                print(f"NOTPL: {[line[-3:] for line in notpl.splitlines()]}")
+            
+            # Print the final message
+            print("\nFor more detailed analysis of the protein, look in p_info.log.")
+            
+        except SystemExit as e:
+            # Restore stdout before exiting
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
+            # Re-raise SystemExit to allow proper exit from check_input_files
+            raise
+        except Exception as e:
+            # Restore stdout to report error
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
+            print(f"\nERROR: p_info encountered an unexpected error!\n")
+            print(f"Error details: {type(e).__name__}: {e}\n")
+            print(f"Please check p_info.log for more information.\n")
+            raise
+    finally:
+        log_file.close()
+        sys.stdout = original_stdout
+        sys.stderr = original_stderr
 
 if __name__ == "__main__":
 
@@ -652,12 +759,20 @@ if __name__ == "__main__":
         print("File/Directory not found! Aborting p_info...")
 
     if os.path.isfile(input_path) and input_path.lower().endswith(".cif"):
-        print("\np_info does not suppose CIF files. Please use a PDB file. Aborting...\n")
+        print("\np_info does not support CIF files. Please use a PDB file.")
+        print("You can convert a CIF file to PDB format using cif2pdb or cif2pdb_PYMOL.")
+        print("Please download MCCE4-Tools to get access to these utilities.\n")
         SystemExit()
 
     if os.path.isfile(input_path) and input_path.lower().endswith(".pdb"):
-        main(input_path)
-        closer()
+        try:
+            main(input_path)
+        except SystemExit as e:
+            # SystemExit was already handled, just propagate it
+            sys.exit(e.code if e.code is not None else 1)
+        except Exception as e:
+            print(f"\nFATAL ERROR: {type(e).__name__}: {e}\n")
+            sys.exit(1)
 
     if os.path.isdir(input_path):
         print("This is a directory.\n")
