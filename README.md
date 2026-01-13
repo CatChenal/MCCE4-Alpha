@@ -46,15 +46,15 @@ If you want to re-create it, run this command before running the script:
   - Checks for required `conda`; Stops if not found so you can install it (commands provided).
   - Create a conda environment for MCCE4 named 'mc4' (using 'mc4.yml').
   - Checks for required `apptainer`; If a system Apptainer installation is not found & an 'unprivilege' version cannot be installed, Apptainer is conda-installed in 'mc4'.
-  - Downloads the generic image for NGPB in MCCE4/bin.
+  - Downloads the generic image for NGPB in MCCE4-Alpha/bin.
   - Adds export commands to the PATH variable in ~/.bashrc for:
-    * 'MCCE4/bin' and 'MCCE4/MCCE4_bin'
+    * 'MCCE4-Alpha/bin' and 'MCCE4-Alpha/MCCE_bin'
     * the unprivilege version of Apptainer if installed by the script
 
 ## Environment update (01-08-2026):
 If your 'mc4' environment predates 01-08-2026, run these commands to update it:
-  ```
-  CLONE=$(dirname $(dirname "$(readlink -f "$(which mcce)")")); echo "$CLONE"
+  ```bash
+  CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which ms_protonation)")"));
   conda env update -n mc4 -f "$CLONE/mc4.yml
   ```
 
