@@ -46,7 +46,7 @@ If you want to re-create it, run this command before running the script:
   - Checks for required `conda`; Stops if not found so you can install it (commands provided).
   - Create a conda environment for MCCE4 named 'mc4' (using 'mc4.yml').
   - Checks for required `apptainer`; If a system Apptainer installation is not found & an 'unprivilege' version cannot be installed, Apptainer is conda-installed in 'mc4'.
-  - Downloads the generic image for NGPB in MCCE4/bin.
+  - Downloads the generic image for NGPB in MCCE4-Alpha/bin.
   - Adds export commands to the PATH variable in ~/.bashrc for:
     * 'MCCE4-Alpha/bin' and 'MCCE4-Alpha/MCCE_bin'
     * the unprivilege version of Apptainer if installed by the script
