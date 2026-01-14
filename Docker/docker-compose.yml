@@ -1,0 +1,13 @@
+name: mcce4-alpha
+services:
+  build-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mcce4-alpha
+    container_name: MCCE4-Alpha
+    labels:
+      com.mcce4.authors: "Julian A. Rendon"
+      com.mcce4.description: "Main build server for Alpha project"
+      com.mcce4.maintainer: "GunnerLab"
+    tty: true
