@@ -7,6 +7,8 @@
 # Welcome to __MCCE4-Alpha__!  
 Please see our CHANGELOG at the bottom for the latest updates!
 
+[__🛠️ Full Tutorial Documentation__](https://gunnerlab.github.io/mcce4_tutorial/{: .btn .btn-blue }
+
 ## __Quick Introduction__
 
 Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict the following:
