@@ -58,7 +58,7 @@ If your 'mc4' environment predates 01-08-2026, run these commands to update it:
   conda env update -n mc4 -f "$CLONE/mc4.yml
   ```
 
-__🚀 Run Your First Job:__ [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
+__🚀 Run Your First Job:__ [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/tests/)  
 
 __📖 MCCE4-Alpha Tutorial:__ [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
 
