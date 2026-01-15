@@ -7,7 +7,7 @@
 # Welcome to __MCCE4-Alpha__!  
 Please see our CHANGELOG at the bottom for the latest updates!
 
-[__🛠️ Full Tutorial Documentation__](https://gunnerlab.github.io/mcce4_tutorial/{: .btn .btn-blue }
+# [__📖 MCCE4-Alpha Tutorial:__](https://gunnerlab.github.io/mcce4_tutorial/)
 
 ## __Quick Introduction__
 
