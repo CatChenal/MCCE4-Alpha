@@ -34,7 +34,7 @@
 # SECTION 1: INITIALIZATION AND LOGGING SETUP
 #=========================================================================================
 # Initialize timing log file and configure error handling for critical operations
-
+export PYTHONUNBUFFERED=1
 TIMING_FILE="mcce_timing.log"
 echo "MCCE Timing Report" > $TIMING_FILE
 echo "====================================" >> $TIMING_FILE

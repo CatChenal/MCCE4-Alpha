@@ -53,6 +53,7 @@ STEPC="/path/to/stepC_script.py"  # Optional StepC: Python script to run between
 #==============================================================================
 
 # Initialize Apptainer to ensure job uses user-installed Apptainer and avoid systemd/cgroups (DBus) issues on compute nodes
+export PYTHONUNBUFFERED=1
 export PATH="$APPTAINER_BIN:$PATH"
 export APPTAINER_CONFIG_FILE="$HOME/.apptainer/apptainer.conf"
 mkdir -p "$HOME/.apptainer"
