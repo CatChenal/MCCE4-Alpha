@@ -40,6 +40,7 @@ Usage examples:
 import argparse
 import os
 import subprocess
+import shutil
 from mccesteps import export_runprm
 from mccesteps import record_runprm
 from mccesteps import detect_runprm
@@ -122,6 +123,49 @@ def write_runprm(args):
     return
 
 
+def make_pk_extended_and_trim(pk_file="pK.out", pk_extended="pK_extended.out"):
+    """
+    1) Copy pK.out -> pK_extended.out
+    2) Overwrite pK.out keeping only columns up through '1000*chi2'
+       (preserves original spacing by slicing at the header's 'vdw0' start).
+    """
+    if not os.path.isfile(pk_file):
+        print(f"WARNING: {pk_file} not found; skipping pK copy/trim.")
+        return
+
+    # 1) Archive the full file
+    shutil.copy2(pk_file, pk_extended)
+
+    # 2) Determine where to cut based on header
+    with open(pk_extended, "r") as fin:
+        lines = fin.readlines()
+
+    cut_idx = None
+    for line in lines:
+        # Find the header line that contains the column names
+        if "1000*chi2" in line:
+            # Best cut is at the start of the NEXT column (vdw0),
+            # so we keep EXACT spacing up to chi2 column.
+            if "vdw0" in line:
+                cut_idx = line.index("       vdw0")
+            else:
+                cut_idx = line.index("1000*chi2") + len("1000*chi2")
+            break
+
+    if cut_idx is None:
+        print("WARNING: Could not find '1000*chi2' header; skipping trim.")
+        return
+
+    # Rewrite pK.out with sliced lines (preserving characters/spaces up to cut_idx)
+    with open(pk_file, "w") as fout:
+        for line in lines:
+            if len(line) >= cut_idx:
+                fout.write(line[:cut_idx].rstrip("\n") + "\n")
+            else:
+                # Keep shorter lines as-is (blank lines, etc.)
+                fout.write(line)
+
+    print(f"Saved full pKa/Em output as {pk_extended} and trimmed version as {pk_file}")
 
 
 if __name__ == "__main__":
@@ -211,3 +255,6 @@ if __name__ == "__main__":
 
     # Amend sum_crg.out, use head3.lst and fort.38 to compose sum_crg.out
     amend_sum_crg()
+
+    # Archive full pK and then trim pK.out to chi2 column
+    make_pk_extended_and_trim()
