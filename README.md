@@ -7,8 +7,6 @@
 # Welcome to __MCCE4-Alpha__!  
 Please see our CHANGELOG at the bottom for the latest updates!
 
-# [__📖 MCCE4-Alpha Tutorial:__](https://gunnerlab.github.io/mcce4_tutorial/)
-
 ## __Quick Introduction__
 
 Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict the following:
@@ -18,6 +16,9 @@ Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict th
 - __Electrostatic properties__ of biomolecules
 
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
+
+## Documentation & Tutorials
+# [__📖 MCCE4-Alpha Tutorial:__](https://gunnerlab.github.io/mcce4_tutorial/)
 
 ## __Installation__
 #### If you have sudo access or would like a system-wide installation of the needed softwares:
