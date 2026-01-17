@@ -9,7 +9,6 @@ Please see our CHANGELOG at the bottom for the latest updates!
 
 ## Quick Introduction
 Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict the following:
-
 - Residue pKₐ, cofactor Eₘ and protein PI in protein-solvent systems
 - Protonation States and ionization changes in response to protein structural changes
 - Location and stoichiometry of proton transfers coupled to electron transfer
@@ -17,7 +16,7 @@ Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict th
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
 
 ## Documentation & Tutorials
-# [📖 MCCE4-Alpha Tutorial](https://gunnerlab.github.io/mcce4_tutorial/)
+# [__📖 MCCE4-Alpha Tutorial__](https://gunnerlab.github.io/mcce4_tutorial/) 
 
 Comprehensive documentation covering:
 - Installation
