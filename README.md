@@ -17,7 +17,7 @@ Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict th
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
 
 ## Documentation & Tutorials
-# [__📖 MCCE4-Alpha Tutorial:__](https://gunnerlab.github.io/mcce4_tutorial/)
+# [📖 MCCE4-Alpha Tutorial](https://gunnerlab.github.io/mcce4_tutorial/)
 
 ## Installation
 #### If you have sudo access or would like a system-wide installation of the needed softwares:
