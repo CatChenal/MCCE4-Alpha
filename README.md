@@ -4,30 +4,29 @@
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-# Welcome to __MCCE4-Alpha__!  
+# Welcome to MCCE4-Alpha!  
 Please see our CHANGELOG at the bottom for the latest updates!
 
-## __Quick Introduction__
-
+## Quick Introduction
 Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict the following:
 
-- __pKₐ values__
-- __Protonation states__
-- __Electrostatic properties__ of biomolecules
+- Residue pKₐ, cofactor Eₘ and protein PI in protein-solvent systems
+- Protonation States and ionization changes in response to protein structural changes
+- Location and stoichiometry of proton transfers coupled to electron transfer
 
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
 
 ## Documentation & Tutorials
 # [__📖 MCCE4-Alpha Tutorial:__](https://gunnerlab.github.io/mcce4_tutorial/)
 
-## __Installation__
+## Installation
 #### If you have sudo access or would like a system-wide installation of the needed softwares:
 The file `MCCE_bin/sudo_install.txt` has the necessary information for you or your sys admin to install the packages. To display the file, run this command:
 ```
  cat ./MCCE_bin/sudo_install.txt
 ```
 
-## __Quick Installation__
+## Quick Installation
 #### "Quick Install" script `MCCE_bin/quick_install.sh`:
 __Note: The quick install script will not modify an existing conda environment named 'mc4'.__ 
 If you want to re-create it, run this command before running the script:
