@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Module: step2.py
@@ -35,9 +35,11 @@ Usage examples:
 import argparse
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import shutil
+
 from mccesteps import export_runprm
 from mccesteps import record_runprm
 from mccesteps import detect_runprm
@@ -45,7 +47,15 @@ from mccesteps import restore_runprm
 from conserve_het import label_het
 
 
-def write_runprm(args):
+H_REGEX = re.compile(r"(^[0-9]|^[a-z])?H")
+
+
+def is_H(atom_name: str) -> bool:
+    """Check if an atom name corresponds to a hydrogen atom."""
+    return H_REGEX.match(atom_name.strip()) is not None
+
+
+def write_runprm(args: argparse.Namespace):
     runprm = {}
 
     path = str(os.path.dirname(os.path.abspath(__file__)))
@@ -254,8 +264,40 @@ if __name__ == "__main__":
         if not Path("step2_out.pdb").exists():
             sys.exit("[Step2.py Error]: Output not found: step2_out.pdb.")
 
-        # convert to HETATM
+        # Assign r_bound to mcce pdb lines using default values if it is 0. This is to avoid naked atoms.    
         lines = open("step2_out.pdb").readlines()
+        newlines = []
+        updated_r_bound_count_H = 0
+        updated_r_bound_count_heavy = 0
+        for line in lines:
+            if line.startswith("ATOM") or line.startswith("HETATM"):
+                try:
+                    r_bound = float(line[54:62].strip())
+                except ValueError:
+                    r_bound = 0.0
+                if abs(r_bound - 0.0) < 1e-4:
+                    # default value 1.0 for H, 1.6 for heavy atoms
+                    if is_H(line[12:16]):
+                        r_bound = 1.0
+                        updated_r_bound_count_H += 1
+                    else:
+                        r_bound = 1.6
+                        updated_r_bound_count_heavy += 1
+                    newline = line[:54] + f"{r_bound:8.3f}" + line[62:]
+                    newlines.append(newline)
+                else:
+                    newlines.append(line)
+            else:
+                newlines.append(line)
+        lines = newlines   # update lines
+
+        if updated_r_bound_count_H > 0 or updated_r_bound_count_heavy > 0:
+            print(f"[Step2.py Info]: Updated r_bound from 0.0 to 1.0 for {updated_r_bound_count_H} hydrogen atoms")
+        if updated_r_bound_count_heavy > 0:
+            print(f"[Step2.py Info]: Updated r_bound from 0.0 to 1.6 for {updated_r_bound_count_heavy} heavy atoms.")
+
+        # convert to HETATM
+        newlines = []
         newlines = label_het(lines)
         open("step2_out.pdb", "w").writelines(newlines)
         shutil.copy("progress.log", "progress_step2.log")
