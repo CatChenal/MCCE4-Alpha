@@ -258,3 +258,5 @@ if __name__ == "__main__":
 
     # Archive full pK and then trim pK.out to chi2 column
     make_pk_extended_and_trim()
+
+
