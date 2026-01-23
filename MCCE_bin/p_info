@@ -358,12 +358,14 @@ def check_input_files(input_file: str, original_stdout=None):
             # to identify where changes have occurred
             log_data = file.read()
 
-        print(f"\nFound {input_file},", "its associated run1.log, and step1_out.pdb",
-              "in the current directory.")
+        msg = f"\nFound {input_file}, its associated run1.log, and step1_out.pdb in the current directory."
+        if original_stdout:
+            print(msg, file=original_stdout)
+        print(msg)
 
     except FileNotFoundError:  # run step1.py if we don't have its product files
-        msg = f"\np_info requires {input_file},"\
-              "its associated run1.log, and step1_out.pdb"\
+        msg = f"\np_info requires {input_file}, "\
+              "its associated run1.log, and step1_out.pdb "\
               "in the current directory.\n\nRunning step1.py..."
         if original_stdout:
             print(msg, file=original_stdout)
