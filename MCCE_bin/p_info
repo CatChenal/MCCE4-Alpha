@@ -584,13 +584,14 @@ def ligands_and_modified_residues(log_data: str, ligand_mcce_names: list, chains
                   "\n      NOTPL: ", end='')
             # only print the 3-char names of the residues:
             print([line[-3:] for line in err_top_files.splitlines()],
-                  "\n\nYou can remove them from the input pdb file if desired, and",
-                  "\n      (1) Continue as is: Atoms for these ligands are set to have",
-                  "zero charge and zero vdw in new.tpl.",
-                  "\n      (2) Repeat step1 with ligands removed: Remove ligands from",
-                  "input pdb and redo step1.",
-                  "\n      (3) Repeat step1 after creating topology files for ligands."
-                  )
+                    "\n\nFor ligands with no topology files, here are your options:",
+                    "\n\t(1) Continue as is: These ligands will be treated as hydrophobic groups,",
+                    "with zero charge and zero vdw in new.tpl.",
+                    "\n\t(2) Repeat step1 with ligands removed: Remove ligands from",
+                    "input pdb and redo step1.",
+                    "\n\t(3) Repeat step1 after creating topology files for ligands.",
+                    "For instructions on creating topology files, go to:",
+                    "\n\t    https://gunnerlab.github.io/mcce4_tutorial/docs/topology/")
         
         return tplfound, notpl, unique_ligand_names
 
@@ -716,8 +717,15 @@ def main(input_path):
             # Print NOTPL list if it exists
             if notpl.strip():
                 print(f"\nWe do not have topology files for these ligands:")
-                print(f"NOTPL: {[line[-3:] for line in notpl.splitlines()]}")
-            
+                print(f"NOTPL: {[line[-3:] for line in notpl.splitlines()]}",
+                    "\n\nFor ligands with no topology files, here are your options:",
+                    "\n\t(1) Continue as is: These ligands will be treated as hydrophobic groups,",
+                    "with zero charge and zero vdw in new.tpl.",
+                    "\n\t(2) Repeat step1 with ligands removed: Remove ligands from",
+                    "input pdb and redo step1.",
+                    "\n\t(3) Repeat step1 after creating topology files for ligands.",
+                    "For instructions on creating topology files, go to:",
+                    "\n\t    https://gunnerlab.github.io/mcce4_tutorial/docs/topology/")
             # Print the final message
             print("\nFor more detailed analysis of the protein, look in p_info.log.")
             
