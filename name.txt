@@ -43,6 +43,15 @@ HBD**HEM******  *****PDD******
 *H1D*HEM******  *****PDD******
 *H2D*HEM******  *****PDD******
 
+# Ions
+ZN ** ZN******  ZN **_ZN******      # added by Gehan
+NA ** NA******  NA **_NA******      # added by Gehan
+ K **  K******   K **__K******      # added by Gehan     
+CA ** CA******  CA **_CA******      # added by Gehan
+CL ** CL******  CL **_CL******      # added by Gehan
+MG ** MG******  MG **_MG******      # added by Gehan
+MN ** MN******  MN **_MN******      # added by Gehan
+
 *C11*HEM******  *****FAR******      extract aliphatic farnesyl tail FAR from heme
 *O11*HEM******  *****FAR******
 *C12*HEM******  *****FAR******
@@ -93,13 +102,6 @@ HBD**HEM******  *****PDD******
  N **PCA******   N_***********
  O **ACN******   O_***********
  C **ACN******   C_***********
-ZN ** ZN******  ZN **_ZN******
-NA ** NA******  NA **_NA******
- K **  K******   K **__K******
-CA ** CA******  CA **_CA******      added by Gehan
-CL ** CL******  CL **_CL******      added by Gehan
-MG ** MG******  MG **_MG******      added by Gehan
-MN ** MN******  MN **_MN******      added by Gehan
 
 *NA  CLA******  *N1A CLA******      rename Chl a/b/d/f atoms - added by Gehan 
 *NB  CLA******  *N1B CLA******          
