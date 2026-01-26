@@ -25,7 +25,7 @@ _This section will reflect important changes and will provide you with informati
   - __Apply changes: run these commands:__
   ```
   CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which mcce)")"));
-  conda env update -n mc4 -f "$CLONE/mc4.yml
+  conda env update -n mc4 -f $CLONE/mc4.yml
   ```
 
 * 2026-01-20:
