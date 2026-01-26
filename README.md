@@ -19,6 +19,15 @@ Comprehensive documentation covering:
   - __Apply changes: cd to your clone, then run `git pull`__
 -->
 _This section will reflect important changes and will provide you with information on how to apply them; For example, if new python packages are added to the environment file (mc4.yml), then the entry pertaining to that change will list the command(s) to update your environment._ 
+* 2026-01-26:
+  - Added `numba` in env file:
+  - __Apply changes: cd to your clone, then run `git pull`__
+  - __Apply changes: run these commands:__
+  ```
+  CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which mcce)")"));
+  conda env update -n mc4 -f "$CLONE/mc4.yml
+  ```
+
 * 2026-01-20:
   - Comprehensive update of the tutorial site
   - Minimized README file
@@ -27,8 +36,8 @@ _This section will reflect important changes and will provide you with informati
 * 2026-01-08:
   - Updated python dependencies in mc4.yml
   - __Apply changes: run these commands:__
-  ```
-  CLONE=$(dirname $(dirname "$(readlink -f "$(which mcce)")")); echo "$CLONE"
+  ``` 
+  CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which mcce)")"));
   conda env update -n mc4 -f "$CLONE/mc4.yml
   ```
 
