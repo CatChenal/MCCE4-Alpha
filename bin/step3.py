@@ -1526,7 +1526,82 @@ def cli_parser():
     return parser
 
 
+def sanitycheck_step3(t0):
+    """
+    Sanity check for step 3. 
+    
+    Input t0: start time of step 3 run
+    Returns:
+        STATUS: messages
+        STATUS = SUCCESS, WARNING, ERROR
+    """
+    status = "SUCCESS"
+    messages = []
+
+    # Check head3.lst
+    head3_file = "head3.lst"
+    confids = []
+    if not Path(head3_file).is_file():
+        status = "ERROR"
+        messages.append(f" No {head3_file} detected, step 3 failed.")
+    elif os.path.getmtime(head3_file) < t0:
+        status = "ERROR"
+        messages.append(f" {head3_file} was not updated during this run, step 3 failed")
+    else:
+        # Check the flag column c[16] of head3.lst. It should be 't' for all non-dummy conformers.
+        # Dummy conformers have mark 'd' in column c[80]
+        partial_run = False
+        with open(head3_file) as h3:
+            lines = h3.readlines()[1:]  # skip header line
+            for line in lines:
+                parts = line.split()
+                confID = parts[1].strip()
+                flag = parts[16].strip()
+                if flag != "d" and flag != "t":
+                    partial_run = True
+                    break
+                else:
+                    if flag == "t":
+                        confids.append(confID)
+        if partial_run:    
+            status = "WARNING"
+            messages.append(" head.lst suggests a partial step 3 run")   # rewrite the last message
+
+    # Check .opp files, existence and time stamp                
+    if confids:
+        opp_uptodate = True
+        opp_present = True
+        for confID in confids:
+            opp_file = f"energies/{confID}.opp"
+            if not os.path.isfile(opp_file):
+                opp_present = False
+                print(f"Missing {opp_file}")
+                status = "ERROR"
+                break
+            elif os.path.getmtime(opp_file) < t0:
+                opp_uptodate = False
+                print(t0, os.path.getmtime(opp_file))
+                print(f"Outdated {opp_file}")
+                if status != "ERROR":  # ERROR state has higher priority
+                    status = "WARNING"
+                break
+        if not opp_present:
+            messages.append(" Some .opp files are missing.")
+        if not opp_uptodate:
+            messages.append(" Some .opp files are outdated, it is normal if this is a partial run.")
+
+    # Final report
+    if status == "SUCCESS":
+        messages.append("Step 3 completed successfully.")
+    else:
+        messages.append(" Check the log to see what went wrong.")
+    msg_str = f"[{status}]: " + ";".join(messages)
+
+    return msg_str
+
+
 if __name__ == "__main__":
+    t0 = time.time()
 
     parser = cli_parser()
     args = parser.parse_args()
@@ -1729,3 +1804,7 @@ if __name__ == "__main__":
 
     if detected:
         restore_runprm()
+
+    # Sanity check
+    sanity = sanitycheck_step3(t0)
+    print(sanity)    
