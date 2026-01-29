@@ -1,6 +1,10 @@
-#!/usr/bin/env python
-# geometry functions
-import sys
+#!/usr/bin/env python3
+
+"""
+Docstring for MCCE4.bin.geom
+  geometry functions
+"""
+
 import numpy as np
 
 # Geometry operations are through a 4x4 operation matrix.

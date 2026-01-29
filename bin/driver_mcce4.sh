@@ -1,9 +1,10 @@
 #!/bin/bash
-# =========================================================================================
+
 # Script Name   : driver_mcce4.sh
 # Purpose       : Automate and control the full MCCE4 simulation pipeline
-# 
-# Description   : This driver script orchestrates the complete MCCE4 workflow including:
+#
+# Description   : This driver script orchestrates the complete MCCE4 workflow
+# including:
 #                 - Optional protein structure centering
 #                 - Optional membrane generation (STEP M)
 #                 - Core MCCE steps 1-4 (protonation, rotamer, MC sampling, analysis)
@@ -26,23 +27,25 @@
 #   12. Run STEP 4: Analyze titration results
 #   13. Clean up temporary PBE data directories
 #
-# Requirements  : MCCE_HOME, input_pdb, and step flags must be defined before execution
+# Requirements  : MCCE_HOME, input_pdb, and step flags must be defined before 
+#                 execution
 # Output        : mcce_timing.log with detailed timing information for all steps
-# =========================================================================================
+# ...............................................................................
 
-#=========================================================================================
+#=================================================================================
 # SECTION 1: INITIALIZATION AND LOGGING SETUP
-#=========================================================================================
+#
 # Initialize timing log file and configure error handling for critical operations
-export PYTHONUNBUFFERED=1
+#echo ">> driver_mcce4.sh - Python path from submit_mcce4.sh: $PYEX"
+
 TIMING_FILE="mcce_timing.log"
 echo "MCCE Timing Report" > $TIMING_FILE
 echo "====================================" >> $TIMING_FILE
 set -e  # Exit immediately if any command fails
 
-#=========================================================================================
+#=================================================================================
 # SECTION 2: VERIFY AND LOG MCCE ENVIRONMENT VARIABLES
-#=========================================================================================
+#
 # Verify critical MCCE paths exist and log them to timing file
 
 # Log MCCE_HOME (required)
@@ -63,10 +66,10 @@ else
     echo "USER_PARAM: N/A" >> $TIMING_FILE
 fi
 
-#=========================================================================================
+#=================================================================================
 # SECTION 3: SETUP TEMPORARY DIRECTORY FOR PBE DATA
-#=========================================================================================
-# Configure temporary directory for Poisson-Boltzmann electrostatics calculations
+#
+# Configure temp directory for Poisson-Boltzmann electrostatics calculations
 # If TMP is not /tmp, create directory or clean existing contents
 
 if [[ "$TMP" != "/tmp" ]]; then
@@ -82,9 +85,9 @@ if [[ "$TMP" != "/tmp" ]]; then
     fi
 fi
 
-#=========================================================================================
+#=================================================================================
 # SECTION 4: LOG OPTIONAL FEATURES AND START TIMING
-#=========================================================================================
+#
 # Document which optional features are enabled in the timing log
 
 echo -e "====================================\n" >> $TIMING_FILE
@@ -100,9 +103,9 @@ echo -e "====================================\n" >> $TIMING_FILE
 script_start_time=$(date +%s)
 echo "Run started at: $(date)" >> $TIMING_FILE
 
-#=========================================================================================
+#=================================================================================
 # SECTION 5: CONFIGURE STEP FLAGS
-#=========================================================================================
+#
 # Append --norun flag to steps that are disabled (when step flag is "f")
 # This allows the script to document skipped steps without executing them
 
@@ -111,11 +114,12 @@ echo "Run started at: $(date)" >> $TIMING_FILE
 [[ "$step3" == "f" ]] && STEP3="$STEP3 --norun"
 [[ "$step4" == "f" ]] && STEP4="$STEP4 --norun"
 
-#=========================================================================================
+#=================================================================================
 # SECTION 6: BUILD PARAMETER STRING FOR -u FLAG
-#=========================================================================================
+#
 # Create the PARAM string containing MCCE environment variables that will be passed
-# to all MCCE steps via the -u flag. This includes MCCE_HOME, EXTRA, and optionally USER_PARAM
+# to all MCCE steps via the -u flag. This includes MCCE_HOME, EXTRA, and optionally
+# USER_PARAM
 
 if [ -d "$USER_PARAM" ]; then
     PARAM="-u MCCE_HOME=$MCCE_HOME,EXTRA=$EXTRA,USER_PARAM=$USER_PARAM"
@@ -123,11 +127,10 @@ else
     PARAM="-u MCCE_HOME=$MCCE_HOME,EXTRA=$EXTRA"
 fi
 
-#=========================================================================================
+#=================================================================================
 # SECTION 7: DEFINE UTILITY FUNCTIONS
-#=========================================================================================
-
-#-----------------------------------------------------------------------------------------
+#
+#---------------------------------------------------------------------------------
 # FUNCTION: merge_u_params
 # Purpose : Intelligently merge -u parameters when STEP commands already contain them
 # Usage   : merge_u_params "$STEP_CMD" "$PARAM"
@@ -139,7 +142,7 @@ fi
 # Notes   : - Handles both quoted (-u "value") and unquoted (-u value) formats
 #           - If STEP has no -u flag, simply appends PARAM
 #           - Merges duplicate -u flags into a single comma-separated list
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 merge_u_params() {
     local step_cmd="$1"
     local param="$2"
@@ -178,8 +181,7 @@ merge_u_params() {
     fi
 }
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # FUNCTION: file_just_made
 # Purpose : Check if a file was created within the last 5 minutes
 # Usage   : file_just_made "$step_flag" "$filename"
@@ -189,7 +191,7 @@ merge_u_params() {
 # Notes   : - Used to verify that MCCE steps successfully produced output files
 #           - If step_flag is "f" (disabled), always returns true (no check needed)
 #           - Uses 'find -mmin -5' to check for files modified in last 5 minutes
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 function file_just_made {
     step_flag="$1"   # "t" (enabled) or "f" (disabled)
     file="$2"        # File path to check
@@ -207,14 +209,14 @@ function file_just_made {
     fi
 }
 
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # FUNCTION: format_time
 # Purpose : Convert elapsed seconds into human-readable HH:MM:SS format
 # Usage   : format_time $elapsed_seconds
 # Returns : Formatted string like "01h:23m:45s"
 #
 # Example : format_time 3665  →  "01h:01m:05s"
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 format_time() {
     local elapsed=$1
     local hours=$((elapsed / 3600))
@@ -223,11 +225,11 @@ format_time() {
     printf "%02dh:%02dm:%02ds" "$hours" "$minutes" "$seconds"
 }
 
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # FUNCTION: time_step
 # Purpose : Execute and time an MCCE step, logging results to timing file
 # Usage   : time_step "STEP_NAME" "$STEP_CMD" "output_file" "success_msg" "$step_flag"
-# 
+#
 # Parameters:
 #   $1 - step_name       : Display name (e.g., "STEP1", "STEP2")
 #   $2 - step_cmd        : Full command to execute
@@ -247,7 +249,7 @@ format_time() {
 #   - Success: Expected output exists and is recent (or --norun was used)
 #   - Warning: Command succeeded but output not fresh
 #   - Failure: Command failed or output not created
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 function time_step {
     step_name="$1"
     step_cmd="$2"
@@ -301,9 +303,10 @@ function time_step {
         printf "%-6s: %s   - FAILED: Command returned non-zero exit status.\n" "$step_name" "$formatted_time" >> "$TIMING_FILE"
     fi
 }
-#=========================================================================================
+
+#=================================================================================
 # SECTION 8: OPTIONAL PROTEIN CENTERING
-#=========================================================================================
+#
 # If enabled (center="t"), center the protein structure at the origin using orientation.py
 # This ensures consistent coordinate system for simulations, especially important for
 # membrane proteins and systems requiring specific geometric orientation
@@ -311,9 +314,9 @@ function time_step {
 if [[ "$center" == "t" ]]; then
     echo "Centering protein structure..."
     start_time=$(date +%s)
-    
+
     # Run orientation.py and capture output
-    output=$(orientation.py "$input_pdb")
+    output=$("$PYEX" $MCBIN/orientation.py "$input_pdb")
     # Extract the new centered filename from orientation.py output
     centered_pdb=$(echo "$output" | awk '/Structure moved to origin/ {print $NF}')
 
@@ -339,10 +342,9 @@ fi
 
 echo "Final input PDB file: $input_pdb"
 
-
-#=========================================================================================
+#=================================================================================
 # SECTION 9: FINALIZE MCCE STEP COMMANDS
-#=========================================================================================
+#
 # Merge -u parameters from STEP variables with the global PARAM string
 # This handles cases where STEP commands already contain -u flags with custom parameters
 
@@ -357,9 +359,9 @@ STEP2_CMD="$STEP2_MERGED > step2.log"
 STEP3_CMD="$STEP3_MERGED > step3.log 2>&1"  # Redirect both stdout and stderr for step3
 STEP4_CMD="$STEP4_MERGED > step4.log"
 
-#=========================================================================================
+#=================================================================================
 # SECTION 10: CONFIGURE OPTIONAL SCRIPT COMMANDS
-#=========================================================================================
+#
 # Setup commands for optional custom scripts (STEPM, STEPA, STEPB, STEPC)
 # STEPM uses sbatch if available (for HPC clusters), otherwise runs with bash
 
@@ -368,13 +370,13 @@ if command -v sbatch &> /dev/null; then
 else
     STEPM_CMD="bash $STEPM > stepM.log"
 fi
-STEPA_CMD="python $STEPA > stepA.log"
-STEPB_CMD="python $STEPB > stepB.log"
-STEPC_CMD="python $STEPC > stepC.log"
+STEPA_CMD="$PYEX $STEPA > stepA.log"
+STEPB_CMD="$PYEX $STEPB > stepB.log"
+STEPC_CMD="$PYEX $STEPC > stepC.log"
 
-#=========================================================================================
+#=================================================================================
 # SECTION 11: SETUP CLEANUP HANDLER FOR INTERRUPTS
-#=========================================================================================
+#
 # Define cleanup function to handle script interruptions (Ctrl+C, scancel, etc.)
 # Ensures temporary PBE data directories are cleaned up even on premature exit
 
@@ -400,11 +402,9 @@ cleanup_on_exit() {
 # Register the cleanup function to run on interrupt signals
 trap cleanup_on_exit SIGINT SIGTERM EXIT
 
-#=========================================================================================
-#=========================================================================================
+#=================================================================================
 #                         MAIN EXECUTION: MCCE4 SIMULATION PIPELINE
-#=========================================================================================
-#=========================================================================================
+#
 # This section executes the MCCE4 workflow in the following order:
 #   1. Optional membrane generation (STEP M)
 #   2. STEP 1: Generate protonation states (step1.py)
@@ -421,11 +421,11 @@ trap cleanup_on_exit SIGINT SIGTERM EXIT
 #   - Timing measurements and logging
 #   - Output file verification
 #   - Dependency checking (ensures prerequisite files exist)
-#=========================================================================================
+#=================================================================================
 
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # OPTIONAL STEP M: Membrane Generation
-#-----------------------------------------------------------------------------------------
+#
 # Generate partial membrane structure if requested (membrane proteins only)
 # Runs before STEP 1 to prepare membrane environment
 # Execution: Controlled by stepM flag
@@ -458,10 +458,9 @@ if [[ "$stepM" == "t" ]]; then
     fi
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # STEP 1: Generate Protonation States
-#-----------------------------------------------------------------------------------------
+#
 # Creates initial protonation states and conformers from input PDB
 # Output: step1_out.pdb (all atoms with all possible protonation states)
 # Execution: Always runs if step1 flag is "t"
@@ -473,10 +472,9 @@ else
     printf "%-6s: skipped.      - Skipped (flag f): step not run.\n" "STEP1" >> "$TIMING_FILE"
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # OPTIONAL STEP A: Custom Script After STEP 1
-#-----------------------------------------------------------------------------------------
+#
 # User-defined processing between STEP 1 and STEP 2
 # Common uses: Modify step1_out.pdb, add custom residues, filter conformers
 # Execution: Controlled by stepA flag
@@ -509,10 +507,9 @@ if [[ "$stepA" == "t" ]]; then
     fi
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # STEP 2: Generate Rotamers and Conformers
-#-----------------------------------------------------------------------------------------
+#
 # Creates rotamers and energy calculations for all conformers
 # Output: step2_out.pdb (optimized conformers with energy data)
 # Dependency: Requires step1_out.pdb from STEP 1
@@ -538,9 +535,9 @@ else
     printf "%-6s: skipped.      - Skipped (flag f): step not run.\n" "STEP2" >> "$TIMING_FILE"
 fi
 
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # Membrane Append Operation
-#-----------------------------------------------------------------------------------------
+#
 # If membrane generation (STEP M) was run and STEP 2 completed successfully,
 # append the membrane structure to step2_out.pdb
 # This integrates the membrane environment with the protein conformers
@@ -558,10 +555,9 @@ if [[ "$step2" == "t" && "$stepM" == "t" ]]; then
     fi
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # OPTIONAL STEP B: Custom Script After STEP 2
-#-----------------------------------------------------------------------------------------
+#
 # User-defined processing between STEP 2 and STEP 3
 # Common uses: Modify step2_out.pdb, adjust conformers, prepare for MC sampling
 # Execution: Controlled by stepB flag
@@ -593,10 +589,9 @@ if [[ "$stepB" == "t" ]]; then
     fi
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # STEP 3: Monte Carlo Sampling
-#-----------------------------------------------------------------------------------------
+#
 # Performs Monte Carlo sampling to determine protonation states at different pH values
 # Output: head3.lst (MC results), energies/ directory (detailed energy files)
 # Dependency: Requires step2_out.pdb from STEP 2
@@ -624,10 +619,9 @@ else
     printf "%-6s: skipped.      - Skipped (flag f): step not run.\n" "STEP3" >> "$TIMING_FILE"
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # OPTIONAL STEP C: Custom Script After STEP 3
-#-----------------------------------------------------------------------------------------
+#
 # User-defined processing between STEP 3 and STEP 4
 # Common uses: Parse head3.lst, extract specific pH results, custom analysis
 # Execution: Controlled by stepC flag
@@ -660,10 +654,9 @@ if [[ "$stepC" == "t" ]]; then
     fi
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # STEP 4: Analyze and Generate Output
-#-----------------------------------------------------------------------------------------
+#
 # Analyzes MC sampling results and generates final titration curves and pKa values
 # Output: sum_crg.out (charge vs pH), pK.out (calculated pKa values), and other analysis files
 # Dependency: Requires head3.lst and energies/ directory from STEP 3
@@ -690,10 +683,9 @@ else
     printf "%-6s: skipped.      - Skipped (flag f): step not run.\n" "STEP4" >> "$TIMING_FILE"
 fi
 
-
-#-----------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 # STEP_CLEAN: Remove Temporary PBE Data Directories
-#-----------------------------------------------------------------------------------------
+#
 # Clean up temporary Poisson-Boltzmann electrostatics data from $TMP directory
 # These files can be several GB in size and are safe to remove after successful completion
 # Only removes directories matching the current working directory pattern
@@ -733,15 +725,14 @@ else
     printf "%-6s: skipped.  - Skipped (flag f): /tmp cleanup not run.\n" "STEP_CLEAN" >> "$TIMING_FILE"
 fi
 
-
-#=========================================================================================
+#=================================================================================
 # FINALIZATION: Calculate Total Runtime and Close Timing Log
-#=========================================================================================
+#=================================================================================
 # Record completion time, calculate total runtime, and finalize timing report
 
 script_end_time=$(date +%s)
 total_elapsed=$((script_end_time - script_start_time))
-formatted_total_elapsed=$(format_time "$total_elapsed)
+formatted_total_elapsed=$(format_time "$total_elapsed")
 
 # Write completion information to timing log
 echo -e "\nRun ended at: $(date)" >> "$TIMING_FILE"
@@ -755,6 +746,4 @@ echo "Script complete."
 echo "Total runtime: $formatted_total_elapsed"
 echo "Timing report written to $TIMING_FILE"
 
-#=========================================================================================
 # END OF SCRIPT
-#=========================================================================================

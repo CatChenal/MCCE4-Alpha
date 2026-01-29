@@ -1,12 +1,13 @@
-#!/usr/bin/env python
-# center and randomly rotate protein
+#!/usr/bin/env python3
 
-import string
-
-import numpy as np
+"""
+Docstring for MCCE4.bin.orientation
+  center and randomly rotate protein
+"""
+import sys
 
 from geom import *
-import sys
+
 
 class ATOM():
     def load_pdb(self, line):
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     print("Reading input structure from %s ... " % sys.argv[1], end="", flush=True)
     lines=open(sys.argv[1]).readlines()
     for line in lines:
-        if line[:6] == "ATOM  " or line[:6] == "HETATM":
+        if line.startswith(("ATOM  ","HETATM")):
             atom = ATOM()
             atom.load_pdb(line)
             mol_atoms.append(atom)
