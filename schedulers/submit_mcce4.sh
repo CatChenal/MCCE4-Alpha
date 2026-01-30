@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Parameter/Options for SLURM (Simple Linux Utility for Resource Management)
-#SBATCH --job-name=mcce4_run
+#SBATCH --job-name=submit_mcce4
 #SBATCH --output=submit_mcce4.log
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -10,41 +10,23 @@
 
 #=============================================================================
 #-----------------------------------------------------------------------------
-# Input and Output:
-<<<<<<< HEAD
-input_pdb="prot.pdb"    # (INPDB)
+# >>> Automated Parameters (best not change)
 APPTNR=$(command -v apptainer) || { echo "apptainer not found"; exit 1; }
 MCCE=$(command -v mcce) || { echo "mcce not found"; exit 1; }
-
-# Set MCCE4 Parameters
-APPTAINER_BIN=$(dirname "$APPTNR")            # PATH to the bin folder containg the apptainer executable
-MCCE_HOME=$(dirname "$(dirname "$MCCE")")     # PATH to MCCE4-Alpha
-USER_PARAM="./user_param"
-EXTRA="./user_param/extra.tpl"
-=======
-input_pdb="prot.pdb"    # (INPDB) keep if you have soft-linked your pdb as prot.pdb, e.g.:  ln -s 4lzt.pdb prot.pdb
-
-# >>> Automated Parameters (best not change)
-MCBIN=$(dirname $(which mcce))
-MCCE_HOME=$(dirname "$MCBIN")
 PYEX=$(python3 -c "import sys; print(sys.executable)")
 PYENV="${PYEX%python3}"
 
-APTNR=$(which apptainer) > /dev/null 2>&1
-if [[ -n "$APTNR" ]]; then
-    APPTAINER_BIN=$(dirname "$APTNR")
-else
-    echo "Error: apptainer program not found."
-    exit 1
-fi
-# <<<
+# Input and Output:
+input_pdb="prot.pdb"    # (INPDB)
 
 # Set MCCE4 Parameters: default USER_PARAM: MCCE_HOME/param; default EXTRA is 'extra.tpl' -> MCCE_HOME/extra.tpl
-USER_PARAM="/param"     # could be "/path/to/new/topologies"
-EXTRA="extra.tpl"       # could be "/path/to/test/extra.tpl" or "./extra.tpl" (local file), etc.
->>>>>>> 511e35dc1e5787d29eae785e06169bc9ff463ab9
+APPTAINER_BIN=$(dirname "$APPTNR")            # PATH to the bin folder containg the apptainer executable
+MCCE_HOME=$(dirname "$(dirname "$MCCE")")     # PATH to MCCE4-Alpha
+USER_PARAM="./user_param"                     # PATH to additonal topology files (local files) not in MCCE4-Alpha/param ; This directory must be called "user_param"
+EXTRA="./user_param/extra.tpl"                # PATH to an different "extra.tpl" (local files)  different from in MCCE4-Alpha.
 TMP="/tmp"
 CPUS=1
+EPS=8                   # Protein dielectric constant
 
 # Step control flags
 step1="t"               # STEP1: pre-run, pdb-> mcce pdb  (DO_PREMCCE)
@@ -60,10 +42,7 @@ stepA="f"               # Run a custom script between step1 and step2   : If tru
 stepB="f"               # Run a custom script between step2 and step3   : If true, user MUST satisfy condidtions of their custom script
 stepC="f"               # Run a custom script between step3 and step4   : If true, user MUST satisfy condidtions of their custom script
 
-
 # MCCE Simulation
-EPS=8                   # Protein dielectric constant
-
 STEP1="$PYEX step1.py -d $EPS --dry"
 STEP2="$PYEX step2.py -d $EPS -l 1"
 STEP3="$PYEX step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
