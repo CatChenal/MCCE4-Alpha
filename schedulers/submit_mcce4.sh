@@ -12,16 +12,19 @@
 #-----------------------------------------------------------------------------
 # >>> Automated Parameters (best not change)
 APPTNR=$(command -v apptainer) || { echo "apptainer not found"; exit 1; }
-MCCE=$(command -v mcce) || { echo "mcce not found"; exit 1; }
+MCCE=$(command -v mcce)        || { echo "mcce not found"; exit 1; }
 PYEX=$(python3 -c "import sys; print(sys.executable)")
 PYENV="${PYEX%python3}"
+MCBIN=$(cd "$(dirname "$MCCE")" && pwd)
+MCCE_HOME=$(cd "$(dirname "$MCCE")/.." && pwd)
+APPTAINER_BIN=$(dirname "$APPTNR")
+[[ -x "$MCCE_HOME/bin/mcce" ]] || { echo "[ERROR] mcce not found in $MCCE_HOME/bin"; exit 1; }
+# <<<
 
 # Input and Output:
-input_pdb="prot.pdb"    # (INPDB)
+input_pdb="prot.pdb"    # (INPDB) keep if you have soft-linked your pdb as prot.pdb, e.g.:  ln -s 4lzt.pdb prot.pdb
 
 # Set MCCE4 Parameters: default USER_PARAM: MCCE_HOME/param; default EXTRA is 'extra.tpl' -> MCCE_HOME/extra.tpl
-APPTAINER_BIN=$(dirname "$APPTNR")            # PATH to the bin folder containg the apptainer executable
-MCCE_HOME=$(dirname "$(dirname "$MCCE")")     # PATH to MCCE4-Alpha
 USER_PARAM="./user_param"                     # PATH to additonal topology files (local files) not in MCCE4-Alpha/param ; This directory must be called "user_param"
 EXTRA="./user_param/extra.tpl"                # PATH to an different "extra.tpl" (local files)  different from in MCCE4-Alpha.
 TMP="/tmp"
@@ -43,10 +46,10 @@ stepB="f"               # Run a custom script between step2 and step3   : If tru
 stepC="f"               # Run a custom script between step3 and step4   : If true, user MUST satisfy condidtions of their custom script
 
 # MCCE Simulation
-STEP1="$PYEX step1.py -d $EPS --dry"
-STEP2="$PYEX step2.py -d $EPS -l 1"
-STEP3="$PYEX step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
-STEP4="$PYEX step4.py --xts -i 7 -n 1"
+STEP1="$PYEX $MCBIN/step1.py -d $EPS --dry"
+STEP2="$PYEX $MCBIN/step2.py -d $EPS -l 1"
+STEP3="$PYEX $MCBIN/step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
+STEP4="$PYEX $MCBIN/step4.py --xts -i 7 -n 1"
 
 # Optional MCCE script locations
 STEPM="/path/to/stepM.sh"         # Optional StepM: Bash script
@@ -59,14 +62,6 @@ STEPC="/path/to/stepC_script.py"  # Optional StepC: Python script to run between
 #------------------------------------------------------------------------------
 #==============================================================================
 
-# Define MCCE_HOME binary directory as mc_bin if MCCE_HOME is set; fail fast
-if [[ ! -d "$MCCE_HOME" ]]; then
-#    mc_bin="$MCCE_HOME/bin"
-#else
-    echo "Error: MCCE_HOME is not set."
-    exit 1
-fi
-
 # Initialize Apptainer to ensure job uses user-installed Apptainer and avoid systemd/cgroups (DBus) issues on compute nodes
 export PATH="$APPTAINER_BIN:$PATH"
 export APPTAINER_CONFIG_FILE="$HOME/.apptainer/apptainer.conf"
@@ -74,13 +69,6 @@ mkdir -p "$HOME/.apptainer"
 cat > "$APPTAINER_CONFIG_FILE" <<'EOF'
 systemd cgroups = no
 EOF
-
-# Check MCCE_HOME exists before PATH export
-if [[ ! -d "$MCBIN" ]]; then
-    echo -e "\033[0;31m[ERROR]\033[0m MCCE_HOME is not set correctly or $MCCE_HOME/bin does not exist."
-    echo "Please check your MCCE_HOME path in submit_mcce4.sh."
-    exit 1
-fi
 
 # Remove any existing instance of mc_bin from PATH and prepend mc_bin to PATH
 PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$MCCE_HOME/MCCE_bin" | paste -sd ':' -)
