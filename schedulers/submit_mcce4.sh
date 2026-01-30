@@ -21,22 +21,20 @@ APPTAINER_BIN=$(dirname "$APPTNR")
 [[ -x "$MCCE_HOME/bin/mcce" ]] || { echo "[ERROR] mcce not found in $MCCE_HOME/bin"; exit 1; }
 # <<<
 
-# Input and Output:
-input_pdb="prot.pdb"    # (INPDB) keep if you have soft-linked your pdb as prot.pdb, e.g.:  ln -s 4lzt.pdb prot.pdb
-
-# Set MCCE4 Parameters: default USER_PARAM: MCCE_HOME/param; default EXTRA is 'extra.tpl' -> MCCE_HOME/extra.tpl
-USER_PARAM="./user_param"                     # PATH to additonal topology files (local files) not in MCCE4-Alpha/param ; This directory must be called "user_param"
-EXTRA="./user_param/extra.tpl"                # PATH to an different "extra.tpl" (local files)  different from in MCCE4-Alpha.
-TMP="/tmp"
-CPUS=1
-EPS=8                   # Protein dielectric constant
+# Set INPUT & MCCE4 Parameters
+input_pdb="prot.pdb"               # PATH to input PDB if you have soft-linked your PDB as "prot.pdb", e.g.:  ln -s 4lzt.pdb prot.pdb  
+USER_PARAM="./user_param"          # PATH to "user_param" directory containing additonal topology files (local files). This directory must be called "user_param" (default: MCCE_HOME/param)
+EXTRA="./user_param/extra.tpl"     # PATH to an different "extra.tpl" file (local file). (default: MCCE_HOME/extra.tpl)
+TMP="/tmp"                         # PATH to temporary directory for storing PBE calculation files during step3
+CPUS=1                             # Number of CPU cores to use for parallelizable MCCE calculations
+EPS=8                              # Protein dielectric constant
 
 # Step control flags
 step1="t"               # STEP1: pre-run, pdb-> mcce pdb  (DO_PREMCCE)
 step2="t"               # STEP2: make rotamers            (DO_ROTAMERS)
 step3="t"               # STEP3: Energy calculations      (DO_ENERGY)
 step4="t"               # STEP4: Monte Carlo Sampling     (DO_MONTE)
-step_clean="t"          # Clean PBE data                  (BACKUP CLEAN) : Set to f if step3 --debug option is used
+step_clean="t"          # Clean PBE data from TMP         (BACKUP CLEAN) : Set to f if step3 --debug option is used
 
 # Optional step controls
 center="t"              # Center protein structure before MCCE run      : Set to f to skip centering and use input PDB as-is
