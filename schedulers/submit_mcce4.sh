@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Parameter/Options for SLURM (Simple Linux Utility for Resource Management)
-#SBATCH --job-name=mcce4_run
+#SBATCH --job-name=submit_mcce4
 #SBATCH --output=submit_mcce4.log
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -20,14 +20,10 @@ MCCE_HOME=$(dirname "$MCBIN")
 # the python executable will come from your virtual env if activated:
 PYEX=$(python3 -c "import sys; print(sys.executable)")
 PYENV="${PYEX%python3}"
-
-APTNR=$(which apptainer) > /dev/null 2>&1
-if [[ -n "$APTNR" ]]; then
-    APPTAINER_BIN=$(dirname "$APTNR")
-else
-    echo "Error: apptainer program not found."
-    exit 1
-fi
+MCBIN=$(cd "$(dirname "$MCCE")" && pwd)
+MCCE_HOME=$(cd "$(dirname "$MCCE")/.." && pwd)
+APPTAINER_BIN=$(dirname "$APPTNR")
+[[ -x "$MCCE_HOME/bin/mcce" ]] || { echo "[ERROR] mcce not found in $MCCE_HOME/bin"; exit 1; }
 # <<<
 
 # Set MCCE4 Parameters: default USER_PARAM: "/param"->MCCE_HOME/param; default EXTRA is 'extra.tpl'->MCCE_HOME/extra.tpl
@@ -41,7 +37,7 @@ step1="t"               # STEP1: pre-run, pdb-> mcce pdb  (DO_PREMCCE)
 step2="t"               # STEP2: make rotamers            (DO_ROTAMERS)
 step3="t"               # STEP3: Energy calculations      (DO_ENERGY)
 step4="t"               # STEP4: Monte Carlo Sampling     (DO_MONTE)
-step_clean="t"          # Clean PBE data                  (BACKUP CLEAN) : Set to f if step3 --debug option is used
+step_clean="t"          # Clean PBE data from TMP         (BACKUP CLEAN) : Set to f if step3 --debug option is used
 
 # Optional step controls
 center="t"              # Center protein structure before MCCE run    : Set to f to skip centering and use input PDB as-is
