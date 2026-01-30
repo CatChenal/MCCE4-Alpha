@@ -19,6 +19,10 @@ Comprehensive documentation covering:
   - __Apply changes: cd to your clone, then run `git pull`__
 -->
 _This section will reflect important changes and will provide you with information on how to apply them; For example, if new python packages are added to the environment file (mc4.yml), then the entry pertaining to that change will list the command(s) to update your environment._ 
+* 2026-01-30:
+  - Updated submit_mcce4.sh and driver_mcce4.sh to pass environment
+  - __Apply changes: cd to your clone, then run `git pull`__
+
 * 2026-01-26:
   - Added `numba` in env file:
   - __Apply changes: cd to your clone, then run `git pull`__
