@@ -11,11 +11,13 @@
 #=============================================================================
 #-----------------------------------------------------------------------------
 # Input and Output:
-input_pdb="prot.pdb"    # (INPDB) keep if you have soft-linked your pdb as prot.pdb, e.g.:  ln -s 4lzt.pdb prot.pdb
+input_pdb="prot.pdb"    # (INPDB) keep if you have soft-linked your pdb as prot.pdb, e.g.: ln -s 4lzt.pdb prot.pdb
 
 # >>> Automated Parameters (best not change)
 MCBIN=$(dirname $(which mcce))
 MCCE_HOME=$(dirname "$MCBIN")
+
+# the python executable will come from your virtual env if activated:
 PYEX=$(python3 -c "import sys; print(sys.executable)")
 PYENV="${PYEX%python3}"
 
@@ -28,7 +30,7 @@ else
 fi
 # <<<
 
-# Set MCCE4 Parameters: default USER_PARAM: MCCE_HOME/param; default EXTRA is 'extra.tpl' -> MCCE_HOME/extra.tpl
+# Set MCCE4 Parameters: default USER_PARAM: "/param"->MCCE_HOME/param; default EXTRA is 'extra.tpl'->MCCE_HOME/extra.tpl
 USER_PARAM="/param"     # could be "/path/to/new/topologies"
 EXTRA="extra.tpl"       # could be "/path/to/test/extra.tpl" or "./extra.tpl" (local file), etc.
 TMP="/tmp"
@@ -42,54 +44,50 @@ step4="t"               # STEP4: Monte Carlo Sampling     (DO_MONTE)
 step_clean="t"          # Clean PBE data                  (BACKUP CLEAN) : Set to f if step3 --debug option is used
 
 # Optional step controls
-center="t"              # Center protein structure before MCCE run      : Set to f to skip centering and use input PDB as-is
-stepM="f"               # Generate Partial Membranes                    : If true, user MUST satisfy condidtions of stepM.sh, which can be be obtained on MCCE4/inhouse/stepM.sh
-stepA="f"               # Run a custom script between step1 and step2   : If true, user MUST satisfy condidtions of their custom script
-stepB="f"               # Run a custom script between step2 and step3   : If true, user MUST satisfy condidtions of their custom script
-stepC="f"               # Run a custom script between step3 and step4   : If true, user MUST satisfy condidtions of their custom script
-
+center="t"              # Center protein structure before MCCE run    : Set to f to skip centering and use input PDB as-is
+# Optional, user-defined scripts. User MUST satisfy condidtions of their custom script
+stepM="f"               # Generate Partial Membranes                  : Sample found in $MCCE_HOME/schedulers/stepM.sh
+stepA="f"               # Run a custom script between step1 and step2
+stepB="f"               # Run a custom script between step2 and step3
+stepC="f"               # Run a custom script between step3 and step4
 
 # MCCE Simulation
 EPS=8                   # Protein dielectric constant
 
-STEP1="$PYEX step1.py -d $EPS --dry"
-STEP2="$PYEX step2.py -d $EPS -l 1"
-STEP3="$PYEX step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
-STEP4="$PYEX step4.py --xts -i 7 -n 1"
+STEP1="$PYEX $MCBIN/step1.py -d $EPS --dry"
+STEP2="$PYEX $MCBIN/step2.py -d $EPS -l 1"
+STEP3="$PYEX $MCBIN/step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
+STEP4="$PYEX $MCBIN/step4.py --xts -i 7 -n 1 --ms"
 
-# Optional MCCE script locations
-STEPM="/path/to/stepM.sh"         # Optional StepM: Bash script
+# Optional scripts locations
+STEPM="/path/to/stepM.sh"         # Optional StepM: Bash script; Example in $MCCE_HOME/schedulers/stepM.sh
 STEPA="/path/to/stepA_script.py"  # Optional StepA: Python script to run between step1 and step2.
 STEPB="/path/to/stepB_script.py"  # Optional StepB: Python script to run between step2 and step3.
 STEPC="/path/to/stepC_script.py"  # Optional StepC: Python script to run between step3 and step4.
 
-# NOTE: User is responsible to precheck if custom scripts work properly and efficiently
 # NO USER INPUT NECCESARY BELOW THIS LINE
-#------------------------------------------------------------------------------
 #==============================================================================
 
-# Define MCCE_HOME binary directory as mc_bin if MCCE_HOME is set; fail fast
+# Check MCCE_HOME exists before PATH export
+if [[ ! -d "$MCBIN" ]]; then
+    echo -e "\033[0;31m[ERROR]\033[0m MCCE4 executable was not found or $MCCE_HOME/bin does not exist."
+    echo "Please check your MCCE_HOME path in submit_mcce4.sh."
+    exit 1
+fi
+
 if [[ ! -d "$MCCE_HOME" ]]; then
-#    mc_bin="$MCCE_HOME/bin"
-#else
     echo "Error: MCCE_HOME is not set."
     exit 1
 fi
 
-# Initialize Apptainer to ensure job uses user-installed Apptainer and avoid systemd/cgroups (DBus) issues on compute nodes
+# Initialize Apptainer to ensure job uses user-installed Apptainer and avoid systemd/cgroups (DBus)
+# issues on compute nodes
 export PATH="$APPTAINER_BIN:$PATH"
 export APPTAINER_CONFIG_FILE="$HOME/.apptainer/apptainer.conf"
 mkdir -p "$HOME/.apptainer"
 cat > "$APPTAINER_CONFIG_FILE" <<'EOF'
 systemd cgroups = no
 EOF
-
-# Check MCCE_HOME exists before PATH export
-if [[ ! -d "$MCBIN" ]]; then
-    echo -e "\033[0;31m[ERROR]\033[0m MCCE_HOME is not set correctly or $MCCE_HOME/bin does not exist."
-    echo "Please check your MCCE_HOME path in submit_mcce4.sh."
-    exit 1
-fi
 
 # Remove any existing instance of mc_bin from PATH and prepend mc_bin to PATH
 PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$MCCE_HOME/MCCE_bin" | paste -sd ':' -)
@@ -115,7 +113,7 @@ echo -e "Config File:      $APPTAINER_CONFIG_FILE"
 echo -e "MCCE_HOME:        $MCCE_HOME"
 echo -e "MCBIN:            $MCBIN"
 echo -e "Driver:           $MCBIN/driver_mcce4.sh"
-echo -e "PYEX, PYENV:      $PYEX"
+echo -e "PYEX:             $PYEX"
 echo -e "PATH:             $PATH"
 echo "============================================================"
 echo
@@ -133,11 +131,13 @@ export STEPM STEPA STEPB STEPC
 
 # ==============================================================================
 # Script Name   : submit_mcce4.sh
-# Purpose       : Automate and control the full MCCE4 simulation pipeline including optional custom preprocessing steps.
+# Purpose       : Automate and control the full MCCE4 simulation pipeline including optional custom
+#               : preprocessing steps.
 #
 # Description   :
-#   This script manages the sequential execution of MCCE4 simulation steps (1 to 4), with optional hooks (stepM, stepA, stepB, stepC)
-#   that allow the user to insert custom membrane generation and intermediate processing scripts.
+#   This script manages the sequential execution of MCCE4 simulation steps (1 to 4), with optional
+#   hooks (stepM, stepA, stepB, stepC) that allow the user to insert custom membrane generation and
+#   intermediate processing scripts.
 #   It records the timing and success/failure of each step in a detailed log file (`mcce_timing.log`).
 #   The script supports flexible control through flags to enable/disable specific MCCE steps or custom steps.
 #
