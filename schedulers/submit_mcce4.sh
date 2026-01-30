@@ -11,6 +11,7 @@
 #=============================================================================
 #-----------------------------------------------------------------------------
 # Input and Output:
+<<<<<<< HEAD
 input_pdb="prot.pdb"    # (INPDB)
 APPTNR=$(command -v apptainer) || { echo "apptainer not found"; exit 1; }
 MCCE=$(command -v mcce) || { echo "mcce not found"; exit 1; }
@@ -20,6 +21,28 @@ APPTAINER_BIN=$(dirname "$APPTNR")            # PATH to the bin folder containg 
 MCCE_HOME=$(dirname "$(dirname "$MCCE")")     # PATH to MCCE4-Alpha
 USER_PARAM="./user_param"
 EXTRA="./user_param/extra.tpl"
+=======
+input_pdb="prot.pdb"    # (INPDB) keep if you have soft-linked your pdb as prot.pdb, e.g.:  ln -s 4lzt.pdb prot.pdb
+
+# >>> Automated Parameters (best not change)
+MCBIN=$(dirname $(which mcce))
+MCCE_HOME=$(dirname "$MCBIN")
+PYEX=$(python3 -c "import sys; print(sys.executable)")
+PYENV="${PYEX%python3}"
+
+APTNR=$(which apptainer) > /dev/null 2>&1
+if [[ -n "$APTNR" ]]; then
+    APPTAINER_BIN=$(dirname "$APTNR")
+else
+    echo "Error: apptainer program not found."
+    exit 1
+fi
+# <<<
+
+# Set MCCE4 Parameters: default USER_PARAM: MCCE_HOME/param; default EXTRA is 'extra.tpl' -> MCCE_HOME/extra.tpl
+USER_PARAM="/param"     # could be "/path/to/new/topologies"
+EXTRA="extra.tpl"       # could be "/path/to/test/extra.tpl" or "./extra.tpl" (local file), etc.
+>>>>>>> 511e35dc1e5787d29eae785e06169bc9ff463ab9
 TMP="/tmp"
 CPUS=1
 
@@ -37,11 +60,14 @@ stepA="f"               # Run a custom script between step1 and step2   : If tru
 stepB="f"               # Run a custom script between step2 and step3   : If true, user MUST satisfy condidtions of their custom script
 stepC="f"               # Run a custom script between step3 and step4   : If true, user MUST satisfy condidtions of their custom script
 
+
 # MCCE Simulation
-STEP1="step1.py -d 4 --dry"
-STEP2="step2.py -d 4 -l 1"
-STEP3="step3.py -d 4 -s ngpb -p $CPUS -t \$TMP"
-STEP4="step4.py --xts -i 7 -n 1"
+EPS=8                   # Protein dielectric constant
+
+STEP1="$PYEX step1.py -d $EPS --dry"
+STEP2="$PYEX step2.py -d $EPS -l 1"
+STEP3="$PYEX step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
+STEP4="$PYEX step4.py --xts -i 7 -n 1"
 
 # Optional MCCE script locations
 STEPM="/path/to/stepM.sh"         # Optional StepM: Bash script
@@ -54,8 +80,15 @@ STEPC="/path/to/stepC_script.py"  # Optional StepC: Python script to run between
 #------------------------------------------------------------------------------
 #==============================================================================
 
+# Define MCCE_HOME binary directory as mc_bin if MCCE_HOME is set; fail fast
+if [[ ! -d "$MCCE_HOME" ]]; then
+#    mc_bin="$MCCE_HOME/bin"
+#else
+    echo "Error: MCCE_HOME is not set."
+    exit 1
+fi
+
 # Initialize Apptainer to ensure job uses user-installed Apptainer and avoid systemd/cgroups (DBus) issues on compute nodes
-export PYTHONUNBUFFERED=1
 export PATH="$APPTAINER_BIN:$PATH"
 export APPTAINER_CONFIG_FILE="$HOME/.apptainer/apptainer.conf"
 mkdir -p "$HOME/.apptainer"
@@ -64,25 +97,24 @@ systemd cgroups = no
 EOF
 
 # Check MCCE_HOME exists before PATH export
-if [[ ! -d "$MCCE_HOME/bin" ]]; then
+if [[ ! -d "$MCBIN" ]]; then
     echo -e "\033[0;31m[ERROR]\033[0m MCCE_HOME is not set correctly or $MCCE_HOME/bin does not exist."
     echo "Please check your MCCE_HOME path in submit_mcce4.sh."
     exit 1
 fi
 
-# Define MCCE_HOME binary directory as mc_bin if MCCE_HOME is set
-if [[ -n "$MCCE_HOME" ]]; then
-    mc_bin="$MCCE_HOME/bin"
-else
-    echo "Error: MCCE_HOME is not set."
-    exit 1
-fi
+# Remove any existing instance of mc_bin from PATH and prepend mc_bin to PATH
+PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$MCCE_HOME/MCCE_bin" | paste -sd ':' -)
+export PATH="$MCCE_HOME/MCCE_bin:$PATH"
 
 # Remove any existing instance of mc_bin from PATH and prepend mc_bin to PATH
-PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$mc_bin" | paste -sd ':' -)
-export PATH="$mc_bin:$PATH"
+PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$MCBIN" | paste -sd ':' -)
+export PATH="$MCBIN:$PATH"
 
-# Print useful info
+# Remove any existing instance of PYENV from PATH and prepend PYENV to PATH
+PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$PYENV" | paste -sd ':' -)
+export PATH="$PYENV:$PATH"
+
 echo "============================================================"
 echo "MCCE4 SUBMIT SHELL JOB ENVIRONMENT (startup diagnostics)"
 echo "------------------------------------------------------------"
@@ -93,20 +125,23 @@ echo
 echo -e "Apptainer:        $(which apptainer)"
 echo -e "Config File:      $APPTAINER_CONFIG_FILE"
 echo -e "MCCE_HOME:        $MCCE_HOME"
+echo -e "MCBIN:            $MCBIN"
+echo -e "Driver:           $MCBIN/driver_mcce4.sh"
+echo -e "PYEX, PYENV:      $PYEX"
 echo -e "PATH:             $PATH"
-echo -e "Driver:           $mc_bin/driver_mcce4.sh"
 echo "============================================================"
 echo
 
 # Export environment for downstream script
-export input_pdb MCCE_HOME USER_PARAM EXTRA TMP
+export PYEX
+export input_pdb MCCE_HOME MCBIN USER_PARAM EXTRA TMP
 export step1 step2 step3 step4 step_clean
 export center stepM stepA stepB stepC
 export STEP1 STEP2 STEP3 STEP4
 export STEPM STEPA STEPB STEPC
 
 # Inititiate MCCE_HOME PATH and call driver_mcce4.sh
-$mc_bin/driver_mcce4.sh
+"$MCBIN"/driver_mcce4.sh
 
 # ==============================================================================
 # Script Name   : submit_mcce4.sh
@@ -151,5 +186,3 @@ $mc_bin/driver_mcce4.sh
 # Author        : Gehan A. Ranepura
 # Date Created  : July 2025
 # ==============================================================================
-
-
