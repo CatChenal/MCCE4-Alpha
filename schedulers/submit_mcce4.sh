@@ -12,10 +12,12 @@
 #-----------------------------------------------------------------------------
 # Input and Output:
 input_pdb="prot.pdb"    # (INPDB)
+APPTNR=$(command -v apptainer) || { echo "apptainer not found"; exit 1; }
+MCCE=$(command -v mcce) || { echo "mcce not found"; exit 1; }
 
 # Set MCCE4 Parameters
-APPTAINER_BIN="/path/to/apptainer_bin"
-MCCE_HOME="/path/to/MCCE4-Alpha"
+APPTAINER_BIN=$(dirname "$APPTNR")            # PATH to the bin folder containg the apptainer executable
+MCCE_HOME=$(dirname "$(dirname "$MCCE")")     # PATH to MCCE4-Alpha
 USER_PARAM="./user_param"
 EXTRA="./user_param/extra.tpl"
 TMP="/tmp"
