@@ -28,7 +28,7 @@ CONNECT, " C18", CLABK: sp2, " C19", " C20", " C17"
 CONNECT, " C19", CLABK: s, " C18"
 CONNECT, " C20", CLABK: s, " C18"
 CONNECT, " C12", CLABK: sp2, " C13", " C11"
-CONNECT, " N1C", CLA01: sp2, " C1C", " C4C", " MG "
+CONNECT, " N1C", CLA01: sp2, " C1C", " C4C", "MG  "
 CONNECT, " C1C", CLA01: sp2, " C2C", " CHC", " N1C"
 CONNECT, " C2C", CLA01: sp2, " CMC", " C3C", " C1C"
 CONNECT, " C4C", CLA01: sp2, " C3C", " CHD", " N1C"
@@ -36,23 +36,23 @@ CONNECT, " CHC", CLA01: sp2, " C4B", " C1C"
 CONNECT, " C3C", CLA01: sp2, " CAC", " C4C", " C2C"
 CONNECT, " CHD", CLA01: sp2, " C1D", " C4C"
 CONNECT, " C4B", CLA01: sp2, " C3B", " N1B", " CHC"
-CONNECT, " N1B", CLA01: sp2, " C1B", " MG ", " C4B"
+CONNECT, " N1B", CLA01: sp2, " C1B", "MG  ", " C4B"
 CONNECT, " C1B", CLA01: sp2, " CHB", " C2B", " N1B"
 CONNECT, " C3B", CLA01: sp2, " C2B", " CAB", " C4B"
 CONNECT, " C2B", CLA01: sp2, " CMB", " C3B", " C1B"
 CONNECT, " CHB", CLA01: sp2, " C4A", " C1B"
 CONNECT, " C4A", CLA01: sp2, " N1A", " C3A", " CHB"
-CONNECT, " N1A", CLA01: sp2, " C1A", " MG ", " C4A"
+CONNECT, " N1A", CLA01: sp2, " C1A", "MG  ", " C4A"
 CONNECT, " C1A", CLA01: sp2, " C2A", " CHA", " N1A"
 CONNECT, " C3A", CLA01: sp2, " C2A", " CMA", " C4A"
 CONNECT, " C2A", CLA01: sp2, " CAA", " C3A", " C1A"
 CONNECT, " CHA", CLA01: sp2, " C4D", " CBD", " C1A"
 CONNECT, " C4D", CLA01: sp2, " C3D", " N1D", " CHA"
-CONNECT, " N1D", CLA01: sp2, " C1D", " MG ", " C4D"
+CONNECT, " N1D", CLA01: sp2, " C1D", "MG  ", " C4D"
 CONNECT, " C1D", CLA01: sp2, " C2D", " N1D", " CHD"
 CONNECT, " C3D", CLA01: sp2, " C2D", " CAD", " C4D"
 CONNECT, " C2D", CLA01: sp2, " CMD", " C3D", " C1D"
-CONNECT, " MG ", CLA01: sp3, " N1D", " N1A", " N1B", " N1C"
+CONNECT, "MG  ", CLA01: sp3, " N1D", " N1A", " N1B", " N1C"
 CONNECT, " CBD", CLA01: sp2, " CAD", " CGD", " CHA"
 CONNECT, " CAD", CLA01: sp2, " OBD", " CBD", " C3D"
 CONNECT, " CMD", CLA01: s, " C2D"
@@ -73,7 +73,7 @@ CONNECT, " CBA", CLA01: sp2, " CGA", " CAA"
 CONNECT, " CGA", CLA01: sp2, " O2A", " O1A", " CBA"
 CONNECT, " O2A", CLA01: sp2, " C1 ", " CGA"
 CONNECT, " O1A", CLA01: s, " CGA"
-CONNECT, " N1C", CLA+1: sp2, " C1C", " C4C", " MG "
+CONNECT, " N1C", CLA+1: sp2, " C1C", " C4C", "MG  "
 CONNECT, " C1C", CLA+1: sp2, " C2C", " CHC", " N1C"
 CONNECT, " C2C", CLA+1: sp2, " CMC", " C3C", " C1C"
 CONNECT, " C4C", CLA+1: sp2, " C3C", " CHD", " N1C"
@@ -81,23 +81,23 @@ CONNECT, " CHC", CLA+1: sp2, " C4B", " C1C"
 CONNECT, " C3C", CLA+1: sp2, " CAC", " C4C", " C2C"
 CONNECT, " CHD", CLA+1: sp2, " C1D", " C4C"
 CONNECT, " C4B", CLA+1: sp2, " C3B", " N1B", " CHC"
-CONNECT, " N1B", CLA+1: sp2, " C1B", " MG ", " C4B"
+CONNECT, " N1B", CLA+1: sp2, " C1B", "MG  ", " C4B"
 CONNECT, " C1B", CLA+1: sp2, " CHB", " C2B", " N1B"
 CONNECT, " C3B", CLA+1: sp2, " C2B", " CAB", " C4B"
 CONNECT, " C2B", CLA+1: sp2, " CMB", " C3B", " C1B"
 CONNECT, " CHB", CLA+1: sp2, " C4A", " C1B"
 CONNECT, " C4A", CLA+1: sp2, " N1A", " C3A", " CHB"
-CONNECT, " N1A", CLA+1: sp2, " C1A", " MG ", " C4A"
+CONNECT, " N1A", CLA+1: sp2, " C1A", "MG  ", " C4A"
 CONNECT, " C1A", CLA+1: sp2, " C2A", " CHA", " N1A"
 CONNECT, " C3A", CLA+1: sp2, " C2A", " CMA", " C4A"
 CONNECT, " C2A", CLA+1: sp2, " CAA", " C3A", " C1A"
 CONNECT, " CHA", CLA+1: sp2, " C4D", " CBD", " C1A"
 CONNECT, " C4D", CLA+1: sp2, " C3D", " N1D", " CHA"
-CONNECT, " N1D", CLA+1: sp2, " C1D", " MG ", " C4D"
+CONNECT, " N1D", CLA+1: sp2, " C1D", "MG  ", " C4D"
 CONNECT, " C1D", CLA+1: sp2, " C2D", " N1D", " CHD"
 CONNECT, " C3D", CLA+1: sp2, " C2D", " CAD", " C4D"
 CONNECT, " C2D", CLA+1: sp2, " CMD", " C3D", " C1D"
-CONNECT, " MG ", CLA+1: sp3, " N1D", " N1A", " N1B", " N1C"
+CONNECT, "MG  ", CLA+1: sp3, " N1D", " N1A", " N1B", " N1C"
 CONNECT, " CBD", CLA+1: sp2, " CAD", " CGD", " CHA"
 CONNECT, " CAD", CLA+1: sp2, " OBD", " CBD", " C3D"
 CONNECT, " CMD", CLA+1: s, " C2D"
@@ -164,7 +164,7 @@ CHARGE, CLA01, " N1D": -0.183
 CHARGE, CLA01, " C1D": -0.083
 CHARGE, CLA01, " C3D": -0.103
 CHARGE, CLA01, " C2D":  0.036
-CHARGE, CLA01, " MG ":  0.898
+CHARGE, CLA01, "MG  ":  0.898
 CHARGE, CLA01, " CBD":  0.240
 CHARGE, CLA01, " CAD":  0.499
 CHARGE, CLA01, " CMD":  0.050
@@ -209,7 +209,7 @@ CHARGE, CLA+1, " N1D": -0.197
 CHARGE, CLA+1, " C1D":  0.065
 CHARGE, CLA+1, " C3D": -0.055
 CHARGE, CLA+1, " C2D":  0.084
-CHARGE, CLA+1, " MG ":  0.835
+CHARGE, CLA+1, "MG  ":  0.835
 CHARGE, CLA+1, " CBD":  0.012
 CHARGE, CLA+1, " CAD":  0.481
 CHARGE, CLA+1, " CMD":  0.094
@@ -276,7 +276,7 @@ RADIUS,  CLA01,  " N1D": 1.550,   1.750,   0.160
 RADIUS,  CLA01,  " C1D": 1.700,   2.000,   0.150
 RADIUS,  CLA01,  " C3D": 1.700,   2.000,   0.150
 RADIUS,  CLA01,  " C2D": 1.700,   2.000,   0.150
-RADIUS,  CLA01,  " MG ": 1.180,   2.000,   0.173
+RADIUS,  CLA01,  "MG  ": 1.180,   2.000,   0.173
 RADIUS,  CLA01,  " CBD": 2.000,   2.000,   0.150
 RADIUS,  CLA01,  " CAD": 1.700,   2.000,   0.150
 RADIUS,  CLA01,  " CMD": 2.000,   2.000,   0.150
@@ -321,7 +321,7 @@ RADIUS,  CLA+1,  " N1D": 1.550,   1.750,   0.160
 RADIUS,  CLA+1,  " C1D": 1.700,   2.000,   0.150
 RADIUS,  CLA+1,  " C3D": 1.700,   2.000,   0.150
 RADIUS,  CLA+1,  " C2D": 1.700,   2.000,   0.150
-RADIUS,  CLA+1,  " MG ": 1.180,   2.000,   0.173
+RADIUS,  CLA+1,  "MG  ": 1.180,   2.000,   0.173
 RADIUS,  CLA+1,  " CBD": 2.000,   2.000,   0.150
 RADIUS,  CLA+1,  " CAD": 1.700,   2.000,   0.150
 RADIUS,  CLA+1,  " CMD": 2.000,   2.000,   0.150

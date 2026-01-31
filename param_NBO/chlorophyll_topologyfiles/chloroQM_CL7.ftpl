@@ -31,7 +31,7 @@ CONNECT, " C19", CL7BK: s, " C18"
 CONNECT, " C20", CL7BK: s, " C18"
 CONNECT, " C12", CL7BK: sp2, " C13", " C11"
 
-CONNECT, " N1C", CL70D: sp2, " C1C", " C4C", " MG "
+CONNECT, " N1C", CL70D: sp2, " C1C", " C4C", "MG  "
 CONNECT, " C1C", CL70D: sp2, " C2C", " CHC", " N1C"
 CONNECT, " C2C", CL70D: sp2, " CMC", " C3C", " C1C"
 CONNECT, " C4C", CL70D: sp2, " C3C", " CHD", " N1C"
@@ -39,23 +39,23 @@ CONNECT, " CHC", CL70D: sp2, " C4B", " C1C", " HHC"         ##
 CONNECT, " C3C", CL70D: sp2, " CAC", " C4C", " C2C"
 CONNECT, " CHD", CL70D: sp2, " C1D", " C4C", " HHD"         ##
 CONNECT, " C4B", CL70D: sp2, " C3B", " N1B", " CHC"
-CONNECT, " N1B", CL70D: sp2, " C1B", " MG ", " C4B"
+CONNECT, " N1B", CL70D: sp2, " C1B", "MG  ", " C4B"
 CONNECT, " C1B", CL70D: sp2, " CHB", " C2B", " N1B"
 CONNECT, " C3B", CL70D: sp2, " C2B", " CAB", " C4B"
 CONNECT, " C2B", CL70D: sp2, " CMB", " C3B", " C1B"         ###
 CONNECT, " CHB", CL70D: sp2, " C4A", " C1B", " HHB"         ##
 CONNECT, " C4A", CL70D: sp2, " N1A", " C3A", " CHB"
-CONNECT, " N1A", CL70D: sp2, " C1A", " MG ", " C4A"
+CONNECT, " N1A", CL70D: sp2, " C1A", "MG  ", " C4A"
 CONNECT, " C1A", CL70D: sp2, " C2A", " CHA", " N1A"
 CONNECT, " C3A", CL70D: sp3, " C2A", " CMA", " C4A", " H3A" ##    sp2-hybrid
 CONNECT, " C2A", CL70D: sp3, " CAA", " C3A", " C1A", " H2A" ##    sp2-hybrid
 CONNECT, " CHA", CL70D: sp2, " C4D", " CBD", " C1A"
 CONNECT, " C4D", CL70D: sp2, " C3D", " N1D", " CHA"
-CONNECT, " N1D", CL70D: sp2, " C1D", " MG ", " C4D"
+CONNECT, " N1D", CL70D: sp2, " C1D", "MG  ", " C4D"
 CONNECT, " C1D", CL70D: sp2, " C2D", " N1D", " CHD"
 CONNECT, " C3D", CL70D: sp2, " C2D", " CAD", " C4D"
 CONNECT, " C2D", CL70D: sp2, " CMD", " C3D", " C1D"
-CONNECT, " MG ", CL70D: sp3, " N1D", " N1A", " N1B", " N1C"
+CONNECT, "MG  ", CL70D: sp3, " N1D", " N1A", " N1B", " N1C"
 CONNECT, " CBD", CL70D: sp3, " CAD", " CGD", " CHA", " HBD" ##    sp2-hybrid
 CONNECT, " CAD", CL70D: sp2, " OBD", " CBD", " C3D"
 CONNECT, " CMD", CL70D: sp3, " C2D", "HMD1", "HMD2", "HMD3" ##    s-hybrid
@@ -154,7 +154,7 @@ CHARGE, CL70D, " N1D": -0.637778
 CHARGE, CL70D, " C1D":  0.249149
 CHARGE, CL70D, " C3D": -0.317665
 CHARGE, CL70D, " C2D":  0.127967
-CHARGE, CL70D, " MG ":  1.149555
+CHARGE, CL70D, "MG  ":  1.149555
 CHARGE, CL70D, " CBD": -0.833411
 CHARGE, CL70D, " CAD":  0.726439
 CHARGE, CL70D, " CMD": -0.379833
@@ -253,7 +253,7 @@ RADIUS,  CL70D,  " N1D": 1.550,   1.750,   0.160
 RADIUS,  CL70D,  " C1D": 1.700,   2.000,   0.150
 RADIUS,  CL70D,  " C3D": 1.700,   2.000,   0.150
 RADIUS,  CL70D,  " C2D": 1.700,   2.000,   0.150
-RADIUS,  CL70D,  " MG ": 1.180,   2.000,   0.173
+RADIUS,  CL70D,  "MG  ": 1.180,   2.000,   0.173
 RADIUS,  CL70D,  " CBD": 2.000,   2.000,   0.150
 RADIUS,  CL70D,  " CAD": 1.700,   2.000,   0.150
 RADIUS,  CL70D,  " CMD": 2.000,   2.000,   0.150

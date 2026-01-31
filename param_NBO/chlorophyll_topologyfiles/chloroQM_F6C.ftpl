@@ -31,7 +31,7 @@ CONNECT, " C19", F6CBK: s, " C18"
 CONNECT, " C20", F6CBK: s, " C18"
 CONNECT, " C12", F6CBK: sp2, " C13", " C11"
 
-CONNECT, " N1C", F6C0F: sp2, " C1C", " C4C", " MG "
+CONNECT, " N1C", F6C0F: sp2, " C1C", " C4C", "MG  "
 CONNECT, " C1C", F6C0F: sp2, " C2C", " CHC", " N1C"
 CONNECT, " C2C", F6C0F: sp2, " CMC", " C3C", " C1C"
 CONNECT, " C4C", F6C0F: sp2, " C3C", " CHD", " N1C"
@@ -39,23 +39,23 @@ CONNECT, " CHC", F6C0F: sp2, " C4B", " C1C", " HHC" ##
 CONNECT, " C3C", F6C0F: sp2, " CAC", " C4C", " C2C"
 CONNECT, " CHD", F6C0F: sp2, " C1D", " C4C", " HHD" ##
 CONNECT, " C4B", F6C0F: sp2, " C3B", " N1B", " CHC"
-CONNECT, " N1B", F6C0F: sp2, " C1B", " MG ", " C4B"
+CONNECT, " N1B", F6C0F: sp2, " C1B", "MG  ", " C4B"
 CONNECT, " C1B", F6C0F: sp2, " CHB", " C2B", " N1B"
 CONNECT, " C3B", F6C0F: sp2, " C2B", " CAB", " C4B"
 CONNECT, " C2B", F6C0F: sp2, " CMB", " C3B", " C1B" ###
 CONNECT, " CHB", F6C0F: sp2, " C4A", " C1B", " HHB" ##
 CONNECT, " C4A", F6C0F: sp2, " N1A", " C3A", " CHB"
-CONNECT, " N1A", F6C0F: sp2, " C1A", " MG ", " C4A"
+CONNECT, " N1A", F6C0F: sp2, " C1A", "MG  ", " C4A"
 CONNECT, " C1A", F6C0F: sp2, " C2A", " CHA", " N1A"
 CONNECT, " C3A", F6C0F: sp3, " C2A", " CMA", " C4A", " H3A" ##    sp2-hybrid
 CONNECT, " C2A", F6C0F: sp3, " CAA", " C3A", " C1A", " H2A" ##    sp2-hybrid
 CONNECT, " CHA", F6C0F: sp2, " C4D", " CBD", " C1A"
 CONNECT, " C4D", F6C0F: sp2, " C3D", " N1D", " CHA"
-CONNECT, " N1D", F6C0F: sp2, " C1D", " MG ", " C4D"
+CONNECT, " N1D", F6C0F: sp2, " C1D", "MG  ", " C4D"
 CONNECT, " C1D", F6C0F: sp2, " C2D", " N1D", " CHD"
 CONNECT, " C3D", F6C0F: sp2, " C2D", " CAD", " C4D"
 CONNECT, " C2D", F6C0F: sp2, " CMD", " C3D", " C1D"
-CONNECT, " MG ", F6C0F: sp3, " N1D", " N1A", " N1B", " N1C"
+CONNECT, "MG  ", F6C0F: sp3, " N1D", " N1A", " N1B", " N1C"
 CONNECT, " CBD", F6C0F: sp3, " CAD", " CGD", " CHA", " HBD" ##    sp2-hybrid
 CONNECT, " CAD", F6C0F: sp2, " OBD", " CBD", " C3D"
 CONNECT, " CMD", F6C0F: sp3, " C2D", "HMD1", "HMD2", "HMD3" ##    s-hybrid
@@ -155,7 +155,7 @@ CHARGE, F6C0F, " N1D": -0.660025
 CHARGE, F6C0F, " C1D":  0.258347
 CHARGE, F6C0F, " C3D": -0.311231
 CHARGE, F6C0F, " C2D":  0.134101
-CHARGE, F6C0F, " MG ":  1.170725
+CHARGE, F6C0F, "MG  ":  1.170725
 CHARGE, F6C0F, " CBD": -0.78793
 CHARGE, F6C0F, " CAD":  0.706412
 CHARGE, F6C0F, " CMD": -0.361041
@@ -255,7 +255,7 @@ RADIUS,  F6C0F,  " N1D": 1.550,   1.750,   0.160
 RADIUS,  F6C0F,  " C1D": 1.700,   2.000,   0.150
 RADIUS,  F6C0F,  " C3D": 1.700,   2.000,   0.150
 RADIUS,  F6C0F,  " C2D": 1.700,   2.000,   0.150
-RADIUS,  F6C0F,  " MG ": 1.180,   2.000,   0.173
+RADIUS,  F6C0F,  "MG  ": 1.180,   2.000,   0.173
 RADIUS,  F6C0F,  " CBD": 2.000,   2.000,   0.150
 RADIUS,  F6C0F,  " CAD": 1.700,   2.000,   0.150
 RADIUS,  F6C0F,  " CMD": 2.000,   2.000,   0.150
