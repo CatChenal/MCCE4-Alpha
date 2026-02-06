@@ -130,8 +130,13 @@ def process_protein_file(protein_path: str, script_path: str, use_scheduler: boo
         
     shutil.copy2(script_path, p_dir / Path(script_path).name)
     
-    cmd = f"bash {Path(script_path).name} > run.log 2>&1 &" if not use_scheduler else f"sbatch {Path(script_path).name}"
-    os.system(f"cd {p_dir} && {cmd}")
+    if not use_scheduler:
+        cmd = f"bash {Path(script_path).name} > run.log 2>&1 &"
+        os.system(f"cd {p_dir} && {cmd}")
+    else:
+        # Runs via sbatch
+        cmd = f"sbatch {Path(script_path).name}"
+        os.system(f"cd {p_dir} && {cmd}")
 
 def get_user_files(input_path: str) -> List[Path]:
     return [fp for fp in Path(input_path).glob("*.pdb") if not (fnmatch.fnmatch(fp.name, "step[0123]_out.pdb") or fp.name == "prot.pdb")]
@@ -144,22 +149,24 @@ def ask_user(question: str) -> bool:
         print(BAD_ANSWER)
 
 def protein_batch():
-    args = argparse.ArgumentParser(prog="pro_batch")
-    args.add_argument("input_path", type=str, help=inputpath_help)
-    args.add_argument("-custom", default="", help="Path to custom bash script.")
-    args.add_argument("--sbatch", action=argparse.BooleanOptionalAction, default=False)
-    args.add_argument("--check", action="store_true", help="Update book.txt status and exit.")
-    parsed = args.parse_args()
+    parser = argparse.ArgumentParser(prog="pro_batch", description="Batch launch MCCE runs.")
+    parser.add_argument("input_path", type=str, help=inputpath_help)
+    parser.add_argument("-custom", default="", help="Path to custom bash script.")
+    parser.add_argument("--sbatch", action="store_true", default=False, 
+                        help="Run all jobs separately using the Slurm scheduler (sbatch).")
+    parser.add_argument("--check", action="store_true", help="Update book.txt status and exit.")
+    args = parser.parse_args()
     
-    if datasets_dict and parsed.input_path in datasets_dict:
-        input_path = str(BenchResources(parsed.input_path).BENCH_PDBS)
+    # Path resolution
+    if datasets_dict and args.input_path in datasets_dict:
+        input_path = str(BenchResources(args.input_path).BENCH_PDBS)
     else:
-        input_path = parsed.input_path
+        input_path = args.input_path
         if not Path(input_path).is_dir():
             print(f"Error: {input_path} is not a directory."); sys.exit(1)
 
-    script_path = parsed.custom if parsed.custom else (Path(SUBMIT_SCRIPT) if Path(SUBMIT_SCRIPT).exists() else None)
-    if not script_path and not parsed.check:
+    script_path = args.custom if args.custom else (Path(SUBMIT_SCRIPT) if Path(SUBMIT_SCRIPT).exists() else None)
+    if not script_path and not args.check:
         if SUBMIT_SCRIPT_PATH.exists():
             shutil.copy2(SUBMIT_SCRIPT_PATH, Path(SUBMIT_SCRIPT))
             Path(SUBMIT_SCRIPT).chmod(0o755)
@@ -176,14 +183,14 @@ def protein_batch():
             for fp in sorted(user_files): f.write(f"{fp.stem.upper():<12} r\n")
     
     update_book()
-    if parsed.check:
+    if args.check:
         print(f"Book status refreshed in {BOOK}."); return
 
-    # --- UPDATED CATEGORIZED RE-RUN LOGIC ---
+    # --- CATEGORIZED RE-RUN LOGIC ---
     lines = Path(BOOK).read_text().splitlines()
     error_prots = []
     other_prots = []
-    new_prots = [] # Proteins that exist in the book but have no folder
+    new_prots = [] 
     
     for line in lines:
         parts = line.split()
@@ -222,7 +229,7 @@ def protein_batch():
     for fp in user_files:
         if fp.stem.upper() in final_targets:
             print(f"  -> Starting {fp.stem}...")
-            process_protein_file(fp, str(script_path), parsed.sbatch)
+            process_protein_file(fp, str(script_path), args.sbatch)
     
     update_book()
     print(f"\nDone. Monitor status in {BOOK}.")
