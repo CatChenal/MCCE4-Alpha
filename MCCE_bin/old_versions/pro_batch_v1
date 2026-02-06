@@ -1,0 +1,407 @@
+#!/usr/bin/env python3
+import argparse
+import os
+from pathlib import fnmatch, Path
+import shutil
+import sys
+from typing import List, Union
+
+
+CLONE = Path(__file__).parent.parent
+
+if CLONE.name != "MCCE4-Alpha":
+    from mcce4.mcce_benchmark import BenchResources, datasets_dict
+    inputpath_help = f"Path to a directory containing PDB files, or name of a pkdb dataset, one of: {list(datasets_dict.keys())}."
+else:
+    datasets_dict = None
+    #print("Note: Benchmark datasets are not available in MCCE4-Alpha.")
+    inputpath_help = "Path to a directory containing PDB files."
+
+
+# uses grafitti font from https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Bench%20Batch%20v.1
+ascii_art_open = r"""
+__________                __         .__         __________         __         .__               ________
+\______   \_______  _____/  |_  ____ |__| ____   \______   \_____ _/  |_  ____ |  |__   ___  __  \_____  \
+ |     ___/\_  __ \/  _ \   __\/ __ \|  |/    \   |    |  _/\__  \\   __\/ ___\|  |  \  \  \/ /   /  ____/
+ |    |     |  | \(  <_> )  | \  ___/|  |   |  \  |    |   \ / __ \|  | \  \___|   Y  \  \   /   /       \
+ |____|     |__|   \____/|__|  \___  >__|___|  /  |______  /(____  /__|  \___  >___|  /   \_/ /\ \_______ \
+                                   \/        \/          \/      \/          \/     \/        \/         \/
+"""
+
+BOOK = "book.txt"
+CUSTOM_PRM = "run.prm.custom"
+SUBMIT_SCRIPT = "submit_mcce4.sh"
+SUBMIT_SCRIPT_PATH = CLONE.joinpath("schedulers", SUBMIT_SCRIPT)
+if not SUBMIT_SCRIPT_PATH.exists():
+    raise FileNotFoundError(f"{SUBMIT_SCRIPT} not found in {SUBMIT_SCRIPT_PATH.parent!s}")
+
+
+PROCEED_QUESTION = "Run MCCE with the current settings? (yes/y/no/n) "
+BAD_ANSWER = "Answer must be one of [yes, no, y, n] (case insensitive). Please try again."
+
+
+def abort():
+    """Exit with error."""
+    print("\nAborting MCCE4...\n")
+    sys.exit(1)
+
+
+def copy_submit_script() -> Union[None, Path]:
+    """Copy <MCCE4 clone>/schedulers/submit_mcce4.sh to current folder.
+    """
+    dest = Path(SUBMIT_SCRIPT)
+    if not dest.exists():
+        # Copy file into pwd;  Make it executable (chmod +x)
+        shutil.copy2(SUBMIT_SCRIPT_PATH, dest)
+        dest.chmod(0o755)
+
+    return dest
+
+
+def modify_script_for_runprm(script_path: str):
+    """If run.prm.custom exists in current dir, modifies shell script stepX.py
+    lines with  -load_runprm run.prm.custom.
+    
+    Args:
+     - script_path (str): Path of the shell script containing the base instructions
+                          for the MCCE run.
+    """
+    if not Path(CUSTOM_PRM).exists():
+        return
+
+    load_custom_str = f" -load_runprm {CUSTOM_PRM}"
+    lines = Path(script_path).read_text().splitlines()
+    # rewrite the script:
+    with open(script_path, "w") as script_file:
+        for line in lines:
+            if (fnmatch.fnmatch(line.split()[0], "step[1234].py")
+                and load_custom_str not in line):
+                line = line.strip() + load_custom_str + "n"
+                script_file.write(line)
+            else:
+                script_file.write(line)
+
+    return
+
+
+def process_protein_file(protein_path: str, script_path: str, use_scheduler: bool=False):
+    """Executes MCCE4 scripts on dir containing a protein path.
+    Makes sure all dirs contain their associated PDB file and run.prm.custom (if exists).
+
+    Args:
+     - protein_path (str): path to the protein to be run in user's dir
+     - script_path (str): path to the script 
+    """
+    protein_path = Path(protein_path)
+    protein_name = protein_path.stem
+    protein_dir = Path(protein_name.upper())
+    protein_dir.mkdir(exist_ok=True)
+
+    # Copy the protein file into its directory
+    shutil.copy2(protein_path, protein_dir)
+    pdb_fp = protein_dir.joinpath(protein_path.name)
+    # Create a symbolic link to "prot.pdb"
+    prot_fp = pdb_fp.with_name("prot.pdb")
+    if not prot_fp.exists():
+        prot_fp.symlink_to(pdb_fp.name)
+
+    modify_script_for_runprm(script_path)
+
+    # If "run.prm.custom" exists, create symbolic link into protein_dir
+    # if link does not exist:
+    run_prm_path = Path(CUSTOM_PRM)
+    if run_prm_path.exists():
+        run_prm_link = protein_dir.joinpath(run_prm_path.name)
+        if not run_prm_link.exists():
+            run_prm_link.symlink_to(run_prm_path)
+
+    #alter this so a copy of the bash script is in each protein directory
+    # should always overwrite old bash script
+    os.system(f"cp {script_path} {str(protein_dir)}")
+
+    if use_scheduler == False:
+        # Execute the shell script in the directory in parallel without output
+        os.system(f"cd {str(protein_dir)} && bash {script_path} > /dev/null 2>&1 &")
+    else:
+        # Execute the shell script in the directory in parallel without output
+        os.system(f"cd {str(protein_dir)} && sbatch {script_path}")
+
+
+def update_book_with_new_proteins(user_files: list):
+    # Read existing entries, keeping full lines but extracting only
+    # base protein names for comparison
+    book_fp = Path(BOOK)
+    if book_fp.exists():
+        lines = book_fp.read_text().splitlines()
+        existing_protein_names = {line.split()[0] for line in lines if line.strip()}
+    else:
+        lines = []
+        existing_protein_names = set()
+
+    # Get protein ids from user filepaths
+    new_proteins = {fp.stem for fp in user_files}
+
+    # Determine which proteins are missing (based on the base name only)
+    missing = new_proteins - existing_protein_names
+    # Append missing base names to book.txt
+    if missing:
+        with open(BOOK, "a") as f:
+            for protein in sorted(missing):
+                f.write(protein.upper() + '\n')
+    return
+
+
+def get_user_files(input_path: str) -> List[Path]:
+    """Return the list of user pdb files excluding mcce outputs.
+    """
+    input_path = Path(input_path)
+    if datasets_dict is None:  # case CLONE is MCCE4-Alpha
+        return [fp for fp in input_path.glob("*.pdb")
+                if not (fnmatch.fnmatch(fp.name, "step[0123]_out.pdb")
+                   or fp.name == "prot.pdb")
+                ]
+    
+    if input_path.name == "runs" and input_path.parent.name in datasets_dict:
+        return [fp for fp in input_path.glob("*/*.pdb")]
+    
+    return [fp for fp in input_path.glob("*.pdb")
+            if not (fnmatch.fnmatch(fp.name, "step[0123]_out.pdb")
+               or fp.name == "prot.pdb")
+            ]
+
+
+def process_user_proteins(user_files: list,
+                          script_path: str,
+                          use_scheduler: bool,
+                          selected_prots: list = None):
+    """Wrapper for process_protein_file function.
+    Note: user_files is assumed to be the output of function `get_user_files`,
+          hence not containing mcce output pdbs.
+    """
+    if not user_files:
+        raise ValueError("List 'user_files' is empty!")
+
+    if selected_prots is not None:
+        for fp in user_files:
+            if fp.stem in selected_prots:   
+                process_protein_file(fp, script_path, use_scheduler)
+                print(f"Processing {fp!s}...")
+    else:
+        for fp in user_files:
+            process_protein_file(fp, script_path, use_scheduler)
+            print(f"Processing {fp!s}...")
+
+    return
+
+
+def get_dataset_path(input_path: str) -> str:
+    if datasets_dict is None:
+        input_path = Path(input_path)
+        if not input_path.exists():
+            print(f"Path not found: {input_path!s}")
+            abort()
+        if not input_path.is_dir():
+            raise NotImplementedError("Please place/link desired protein files in a directory, not a file!")
+
+        return str(input_path)
+
+    if Path(input_path).name in datasets_dict:
+        input_path = BenchResources(input_path).BENCH_PDBS
+        print(f"Using pkdb dataset proteins: {input_path!s}")
+
+        return str(input_path)
+    
+    input_path = Path(input_path)
+    if not input_path.exists():
+        print(f"Path not found: {input_path!s}")
+        abort()
+    if not input_path.is_dir():
+        raise NotImplementedError("Please place/link desired protein files in a directory, not a file!")
+
+    return str(input_path)
+
+
+def update_book():
+    updated_lines = []
+    lines = Path(BOOK).read_text().splitlines()
+    for line in lines:
+        pdb = line.strip()
+        if "  c" not in line and "  x" not in line and "  r" not in line:
+            pdb += "  r"
+        updated_lines.append(pdb + "\n")
+    # rewrite the book
+    with open(BOOK, "w") as f:
+        f.writelines(updated_lines)
+
+    return
+
+
+def pro_parser():
+    parser = argparse.ArgumentParser(
+        prog="pro_batch",
+        description="""pro_batch accepts a directory containing PDB files or
+        the name of a pkdb dataset (if not run in MCCE4-Alpha), and executes identical MCCE runs
+        in directories named after each respective PDB file. pro_batch creates a high-level shell script. 
+        Users then edit the shell script to their liking, and execute it 
+        with the -custom flag.
+        """
+    )
+    parser.add_argument(
+        "input_path",
+        type=str,
+        help=inputpath_help
+    )
+    parser.add_argument(
+            "-custom", 
+            metavar="script_path", 
+            default="",
+            help="""Give a shell script with custom instructions. 
+            If not defined, a default script will be created and used.
+            """
+    )
+    parser.add_argument(
+            "--sbatch",
+            metavar="scheduler",
+            action=argparse.BooleanOptionalAction,
+            default=False,
+            help="Turn on this flag to use a scheduler."
+    )
+
+    return parser
+
+
+def protein_batch():
+   
+    p = pro_parser()
+    args = p.parse_args()
+    input_path = args.input_path
+    if not input_path.strip():
+        print("Invalid: input_path must be a non-empty string.")
+        abort()
+
+    input_path = get_dataset_path(input_path)
+    use_scheduler = args.sbatch
+    script_path = args.custom
+
+    if not Path(SUBMIT_SCRIPT).is_file() and not script_path:
+        script_path = copy_submit_script()
+        print("\npro_batch has created submit_mcce4.sh.",
+              "Edit it to your specifications, then re-run pro_batch.")
+        sys.exit()
+
+    if not Path(script_path).is_file() and args.custom:
+        print("\nCustom path not found.")
+        abort()
+
+    if not script_path:
+        script_path = copy_submit_script()
+    
+    # if file named custom.run.prm exists in the present working directory,
+    # make a symbolic link to it in each protein directory, and add "-load_rpm custom.run.prm"
+    # to each step. 
+    modify_script_for_runprm(script_path)
+
+    # TODO implement reading from text files if input_path is file
+
+    # Are there PDB files in the given directory?
+    user_files = get_user_files(input_path)
+    if not user_files:
+        print("No PDB files found in path! Please use command 'getpdb [PDBID]'",
+              "to download a protein from RCSB.org, or copy/link your own protein into the path.")
+        abort()
+        
+    if Path(BOOK).is_file():
+        print(f"\nProtein files identified in existing {BOOK}:")
+        # update book.txt to include files not already in there
+        update_book_with_new_proteins(user_files)
+        # print all valid files found in book.txt
+        reference_book = Path(BOOK).read_text()
+        print("\n" + reference_book + "\n")
+
+        # Only print lines w/o "c" and "x"
+        prots_to_run = ""
+        for line in reference_book.splitlines():
+
+            # FIX? What if "  r" in line?
+            if " c" not in line and " x" not in line:
+                prots_to_run += line + "\n"
+
+        if prots_to_run.strip():
+            print("\nThese proteins will be run:\n", prots_to_run,
+                  "Pre-existing MCCE output files will be overwritten by the new run.\n",
+                  sep="\n")
+        else:
+            print("No runnable proteins found.",
+                  f"Remove 'c' or 'x' from lines in {BOOK} to make them runnable,",
+                  f"add protein files to run, or delete  {BOOK} to re-do all runs.")
+            abort()
+
+        if Path(CUSTOM_PRM).is_file():
+            print(f"\nFound {CUSTOM_PRM}. The given shell script will",
+                  "be overwritten to read from {CUSTOM_PRM}.")
+
+        # LIST ALL SETTINGS, run.prm, extra.tpl, shell script, directories to be used, etc.
+        while True:
+            response = input(PROCEED_QUESTION).strip()
+            if response:
+                response = response.lower()
+                break
+            else:
+                print(BAD_ANSWER)
+     
+        # should empty protein file prior to processing so mcce_stat works properly
+        if response[0] != "y":
+            abort()
+
+        modify_script_for_runprm(script_path)
+        process_user_proteins(user_files, script_path, use_scheduler,
+                              selected_prots=prots_to_run)
+
+        print("\nBash script is being executed in each directory.",
+              "Double check processes are running with command 'top' or 'mcce_stat'.",
+              f"mcce_stat also updates {BOOK} to reflect completed runs.")
+        update_book()        
+    else:
+        # Create the book.txt file from user files
+        book_list = "\n".join(fp.stem.upper() for fp in user_files) + "\n"
+        with open(BOOK, 'w') as file:
+            file.write(book_list)
+
+        print(f"\nCreated {BOOK}.",
+              f"You can remove protein files to be run by editing {BOOK} if desired,",
+              "(by answering 'no' to the upcoming question),"
+              "and resume by running pro_batch again.")
+
+        print("\nThese proteins will be run:\n", book_list,
+              ("\nPre-existing directories for these proteins will be emptied and"
+              " replaced with information from the new run."),
+              sep="\n")
+        
+        if Path(CUSTOM_PRM).is_file():
+            print(f"\nFound {CUSTOM_PRM}. The given shell script will",
+                  "be overwritten to read from {CUSTOM_PRM}.")
+
+        while True:
+            response = input(PROCEED_QUESTION).strip()
+            if response:
+                response = response.lower()
+                break
+            else:
+                print(BAD_ANSWER)
+
+        if response[0] != "y":
+            abort()
+
+        modify_script_for_runprm(script_path)
+        process_user_proteins(user_files, script_path, use_scheduler)
+
+        print("\nBash script is being executed in each directory.",
+              "Double check processes are running with command 'top' or 'mcce_stat'.",
+              "mcce_stat also updates book.txt to reflect completed runs.")
+        update_book()
+
+    return
+
+
+if __name__ == "__main__":
+    protein_batch()
