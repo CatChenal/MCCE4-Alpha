@@ -16,6 +16,7 @@ dependencies:
   - numpy
   - numba
   - parmed
+  - vtk=9.3
   - setuptools>=64
   - pip:
     - scipy
