@@ -253,7 +253,7 @@ new_array.SetName(desired_field_name)
 
 
 # Reshape and write the CUBE file
-output = output = name_pqr.replace('.pqr', '.cube')
+output = output = name_pqr.replace('.pqr', '_EMmap.cube')
 scalar_field = numpy_array.reshape((nx, ny, nz), order='F')
 write_potential_cube(output, scalar_field, scale, origin, (nx, ny, nz))
 print("File CUBE correctly saved!")
