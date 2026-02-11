@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Parameter/Options for SLURM (Simple Linux Utility for Resource Management)
-#SBATCH --job-name=mcce4_run
+#SBATCH --job-name=submit_mcce4
 #SBATCH --output=submit_mcce4.log
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -10,23 +10,31 @@
 
 #=============================================================================
 #-----------------------------------------------------------------------------
-# Input and Output:
-input_pdb="prot.pdb"    # (INPDB)
+# >>> Automated Parameters (best not change)
+APPTNR=$(command -v apptainer) || { echo "apptainer not found"; exit 1; }
+MCCE=$(command -v mcce)        || { echo "mcce not found"; exit 1; }
+PYEX=$(python3 -c "import sys; print(sys.executable)")
+PYENV="${PYEX%python3}"
+MCBIN=$(cd "$(dirname "$MCCE")" && pwd)
+MCCE_HOME=$(cd "$(dirname "$MCCE")/.." && pwd)
+APPTAINER_BIN=$(dirname "$APPTNR")
+[[ -x "$MCCE_HOME/bin/mcce" ]] || { echo "[ERROR] mcce not found in $MCCE_HOME/bin"; exit 1; }
+# <<<
 
-# Set MCCE4 Parameters
-APPTAINER_BIN="/path/to/apptainer_bin"
-MCCE_HOME="/path/to/MCCE4-Alpha"
-USER_PARAM="./user_param"
-EXTRA="./user_param/extra.tpl"
-TMP="/tmp"
-CPUS=1
+# Set INPUT & MCCE4 Parameters
+input_pdb="prot.pdb"               # PATH to input PDB if you have soft-linked your PDB as "prot.pdb", e.g.:  ln -s 4lzt.pdb prot.pdb  
+USER_PARAM="./user_param"          # PATH to "user_param" directory containing additonal topology files (local files). This directory must be called "user_param" (default: MCCE_HOME/param)
+EXTRA="./user_param/extra.tpl"     # PATH to an different "extra.tpl" file (local file). (default: MCCE_HOME/extra.tpl)
+TMP="/tmp"                         # PATH to temporary directory for storing PBE calculation files during step3
+CPUS=1                             # Number of CPU cores to use for parallelizable MCCE calculations
+EPS=8                              # Protein dielectric constant
 
 # Step control flags
 step1="t"               # STEP1: pre-run, pdb-> mcce pdb  (DO_PREMCCE)
 step2="t"               # STEP2: make rotamers            (DO_ROTAMERS)
 step3="t"               # STEP3: Energy calculations      (DO_ENERGY)
 step4="t"               # STEP4: Monte Carlo Sampling     (DO_MONTE)
-step_clean="t"          # Clean PBE data                  (BACKUP CLEAN) : Set to f if step3 --debug option is used
+step_clean="t"          # Clean PBE data from TMP         (BACKUP CLEAN) : Set to f if step3 --debug option is used
 
 # Optional step controls
 center="t"              # Center protein structure before MCCE run      : Set to f to skip centering and use input PDB as-is
@@ -36,10 +44,10 @@ stepB="f"               # Run a custom script between step2 and step3   : If tru
 stepC="f"               # Run a custom script between step3 and step4   : If true, user MUST satisfy condidtions of their custom script
 
 # MCCE Simulation
-STEP1="step1.py -d 4 --dry"
-STEP2="step2.py -d 4 -l 1"
-STEP3="step3.py -d 4 -s ngpb -p $CPUS -t \$TMP"
-STEP4="step4.py --xts -i 7 -n 1"
+STEP1="$PYEX $MCBIN/step1.py -d $EPS --dry"
+STEP2="$PYEX $MCBIN/step2.py -d $EPS -l 1"
+STEP3="$PYEX $MCBIN/step3.py -d $EPS -s ngpb -p $CPUS -t $TMP"
+STEP4="$PYEX $MCBIN/step4.py --xts -i 7 -n 1"
 
 # Optional MCCE script locations
 STEPM="/path/to/stepM.sh"         # Optional StepM: Bash script
@@ -60,26 +68,18 @@ cat > "$APPTAINER_CONFIG_FILE" <<'EOF'
 systemd cgroups = no
 EOF
 
-# Check MCCE_HOME exists before PATH export
-if [[ ! -d "$MCCE_HOME/bin" ]]; then
-    echo -e "\033[0;31m[ERROR]\033[0m MCCE_HOME is not set correctly or $MCCE_HOME/bin does not exist."
-    echo "Please check your MCCE_HOME path in submit_mcce4.sh."
-    exit 1
-fi
-
-# Define MCCE_HOME binary directory as mc_bin if MCCE_HOME is set
-if [[ -n "$MCCE_HOME" ]]; then
-    mc_bin="$MCCE_HOME/bin"
-else
-    echo "Error: MCCE_HOME is not set."
-    exit 1
-fi
+# Remove any existing instance of mc_bin from PATH and prepend mc_bin to PATH
+PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$MCCE_HOME/MCCE_bin" | paste -sd ':' -)
+export PATH="$MCCE_HOME/MCCE_bin:$PATH"
 
 # Remove any existing instance of mc_bin from PATH and prepend mc_bin to PATH
-PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$mc_bin" | paste -sd ':' -)
-export PATH="$mc_bin:$PATH"
+PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$MCBIN" | paste -sd ':' -)
+export PATH="$MCBIN:$PATH"
 
-# Print useful info
+# Remove any existing instance of PYENV from PATH and prepend PYENV to PATH
+PATH=$(echo "$PATH" | tr ':' '\n' | grep -vx "$PYENV" | paste -sd ':' -)
+export PATH="$PYENV:$PATH"
+
 echo "============================================================"
 echo "MCCE4 SUBMIT SHELL JOB ENVIRONMENT (startup diagnostics)"
 echo "------------------------------------------------------------"
@@ -90,20 +90,23 @@ echo
 echo -e "Apptainer:        $(which apptainer)"
 echo -e "Config File:      $APPTAINER_CONFIG_FILE"
 echo -e "MCCE_HOME:        $MCCE_HOME"
+echo -e "MCBIN:            $MCBIN"
+echo -e "Driver:           $MCBIN/driver_mcce4.sh"
+echo -e "PYEX, PYENV:      $PYEX"
 echo -e "PATH:             $PATH"
-echo -e "Driver:           $mc_bin/driver_mcce4.sh"
 echo "============================================================"
 echo
 
 # Export environment for downstream script
-export input_pdb MCCE_HOME USER_PARAM EXTRA TMP
+export PYEX
+export input_pdb MCCE_HOME MCBIN USER_PARAM EXTRA TMP
 export step1 step2 step3 step4 step_clean
 export center stepM stepA stepB stepC
 export STEP1 STEP2 STEP3 STEP4
 export STEPM STEPA STEPB STEPC
 
 # Inititiate MCCE_HOME PATH and call driver_mcce4.sh
-$mc_bin/driver_mcce4.sh
+"$MCBIN"/driver_mcce4.sh
 
 # ==============================================================================
 # Script Name   : submit_mcce4.sh
@@ -148,5 +151,3 @@ $mc_bin/driver_mcce4.sh
 # Author        : Gehan A. Ranepura
 # Date Created  : July 2025
 # ==============================================================================
-
-

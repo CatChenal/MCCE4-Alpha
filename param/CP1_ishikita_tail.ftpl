@@ -1,0 +1,53 @@
+>>>START of original comments, this file was converted from old format
+# 1. Basic Conformer Information: name, pka, em, rxn
+# 2. Structure Connectivity:
+# 3. Atom Parameters: Partial Charges and Radii 
+#    - Truncated ESP QM/MM charges provided by Krystle Reiss from Batista Lab at Yale
+# File Created by Gehan Ranepura on 11/18/2021
+<<<END of original comments
+
+# Values of the same key are appended and separated by ","
+CONFLIST, CP1: CP1BK, CP101
+
+# Atom definition
+CONNECT, " C2 ", CP101: sp2, " ?  ", " C3 ", " H2 ",
+CONNECT, " C3 ", CP101: sp2, " C2 ", " C4 ", " C5 "
+CONNECT, " C4 ", CP101: sp3, " C3 ", " H41", " H42", " H43"
+CONNECT, " C5 ", CP101: sp3, " C3 ", " ?  ", " H51", " H52"
+CONNECT, " H2 ", CP101: s, " C2 "
+CONNECT, " H41", CP101: s, " C4 "
+CONNECT, " H42", CP101: s, " C4 "
+CONNECT, " H43", CP101: s, " C4 "
+CONNECT, " H51", CP101: s, " C5 "
+CONNECT, " H52", CP101: s, " C5 "
+
+# Atom charges
+CHARGE, CP101, " C2 ":  0.000
+CHARGE, CP101, " C3 ":  0.000
+CHARGE, CP101, " C4 ":  0.000
+CHARGE, CP101, " C5 ":  0.000
+CHARGE, CP101, " H2 ":  0.000
+CHARGE, CP101, " H41":  0.000
+CHARGE, CP101, " H42":  0.000
+CHARGE, CP101, " H43":  0.000
+CHARGE, CP101, " H51":  0.000
+CHARGE, CP101, " H52":  0.000
+
+
+# Atom radius, dielectric boundary radius, VDW radius, and energy well depth
+RADIUS, CP101,  " C2 ": 1.700,   2.000,   0.150
+RADIUS, CP101,  " C3 ": 1.700,   2.000,   0.150
+RADIUS, CP101,  " C4 ": 2.000,   2.000,   0.150
+RADIUS, CP101,  " C5 ": 2.000,   2.000,   0.150
+RADIUS, CP101, " H2 ":  1.000,  1.000,  0.020
+RADIUS, CP101, " H41":  1.000,  1.000,  0.020
+RADIUS, CP101, " H42":  1.000,  1.000,  0.020
+RADIUS, CP101, " H43":  1.000,  1.000,  0.020
+RADIUS, CP101, " H51":  1.000,  1.000,  0.020
+RADIUS, CP101, " H52":  1.000,  1.000,  0.020
+
+
+# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn
+CONFORMER, CP101: Em0=   0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02= 0, rxn04= 0, rxn08= 0
+
+# Rotatable bonds. The atoms extended in the bond direction will all be rotated.

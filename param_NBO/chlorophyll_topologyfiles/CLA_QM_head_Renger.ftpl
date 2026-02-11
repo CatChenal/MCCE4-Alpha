@@ -14,7 +14,7 @@ CONFLIST, CLA: CLABK, CLA00, CLA11
 # CLA11 is CLA neutral excited state   ( Chlorophyll A )
 
 # Atom definition
-CONNECT, " MG ", CLA00: sp3, " N1D", " N1A", " N1B", " N1C"
+CONNECT, "MG  ", CLA00: sp3, " N1D", " N1A", " N1B", " N1C"
 CONNECT, " CHA", CLA00: sp2, " C4D", " CBD", " C1A"
 CONNECT, " CHB", CLA00: sp2, " C4A", " C1B", " HHB"         ##
 CONNECT, " CHC", CLA00: sp2, " C4B", " C1C", " HHC"         ##
@@ -22,7 +22,7 @@ CONNECT, " CHD", CLA00: sp2, " C1D", " C4C", " HHD"         ##
 CONNECT, " HHB", CLA00: s, " CHB" ##
 CONNECT, " HHC", CLA00: s, " CHC" ##
 CONNECT, " HHD", CLA00: s, " CHD" ##
-CONNECT, " N1A", CLA00: sp2, " C1A", " MG ", " C4A"
+CONNECT, " N1A", CLA00: sp2, " C1A", "MG  ", " C4A"
 CONNECT, " C1A", CLA00: sp2, " C2A", " CHA", " N1A"
 CONNECT, " C2A", CLA00: sp3, " CAA", " C3A", " C1A", " H2A" ##    sp2-hybrid
 CONNECT, " C3A", CLA00: sp3, " C2A", " CMA", " C4A", " H3A" ##    sp2-hybrid
@@ -42,7 +42,7 @@ CONNECT, "HAA1", CLA00: s, " CAA" ##
 CONNECT, "HAA2", CLA00: s, " CAA" ##
 CONNECT, "HBA1", CLA00: s, " CBA" ##
 CONNECT, "HBA2", CLA00: s, " CBA" ##
-CONNECT, " N1B", CLA00: sp2, " C1B", " MG ", " C4B"
+CONNECT, " N1B", CLA00: sp2, " C1B", "MG  ", " C4B"
 CONNECT, " C1B", CLA00: sp2, " CHB", " C2B", " N1B"
 CONNECT, " C2B", CLA00: sp2, " CMB", " C3B", " C1B"         ###
 CONNECT, " C3B", CLA00: sp2, " C2B", " CAB", " C4B"
@@ -56,7 +56,7 @@ CONNECT, "HMB2", CLA00: s, " CMB" #####
 CONNECT, "HMB3", CLA00: s, " CMB" #####
 CONNECT, "HBB1", CLA00: s, " CBB" #####
 CONNECT, "HBB3", CLA00: s, " CBB" #####
-CONNECT, " N1C", CLA00: sp2, " C1C", " C4C", " MG "
+CONNECT, " N1C", CLA00: sp2, " C1C", " C4C", "MG  "
 CONNECT, " C1C", CLA00: sp2, " C2C", " CHC", " N1C"
 CONNECT, " C2C", CLA00: sp2, " CMC", " C3C", " C1C"
 CONNECT, " C3C", CLA00: sp2, " CAC", " C4C", " C2C"
@@ -72,7 +72,7 @@ CONNECT, "HAC2", CLA00: s, " CAC" ##
 CONNECT, "HBC1", CLA00: s, " CBC" ##
 CONNECT, "HBC2", CLA00: s, " CBC" ##
 CONNECT, "HBC3", CLA00: s, " CBC" ##
-CONNECT, " N1D", CLA00: sp2, " C1D", " MG ", " C4D"
+CONNECT, " N1D", CLA00: sp2, " C1D", "MG  ", " C4D"
 CONNECT, " C1D", CLA00: sp2, " C2D", " N1D", " CHD"
 CONNECT, " C2D", CLA00: sp2, " CMD", " C3D", " C1D"
 CONNECT, " C3D", CLA00: sp2, " C2D", " CAD", " C4D"
@@ -93,7 +93,7 @@ CONNECT, "HED1", CLA00: s, " CED" ##
 CONNECT, "HED2", CLA00: s, " CED" ##
 CONNECT, "HED3", CLA00: s, " CED" ##
 
-CONNECT, " MG ", CLA11: sp3, " N1D", " N1A", " N1B", " N1C"
+CONNECT, "MG  ", CLA11: sp3, " N1D", " N1A", " N1B", " N1C"
 CONNECT, " CHA", CLA11: sp2, " C4D", " CBD", " C1A"
 CONNECT, " CHB", CLA11: sp2, " C4A", " C1B", " HHB"         ##
 CONNECT, " CHC", CLA11: sp2, " C4B", " C1C", " HHC"         ##
@@ -101,7 +101,7 @@ CONNECT, " CHD", CLA11: sp2, " C1D", " C4C", " HHD"         ##
 CONNECT, " HHB", CLA11: s, " CHB" ##
 CONNECT, " HHC", CLA11: s, " CHC" ##
 CONNECT, " HHD", CLA11: s, " CHD" ##
-CONNECT, " N1A", CLA11: sp2, " C1A", " MG ", " C4A"
+CONNECT, " N1A", CLA11: sp2, " C1A", "MG  ", " C4A"
 CONNECT, " C1A", CLA11: sp2, " C2A", " CHA", " N1A"
 CONNECT, " C2A", CLA11: sp3, " CAA", " C3A", " C1A", " H2A" ##    sp2-hybrid
 CONNECT, " C3A", CLA11: sp3, " C2A", " CMA", " C4A", " H3A" ##    sp2-hybrid
@@ -121,7 +121,7 @@ CONNECT, "HAA1", CLA11: s, " CAA" ##
 CONNECT, "HAA2", CLA11: s, " CAA" ##
 CONNECT, "HBA1", CLA11: s, " CBA" ##
 CONNECT, "HBA2", CLA11: s, " CBA" ##
-CONNECT, " N1B", CLA11: sp2, " C1B", " MG ", " C4B"
+CONNECT, " N1B", CLA11: sp2, " C1B", "MG  ", " C4B"
 CONNECT, " C1B", CLA11: sp2, " CHB", " C2B", " N1B"
 CONNECT, " C2B", CLA11: sp2, " CMB", " C3B", " C1B"         ###
 CONNECT, " C3B", CLA11: sp2, " C2B", " CAB", " C4B"
@@ -135,7 +135,7 @@ CONNECT, "HMB2", CLA11: s, " CMB" #####
 CONNECT, "HMB3", CLA11: s, " CMB" #####
 CONNECT, "HBB1", CLA11: s, " CBB" #####
 CONNECT, "HBB3", CLA11: s, " CBB" #####
-CONNECT, " N1C", CLA11: sp2, " C1C", " C4C", " MG "
+CONNECT, " N1C", CLA11: sp2, " C1C", " C4C", "MG  "
 CONNECT, " C1C", CLA11: sp2, " C2C", " CHC", " N1C"
 CONNECT, " C2C", CLA11: sp2, " CMC", " C3C", " C1C"
 CONNECT, " C3C", CLA11: sp2, " CAC", " C4C", " C2C"
@@ -151,7 +151,7 @@ CONNECT, "HAC2", CLA11: s, " CAC" ##
 CONNECT, "HBC1", CLA11: s, " CBC" ##
 CONNECT, "HBC2", CLA11: s, " CBC" ##
 CONNECT, "HBC3", CLA11: s, " CBC" ##
-CONNECT, " N1D", CLA11: sp2, " C1D", " MG ", " C4D"
+CONNECT, " N1D", CLA11: sp2, " C1D", "MG  ", " C4D"
 CONNECT, " C1D", CLA11: sp2, " C2D", " N1D", " CHD"
 CONNECT, " C2D", CLA11: sp2, " CMD", " C3D", " C1D"
 CONNECT, " C3D", CLA11: sp2, " C2D", " CAD", " C4D"
@@ -173,7 +173,7 @@ CONNECT, "HED2", CLA11: s, " CED" ##
 CONNECT, "HED3", CLA11: s, " CED" ##
 
 # Atom charges
-CHARGE, CLA00, " MG ":  0.994
+CHARGE, CLA00, "MG  ":  0.994
 CHARGE, CLA00, " CHA":  0.414
 CHARGE, CLA00, " CHB": -0.464
 CHARGE, CLA00, " CHC": -0.049
@@ -252,7 +252,7 @@ CHARGE, CLA00, "HED1":  0.151 ##
 CHARGE, CLA00, "HED2":  0.151 ##
 CHARGE, CLA00, "HED3":  0.151 ##
 
-CHARGE, CLA11, " MG ":  0.992
+CHARGE, CLA11, "MG  ":  0.992
 CHARGE, CLA11, " CHA":  0.429
 CHARGE, CLA11, " CHB": -0.420 
 CHARGE, CLA11, " CHC": -0.116
@@ -333,7 +333,7 @@ CHARGE, CLA11, "HED3":  0.151 ##
 
 
 # Atom radius, dielectric boundary radius, VDW radius, and energy well depth
-RADIUS,  CLA00,  " MG ": 1.180,   2.000,   0.173
+RADIUS,  CLA00,  "MG  ": 1.180,   2.000,   0.173
 RADIUS,  CLA00,  " CHA": 1.700,   2.000,   0.150
 RADIUS,  CLA00,  " CHB": 1.700,   2.000,   0.150
 RADIUS,  CLA00,  " CHC": 1.700,   2.000,   0.150
@@ -379,7 +379,7 @@ RADIUS,  CLA00,  " O1D": 1.520,   1.600,   0.200
 RADIUS,  CLA00,  " O2D": 1.520,   1.600,   0.200
 RADIUS,  CLA00,  " CED": 2.000,   2.000,   0.150
 
-RADIUS,  CLA11,  " MG ": 1.180,   2.000,   0.173
+RADIUS,  CLA11,  "MG  ": 1.180,   2.000,   0.173
 RADIUS,  CLA11,  " CHA": 1.700,   2.000,   0.150
 RADIUS,  CLA11,  " CHB": 1.700,   2.000,   0.150
 RADIUS,  CLA11,  " CHC": 1.700,   2.000,   0.150

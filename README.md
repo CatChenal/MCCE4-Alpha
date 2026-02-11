@@ -4,7 +4,7 @@
   <img src="docs/images/mcce_logo1.png" alt="MCCE Logo" style="max-width: 100%; height: auto;">
 </p>
 
-# Welcome to __MCCE4-Alpha__!  
+# Welcome to MCCE4-Alpha!  
 Please see our CHANGELOG at the bottom for the latest updates!
 
 ## __Quick Introduction__
@@ -127,29 +127,41 @@ If your 'mc4' environment predates 01-08-2026, run these commands to update it:
 __🚀 Run Your First Job:__ [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
 
 __📖 MCCE4-Alpha Tutorial:__ [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
+# [__📖 MCCE4-Alpha Tutorial__](https://gunnerlab.github.io/mcce4_tutorial/) 
 
 Comprehensive documentation covering:
 - Installation
 - Guide: Detailed explanations of all settings
 - Example Projects 
 
-## MCCE4-Tools 🔧  
-Please also check out the companion repository __MCCE4-Tools__. 
-
-🧰 __Explore Now:__ [MCCE4-Tools GitHub](https://github.com/GunnerLab/MCCE4-Tools)
----
-
-# CHANGELOG:
-<!--- NOTE TO EDITOR: Use tis line to indicate that the uses rmust/should update their clone"
+## CHANGELOG:
+<!--- NOTE TO EDITOR: Use tis line to indicate that the user must/should update their clone"
   - __Apply changes: cd to your clone, then run `git pull`__
 -->
 _This section will reflect important changes and will provide you with information on how to apply them; For example, if new python packages are added to the environment file (mc4.yml), then the entry pertaining to that change will list the command(s) to update your environment._ 
+* 2026-01-30:
+  - Updated submit_mcce4.sh and driver_mcce4.sh to pass environment
+  - __Apply changes: cd to your clone, then run `git pull`__
+
+* 2026-01-26:
+  - Added `numba` in env file:
+  - __Apply changes: cd to your clone, then run `git pull`__
+  - __Apply changes: run these commands:__
+  ```
+  CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which mcce)")"));
+  conda env update -n mc4 -f $CLONE/mc4.yml
+  ```
+
+* 2026-01-20:
+  - Comprehensive update of the tutorial site
+  - Minimized README file
+
 
 * 2026-01-08:
   - Updated python dependencies in mc4.yml
   - __Apply changes: run these commands:__
-  ```
-  CLONE=$(dirname $(dirname "$(readlink -f "$(which mcce)")")); echo "$CLONE"
+  ``` 
+  CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which mcce)")"));
   conda env update -n mc4 -f "$CLONE/mc4.yml
   ```
 

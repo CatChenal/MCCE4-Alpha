@@ -4,26 +4,25 @@ _sandbox
 _tmp
 .github/ISSUE_TEMPLATE/
 
-*tests/*.log
-benchmark.info
-benchmark.log
-
 # Executables
 *.sif
 bin/NextGenPB*.sif
 bin/delphi
 bin/mcce
-#lib/mcce.a
+lib/mcce.a
 
 # Test folder
-4lzt/
-#ngpb_test/
+ngpb_test/
+*tests/*.log
+benchmark.info
+benchmark.log
 .qodo
 
 # Byte-compiled / optimized / DLL files/ IDE
 .vscode/
 __pycache__
 */__pycache__/*
+bin/__pycache__/*
 */MCCE_bin/mcce4/__pycache__/*
 *.py[cod]
 *$py.class

@@ -8,9 +8,10 @@
 #ONNECT |-----|----|---------|----|----|----|----|----|----|----|----|----|----|----|----|
 #3.Atom Parameters: Partial Charges and Radii
 # Radii(vdw) were collected from http://www.webelements.com/
+# Values of the same key are appended and separated by ","
 <<<END of original comments
 
-# Values of the same key are appended and separated by ","
+# Conformer definition
 CONFLIST, _CA: _CABK, _CA+2, _CADM
 
 # Atom definition
@@ -19,12 +20,12 @@ CONNECT, "CA  ", _CA+2: ion,
 # Atom charges
 CHARGE, _CA+2, "CA  ":  2.000
 
-RADIUS, _CA+2, "CA  ": 2.230, 2.000, 0.173
-
 # Atom radius, dielectric boundary radius, VDW radius, and energy well depth
+RADIUS,  _CA+2,  "CA  ": 2.230,   2.000,   0.173
 
 # Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn
-#CONFORMER, _CA+2: Em0=   0.0, pKa0=  0.00, ne= 0, nH= 0, rxn=-70.791
-CONFORMER, _CA2+2: Em0=   0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02=0, rxn04=-70.790, rxn08=-35.40
+#CONFORMER, _CA+2: Em0=  0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02=0, rxn04=-70.790, rxn08=-35.40
+CONFORMER, _CA+2: Em0=  0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02= -145.168, rxn04= -70.723, rxn08= -33.500
+CONFORMER, _CADM: Em0=  0.0, pKa0=  0.00, ne= 0, nH= 0, rxn02=0.0, rxn08=0.0, rxn04=0.0
 
 # Rotatable bonds. The atoms extended in the bond direction will all be rotated.
