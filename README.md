@@ -17,6 +17,16 @@ Given the structure of a macromolucule (in a PDB file), __MCCE4__ can predict th
 
 In this program, protein side chain motions are simulated explicitly while the dielectric effect of solvent and bulk protein material is modeled by continuum electrostatics.
 
+__🚀 Run Your First Job:__ [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
+
+__📖 MCCE4-Alpha Tutorial:__ [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
+# [__📖 MCCE4-Alpha Tutorial__](https://gunnerlab.github.io/mcce4_tutorial/) 
+
+Comprehensive documentation covering:
+- Installation
+- Guide: Detailed explanations of all settings
+- Example Projects 
+
 ## __Installation__
 #### If you have sudo access or would like a system-wide installation of the needed softwares:
 The file `MCCE_bin/sudo_install.txt` has the necessary information for you or your sys admin to install the packages. To display the file, run this command:
@@ -123,16 +133,6 @@ If your 'mc4' environment predates 01-08-2026, run these commands to update it:
   CLONE=$(dirname $(dirname "$(python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" "$(which ms_protonation)")"));
   conda env update -n mc4 -f "$CLONE/mc4.yml
   ```
-
-__🚀 Run Your First Job:__ [Quick Start](https://gunnerlab.github.io/mcce4_tutorial/docs/guide/quick_start/)  
-
-__📖 MCCE4-Alpha Tutorial:__ [Full Documentation](https://gunnerlab.github.io/mcce4_tutorial/)
-# [__📖 MCCE4-Alpha Tutorial__](https://gunnerlab.github.io/mcce4_tutorial/) 
-
-Comprehensive documentation covering:
-- Installation
-- Guide: Detailed explanations of all settings
-- Example Projects 
 
 ## CHANGELOG:
 <!--- NOTE TO EDITOR: Use tis line to indicate that the user must/should update their clone"
