@@ -13,7 +13,7 @@ lib/mcce.a
 
 # Test folder
 ngpb_test/
-*tests/*.log
+mcce_workflows/
 benchmark.info
 benchmark.log
 .qodo

@@ -43,6 +43,9 @@ HBD**HEM******  *****PDD******
 *H1D*HEM******  *****PDD******
 *H2D*HEM******  *****PDD******
 
+# OEC
+***** S1******  *****_S1******
+
 # Ions
 ZN ** ZN******  ZN **_ZN******      # added by Gehan
 NA ** NA******  NA **_NA******      # added by Gehan
@@ -455,7 +458,7 @@ MN ** MN******  MN **_MN******      # added by Gehan
 CA    CA******   CA  CA ******      added by Gehan
 CL    CL******   CL  CL ******      added by Gehan
 MG    MG******   MG  MG ******      added by Gehan
-*****OEX******  *****OEC******
+#*****OEX******  *****OEC******
 *C8  UNL******  *C8  UNL******      added by Gehan
 SE  *MSE******   SD *MET******
 *****MSE******  *****MET******
