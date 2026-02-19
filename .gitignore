@@ -5,6 +5,7 @@ _tmp
 .github/ISSUE_TEMPLATE/
 
 # Executables
+*.sif
 bin/NextGenPB*.sif
 bin/delphi
 bin/mcce
