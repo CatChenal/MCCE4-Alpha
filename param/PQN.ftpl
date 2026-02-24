@@ -1,0 +1,232 @@
+>>>START of original comments, this file was converted from old format
+# Created by Gehan Ranepura on 02/21/2026 - PHYLLOQUINONE
+# 1.Basic Conformer Information: name, pka, em, rxn.
+# 2.Structure Connectivity
+#CONNECT   conf atom  orbital  ires conn ires conn ires conn ires conn
+#CONNECT |-----|----|---------|----|----|----|----|----|----|----|----|----|----|----|----|
+# 3.Atom Parameters: Partial Charges and Radii
+# Radii from "Bondi, J.Phys.Chem., 68, 441, 1964."
+#-------|---|----|-|---------|---------|---------|---------|---------|---------|
+<<<END of original comments
+
+# Conformer definition
+CONFLIST, PQN: PQNBK, PQN01, PQN-1
+
+# =========================================================
+# 1. CONNECTIVITY
+# =========================================================
+
+# --- BACKBONE TAIL (PQNBK) ---
+CONNECT, " C11", PQNBK: sp3, " C3 ", " C12", "H111", "H112"
+CONNECT, " C12", PQNBK: sp2, " C11", " C13", " H12"
+CONNECT, " C13", PQNBK: sp2, " C12", " C14", " C15"
+CONNECT, " C14", PQNBK: sp3, " C13", "H141", "H142", "H143"
+CONNECT, " C15", PQNBK: sp3, " C13", " C16", "H151", "H152"
+CONNECT, " C16", PQNBK: sp3, " C15", " C17", "H161", "H162"
+CONNECT, " C17", PQNBK: sp3, " C16", " C18", "H171", "H172"
+CONNECT, " C18", PQNBK: sp3, " C17", " C19", " C20", " H18"
+CONNECT, " C19", PQNBK: sp3, " C18", "H191", "H192", "H193"
+CONNECT, " C20", PQNBK: sp3, " C18", " C21", "H201", "H202"
+CONNECT, " C21", PQNBK: sp3, " C20", " C22", "H211", "H212"
+CONNECT, " C22", PQNBK: sp3, " C21", " C23", "H221", "H222"
+CONNECT, " C23", PQNBK: sp3, " C22", " C24", " C25", " H23"
+CONNECT, " C24", PQNBK: sp3, " C23", "H241", "H242", "H243"
+CONNECT, " C25", PQNBK: sp3, " C23", " C26", "H251", "H252"
+CONNECT, " C26", PQNBK: sp3, " C25", " C27", "H261", "H262"
+CONNECT, " C27", PQNBK: sp3, " C26", " C28", "H271", "H272"
+CONNECT, " C28", PQNBK: sp3, " C27", " C29", " C30", " H28"
+CONNECT, " C29", PQNBK: sp3, " C28", "H291", "H292", "H293"
+CONNECT, " C30", PQNBK: sp3, " C28", "H301", "H302", "H303"
+
+# --- NEUTRAL HEAD (PQN01) ---
+CONNECT, " C1 ", PQN01: sp2, " C2 ", " C10", " O1 "
+CONNECT, " C2 ", PQN01: sp2, " C1 ", " C3 ", " C2M"
+CONNECT, " C2M", PQN01: sp3, " C2 ", "1H2M", "2H2M", "3H2M"
+CONNECT, " C3 ", PQN01: sp2, " C2 ", " C4 ", " C11"
+CONNECT, " C4 ", PQN01: sp2, " C3 ", " C5 ", " O4 "
+CONNECT, " C5 ", PQN01: sp2, " C4 ", " C6 ", " C10"
+CONNECT, " C6 ", PQN01: sp2, " C5 ", " C7 ", " H6 "
+CONNECT, " C7 ", PQN01: sp2, " C6 ", " C8 ", " H7 "
+CONNECT, " C8 ", PQN01: sp2, " C7 ", " C9 ", " H8 "
+CONNECT, " C9 ", PQN01: sp2, " C8 ", " C10", " H9 "
+CONNECT, " C10", PQN01: sp2, " C9 ", " C1 ", " C5 "
+CONNECT, "1H2M", PQN01: s, " C2M"
+CONNECT, "2H2M", PQN01: s, " C2M"
+CONNECT, "3H2M", PQN01: s, " C2M"
+CONNECT, " H6 ", PQN01: s, " C6 "
+CONNECT, " H7 ", PQN01: s, " C7 "
+CONNECT, " H8 ", PQN01: s, " C8 "
+CONNECT, " H9 ", PQN01: s, " C9 "
+CONNECT, " O1 ", PQN01: sp2, " C1 "
+CONNECT, " O4 ", PQN01: sp2, " C4 "
+
+# --- ANION HEAD (PQN-1) ---
+CONNECT, " C1 ", PQN-1: sp2, " C2 ", " C10", " O1 "
+CONNECT, " C2 ", PQN-1: sp2, " C1 ", " C3 ", " C2M"
+CONNECT, " C2M", PQN-1: sp3, " C2 ", "1H2M", "2H2M", "3H2M"
+CONNECT, " C3 ", PQN-1: sp2, " C2 ", " C4 ", " C11"
+CONNECT, " C4 ", PQN-1: sp2, " C3 ", " C5 ", " O4 "
+CONNECT, " C5 ", PQN-1: sp2, " C4 ", " C6 ", " C10"
+CONNECT, " C6 ", PQN-1: sp2, " C5 ", " C7 ", " H6 "
+CONNECT, " C7 ", PQN-1: sp2, " C6 ", " C8 ", " H7 "
+CONNECT, " C8 ", PQN-1: sp2, " C7 ", " C9 ", " H8 "
+CONNECT, " C9 ", PQN-1: sp2, " C8 ", " C10", " H9 "
+CONNECT, " C10", PQN-1: sp2, " C9 ", " C1 ", " C5 "
+CONNECT, "1H2M", PQN-1: s, " C2M"
+CONNECT, "2H2M", PQN-1: s, " C2M"
+CONNECT, "3H2M", PQN-1: s, " C2M"
+CONNECT, " H6 ", PQN-1: s, " C6 "
+CONNECT, " H7 ", PQN-1: s, " C7 "
+CONNECT, " H8 ", PQN-1: s, " C8 "
+CONNECT, " H9 ", PQN-1: s, " C9 "
+CONNECT, " O1 ", PQN-1: sp2, " C1 "
+CONNECT, " O4 ", PQN-1: sp2, " C4 "
+
+
+# =========================================================
+# 2. CHARGE
+# =========================================================
+
+# --- BACKBONE (PQNBK) ---
+CHARGE, PQNBK, " C11": 0
+CHARGE, PQNBK, " C12": 0
+CHARGE, PQNBK, " C13": 0
+CHARGE, PQNBK, " C14": 0
+CHARGE, PQNBK, " C15": 0
+CHARGE, PQNBK, " C16": 0
+CHARGE, PQNBK, " C17": 0
+CHARGE, PQNBK, " C18": 0
+CHARGE, PQNBK, " C19": 0
+CHARGE, PQNBK, " C20": 0
+CHARGE, PQNBK, " C21": 0
+CHARGE, PQNBK, " C22": 0
+CHARGE, PQNBK, " C23": 0
+CHARGE, PQNBK, " C24": 0
+CHARGE, PQNBK, " C25": 0
+CHARGE, PQNBK, " C26": 0
+CHARGE, PQNBK, " C27": 0
+CHARGE, PQNBK, " C28": 0
+CHARGE, PQNBK, " C29": 0
+CHARGE, PQNBK, " C30": 0
+
+# --- NEUTRAL (PQN01) ---
+CHARGE, PQN01, " C1 ": 0
+CHARGE, PQN01, " C2 ": 0
+CHARGE, PQN01, " C2M": 0
+CHARGE, PQN01, " C3 ": 0
+CHARGE, PQN01, " C4 ": 0
+CHARGE, PQN01, " C5 ": 0
+CHARGE, PQN01, " C6 ": 0
+CHARGE, PQN01, " C7 ": 0
+CHARGE, PQN01, " C8 ": 0
+CHARGE, PQN01, " C9 ": 0
+CHARGE, PQN01, " C10": 0
+CHARGE, PQN01, "1H2M": 0
+CHARGE, PQN01, "2H2M": 0
+CHARGE, PQN01, "3H2M": 0
+CHARGE, PQN01, " H6 ": 0
+CHARGE, PQN01, " H7 ": 0
+CHARGE, PQN01, " H8 ": 0
+CHARGE, PQN01, " H9 ": 0
+CHARGE, PQN01, " O1 ": 0
+CHARGE, PQN01, " O4 ": 0
+
+# --- ANION (PQN-1) ---
+CHARGE, PQN-1, " C1 ":  0
+CHARGE, PQN-1, " C2 ": -0.1
+CHARGE, PQN-1, " C2M":  0
+CHARGE, PQN-1, " C3 ": -0.1
+CHARGE, PQN-1, " C4 ":  0
+CHARGE, PQN-1, " C5 ":  0
+CHARGE, PQN-1, " C6 ": -0.1
+CHARGE, PQN-1, " C7 ": -0.1
+CHARGE, PQN-1, " C8 ": -0.1
+CHARGE, PQN-1, " C9 ": -0.1
+CHARGE, PQN-1, " C10":  0
+CHARGE, PQN-1, "1H2M":  0
+CHARGE, PQN-1, "2H2M":  0
+CHARGE, PQN-1, "3H2M":  0
+CHARGE, PQN-1, " H6 ":  0
+CHARGE, PQN-1, " H7 ":  0
+CHARGE, PQN-1, " H8 ":  0
+CHARGE, PQN-1, " H9 ":  0
+CHARGE, PQN-1, " O1 ": -0.2
+CHARGE, PQN-1, " O4 ": -0.2
+
+
+# =========================================================
+# 3. RADIUS (van der Waals)
+# =========================================================
+
+# --- BACKBONE (PQNBK) ---
+RADIUS, PQNBK, " C11":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C12":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C13":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C14":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C15":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C16":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C17":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C18":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C19":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C20":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C21":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C22":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C23":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C24":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C25":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C26":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C27":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C28":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C29":  1.908, 0.150, 2.000
+RADIUS, PQNBK, " C30":  1.908, 0.150, 2.000
+
+# --- NEUTRAL (PQN01) ---
+RADIUS, PQN01, " C1 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C2 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C2M":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C3 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C4 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C5 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C6 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C7 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C8 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C9 ":  1.908, 0.150, 2.000
+RADIUS, PQN01, " C10":  1.908, 0.150, 2.000
+RADIUS, PQN01, "1H2M":  1.250, 0.010, 1.250
+RADIUS, PQN01, "2H2M":  1.250, 0.010, 1.250
+RADIUS, PQN01, "3H2M":  1.250, 0.010, 1.250
+RADIUS, PQN01, " H6 ":  1.250, 0.010, 1.250
+RADIUS, PQN01, " H7 ":  1.250, 0.010, 1.250
+RADIUS, PQN01, " H8 ":  1.250, 0.010, 1.250
+RADIUS, PQN01, " H9 ":  1.250, 0.010, 1.250
+RADIUS, PQN01, " O1 ":  1.661, 0.210, 1.700
+RADIUS, PQN01, " O4 ":  1.661, 0.210, 1.700
+
+# --- ANION (PQN-1) ---
+RADIUS, PQN-1, " C1 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C2 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C2M":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C3 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C4 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C5 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C6 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C7 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C8 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C9 ":  1.908, 0.150, 2.000
+RADIUS, PQN-1, " C10":  1.908, 0.150, 2.000
+RADIUS, PQN-1, "1H2M":  1.250, 0.010, 1.250
+RADIUS, PQN-1, "2H2M":  1.250, 0.010, 1.250
+RADIUS, PQN-1, "3H2M":  1.250, 0.010, 1.250
+RADIUS, PQN-1, " H6 ":  1.250, 0.010, 1.250
+RADIUS, PQN-1, " H7 ":  1.250, 0.010, 1.250
+RADIUS, PQN-1, " H8 ":  1.250, 0.010, 1.250
+RADIUS, PQN-1, " H9 ":  1.250, 0.010, 1.250
+RADIUS, PQN-1, " O1 ":  1.661, 0.210, 1.700
+RADIUS, PQN-1, " O4 ":  1.661, 0.210, 1.700
+
+
+# =========================================================
+# 4. CONFORMER PARAMETERS
+# =========================================================
+CONFORMER, PQN01: Em0=  0.0, pKa0=0.00, ne=0, nH=0, rxn02=   0.000, rxn04=   0.000, rxn08=  0.000 
+CONFORMER, PQN-1: Em0=-80.0, pKa0=0.00, ne=1, nH=0, rxn02= -22.821, rxn04= -11.089, rxn08= -5.227  # Calibrated using NGPB with RCSB PQN.cif (Gehan: 02/21/2026)
