@@ -64,7 +64,8 @@ cd ~/ ; wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.
 ```bash
 ./setup.sh
 ```
->[!Important] You will be prompted to update your .bashrc file. Accept so the mc4 executable can be availble to use for new terminal session.
+>[!Important]
+> You will be prompted to update your .bashrc file. Accept so the mc4 executable can be availble to use for new terminal session.
 
 4.  Source the `.bashrc` file.
 ```bash
