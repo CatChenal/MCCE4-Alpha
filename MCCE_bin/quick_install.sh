@@ -168,7 +168,9 @@ if [[ "$DO_CONDA" -eq 1 ]]; then
     conda env update -n $ENV_NAME -f "$CLONE_PATH/$YML"
   else
     echo "  Creating a dedicated conda env with default name: $ENV_NAME"
-    conda env create -f "$CLONE_PATH/$YML"
+    # prevent 'auto installation' of packages defined in .condarc
+    # => ensure any issue pertains to installation of packages in mc4.yml
+    conda env create -f "$CLONE_PATH/$YML" --no-default-packages
   fi
   if [[ "$APPTAINER_CONDA" -eq 1 ]]; then
     conda install -n $ENV_NAME -c conda-forge apptainer -y
