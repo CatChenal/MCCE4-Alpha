@@ -23,8 +23,8 @@ The file `MCCE_bin/sudo_install.txt` has the necessary information for you or yo
 
 ## __Quick Installation__
 #### "Quick Install" script `MCCE_bin/quick_install.sh`:
-__Note: The quick install script will not modify an existing conda environment named 'mc4'.__ 
-If you want to re-create it, run this command before running the script:
+__Note: The quick install script will modify an existing conda environment named 'mc4'.__ 
+If you need to re-create it, to troubleshoot an installation issue, for example, run this command before running the script:
 ```
  conda env remove -n mc4
 ```
