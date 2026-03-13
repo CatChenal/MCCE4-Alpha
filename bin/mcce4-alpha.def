@@ -6,7 +6,7 @@ From: condaforge/miniforge3
 # Apptainer pulls the correct arch (x86_64 or aarch64) automatically.
 
 %labels
-    Author      "Julian A. Rendon"
+    Author      "Gehan A. Ranepura and Julian A. Rendon"
     Maintainer  "Gunner Lab"
     Description "MCCE4-Alpha Apptainer Environment"
     Source      "https://github.com/GunnerLab/MCCE4-Alpha"
