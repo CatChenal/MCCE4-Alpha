@@ -1,89 +1,29 @@
 #!/bin/bash
-# mc4 — MCCE4-Alpha CLI
-#
-# Unified entry point:
-#
-#   Linux + container  → apptainer exec mcce4-alpha.sif <command>
-#   macOS + Lima       → limactl shell mcce4 -- <command>   (native in VM, no container)
-#   Native fallback    → run <command> directly via conda env mc4
-#
-# macOS/Lima mode:
-#   - Your Mac files are mounted writable in the VM
-#   - delphi_precompiled works (it's a Linux binary, running in Linux)
-#   - apptainer is available for NGPB
-#   - Code edits on Mac are instant — no rebuilds
-#
-# Usage:
-#   mc4 step1.py prot.pdb       # Run step1
-#   mc4 step3.py                # PB solver (NGPB, DELPHI all work)
-#   mc4 getpdb 4pti             # Fetch PDB
-#   mc4 -d step1.py prot.pdb    # Dev mode (container only: bind local code)
-#   mc4 --shell                 # Interactive Linux shell
-#   mc4 -h                      # Help
 
-# ── Resolve paths portably ────────────────────────────────────────────────────
-if command -v python3 >/dev/null 2>&1; then
-    BIN_DIR=$(python3 -c "import os,sys; print(os.path.dirname(os.path.realpath(sys.argv[1])))" "$0")
-elif command -v realpath >/dev/null 2>&1; then
-    BIN_DIR=$(dirname "$(realpath "$0")")
-else
-    BIN_DIR=$(cd "$(dirname "$0")" && pwd)
-fi
-
+# Get current working directory bin/ and define paths.
+BIN_DIR=$(dirname "$(readlink -f "$0")")
 PROJECT_ROOT_DIR=$(dirname "$BIN_DIR")
-INSTALL_DIR=$(dirname "$PROJECT_ROOT_DIR")
-CONTAINER_PATH="/opt/MCCE4-Alpha"
+SIF_PATH=$(readlink -f "$BIN_DIR/mcce4-alpha.sif")
 
-SIF_PATH="$INSTALL_DIR/mcce4-alpha.sif"
-[[ ! -f "$SIF_PATH" && -f "$BIN_DIR/mcce4-alpha.sif" ]] && SIF_PATH="$BIN_DIR/mcce4-alpha.sif"
+CONTAINER_PATH="/opt/MCCE4-Alpha" # Internal path where code lives inside the image
+BIND_ARGS=""
 
-LIMA_INSTANCE="mcce4"
-
-# ── Detect execution mode ─────────────────────────────────────────────────────
-#   MODE = "linux-container" | "lima" | "native"
-MODE="native"
-
-if [[ "$(uname -s)" == "Linux" ]]; then
-    if [[ -f "$SIF_PATH" ]] && command -v apptainer >/dev/null 2>&1; then
-        MODE="linux-container"
-    fi
-elif [[ "$(uname -s)" == "Darwin" ]]; then
-    if command -v limactl >/dev/null 2>&1; then
-        if limactl list 2>/dev/null | grep -q "$LIMA_INSTANCE"; then
-            MODE="lima"
-        fi
-    fi
-fi
-
-# ── Help ──────────────────────────────────────────────────────────────────────
 show_help() {
     echo "MCCE4-Alpha CLI Tool"
-    echo ""
-    echo "Usage: mc4 [OPTIONS] <COMMAND> [ARGS...]"
+    echo "Usage: mc4 [OPTIONS] <COMMAND>"
     echo ""
     echo "Options:"
-    if [[ "$MODE" == "linux-container" ]]; then
-        echo "  -d          Dev mode: bind local source into container"
-    fi
-    echo "  --shell     Open interactive Linux shell"
-    echo "  -h, --help  Show this help"
+    echo "  -d          Development Mode (Binds local code to container)"
+    echo "  -h, --help  Show this help message"
     echo ""
     echo "Examples:"
-    echo "  mc4 step1.py prot.pdb"
-    echo "  mc4 step3.py"
-    echo "  mc4 getpdb 4pti"
-    echo "  mc4 --shell"
-    echo ""
-    case "$MODE" in
-        linux-container) echo "Mode: Linux container ($SIF_PATH)" ;;
-        lima)            echo "Mode: macOS → Lima VM (native Linux)" ;;
-        native)          echo "Mode: Native (conda env mc4)" ;;
-    esac
+    echo "  mc4 step1.py prot.pdb   # Production (Uses baked-in code)"
+    echo "  mc4 -d step1.py         # Development (Uses local code)"
+    echo "  mc4 -h                  # Show this help"
 }
 
-if [[ $# -eq 0 ]]; then
-    echo "❌ Error: No command provided."
-    show_help
+if [ ! -f "$SIF_PATH" ]; then
+    echo "❌ Error: Apptainer image not found at $SIF_PATH"
     exit 1
 fi
 
@@ -92,114 +32,24 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     exit 0
 fi
 
-# ── Ensure Lima VM is running ─────────────────────────────────────────────────
-ensure_lima_running() {
-    if limactl list 2>/dev/null | grep "$LIMA_INSTANCE" | grep -q "Running"; then
-        return 0
-    fi
-    echo "⏳ Starting Lima VM '$LIMA_INSTANCE'..." >&2
-    limactl start "$LIMA_INSTANCE" >/dev/null 2>&1
-    if ! limactl list 2>/dev/null | grep "$LIMA_INSTANCE" | grep -q "Running"; then
-        echo "❌ Failed to start Lima VM." >&2
-        exit 1
-    fi
-}
-
-# ── Build the lima exec command ───────────────────────────────────────────────
-# This runs a command inside the Lima VM with conda env mc4 activated
-# and the correct PATH set for MCCE4 binaries.
-lima_exec() {
-    ensure_lima_running
-
-    local cwd
-    cwd=$(pwd)
-
-    # We need to:
-    # 1. Initialize conda
-    # 2. Activate mc4 env
-    # 3. Add MCCE4 bin dirs to PATH
-    # 4. cd to the user's current working directory
-    # 5. Execute the command
-    limactl shell "$LIMA_INSTANCE" -- bash -c "
-        # Initialize conda
-        if [ -f \"\$HOME/miniforge3/etc/profile.d/conda.sh\" ]; then
-            . \"\$HOME/miniforge3/etc/profile.d/conda.sh\"
-        fi
-        conda activate mc4 2>/dev/null
-
-        # Add MCCE4 bin directories
-        export PATH=\"$BIN_DIR:$PROJECT_ROOT_DIR/MCCE_bin:\$PATH\"
-
-        cd '$cwd'
-        exec \"\$@\"
-    " -- "$@"
-}
-
-# ── Interactive shell ─────────────────────────────────────────────────────────
-if [[ "$1" == "--shell" ]]; then
-    shift
-    case "$MODE" in
-        linux-container)
-            exec apptainer shell "$SIF_PATH"
-            ;;
-        lima)
-            ensure_lima_running
-            echo "🐧 Entering Lima VM (Linux). Type 'exit' to return to macOS."
-            echo "   conda activate mc4 to use MCCE4."
-            limactl shell "$LIMA_INSTANCE"
-            ;;
-        native)
-            echo "ℹ️  No container/VM available. Using conda env 'mc4'."
-            if command -v conda >/dev/null 2>&1; then
-                eval "$(conda shell.bash hook)" 2>/dev/null
-                conda activate mc4 2>/dev/null
-            fi
-            exec bash
-            ;;
-    esac
-    exit 0
+if [ $# -eq 0 ]; then
+    echo "❌ Error: No command provided."
+    show_help
+    exit 1
 fi
 
-# ── Dev mode flag ─────────────────────────────────────────────────────────────
-BIND_ARGS=""
-if [[ "$1" == "-d" ]]; then
-    shift
-    if [[ $# -eq 0 ]]; then
-        echo "❌ Error: No command after -d."
+if [ "$1" == "-d" ]; then
+    shift # Remove '-d' from the argument list
+    
+    # 2. Check if arguments remain after removing -d
+    if [ $# -eq 0 ]; then
+        echo "❌ Error: No command provided after -d."
+        show_help
         exit 1
     fi
-    case "$MODE" in
-        linux-container)
-            echo "🔧 Dev mode: binding local code into container."
-            BIND_ARGS="--bind $PROJECT_ROOT_DIR:$CONTAINER_PATH"
-            ;;
-        lima)
-            echo "ℹ️  -d flag not needed on macOS — Lima always uses your local code."
-            ;;
-        native)
-            echo "ℹ️  -d flag not needed in native mode."
-            ;;
-    esac
+
+    echo "🔧 Running in Apptainer Development Mode..."
+    BIND_ARGS="--bind $PROJECT_ROOT_DIR:$CONTAINER_PATH"
 fi
 
-# ── Execute ────────────────────────────────────────────────────────────────────
-case "$MODE" in
-    linux-container)
-        exec apptainer exec $BIND_ARGS "$SIF_PATH" "$@"
-        ;;
-
-    lima)
-        lima_exec "$@"
-        ;;
-
-    native)
-        export PATH="$BIN_DIR:$PROJECT_ROOT_DIR/MCCE_bin:$PATH"
-        if [[ "${CONDA_DEFAULT_ENV:-}" != "mc4" ]]; then
-            if command -v conda >/dev/null 2>&1; then
-                eval "$(conda shell.bash hook)" 2>/dev/null
-                conda activate mc4 2>/dev/null
-            fi
-        fi
-        exec "$@"
-        ;;
-esac
+apptainer exec $BIND_ARGS "$SIF_PATH" "$@"

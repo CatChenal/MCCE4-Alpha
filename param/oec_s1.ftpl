@@ -1,0 +1,44 @@
+# Conformer definition
+CONFLIST, OEC: OECBK, OEC01
+
+# ATOM name and bonds
+CONNECT, " MN1", OEC01: sp3, " O1 ", " O3 ", " O4 ", " O5 "  
+CONNECT, " MN2", OEC01: sp3, " O1 ", " O2 ", " O4 "
+CONNECT, " MN3", OEC01: sp3, " O2 ", " O3 ", " O4 "
+CONNECT, " MN4", OEC01: sp3, " O4 ", " O5 "
+CONNECT, " CA1", OEC01: sp3, " O1 ", " O2 ", " O3 ", " O5 "
+CONNECT, " O1 ", OEC01: sp3, " MN1", " MN2", " CA1"
+CONNECT, " O2 ", OEC01: sp3, " MN2", " MN3", " CA1"
+CONNECT, " O3 ", OEC01: sp3, " MN1", " MN3", " CA1"
+CONNECT, " O4 ", OEC01: sp3, " MN1", " MN2", " MN3", " MN4"
+CONNECT, " O5 ", OEC01: sp3, " MN1", " MN4", " CA1"
+
+
+# ATOM charges
+CHARGE, OEC01, " MN1":  4.00
+CHARGE, OEC01, " MN2":  4.00
+CHARGE, OEC01, " MN3":  3.00
+CHARGE, OEC01, " MN4":  3.00
+CHARGE, OEC01, " CA1":  2.00
+CHARGE, OEC01, " O1 ": -2.00
+CHARGE, OEC01, " O2 ": -2.00
+CHARGE, OEC01, " O3 ": -2.00
+CHARGE, OEC01, " O4 ": -2.00
+CHARGE, OEC01, " O5 ": -2.00
+
+
+# Atom radius, dielectric boundary radius, VDW radius, and energy well depth
+RADIUS, OEC01, " MN1":  1.850,  2.000,  0.173
+RADIUS, OEC01, " MN2":  1.850,  2.000,  0.173
+RADIUS, OEC01, " MN3":  1.850,  2.000,  0.173
+RADIUS, OEC01, " MN4":  1.850,  2.000,  0.173
+RADIUS, OEC01, " CA1":  1.700,  2.000,  0.150
+RADIUS, OEC01, " O1 ":  1.400,  1.600,  0.200
+RADIUS, OEC01, " O2 ":  1.400,  1.600,  0.200
+RADIUS, OEC01, " O3 ":  1.400,  1.600,  0.200
+RADIUS, OEC01, " O4 ":  1.400,  1.600,  0.200
+RADIUS, OEC01, " O5 ":  1.400,  1.600,  0.200
+
+
+# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn
+CONFORMER, OEC01:  Em0=0.0, pKa0=0.00, ne=0, nH=0, rxn02= -1047.659, rxn04= -509.124, rxn08= -240.056
