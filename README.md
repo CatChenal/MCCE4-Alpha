@@ -48,11 +48,9 @@ If you need to re-create it, to troubleshoot an installation issue, for example,
     * 'MCCE4-Alpha/bin' and 'MCCE4-Alpha/MCCE_bin'
     * the unprivilege version of Apptainer if installed by the script
 
-## MCCE4-Alpha CLI (`mc4`)
+## OPTIONAL: MCCE4-Alpha CLI (`mc4`) 
 
 The `mc4` command-line tool runs MCCE4-Alpha inside an [Apptainer](https://apptainer.org/) container, giving you a reproducible environment with all solvers (DELPHI, APBS, NGPB) pre-configured. No `sudo` required.
-
-### Quick Start
 
 #### Linux
 
@@ -134,7 +132,7 @@ mc4 <command> [args...]
 **Examples:**
 
 ```bash
-mc4 step1.py prot.pdb          # Run step 1
+mc4 step1.py <pdbfile>         # Run step 1
 mc4 step2.py                   # Run step 2
 mc4 step3.py                   # Run step 3 (PB solver)
 mc4 step4.py                   # Run step 4
