@@ -549,8 +549,10 @@ echo "   Code edits on Mac are instant — no rebuild needed."
 echo "   Run setup_mac.sh --rebuild only if Makefile or mc4.yml changes."
 echo ""
 echo "   Usage:"
-echo "     mc4 step1.py prot.pdb"
+echo "     mc4 step1.py <pdbfile>"
+echo "     mc4 step2.py"
 echo "     mc4 step3.py"
+echo "     mc4 step4.py"
 echo "     mc4 --shell              # Interactive Linux shell"
 
 print_timing_summary

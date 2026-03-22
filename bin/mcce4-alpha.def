@@ -69,8 +69,8 @@ From: condaforge/miniforge3
         echo "Linked delphi_precompiled → delphi"
     fi
 
-    # NextGenPB .sif files are NOT baked into the container (they're ~1.6GB
-    # and would cause mksquashfs to OOM on memory-limited servers).
+    # NextGenPB .sif files are NOT baked into the container 
+    # (They are ~1.6GB and would cause mksquashfs to OOM on memory-limited servers).
     # Instead, mc4 bind-mounts them from the host at runtime.
     # Remove any that accidentally got copied in via %files.
     rm -f bin/NextGenPB.sif bin/NextGenPB_MCCE4.sif 2>/dev/null || true

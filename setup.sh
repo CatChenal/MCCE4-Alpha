@@ -348,8 +348,10 @@ echo "   Image   : $MCCE4_ALPHA_SIF"
 echo "   Solvers : DELPHI ✅  APBS ✅  NGPB ✅"
 echo ""
 echo "   Usage:"
-echo "     mc4 step1.py prot.pdb"
+echo "     mc4 step1.py <pdbfile>"
+echo "     mc4 step2.py"
 echo "     mc4 step3.py"
+echo "     mc4 step4.py"
 echo "     mc4 --shell"
 
 print_timing_summary
