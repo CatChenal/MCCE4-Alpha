@@ -48,71 +48,198 @@ If you need to re-create it, to troubleshoot an installation issue, for example,
     * 'MCCE4-Alpha/bin' and 'MCCE4-Alpha/MCCE_bin'
     * the unprivilege version of Apptainer if installed by the script
 
-## __MCCE4-Alpha CLI__ (Optional)
-To build and configure the `mc4` CLI tool, follow these steps:
+## MCCE4-Alpha CLI (`mc4`)
 
-1.  **Install Miniconda** (Skip if Conda is already installed):
-    Navigate to your home directory and install Miniconda.
+The `mc4` command-line tool runs MCCE4-Alpha inside an [Apptainer](https://apptainer.org/) container, giving you a reproducible environment with all solvers (DELPHI, APBS, NGPB) pre-configured. No `sudo` required.
+
+### Quick Start
+
+#### Linux
+
 ```bash
-cd ~/ ; wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && bash ~/Miniconda3-latest-Linux-x86_64.sh -b
-```
-2. Source path to Miniconda:
-```bash
- source ~/miniconda3/bin/activate
- ```
-3. Navigate to the root directroy of `MCCE4-Alpha` and run the `setup.sh` script. This will install unprivileged Apptainer and build the `mcce4-alpha.sif` file located in `bin/`.
-```bash
+# 1. Clone the repository
+git clone https://github.com/GunnerLab/MCCE4-Alpha.git
+cd MCCE4-Alpha
+
+# 2. Run the setup script
 ./setup.sh
-```
->[!Important]
-> You will be prompted to update your .bashrc file. Accept so the mc4 executable can be availble to use for new terminal session.
 
-4.  Source the `.bashrc` file.
-```bash
+# 3. Source your shell config (or open a new terminal)
 source ~/.bashrc
-```
-5.  Activate the `mc4` environment that the setup script created.
-```bash
-conda activate mc4
-```
-**Usage:**
-```bash
-mc4 <command>
-```
-**Example**
-```bash
-mc4 which python
+
+# 4. You're ready
+mc4 step1.py prot.pdb
 ```
 
-**Expected Output**
+#### macOS
+
 ```bash
-🚀 Running in Apptainer Production Mode...
-INFO:    fuse2fs not found, will not be able to mount EXT3 filesystems
+# 1. Clone the repository
+git clone https://github.com/GunnerLab/MCCE4-Alpha.git
+cd MCCE4-Alpha
+
+# 2. Run the macOS setup script
+bash setup_mac.sh
+
+# 3. Source your shell config (or open a new terminal)
+source ~/.zshrc    # or ~/.bashrc
+
+# 4. You're ready
+mc4 step1.py prot.pdb
+```
+
+---
+
+### What the Setup Scripts Do
+
+#### `setup.sh` (Linux)
+
+1. **Installs Apptainer** — checks for a system installation first; if unavailable, installs it via Conda into user-space (no `sudo` needed).
+2. **Downloads the NGPB solver** — fetches the pre-built `NextGenPB.sif` (~1.6 GB) from GitHub Releases.
+3. **Builds the container** — creates `mcce4-alpha.sif` using the definition file at `bin/mcce4-alpha.def`. This image contains the `mc4` Conda environment, compiled MCCE4 binaries, and all three PB solvers.
+4. **Updates your PATH** — adds `bin/` to your `~/.bashrc` so `mc4` is available in new terminals.
+
+| Flag | Effect |
+|------|--------|
+| *(none)* | Smart re-run — skips steps that are already complete |
+| `--rebuild` | Force a full container rebuild |
+| `--build-ngpb` | Build NGPB from source (`bin/recipe_MCCE.def`) instead of downloading the pre-built image |
+
+#### `setup_mac.sh` (macOS)
+
+macOS cannot run Apptainer natively, so the script sets up a lightweight Linux VM via [Lima](https://lima-vm.io/):
+
+1. **Installs Lima & QEMU** via Homebrew.
+2. **Creates an Ubuntu 24.04 VM** (`mcce4`) with Apptainer pre-installed and your home directory mounted read-write.
+3. **Downloads the NGPB solver** inside the VM.
+4. **Builds the container** inside the VM.
+5. **Updates your PATH** — adds `bin/` to your `~/.zshrc` (or `~/.bashrc`).
+
+Your local code edits on macOS are instantly visible inside the VM — no rebuild needed.
+
+| Flag | Effect |
+|------|--------|
+| *(none)* | Smart re-run — skips completed steps |
+| `--rebuild` | Delete the VM and start fresh |
+| `--build-ngpb` | Build NGPB from source instead of downloading |
+
+---
+
+### Usage
+
+```bash
+mc4 <command> [args...]
+```
+
+**Examples:**
+
+```bash
+mc4 step1.py prot.pdb          # Run step 1
+mc4 step2.py                   # Run step 2
+mc4 step3.py                   # Run step 3 (PB solver)
+mc4 step4.py                   # Run step 4
+mc4 getpdb 4pti                # Fetch a PDB file
+mc4 which python               # Check which Python the container uses
+mc4 --shell                    # Open an interactive shell inside the container
+```
+
+**Expected output** (production mode):
+
+```
 /opt/conda/envs/mc4/bin/python
 ```
-> [!NOTE] 
-> **Troubleshooting: `apptainer: command not found`**
-> The `mc4` CLI wrapper script functions by executing the command: `apptainer exec <path/to/mcce4-alpha.sif> <command> ...`
-> * **The Cause:** If Apptainer was installed via the **Conda fallback method**, the `apptainer` binary is hidden inside the `mc4` environment. The wrapper script fails because it cannot find `apptainer` in your system PATH.
-> * **The Fix:** You must run `conda activate mc4` to expose the binary before using the CLI.
+
+---
 
 ### Development Mode
-To run the CLI in development mode, use the `-d` flag. This mode mounts your local `MCCE4-Alpha` source code into the container, allowing you to test changes immediately without rebuilding the image. Since the repository is bound to the container, ***developers can create new files or modify existing ones***, and these changes will be reflected inside the container.
 
-**Usage:**
+Use the `-d` flag to bind-mount your local MCCE4-Alpha source code into the container. Changes to files on your host are reflected immediately — no rebuild required.
+
 ```bash
-mc4 -d <command>
+mc4 -d <command> [args...]
 ```
 
-**Example**
+**Example:**
+
 ```bash
-mc4 -d which python
+mc4 -d step1.py prot.pdb
 ```
-**Expected Output:**
-```bash
+
+```
 🔧 Running in Apptainer Development Mode...
 INFO:    fuse2fs not found, will not be able to mount EXT3 filesystems
-/opt/conda/envs/mc4/bin/python
+Preprocessing input pdb file, identifying ligands ...
+```
+
+> **Note:** Dev mode is available on Linux. On macOS, code changes are already live via Lima's mount, so `-d` is not needed.
+
+---
+
+### How `mc4` Auto-Detects Its Mode
+
+| Platform | Condition | Mode |
+|----------|-----------|------|
+| Linux | `mcce4-alpha.sif` exists + `apptainer` on PATH | **Container** — `apptainer exec` |
+| macOS | Lima VM `mcce4` exists | **Lima** — routes through `limactl shell` |
+| Either | No container or VM found | **Native fallback** — runs commands directly via the `mc4` Conda env |
+
+> In native fallback mode, DELPHI and APBS work but NGPB requires the container.
+
+---
+
+### Troubleshooting
+
+#### `apptainer: command not found`
+
+
+**Fix:** Activate the environment before using the CLI:
+
+```bash
+conda activate mc4
+mc4 step1.py prot.pdb
+```
+
+#### Container build killed (OOM on HPC login nodes)
+
+If `setup.sh` dies at the `mksquashfs` step, the OOM killer likely terminated it. This is common on shared HPC login nodes with memory limits.
+
+**Options:**
+
+```bash
+# Option A: Build on a compute node with more RAM
+srun --mem=8G --time=30:00 bash setup.sh --rebuild
+
+# Option B: Point temp files to a larger filesystem
+export APPTAINER_TMPDIR=/scratch/$USER/tmp
+mkdir -p $APPTAINER_TMPDIR
+bash setup.sh --rebuild
+```
+
+#### NGPB download failed
+
+If the ~1.6 GB NextGenPB download times out, you can retry or build from source:
+
+```bash
+# Retry download
+bash setup.sh --rebuild
+
+# Or build from source (~20-30 min, requires bin/recipe_MCCE.def)
+bash setup.sh --build-ngpb
+```
+
+DELPHI and APBS will still work even if NGPB is unavailable.
+
+#### Lima VM issues (macOS)
+
+```bash
+# Check VM status
+limactl list
+
+# Restart the VM
+limactl stop mcce4 && limactl start mcce4
+
+# Full reset
+bash setup_mac.sh --rebuild
 ```
 
 ## Environment update (01-08-2026):
