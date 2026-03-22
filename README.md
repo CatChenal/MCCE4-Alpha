@@ -60,7 +60,7 @@ git clone https://github.com/GunnerLab/MCCE4-Alpha.git
 cd MCCE4-Alpha
 
 # 2. Run the setup script
-./setup.sh
+bash setup.sh
 
 # 3. Source your shell config (or open a new terminal)
 source ~/.bashrc
