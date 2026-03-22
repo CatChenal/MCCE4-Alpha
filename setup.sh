@@ -305,20 +305,35 @@ step_end "Apptainer install"
 
 update_shell_config "$BIN_DIR" "MCCE4-Alpha CLI"
 
-# Download/build NGPB BEFORE the container so it gets copied in via %files
-step_start "NGPB solver"
-setup_ngpb
-step_end "NGPB solver"
+# Temporarily move any existing .sif files out of bin/ so they don't get
+# baked into the container (they'd make mksquashfs OOM on low-memory servers).
+# They'll be bind-mounted at runtime by mc4 instead.
+_sif_tmp=""
+if ls "$BIN_DIR"/*.sif >/dev/null 2>&1; then
+    _sif_tmp=$(mktemp -d)
+    echo "   Moving .sif files out of bin/ temporarily (will be restored)..."
+    mv "$BIN_DIR"/*.sif "$_sif_tmp/" 2>/dev/null || true
+fi
 
 step_start "Container build"
 if should_rebuild_container; then
     if ! build_container; then
+        # Restore .sif files before exiting
+        [[ -n "$_sif_tmp" ]] && mv "$_sif_tmp"/*.sif "$BIN_DIR/" 2>/dev/null && rm -rf "$_sif_tmp"
         echo ""
         echo "⛔ Container build failed. Cannot proceed."
         exit 1
     fi
 fi
 step_end "Container build"
+
+# Restore .sif files
+[[ -n "$_sif_tmp" ]] && mv "$_sif_tmp"/*.sif "$BIN_DIR/" 2>/dev/null && rm -rf "$_sif_tmp"
+
+# Download/build NGPB AFTER container build (kept on host, bind-mounted at runtime)
+step_start "NGPB solver"
+setup_ngpb
+step_end "NGPB solver"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""

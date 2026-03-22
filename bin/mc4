@@ -135,7 +135,16 @@ fi
 # ── Execute ────────────────────────────────────────────────────────────────────
 case "$MODE" in
     linux-container)
-        exec apptainer exec $BIND_ARGS "$SIF_PATH" "$@"
+        # Bind-mount NGPB .sif files from host into container
+        # (they're kept on host to avoid bloating the container image)
+        NGPB_BIND=""
+        if [[ -f "$BIN_DIR/NextGenPB_MCCE4.sif" ]]; then
+            NGPB_BIND="--bind $BIN_DIR/NextGenPB_MCCE4.sif:$CONTAINER_PATH/bin/NextGenPB_MCCE4.sif"
+        fi
+        if [[ -f "$BIN_DIR/NextGenPB.sif" ]]; then
+            NGPB_BIND="$NGPB_BIND --bind $BIN_DIR/NextGenPB.sif:$CONTAINER_PATH/bin/NextGenPB.sif"
+        fi
+        exec apptainer exec $BIND_ARGS $NGPB_BIND "$SIF_PATH" "$@"
         ;;
     lima)
         lima_exec "$@"

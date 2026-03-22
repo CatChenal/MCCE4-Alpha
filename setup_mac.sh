@@ -136,6 +136,15 @@ mounts:
   - location: "/tmp/lima"
     writable: true
 
+# Enable Rosetta so x86_64 Linux binaries (delphi_precompiled, NextGenPB.sif)
+# run transparently on Apple Silicon (arm64) VMs.
+vmType: "vz"
+vmOpts:
+  vz:
+    rosetta:
+      enabled: true
+      binfmt: true
+
 provision:
   - mode: system
     script: |
@@ -148,6 +157,27 @@ provision:
           build-essential gcc g++ gfortran make cmake \
           curl wget git ca-certificates file \
           software-properties-common
+
+      # x86_64 cross-architecture support for Rosetta.
+      # delphi_precompiled is an x86_64 ELF that needs the x86_64 dynamic
+      # linker and gfortran runtime.
+      #
+      # We must pin the existing arm64 sources BEFORE adding amd64,
+      # otherwise ports.ubuntu.com tries to serve amd64 (which it doesn't have).
+      # Ubuntu 24.04 uses deb822 format in /etc/apt/sources.list.d/ubuntu.sources
+      if [ -f /etc/apt/sources.list.d/ubuntu.sources ] && ! grep -q "Architectures:" /etc/apt/sources.list.d/ubuntu.sources; then
+          sed -i 's/^Types: deb$/Architectures: arm64\nTypes: deb/' /etc/apt/sources.list.d/ubuntu.sources
+      fi
+      dpkg --add-architecture amd64
+      CODENAME=$(lsb_release -cs)
+      echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME} main restricted universe multiverse" > /etc/apt/sources.list.d/amd64-cross.list
+      echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-updates main restricted universe multiverse" >> /etc/apt/sources.list.d/amd64-cross.list
+      echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list.d/amd64-cross.list
+      apt-get update
+      apt-get install -y \
+          libc6:amd64 \
+          libgfortran5:amd64 \
+          libquadmath0:amd64
 
       # Apptainer (for NGPB solver)
       add-apt-repository -y ppa:apptainer/ppa
@@ -189,6 +219,21 @@ setup_lima() {
         return 1
     fi
     echo "   ✅ Homebrew found"
+
+    # ── Rosetta (Apple Silicon only) ──────────────────────────────────────
+    # delphi_precompiled and NextGenPB.sif are x86_64 binaries.
+    # Rosetta lets the arm64 Linux VM run them transparently.
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        if ! arch -x86_64 /usr/bin/true 2>/dev/null; then
+            echo "   ⬇️  Installing Rosetta (needed for x86_64 solver binaries)..."
+            softwareupdate --install-rosetta --agree-to-license 2>/dev/null || {
+                echo "   ❌ Rosetta installation failed."
+                echo "      Run manually: softwareupdate --install-rosetta"
+                return 1
+            }
+        fi
+        echo "   ✅ Rosetta available"
+    fi
 
     # ── Lima ──────────────────────────────────────────────────────────────────
     if ! command -v limactl >/dev/null 2>&1; then
@@ -251,6 +296,24 @@ setup_lima() {
         " || { echo "   ❌ Failed to install gcc."; return 1; }
     fi
 
+    # x86_64 libs for Rosetta (delphi_precompiled)
+    if ! limactl shell "$LIMA_INSTANCE" -- bash -c "[ -f /lib64/ld-linux-x86-64.so.2 ]" >/dev/null 2>&1; then
+        echo "   ⚠️  x86_64 libs missing — installing for delphi..."
+        limactl shell "$LIMA_INSTANCE" -- sudo bash -c '
+            # Pin existing sources to arm64 so ports.ubuntu.com stops trying amd64
+            if [ -f /etc/apt/sources.list.d/ubuntu.sources ] && ! grep -q "Architectures:" /etc/apt/sources.list.d/ubuntu.sources; then
+                sed -i "s/^Types: deb$/Architectures: arm64\nTypes: deb/" /etc/apt/sources.list.d/ubuntu.sources
+            fi
+            dpkg --add-architecture amd64
+            CODENAME=$(lsb_release -cs)
+            echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME} main restricted universe multiverse" > /etc/apt/sources.list.d/amd64-cross.list
+            echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-updates main restricted universe multiverse" >> /etc/apt/sources.list.d/amd64-cross.list
+            echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list.d/amd64-cross.list
+            apt-get update && \
+            apt-get install -y libc6:amd64 libgfortran5:amd64 libquadmath0:amd64
+        ' || { echo "   ⚠️  Failed to install x86_64 libs. delphi may not work."; }
+    fi
+
     if ! limactl shell "$LIMA_INSTANCE" -- bash -c "command -v apptainer" >/dev/null 2>&1; then
         echo "   ⚠️  apptainer missing — installing..."
         limactl shell "$LIMA_INSTANCE" -- sudo bash -c "
@@ -277,6 +340,16 @@ setup_lima() {
     limactl shell "$LIMA_INSTANCE" -- bash -c "command -v gcc" >/dev/null 2>&1         || { echo "   ❌ gcc not available"; ok=0; }
     limactl shell "$LIMA_INSTANCE" -- bash -c "command -v apptainer" >/dev/null 2>&1   || { echo "   ❌ apptainer not available"; ok=0; }
     limactl shell "$LIMA_INSTANCE" -- bash -c "command -v conda >/dev/null 2>&1 || [ -f \$HOME/miniforge3/bin/conda ]" >/dev/null 2>&1 || { echo "   ❌ conda not available"; ok=0; }
+
+    # Check Rosetta is working inside VM (Apple Silicon only)
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        if limactl shell "$LIMA_INSTANCE" -- bash -c "[ -f /proc/sys/fs/binfmt_misc/rosetta ]" >/dev/null 2>&1; then
+            echo "   ✅ Rosetta active inside VM (x86_64 binaries will work)"
+        else
+            echo "   ⚠️  Rosetta not detected inside VM. x86_64 binaries (delphi, NGPB) may not work."
+            echo "      Try: limactl delete $LIMA_INSTANCE --force && bash setup_mac.sh --rebuild"
+        fi
+    fi
 
     if [[ "$ok" -eq 1 ]]; then
         echo "   ✅ VM ready (gcc + apptainer + conda)"

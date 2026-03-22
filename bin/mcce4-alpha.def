@@ -69,17 +69,11 @@ From: condaforge/miniforge3
         echo "Linked delphi_precompiled → delphi"
     fi
 
-    # NextGenPB: setup.sh downloads or builds the .sif BEFORE the container
-    # build, so it arrives here via %files. Just create the symlink if needed.
-    if [ -f bin/NextGenPB.sif ] && [ ! -f bin/NextGenPB_MCCE4.sif ]; then
-        chmod +x bin/NextGenPB.sif
-        ln -sf NextGenPB.sif bin/NextGenPB_MCCE4.sif
-        echo "NextGenPB: linked NextGenPB.sif → NextGenPB_MCCE4.sif"
-    elif [ -f bin/NextGenPB_MCCE4.sif ]; then
-        echo "NextGenPB: NextGenPB_MCCE4.sif present"
-    else
-        echo "NextGenPB: not found (NGPB solver will not work, DELPHI/APBS will)"
-    fi
+    # NextGenPB .sif files are NOT baked into the container (they're ~1.6GB
+    # and would cause mksquashfs to OOM on memory-limited servers).
+    # Instead, mc4 bind-mounts them from the host at runtime.
+    # Remove any that accidentally got copied in via %files.
+    rm -f bin/NextGenPB.sif bin/NextGenPB_MCCE4.sif 2>/dev/null || true
 
     chmod -R a+rX /opt/MCCE4-Alpha
     chmod -R a+rX /opt/conda/envs/mc4
@@ -121,7 +115,6 @@ From: condaforge/miniforge3
     command -v apptainer >/dev/null 2>&1 \
         && echo "apptainer: OK ($(apptainer --version))" || echo "apptainer: MISSING (NGPB will not work)"
 
-    [ -f /opt/MCCE4-Alpha/bin/NextGenPB_MCCE4.sif ] \
-        && echo "NGPB image: OK" || echo "NGPB image: MISSING (download may have failed)"
+    echo "NGPB image: bind-mounted at runtime by mc4 (not baked into container)"
 
     echo "── Passed ──"
