@@ -1,0 +1,10 @@
+[Method] ngpb
+
+[PAIRWISE confID single multi flag, kcal/mol]
+
+[BACKBONE total including self, kcal/mol]    0.005
+
+[BACKBONE breakdown, kcal/mol]
+ARGBKA0001_000    0.005
+
+[RXN, kcal/mol]   -0.000
