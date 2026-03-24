@@ -3,11 +3,13 @@
 #  conda env create -f mc4.yml
 # 2. Update an existing 'mc4' environment:
 #  conda env update -n mc4 -f mc4.yml
-#
+# 
 name: mc4
 channels:
+  - openeye
   - conda-forge
   - defaults
+
 dependencies:
   - python=3.10
   - pip
@@ -17,6 +19,8 @@ dependencies:
   - parmed
   - vtk=9.3
   - setuptools>=64
+  - pymol-open-source
+  - openeye-toolkits
   - pip:
     - scipy
     - matplotlib
