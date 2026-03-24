@@ -17,6 +17,8 @@ dependencies:
   - parmed
   - vtk=9.3
   - setuptools>=64
+  - pymol-open-source
+  - openeye-toolkits
   - pip:
     - scipy
     - matplotlib
