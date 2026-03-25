@@ -6,6 +6,7 @@
 #
 name: mc4
 channels:
+  - openeye
   - conda-forge
   - defaults
 dependencies:
