@@ -15,102 +15,132 @@ from typing import Optional
 
 def parse_pk_out(path: str = "pK.out") -> dict:
     """
-    Parse pK.out to extract pKa values and titration curves.
+    Parse pK.out which has TWO sections:
+
+    Section 1 — pKa summary:
+        pH             pKa/Em  n(slope) 1000*chi2
+        NTR+A0001_        7.948     1.012     0.001
+        ARG+A0001_        >14.0
+        ASP-A0003_        3.008     1.004     0.005
+
+    Section 2 — titration curves:
+         ph              0.0   1.0   2.0   3.0  ...  14.0
+        NTR+A0001_      1.00  1.00  1.00  ...   0.00
+        ASP-A0003_      0.00 -0.01 -0.09  ...  -1.00
 
     Returns:
         {
-            "residues": [{"name": "GLUA0035", "pka": 4.2, "n_crg": -1.0, "hill": 1.0}, ...],
+            "residues": [{"name": ..., "pka": ..., "n_slope": ..., "chi2": ...}, ...],
             "ph_values": [0.0, 1.0, 2.0, ...],
-            "titration_curves": {
-                "GLUA0035": [occ_at_ph0, occ_at_ph1, ...],
-                ...
-            }
+            "titration_curves": {"NTR+A0001_": [1.00, 1.00, ...], ...}
         }
     """
     if not os.path.isfile(path):
         return {"error": f"File not found: {path}"}
 
     with open(path, "r") as f:
-        lines = f.readlines()
+        content = f.read()
 
-    if not lines:
+    if not content.strip():
         return {"error": "pK.out is empty"}
+
+    lines = content.strip().split("\n")
 
     residues = []
     ph_values = []
     titration_curves = {}
 
-    # First line is typically a header with pH values
-    header = lines[0].strip()
-    header_parts = header.split()
+    # ── Find where section 2 starts ──
+    # Section 2 header: a line starting with "ph" followed by float values
+    # e.g. " ph              0.0   1.0   2.0   3.0 ..."
+    # Section 1 header starts with "pH" followed by text labels like "pKa/Em"
+    section2_start = None
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        # Match: starts with "ph" (case-insensitive), then a float number
+        m = re.match(r'^ph\s+([\d.-]+)', stripped, re.IGNORECASE)
+        if m:
+            section2_start = i
+            break
 
-    # Try to identify pH columns from header
-    # Format varies: sometimes "Residue pKa n 1000*Hill  0.0  1.0  2.0 ..."
-    ph_start_col = None
-    for i, part in enumerate(header_parts):
-        try:
-            val = float(part)
-            if ph_start_col is None:
-                ph_start_col = i
-            ph_values.append(val)
-        except ValueError:
-            if ph_start_col is not None:
-                break  # Stop after continuous float block
-
-    # Parse residue lines
-    for line in lines[1:]:
-        line = line.strip()
-        if not line or line.startswith("#"):
+    # ── Parse Section 1: pKa summary ──
+    section1_end = section2_start if section2_start is not None else len(lines)
+    for line in lines[:section1_end]:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        # Skip header line ("pH   pKa/Em   n(slope)  1000*chi2")
+        if stripped.lower().startswith("ph"):
             continue
 
-        parts = line.split()
+        parts = stripped.split()
         if len(parts) < 2:
             continue
 
         res_name = parts[0]
 
-        # Try to parse pKa (second column)
+        # Parse pKa — handle ">14.0", "<0.0", "nan", etc.
+        pka_str = parts[1]
+        pka = None
         try:
-            pka = float(parts[1])
+            cleaned = pka_str.lstrip("><")
+            pka = float(cleaned)
         except ValueError:
             pka = None
 
-        # Parse n_crg (third column) if present
-        n_crg = None
+        # Parse n(slope)
+        n_slope = None
         if len(parts) > 2:
             try:
-                n_crg = float(parts[2])
+                n_slope = float(parts[2])
             except ValueError:
                 pass
 
-        # Parse Hill coefficient (sometimes column 3 or 4, as 1000*Hill)
-        hill = None
+        # Parse 1000*chi2
+        chi2 = None
         if len(parts) > 3:
             try:
-                hill_raw = float(parts[3])
-                # If stored as 1000*Hill
-                if abs(hill_raw) > 10:
-                    hill = hill_raw / 1000.0
-                else:
-                    hill = hill_raw
+                chi2 = float(parts[3])
             except ValueError:
                 pass
 
         residues.append({
             "name": res_name,
             "pka": pka,
-            "n_crg": n_crg,
-            "hill": hill,
+            "pka_display": pka_str,
+            "n_slope": n_slope,
+            "chi2": chi2,
         })
 
-        # Extract titration curve data (occupancy at each pH)
-        if ph_start_col is not None and len(parts) > ph_start_col:
+    # ── Parse Section 2: titration curves ──
+    if section2_start is not None:
+        # Parse pH values from header
+        header_line = lines[section2_start].strip()
+        header_parts = header_line.split()
+        for part in header_parts[1:]:  # Skip "ph" label
+            try:
+                ph_values.append(float(part))
+            except ValueError:
+                break
+
+        # Parse residue curves
+        for line in lines[section2_start + 1:]:
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            parts = stripped.split()
+            if len(parts) < 2:
+                continue
+
+            res_name = parts[0]
             curve = []
-            for j in range(ph_start_col, min(len(parts), ph_start_col + len(ph_values))):
+            for val_str in parts[1:]:
                 try:
-                    curve.append(float(parts[j]))
+                    curve.append(float(val_str))
                 except ValueError:
                     curve.append(None)
+
             if curve:
                 titration_curves[res_name] = curve
 
@@ -125,10 +155,16 @@ def parse_sum_crg(path: str = "sum_crg.out") -> dict:
     """
     Parse sum_crg.out for net charge vs pH/Eh data.
 
+    Format:
+         ph         0.0    1.0    2.0  ...  14.0
+        NTR+A0001_  1.00   1.00   1.00 ...   0.00
+        ...
+        Total       6.00   6.00   5.91 ...  -9.05
+
     Returns:
         {
             "ph_values": [...],
-            "residues": {"GLUA0035": [crg_at_ph0, ...], ...},
+            "residues": {"NTR+A0001_": [crg_at_ph0, ...], ...},
             "total_charge": [total_at_ph0, ...],
         }
     """
@@ -145,28 +181,31 @@ def parse_sum_crg(path: str = "sum_crg.out") -> dict:
     residue_charges = {}
     total_charge = []
 
-    # First line is header with pH values
-    header = lines[0].strip()
-    header_parts = header.split()
-
-    # Find where pH values start
-    for part in header_parts:
-        try:
-            ph_values.append(float(part))
-        except ValueError:
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
             continue
 
-    # Parse each residue line
-    for line in lines[1:]:
-        line = line.strip()
-        if not line or line.startswith("#"):
+        parts = stripped.split()
+
+        # Detect header line: starts with "ph" followed by numbers
+        if parts[0].lower() == "ph" and len(parts) > 1:
+            for p in parts[1:]:
+                try:
+                    ph_values.append(float(p))
+                except ValueError:
+                    break
             continue
 
-        parts = line.split()
         if len(parts) < 2:
             continue
 
         res_name = parts[0]
+
+        # Skip separator lines (e.g. "------...")
+        if res_name.startswith("---"):
+            continue
+
         charges = []
         for p in parts[1:]:
             try:
@@ -174,8 +213,13 @@ def parse_sum_crg(path: str = "sum_crg.out") -> dict:
             except ValueError:
                 charges.append(0.0)
 
-        if res_name.lower() in ("total", "net", "sum"):
+        # Detect summary rows
+        name_lower = res_name.lower().replace("_", "")
+        if name_lower in ("total", "net", "netcharge", "sum", "total:"):
             total_charge = charges
+        elif name_lower in ("protons", "electrons"):
+            # Store but don't add to residues
+            pass
         else:
             residue_charges[res_name] = charges
 
@@ -187,12 +231,7 @@ def parse_sum_crg(path: str = "sum_crg.out") -> dict:
 
 
 def parse_head3_lst(path: str = "head3.lst") -> dict:
-    """
-    Parse head3.lst for conformer information.
-
-    Returns:
-        {"conformers": [{"name": ..., "occ": ..., "crg": ..., ...}, ...]}
-    """
+    """Parse head3.lst for conformer information."""
     if not os.path.isfile(path):
         return {"error": f"File not found: {path}"}
 

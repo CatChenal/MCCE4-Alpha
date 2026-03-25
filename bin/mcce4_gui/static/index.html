@@ -156,6 +156,13 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
 /* ── SLURM Script Preview ────────────────────── */
 .script-pre{background:var(--log-bg);color:var(--log-tx);padding:14px;border-radius:var(--radius);font-family:var(--mono);font-size:11px;line-height:1.6;white-space:pre-wrap;max-height:300px;overflow-y:auto;border:1px solid var(--bdr)}
 
+/* ── Selectable Table ─────────────────────────── */
+.pka-row{cursor:pointer;transition:background .1s}
+.pka-row:hover{background:var(--bg2)}
+.pka-row.selected{background:var(--accent-dim)}
+.pka-row.selected td:first-child{position:relative;padding-left:16px}
+.pka-row.selected td:first-child::before{content:'';position:absolute;left:5px;top:50%;transform:translateY(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent)}
+
 /* ── Scrollbar ───────────────────────────────── */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -372,17 +379,31 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
       <button class="btn btn-s" onclick="checkOutputs()">Check output files</button>
     </div>
   </div>
-  <div id="analysis-content" class="hidden">
-    <div class="g2" style="gap:14px">
-      <div class="cfg-card"><div class="cfg-card-t">Titration curves</div><div id="plot-titration" style="width:100%;height:380px"></div></div>
-      <div class="cfg-card"><div class="cfg-card-t">Net charge vs pH</div><div id="plot-charge" style="width:100%;height:380px"></div></div>
-    </div>
-    <div class="cfg-card" style="margin-top:14px">
-      <div class="cfg-card-t" style="display:flex;justify-content:space-between;align-items:center">
-        <span>pKa results</span>
-        <span style="font-size:11px;color:var(--tx2)" id="pka-count"></span>
+  <div id="analysis-content" class="hidden" style="display:none;flex-direction:column;gap:14px">
+    <!-- Top row: pKa table (left) + titration curves (right) -->
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:14px">
+      <div class="cfg-card" style="overflow:hidden;display:flex;flex-direction:column">
+        <div class="cfg-card-t" style="display:flex;justify-content:space-between;align-items:center">
+          <span>pKa results</span>
+          <span style="font-size:11px;color:var(--tx2)" id="pka-count"></span>
+        </div>
+        <div style="font-size:10px;color:var(--tx2);padding:4px 0">Click rows to plot titration curves</div>
+        <div id="pka-table" style="flex:1;overflow-y:auto;max-height:420px"></div>
+        <div class="btn-row" style="padding-top:8px;border-top:1px solid var(--bdr)">
+          <button class="btn btn-s" onclick="selectAllResidues()" style="flex:1">Select all</button>
+          <button class="btn btn-s" onclick="clearResidueSelection()" style="flex:1">Clear</button>
+        </div>
       </div>
-      <div id="pka-table" style="max-height:300px;overflow-y:auto"></div>
+      <div class="cfg-card">
+        <div class="cfg-card-t">Titration curves (from sum_crg.out)</div>
+        <div id="plot-titration" style="width:100%;height:440px"></div>
+        <div id="titration-empty" style="text-align:center;color:var(--tx2);font-size:12px;padding:20px">Select residues from the table to plot their charge vs pH</div>
+      </div>
+    </div>
+    <!-- Bottom: net charge (full width, auto-displayed) -->
+    <div class="cfg-card">
+      <div class="cfg-card-t">Net charge vs pH</div>
+      <div id="plot-charge" style="width:100%;height:300px"></div>
     </div>
   </div>
 </div>
@@ -645,71 +666,129 @@ async function checkOutputs(){
 }
 
 async function loadAnalysis(){
-  let hasPka=false;
   const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
   const plotBg=isDark?'#181b25':'#f8f9fa';
   const plotGrid=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
   const plotText=isDark?'#9ca3af':'#4b5563';
-  const plotLayout={paper_bgcolor:'transparent',plot_bgcolor:plotBg,
+  window._plotLayout={paper_bgcolor:'transparent',plot_bgcolor:plotBg,
     font:{family:'-apple-system,system-ui,sans-serif',size:11,color:plotText},
-    margin:{l:50,r:20,t:20,b:40},
+    margin:{l:55,r:20,t:10,b:40},
     xaxis:{gridcolor:plotGrid,zerolinecolor:plotGrid},
     yaxis:{gridcolor:plotGrid,zerolinecolor:plotGrid},
     legend:{bgcolor:'transparent',font:{size:10}},
   };
+  window._selectedResidues=new Set();
+  window._crgData=null;
+  let loaded=false;
 
-  try{
-    const pk=await api('/api/analysis/pka');
-    hasPka=true;
-
-    /* Titration curves */
-    if(pk.ph_values&&pk.ph_values.length>0&&pk.titration_curves){
-      const traces=[];const keys=Object.keys(pk.titration_curves);
-      const colors=['#059669','#2563eb','#dc2626','#d97706','#7c3aed','#db2777','#0891b2','#65a30d'];
-      keys.slice(0,12).forEach((k,i)=>{
-        traces.push({x:pk.ph_values,y:pk.titration_curves[k],name:k,
-          type:'scatter',mode:'lines+markers',
-          line:{width:2,color:colors[i%colors.length]},
-          marker:{size:3}});
-      });
-      Plotly.newPlot('plot-titration',traces,{...plotLayout,
-        xaxis:{...plotLayout.xaxis,title:{text:'pH'}},
-        yaxis:{...plotLayout.yaxis,title:{text:'Occupancy'}},
-      },{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
-    }
-
-    /* pKa table */
-    if(pk.residues&&pk.residues.length>0){
-      $('pka-count').textContent=pk.residues.filter(r=>r.pka!==null).length+' titratable residues';
-      let html='<table style="width:100%;font-size:12px;border-collapse:collapse">';
-      html+='<tr style="color:var(--tx2);border-bottom:1px solid var(--bdr)"><th style="text-align:left;padding:5px;font-weight:500">Residue</th><th style="text-align:right;padding:5px;font-weight:500">pKa</th><th style="text-align:right;padding:5px;font-weight:500">n(crg)</th><th style="text-align:right;padding:5px;font-weight:500">Hill</th></tr>';
-      pk.residues.forEach(r=>{
-        if(r.pka===null)return;
-        html+=`<tr style="border-bottom:1px solid var(--bdr)"><td style="padding:5px;font-family:var(--mono)">${r.name}</td><td style="text-align:right;padding:5px;font-family:var(--mono)">${r.pka!==null?r.pka.toFixed(2):'—'}</td><td style="text-align:right;padding:5px;font-family:var(--mono)">${r.n_crg!==null?r.n_crg.toFixed(2):'—'}</td><td style="text-align:right;padding:5px;font-family:var(--mono)">${r.hill!==null?r.hill.toFixed(2):'—'}</td></tr>`;
-      });
-      html+='</table>';$('pka-table').innerHTML=html;
-    }
-  }catch(e){appendLog('pKa: '+e.message)}
-
-  /* Net charge */
+  /* Load sum_crg.out — needed for both plots */
   try{
     const crg=await api('/api/analysis/sum_crg');
+    window._crgData=crg;
+
+    /* Auto-render net charge */
     if(crg.ph_values&&crg.total_charge&&crg.total_charge.length>0){
       Plotly.newPlot('plot-charge',[{
         x:crg.ph_values,y:crg.total_charge,type:'scatter',mode:'lines+markers',
-        line:{width:2,color:'#2563eb'},marker:{size:4},name:'Net charge',
-      }],{...plotLayout,
-        xaxis:{...plotLayout.xaxis,title:{text:'pH'}},
-        yaxis:{...plotLayout.yaxis,title:{text:'Net charge (e)'}},
+        line:{width:2.5,color:isDark?'#60a5fa':'#2563eb'},marker:{size:4},name:'Net charge',
+      }],{...window._plotLayout,
+        xaxis:{...window._plotLayout.xaxis,title:{text:'pH'}},
+        yaxis:{...window._plotLayout.yaxis,title:{text:'Net charge (e)'}},
       },{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
+      loaded=true;
     }
-  }catch(e){appendLog('Charge: '+e.message)}
+  }catch(e){appendLog('sum_crg: '+e.message)}
 
-  if(hasPka){
+  /* Load pKa data for the table */
+  try{
+    const pk=await api('/api/analysis/pka');
+    if(pk.residues&&pk.residues.length>0){
+      window._pkaData=pk;
+      const titratable=pk.residues.filter(r=>r.pka!==null);
+      $('pka-count').textContent=titratable.length+' titratable';
+
+      let html='<table style="width:100%;font-size:12px;border-collapse:collapse">';
+      html+='<tr style="color:var(--tx2);border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--bg1);z-index:1"><th style="text-align:left;padding:5px 5px 5px 16px;font-weight:500">Residue</th><th style="text-align:right;padding:5px;font-weight:500">pKa/Em</th><th style="text-align:right;padding:5px;font-weight:500">n(slope)</th><th style="text-align:right;padding:5px;font-weight:500">1000*chi2</th></tr>';
+      pk.residues.forEach(r=>{
+        const pkaStr=r.pka_display||((r.pka!==null)?r.pka.toFixed(2):'\u2014');
+        const hasCrg=window._crgData&&window._crgData.residues&&window._crgData.residues[r.name];
+        const clickable=hasCrg?'class="pka-row" onclick="toggleResidue(this,\''+r.name+'\')"':'style="color:var(--tx2)"';
+        html+=`<tr ${clickable} data-res="${r.name}" style="border-bottom:1px solid var(--bdr)"><td style="padding:5px 5px 5px 16px;font-family:var(--mono)">${r.name}</td><td style="text-align:right;padding:5px;font-family:var(--mono)">${pkaStr}</td><td style="text-align:right;padding:5px;font-family:var(--mono)">${r.n_slope!=null?r.n_slope.toFixed(3):'\u2014'}</td><td style="text-align:right;padding:5px;font-family:var(--mono)">${r.chi2!=null?r.chi2.toFixed(3):'\u2014'}</td></tr>`;
+      });
+      html+='</table>';$('pka-table').innerHTML=html;
+      loaded=true;
+    }
+  }catch(e){appendLog('pKa: '+e.message)}
+
+  if(loaded){
     $('analysis-placeholder').classList.add('hidden');
-    $('analysis-content').classList.remove('hidden');
-    appendLog('>> Analysis data loaded');
+    const c=$('analysis-content');c.classList.remove('hidden');c.style.display='flex';
+    appendLog('>> Analysis loaded. Click residues in the table to plot titration curves.');
   }
+}
+
+/* ── Residue selection for titration curves ──── */
+const TRACE_COLORS=['#059669','#2563eb','#dc2626','#d97706','#7c3aed','#db2777','#0891b2','#65a30d','#e11d48','#4f46e5','#0d9488','#ca8a04'];
+
+function toggleResidue(el,name){
+  if(window._selectedResidues.has(name)){
+    window._selectedResidues.delete(name);
+    el.classList.remove('selected');
+  }else{
+    window._selectedResidues.add(name);
+    el.classList.add('selected');
+  }
+  updateTitrationPlot();
+}
+
+function selectAllResidues(){
+  document.querySelectorAll('.pka-row').forEach(row=>{
+    const name=row.dataset.res;
+    if(name){window._selectedResidues.add(name);row.classList.add('selected')}
+  });
+  updateTitrationPlot();
+}
+
+function clearResidueSelection(){
+  window._selectedResidues.clear();
+  document.querySelectorAll('.pka-row.selected').forEach(r=>r.classList.remove('selected'));
+  updateTitrationPlot();
+}
+
+function updateTitrationPlot(){
+  const crg=window._crgData;
+  const sel=window._selectedResidues;
+  const emptyMsg=$('titration-empty');
+
+  if(!crg||!crg.ph_values||sel.size===0){
+    /* Clear the plot and show hint */
+    Plotly.purge('plot-titration');
+    if(emptyMsg)emptyMsg.style.display='block';
+    return;
+  }
+  if(emptyMsg)emptyMsg.style.display='none';
+
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const traces=[];
+  let i=0;
+  sel.forEach(name=>{
+    const curve=crg.residues[name];
+    if(!curve)return;
+    traces.push({
+      x:crg.ph_values,y:curve,name:name,
+      type:'scatter',mode:'lines+markers',
+      line:{width:2,color:TRACE_COLORS[i%TRACE_COLORS.length]},
+      marker:{size:3},
+    });
+    i++;
+  });
+
+  Plotly.newPlot('plot-titration',traces,{
+    ...window._plotLayout,
+    xaxis:{...window._plotLayout.xaxis,title:{text:'pH'}},
+    yaxis:{...window._plotLayout.yaxis,title:{text:'Charge (e)'}},
+    showlegend:true,
+  },{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
 }
 
 /* ═══════════════════ INIT ═════════════════════════ */
