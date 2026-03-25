@@ -1,0 +1,15 @@
+#!/bin/bash
+# mcce4-gui — Launch the MCCE4 web GUI
+# Place this in MCCE4-Alpha/bin/ alongside mcce4_gui/
+#
+# Usage:
+#   mcce4-gui                             # start on localhost:8080
+#   mcce4-gui --port 9090                 # custom port
+#   mcce4-gui --no-browser                # for SSH sessions
+#   mcce4-gui --mcce-home ~/MCCE4         # set MCCE_HOME explicitly
+#
+# The MCCE4-Alpha/bin directory should already be on your PATH
+# from the MCCE4 installation setup.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHONPATH="${SCRIPT_DIR}:${PYTHONPATH}" exec python -m mcce4_gui "$@"

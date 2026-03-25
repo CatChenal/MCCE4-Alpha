@@ -1,0 +1,7 @@
+# mcce4_gui dependencies
+# Install: pip install -r requirements.txt
+
+fastapi>=0.100.0
+uvicorn[standard]>=0.20.0
+python-multipart>=0.0.5
+websockets>=10.0
