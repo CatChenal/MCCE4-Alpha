@@ -156,7 +156,7 @@ provision:
       apt-get install -y --no-install-recommends \
           build-essential gcc g++ gfortran make cmake \
           curl wget git ca-certificates file \
-          software-properties-common
+          software-properties-common libstdc++6
 
       # x86_64 cross-architecture support for Rosetta.
       # delphi_precompiled is an x86_64 ELF that needs the x86_64 dynamic

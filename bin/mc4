@@ -89,6 +89,11 @@ lima_exec() {
         fi
         conda activate mc4 2>/dev/null
         export PATH=\"$BIN_DIR:$PROJECT_ROOT_DIR/MCCE_bin:\$PATH\"
+
+        # Ensure system shared libraries (libstdc++, libgfortran, etc.) are findable.
+        # Conda can shadow the system paths via LD_LIBRARY_PATH.
+        export LD_LIBRARY_PATH=\"/usr/lib/\$(uname -m)-linux-gnu:/usr/lib64:\${LD_LIBRARY_PATH:-}\"
+
         cd '$cwd'
         exec \"\$@\"
     " -- "$@"
