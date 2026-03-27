@@ -127,23 +127,41 @@ def node_llm_reasoning(state: AgentState) -> AgentState:
         for s in states
     )
 
+    # Include ionizable sites so LLM can reference PDB atom names
+    ionizable = state.get("_ionizable_sites", [])
+    sites_desc = ""
+    if ionizable:
+        sites_desc = "\nIonizable sites detected (PDB atom names):\n"
+        for site in ionizable:
+            sites_desc += (
+                f"  - {site['name']} ({site['symbol']}): {site['type']}, "
+                f"current H count={site['current_hs']}\n"
+            )
+
     result = llm.ask_json(f"""You are a computational chemistry expert for MCCE simulations.
 
 Analyze this ligand for MCCE topology file creation:
   Name: {state.get('name', '')}
   Formula: {state.get('formula', '')}
   SMILES: {state.get('smiles', '')}
-
-Proposed protonation states:
+{sites_desc}
+Proposed protonation states from Dimorphite-DL:
 {states_desc}
 
+IMPORTANT RULES:
+  - Use MCCE label conventions: "01" for neutral, "+1" for protonated,
+    "-1" for deprotonated. Do NOT use "02", "03", "04" etc.
+  - For the site_atom field, use the EXACT PDB atom name from the
+    ionizable sites list above (e.g., "N19" not "morpholine nitrogen").
+  - For proton_exchange, specify which PDB atom name gains/loses a proton
+    (e.g., "+H on N19" or "-H from O20").
+
 For each state, provide:
-  1. Estimated pKa and protonation site atom name
+  1. Estimated pKa and the PDB atom name of the protonation site
   2. EXACTLY which proton(s) are added or removed vs the neutral form
-     (e.g., "+H on N1 piperidine nitrogen" or "-H from O3 carboxyl")
+     using the PDB atom name (e.g., "+H on N19 (morpholine N)")
   3. Literature references: cite academic papers, textbooks, or trusted
-     databases (PubChem, DrugBank, IUPHAR) that support this pKa or
-     protonation behavior. Provide DOI or URL where possible.
+     databases (PubChem, DrugBank, IUPHAR). Provide DOI or URL.
 
 Add any missing states relevant at pH 7.4.
 Flag any warnings (metals, unusual chemistry, etc.).
@@ -156,7 +174,14 @@ Respond ONLY in JSON (no markdown fences):
       "site_atom": null,
       "rationale": "neutral form — reference state",
       "proton_exchange": "none (neutral reference)",
-      "references": ["PubChem CID 12345", "DrugBank DB00001"]
+      "references": ["PubChem CID 12345"]
+    }},
+    {{
+      "label": "+1", "charge": 1, "nH": 1, "pka": 8.5,
+      "site_atom": "N19",
+      "rationale": "protonation at morpholine nitrogen",
+      "proton_exchange": "+H on N19 (morpholine nitrogen)",
+      "references": ["doi:10.xxxx/yyyy"]
     }}
   ],
   "warnings": [],
@@ -164,26 +189,38 @@ Respond ONLY in JSON (no markdown fences):
 }}""")
 
     if result and "states" in result:
-        # Build lookup of original Dimorphite-DL SMILES by label and by charge
+        # Build lookup of original Dimorphite-DL data by label and by charge
         orig_states = state.get("states", [])
         smiles_by_label = {}
         smiles_by_charge = {}
+        label_by_charge = {}  # preserve original MCCE-convention labels
         for os_dict in orig_states:
             smi = os_dict.get("smiles", "")
+            lbl = os_dict.get("label", "")
+            chg = os_dict.get("charge", 0)
             if smi:
-                smiles_by_label[os_dict.get("label", "")] = smi
-                smiles_by_charge[os_dict.get("charge", 0)] = smi
+                smiles_by_label[lbl] = smi
+                smiles_by_charge[chg] = smi
+            if lbl:
+                label_by_charge[chg] = lbl
 
         refined = []
         for s in result["states"]:
-            label = s["label"]
+            llm_label = s["label"]
             charge = int(s.get("charge", 0) or 0)
+
+            # Prefer Dimorphite-DL label over LLM label — MCCE convention
+            # Dimorphite uses +1/-1/01, LLM may say 02/03/04
+            label = label_by_charge.get(charge, llm_label)
+            if label != llm_label:
+                logging.info(f"  Label override: LLM='{llm_label}' → Dimorphite='{label}' (charge={charge:+d})")
 
             # Preserve SMILES from Dimorphite-DL — LLM rarely returns them
             llm_smiles = s.get("smiles", "")
             preserved_smiles = (
                 llm_smiles
                 or smiles_by_label.get(label, "")
+                or smiles_by_label.get(llm_label, "")
                 or smiles_by_charge.get(charge, "")
             )
 

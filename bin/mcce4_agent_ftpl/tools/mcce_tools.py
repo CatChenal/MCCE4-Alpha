@@ -140,7 +140,16 @@ def update_conformer_params(ftpl_path: str, states: list, lig_id: str):
     for s in states:
         ct = f"{lig_id}{s['label']}" if isinstance(s, dict) else f"{lig_id}{s.label}"
         nH = (s.get('nH', 0) if isinstance(s, dict) else s.nH) or 0
-        pka = (s.get('pka', 0) if isinstance(s, dict) else s.pka) or 0.0
+        try:
+            nH = int(nH)
+        except (ValueError, TypeError):
+            nH = 0
+
+        pka_raw = (s.get('pka', 0) if isinstance(s, dict) else s.pka)
+        try:
+            pka = float(str(pka_raw).lstrip("~≈><≥≤ ")) if pka_raw is not None else 0.0
+        except (ValueError, TypeError):
+            pka = 0.0
 
         p = re.compile(rf"(CONFORMER,\s*{re.escape(ct)}:.*?nH=)\s*(\d+)")
         if p.search(content):
@@ -216,31 +225,66 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
 
 
 def parse_head3_dsolv(head3_path: str, lig_id: str, labels: list) -> dict:
-    """Parse most negative dsolv per conformer type from head3.lst."""
+    """Parse most negative dsolv per conformer type from head3.lst.
+
+    head3.lst format:
+    iConf CONFORMER     FL  occ  crg  Em0 pKa0 ne nH vdw0 vdw1 tors epol dsolv extra history
+    00001 EMH01_0000_001 f 0.00 0.000  0  0.00  0  0 -15.9 0.0  0.0  0.0  -8.1  0.0 01O000 t
+
+    For each conformer type (e.g., EMH01, EMH+1), take the most negative dsolv.
+    """
     if not os.path.exists(head3_path):
         return {}
     with open(head3_path) as f:
         lines = f.readlines()
+
     types = [f"{lig_id}{l}" for l in labels]
+    logging.info(f"  Looking for conformer types: {types}")
+
+    # Find dsolv column from header
     header = next((l for l in lines if "dsolv" in l.lower() and "iConf" in l), None)
     if not header:
+        logging.warning("  No header with 'dsolv' found in head3.lst")
         return {}
     try:
         col = header.split().index("dsolv")
     except ValueError:
+        logging.warning("  'dsolv' column not found in header")
         return {}
+    logging.info(f"  dsolv is column {col} in head3.lst")
+
     vals = {t: 0.0 for t in types}
+    found_any = {t: False for t in types}
+
     for line in lines:
+        if line.strip().startswith("iConf") or not line.strip():
+            continue
+        parts = line.split()
+        if len(parts) <= col:
+            continue
+        # CONFORMER name is parts[1], e.g., "EMH01_0000_001" or "EMH+1_0000_003"
+        if len(parts) < 2:
+            continue
+        conf_name = parts[1]
+
         for t in types:
-            if t in line and not line.strip().startswith("iConf"):
-                parts = line.split()
-                if len(parts) > col:
-                    try:
-                        v = float(parts[col])
-                        if v < vals[t]:
-                            vals[t] = v
-                    except (ValueError, IndexError):
-                        pass
+            # Match conformer type: "EMH01" is prefix of "EMH01_0000_001"
+            if conf_name.startswith(t):
+                try:
+                    v = float(parts[col])
+                    found_any[t] = True
+                    if v < vals[t]:
+                        vals[t] = v
+                        logging.info(f"    {t}: dsolv={v:.3f} (from {conf_name})")
+                except (ValueError, IndexError):
+                    pass
+
+    for t in types:
+        if not found_any[t]:
+            logging.warning(f"  ⚠ No conformers found for {t} in head3.lst")
+        else:
+            logging.info(f"  📊 {t}: most negative dsolv = {vals[t]:.3f}")
+
     return vals
 
 

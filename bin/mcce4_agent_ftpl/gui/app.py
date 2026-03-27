@@ -514,16 +514,69 @@ with tab_states:
             key="state_editor"
         )
 
-        # Merge edits back into state dicts
+        # Merge edits back into state dicts — INCLUDING label changes
         if edited_df is not None:
+            old_labels = [
+                (s.get("label", "?") if isinstance(s, dict) else s.label)
+                for s in states
+            ]
+            label_remap = {}  # old_label → new_label
+
             for i, row in edited_df.iterrows():
                 if i < len(states):
                     orig = states[i] if isinstance(states[i], dict) else states[i].to_dict()
+                    new_label = str(row.get("Label", orig.get("label", "?")))
+                    old_label = orig.get("label", "?")
+
+                    if new_label != old_label:
+                        label_remap[old_label] = new_label
+                        logging.info(f"  Label change: {old_label} → {new_label}")
+
+                    orig["label"] = new_label
+                    try:
+                        orig["charge"] = int(row.get("Charge", orig.get("charge", 0)) or 0)
+                    except (ValueError, TypeError):
+                        pass
+                    try:
+                        orig["nH"] = int(row.get("nH", orig.get("nH", 0)) or 0)
+                    except (ValueError, TypeError):
+                        pass
                     orig["pka"] = row.get("pKa")
                     orig["rationale"] = row.get("Rationale", "")
                     orig["proton_exchange"] = row.get("Proton Exchange", "")
                     states[i] = orig
+
             st.session_state["states"] = states
+
+            # Propagate label renames to agent_state keys
+            if label_remap and agent_state:
+                # Update state_pdbs keys
+                if agent_state.get("state_pdbs"):
+                    new_pdbs = {}
+                    for old_lbl, pdb_path in agent_state["state_pdbs"].items():
+                        new_lbl = label_remap.get(old_lbl, old_lbl)
+                        new_pdbs[new_lbl] = pdb_path
+                    agent_state["state_pdbs"] = new_pdbs
+
+                # Update h_diffs keys
+                if agent_state.get("h_diffs"):
+                    new_diffs = {}
+                    for old_lbl, diff in agent_state["h_diffs"].items():
+                        new_lbl = label_remap.get(old_lbl, old_lbl)
+                        new_diffs[new_lbl] = diff
+                    agent_state["h_diffs"] = new_diffs
+
+                # Update conformer_labels
+                agent_state["conformer_labels"] = [
+                    (s.get("label") if isinstance(s, dict) else s.label)
+                    for s in states
+                ]
+
+                st.session_state["agent_state"] = agent_state
+
+        # Apply changes button — refreshes the page with updated labels
+        if st.button("🔄 Apply Table Changes", help="Refresh page after editing labels or parameters"):
+            st.rerun()
 
         # ══════════════════════════════════════════════════════════════════
         # SECTION 3: Add custom state via ionizable site selector (not Ketcher)
