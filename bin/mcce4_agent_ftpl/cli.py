@@ -82,7 +82,7 @@ def main():
     setup_logging(f"mcce4_agent_ftpl_{lig_id}.log", args.verbose)
 
     logging.info(f"{'='*60}")
-    logging.info(f"  🤖 MCCE4 Topology Agent v3.0 (LangGraph + per-state PDBs)")
+    logging.info(f"  🤖 MCCE4 Topology Agent v4.0 (LangGraph + per-state PDBs)")
     logging.info(f"{'='*60}")
     logging.info(f"  Input:  {os.path.abspath(args.pdb)}")
     logging.info(f"  Ligand: {lig_id}   pH: {args.ph}   Method: {args.charge_method}")
@@ -121,6 +121,55 @@ def launch_gui(args):
         print(f"ERROR: GUI app not found at {gui_path}")
         sys.exit(1)
 
+    port = 8501
+
+    # Check if port is already in use and handle it
+    if _is_port_in_use(port):
+        print(f"⚠  Port {port} is already in use (previous Streamlit session?).")
+        print()
+
+        # Try to find the PID
+        pid = _find_pid_on_port(port)
+        if pid:
+            print(f"   Found process PID {pid} on port {port}.")
+            try:
+                response = input(f"   Kill it and restart? [Y/n] ").strip().lower()
+            except EOFError:
+                response = "y"
+
+            if response in ("", "y", "yes"):
+                import signal
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                    print(f"   Killed PID {pid}. Waiting for port to free...")
+                    import time
+                    for _ in range(10):
+                        time.sleep(0.5)
+                        if not _is_port_in_use(port):
+                            break
+                    if _is_port_in_use(port):
+                        os.kill(pid, signal.SIGKILL)
+                        time.sleep(1)
+                except ProcessLookupError:
+                    pass  # Already dead
+                except PermissionError:
+                    print(f"   Permission denied. Run manually:")
+                    print(f"     kill {pid}")
+                    print(f"   Then rerun this command.")
+                    sys.exit(1)
+            else:
+                print(f"\n   To free the port manually, run:")
+                print(f"     kill {pid}")
+                print(f"   Or use a different port:")
+                print(f"     streamlit run {gui_path} --server.port 8502 -- {os.path.abspath(args.pdb)}")
+                sys.exit(1)
+        else:
+            print(f"   Could not identify the process. To free port {port}, run:")
+            print(f"     pkill -f 'streamlit run'")
+            print(f"     # or: kill $(lsof -ti:{port})")
+            print(f"   Then rerun this command.")
+            sys.exit(1)
+
     # Pass PDB path via environment so Streamlit can access it
     os.environ["MCCE_AGENT_PDB"] = os.path.abspath(args.pdb)
     os.environ["MCCE_AGENT_PH"] = str(args.ph)
@@ -128,15 +177,15 @@ def launch_gui(args):
 
     print(f"🌐 Launching MCCE4 Topology Agent GUI...")
     print(f"   PDB: {args.pdb}")
-    print(f"   Open your browser to: http://localhost:8501")
-    print(f"   (If remote: ssh -L 8501:localhost:8501 user@server)")
+    print(f"   Open your browser to: http://localhost:{port}")
+    print(f"   (If remote: ssh -L {port}:localhost:{port} user@server)")
     print()
 
     try:
         subprocess.run([
             sys.executable, "-m", "streamlit", "run", gui_path,
             "--server.headless", "true",
-            "--server.port", "8501",
+            "--server.port", str(port),
             "--browser.gatherUsageStats", "false",
         ])
     except KeyboardInterrupt:
@@ -144,6 +193,43 @@ def launch_gui(args):
     except FileNotFoundError:
         print("ERROR: Streamlit not installed — run: pip install streamlit")
         sys.exit(1)
+
+
+def _is_port_in_use(port: int) -> bool:
+    """Check if a TCP port is in use."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("localhost", port)) == 0
+
+
+def _find_pid_on_port(port: int):
+    """Find PID of process using the given port. Returns int or None."""
+    try:
+        result = subprocess.run(
+            ["lsof", "-ti", f":{port}"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            # May return multiple PIDs; take the first
+            return int(result.stdout.strip().split()[0])
+    except (FileNotFoundError, subprocess.TimeoutExpired, ValueError):
+        pass
+
+    # Fallback: try ss
+    try:
+        result = subprocess.run(
+            ["ss", "-tlnp", f"sport = :{port}"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            import re
+            m = re.search(r'pid=(\d+)', result.stdout)
+            if m:
+                return int(m.group(1))
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+
+    return None
 
 
 if __name__ == "__main__":

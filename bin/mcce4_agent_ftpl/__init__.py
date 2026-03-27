@@ -19,5 +19,5 @@ Usage:
     run_agent("EMH.pdb")
 """
 
-__version__ = "3.0.0"
+__version__ = "4.0.0"
 __author__ = "Gehan / MCCE4 Team (GunnerLab)"

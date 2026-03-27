@@ -308,9 +308,8 @@ with tab_states:
             st.markdown("---")
             st.markdown(
                 "#### Per-State Structures\n"
-                "H atoms labeled with PDB names. "
-                "🟢 **Green** = H added vs neutral. "
-                "🔵 **Blue** = ionizable site."
+                "All atoms labeled with PDB names. "
+                "🟢 **Green** = H atom added vs neutral."
             )
 
             cols_per_row = min(3, len(states))
@@ -327,64 +326,47 @@ with tab_states:
                     diff = h_diffs.get(label, {})
                     h_added = diff.get("added", []) or sd.get("h_added", [])
                     h_removed = diff.get("removed", []) or sd.get("h_removed", [])
-                    site_atom = sd.get("site_atom", "")
 
                     with col:
                         st.markdown(f"**{lig_id}{label}** (charge: {charge:+d})")
 
+                        # Determine which PDB to render:
+                        # 1. Per-state PDB (has correct H atoms for this state)
+                        # 2. Fallback to neutral PDB (at least shows the molecule)
                         pdb_for_state = state_pdbs.get(label) or sd.get("pdb_path")
-                        rendered = False
+                        if not pdb_for_state or not os.path.exists(str(pdb_for_state)):
+                            pdb_for_state = st.session_state.get("pdb_path")
 
+                        rendered = False
                         if pdb_for_state and os.path.exists(str(pdb_for_state)):
                             try:
                                 from mcce4_agent_ftpl.tools.rdkit_tools import (
-                                    render_protonation_site_view,
                                     mol_to_svg_with_h_diff,
                                 )
-                                # If we know the site atom, show focused view
-                                if site_atom and (h_added or h_removed):
-                                    svg = render_protonation_site_view(
-                                        pdb_for_state, site_atom,
-                                        h_added, lig_id, label,
-                                        size=(380, 320),
-                                    )
-                                    if svg:
-                                        st.image(svg, use_container_width=True)
-                                        rendered = True
-
-                                # Fallback: full molecule with H labels
-                                if not rendered:
-                                    svg = mol_to_svg_with_h_diff(
-                                        pdb_for_state, h_added, h_removed,
-                                        size=(380, 320),
-                                    )
-                                    if svg:
-                                        st.image(svg, use_container_width=True)
-                                        rendered = True
+                                svg = mol_to_svg_with_h_diff(
+                                    pdb_for_state, h_added, h_removed,
+                                    size=(550, 450),
+                                )
+                                if svg:
+                                    st.image(svg, use_container_width=True)
+                                    rendered = True
                             except Exception as e:
                                 st.warning(f"Render: {e}")
 
-                        # Fallback: SMILES rendering
                         if not rendered:
-                            smi = sd.get("smiles", "")
-                            if smi:
-                                mol = get_mol_from_smiles(smi)
-                                if mol:
-                                    svg_s = mol_to_svg(mol, size=(350, 280))
-                                    if svg_s:
-                                        st.image(svg_s, use_container_width=True)
+                            st.info(f"No structure available for {label}")
 
                         # H-diff annotations below each molecule
                         if h_added:
                             added_on = diff.get("added_on", {})
                             for h in h_added:
                                 parent = added_on.get(h, "?")
-                                st.markdown(f"🟢 **{h}** on {parent}")
+                                st.markdown(f"🟢 **{h}** added on **{parent}**")
                         if h_removed:
                             removed_from = diff.get("removed_from", {})
                             for h in h_removed:
                                 parent = removed_from.get(h, "?")
-                                st.markdown(f"🔴 **{h}** from {parent}")
+                                st.markdown(f"🔴 **{h}** removed from **{parent}**")
                         if label in ("01", "00"):
                             st.caption("_(neutral reference)_")
                         proton_ex = sd.get("proton_exchange", "")
@@ -392,8 +374,8 @@ with tab_states:
                             st.caption(f"Exchange: {proton_ex}")
 
         else:
-            # v2 fallback: single molecule view
-            pdb = st.session_state.get("pdb_path")
+            # No state_pdbs — render neutral PDB for all states
+            neutral_pdb = st.session_state.get("pdb_path")
             if pdb:
                 svg = mol_to_svg(pdb, size=(450, 350))
                 if svg:
@@ -726,7 +708,10 @@ with tab_states:
                 st.session_state["phase"] = "running"
                 st.session_state["approved"] = True
 
-                from mcce4_agent_ftpl.agent import resume_agent
+                from mcce4_agent_ftpl.agent import (
+                    node_generate_template, node_assign_charges,
+                    node_rxn_calibration, node_done,
+                )
 
                 agent_state = st.session_state["agent_state"]
                 agent_state["states"] = st.session_state["states"]
@@ -735,11 +720,71 @@ with tab_states:
                     for s in st.session_state["states"]
                 ]
                 agent_state["user_approved"] = True
+                agent_state["needs_user_review"] = False
 
-                with st.spinner("Agent is generating topology file..."):
-                    final = resume_agent(agent_state)
+                status = st.status("🔧 Generating topology file...", expanded=True)
+                generation_ok = True
 
-                st.session_state["agent_state"] = final
+                with status:
+                    # Phase 5: Template generation
+                    st.write("**Phase 5:** Generating per-state ftpl templates (pdb2ftpl.py)...")
+                    try:
+                        agent_state = node_generate_template(agent_state)
+                        if agent_state.get("errors"):
+                            for e in agent_state["errors"]:
+                                st.error(f"❌ {e}")
+                            generation_ok = False
+                        else:
+                            ftpl = agent_state.get("ftpl_path", "?")
+                            st.write(f"✅ Template: `{ftpl}`")
+                    except Exception as e:
+                        st.error(f"❌ Template generation failed: {e}")
+                        generation_ok = False
+
+                    # Phase 6: Charge assignment
+                    if generation_ok:
+                        st.write("**Phase 6:** Computing per-state charges...")
+                        try:
+                            agent_state = node_assign_charges(agent_state)
+                            if agent_state.get("complete"):
+                                for e in agent_state.get("errors", []):
+                                    st.error(f"❌ {e}")
+                                generation_ok = False
+                            else:
+                                n_states = len(agent_state.get("per_state_charges", {}))
+                                st.write(f"✅ Charges computed for {n_states} state(s)")
+                        except Exception as e:
+                            st.error(f"❌ Charge assignment failed: {e}")
+                            generation_ok = False
+
+                    # Phase 7: RXN calibration
+                    if generation_ok and not agent_state.get("dry_run", False):
+                        st.write("**Phase 7:** RXN calibration (step1 + step3 for each dielectric)...")
+                        try:
+                            agent_state = node_rxn_calibration(agent_state)
+                            rxn = agent_state.get("rxn_values", {})
+                            if isinstance(rxn, dict) and "error" not in str(rxn):
+                                st.write(f"✅ RXN calibration complete")
+                            else:
+                                st.warning(f"⚠ RXN calibration: {rxn}")
+                        except Exception as e:
+                            st.warning(f"⚠ RXN calibration failed: {e}")
+                    elif agent_state.get("dry_run", False):
+                        st.write("⏩ Dry run — RXN calibration skipped")
+
+                    # Done
+                    agent_state = node_done(agent_state)
+
+                    if agent_state.get("warnings"):
+                        for w in agent_state["warnings"]:
+                            st.warning(f"⚠ {w}")
+
+                if generation_ok:
+                    status.update(label="✅ Topology file generated!", state="complete")
+                else:
+                    status.update(label="❌ Generation failed — check errors above", state="error")
+
+                st.session_state["agent_state"] = agent_state
                 st.session_state["phase"] = "complete"
                 st.rerun()
 
@@ -789,5 +834,5 @@ with tab_output:
 # Footer
 # ──────────────────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption("MCCE4 Topology Agent v3.0 | GunnerLab | "
+st.caption("MCCE4 Topology Agent v4.0 | GunnerLab | "
            "[Tutorial](https://gunnerlab.github.io/mcce4_tutorial/docs/topology/)")

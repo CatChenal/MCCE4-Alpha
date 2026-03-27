@@ -289,12 +289,25 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
         label = sd["label"]
         smiles = sd.get("smiles", "")
         charge = int(sd.get('charge', 0) or 0)
+        site_atom = sd.get("site_atom", "")
 
-        if not smiles:
-            logging.warning(f"  No SMILES for state {label} — skipping PDB gen")
+        # Determine action from charge
+        if charge > 0:
+            action = "protonate"
+        elif charge < 0:
+            action = "deprotonate"
+        else:
+            action = None
+
+        # Skip if neutral — just copy
+        if label in ("01", "00"):
+            pass  # generate_state_pdb handles this
+        elif not smiles and not site_atom:
+            logging.warning(f"  No SMILES and no site_atom for state {label} — skipping")
             continue
 
-        logging.info(f"\n  Generating PDB for state {label} (charge={charge:+d})...")
+        logging.info(f"\n  Generating PDB for state {label} (charge={charge:+d}, "
+                     f"site={site_atom or 'auto'})...")
 
         pdb_out, added, removed = generate_state_pdb(
             neutral_pdb=pdb_path,
@@ -302,6 +315,8 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
             lig_id=lig_id,
             label=label,
             output_dir=state_pdbs_dir,
+            site_atom=site_atom or None,
+            action=action,
         )
 
         if pdb_out:

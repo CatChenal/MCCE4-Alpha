@@ -249,21 +249,21 @@ def get_ionizable_sites(mol) -> list:
     return sites
 
 
-def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir="."):
+def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
+                       site_atom=None, action=None):
     """Generate a PDB file for a specific protonation state.
 
-    Strategy:
-      1. Load neutral PDB as RDKit mol (keep all H)
-      2. Compare H counts per heavy atom between neutral and target SMILES
-      3. Add/remove H at specific sites
-      4. Write new PDB preserving atom naming conventions
+    v4: Tries site-based generation first (more reliable), then
+    falls back to SMILES-based comparison if site_atom is not provided.
 
     Args:
         neutral_pdb: Path to neutral PDB file
-        state_smiles: SMILES for this protonation state
+        state_smiles: SMILES for this protonation state (fallback)
         lig_id: 3-letter ligand code
         label: Conformer label (e.g., "+1", "-1")
         output_dir: Where to write the per-state PDB
+        site_atom: PDB atom name where protonation changes (e.g., "N19")
+        action: "protonate" or "deprotonate" (used with site_atom)
 
     Returns:
         (pdb_path, h_added_names, h_removed_names)
@@ -283,8 +283,22 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".")
         shutil.copy2(neutral_pdb, out_path)
         return out_path, [], []
 
+    # ── v4: Try DIRECT site-based generation first ──
+    if site_atom:
+        logging.info(f"  Using site-based PDB generation: {action} at {site_atom}")
+        result = _generate_pdb_by_site(
+            neutral_pdb, lig_id, label, output_dir, site_atom, action
+        )
+        if result[0] is not None:
+            return result
+        logging.warning(f"  Site-based generation failed, trying SMILES method...")
+
+    # ── Fallback: SMILES-based comparison ──
+    if not state_smiles:
+        logging.error(f"  No SMILES and no site_atom for state {label} — cannot generate PDB")
+        return None, [], []
+
     try:
-        # 1. Load neutral mol from PDB (with H)
         neutral_mol = Chem.MolFromPDBFile(neutral_pdb, removeHs=False, sanitize=True)
         if neutral_mol is None:
             neutral_mol = Chem.MolFromPDBFile(neutral_pdb, removeHs=False, sanitize=False)
@@ -292,18 +306,15 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".")
             logging.error(f"Cannot load neutral PDB: {neutral_pdb}")
             return None, [], []
 
-        # 2. Build target mol from SMILES
         target_mol = Chem.MolFromSmiles(state_smiles)
         if target_mol is None:
             logging.error(f"Cannot parse state SMILES: {state_smiles}")
             return None, [], []
         target_mol = Chem.AddHs(target_mol)
 
-        # 3. Compare H counts per heavy atom
         neutral_hc = _count_h_per_heavy(neutral_mol)
         target_hc = _map_target_h_counts(neutral_mol, target_mol)
 
-        # 4. Determine what to add/remove
         h_to_add = []
         h_to_remove = []
         for heavy_idx, n_count in neutral_hc.items():
@@ -314,14 +325,19 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".")
             elif diff < 0:
                 h_to_remove.append((heavy_idx, abs(diff)))
 
-        # 5. Apply modifications
+        if not h_to_add and not h_to_remove:
+            logging.warning(f"  SMILES comparison found no H differences for {label}")
+            # Still write a copy so it's available
+            out_path = os.path.join(output_dir, f"{lig_id}_{label.replace('+','p').replace('-','m')}.pdb")
+            shutil.copy2(neutral_pdb, out_path)
+            return out_path, [], []
+
         state_mol, added_names, removed_names = _modify_mol_hydrogens(
             neutral_mol, neutral_pdb, h_to_add, h_to_remove, lig_id, label
         )
         if state_mol is None:
             return None, [], []
 
-        # 6. Write PDB
         safe_label = label.replace('+', 'p').replace('-', 'm')
         out_path = os.path.join(output_dir, f"{lig_id}_{safe_label}.pdb")
         _write_state_pdb(state_mol, neutral_pdb, out_path, lig_id,
@@ -336,6 +352,196 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".")
         import traceback
         traceback.print_exc()
         return None, [], []
+
+
+def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
+                           site_atom, action):
+    """Generate per-state PDB by directly adding/removing H at a named atom.
+
+    This is the v4 PRIMARY method — much more reliable than SMILES comparison
+    because it works directly with PDB atom names.
+
+    Args:
+        neutral_pdb: Path to neutral PDB
+        lig_id: Ligand code
+        label: Conformer label
+        output_dir: Output directory
+        site_atom: PDB atom name (e.g., "N19")
+        action: "protonate" (add H) or "deprotonate" (remove H)
+
+    Returns:
+        (pdb_path, h_added_names, h_removed_names)
+    """
+    import shutil
+
+    # Read original PDB lines
+    with open(neutral_pdb) as f:
+        orig_lines = f.readlines()
+
+    # Parse atoms from PDB
+    atoms = []  # list of (serial, name, line)
+    conect_lines = []
+    other_lines = []
+    max_serial = 0
+
+    for line in orig_lines:
+        if line.startswith(("ATOM", "HETATM")):
+            serial = int(line[6:11].strip())
+            name = line[12:16].strip()
+            x = float(line[30:38])
+            y = float(line[38:46])
+            z = float(line[46:54])
+            element = line[76:78].strip() if len(line) > 76 else ""
+            atoms.append({
+                "serial": serial, "name": name,
+                "x": x, "y": y, "z": z,
+                "element": element, "line": line,
+            })
+            max_serial = max(max_serial, serial)
+        elif line.startswith("CONECT"):
+            conect_lines.append(line)
+        elif not line.startswith("END"):
+            other_lines.append(line)
+
+    # Find the target site atom
+    site_info = None
+    for a in atoms:
+        if a["name"] == site_atom:
+            site_info = a
+            break
+
+    if site_info is None:
+        logging.error(f"  Site atom '{site_atom}' not found in PDB")
+        return None, [], []
+
+    safe_label = label.replace('+', 'p').replace('-', 'm')
+    out_path = os.path.join(output_dir, f"{lig_id}_{safe_label}.pdb")
+
+    added_names = []
+    removed_names = []
+
+    if action == "protonate":
+        # Add an H atom bonded to the site atom
+        h_name = _make_h_name_from_pdb(site_atom, [a["name"] for a in atoms])
+        new_serial = max_serial + 1
+
+        # Position the H ~1.0 Å from the site atom in +x direction
+        # (crude — but 3D coords will be refined by downstream tools)
+        h_x = site_info["x"] + 1.0
+        h_y = site_info["y"]
+        h_z = site_info["z"]
+
+        h_line = (
+            f"HETATM{new_serial:5d}  {h_name:<3s} {lig_id:>3s} L   1    "
+            f"{h_x:8.3f}{h_y:8.3f}{h_z:8.3f}  1.00  0.00           H  \n"
+        )
+
+        # Write PDB: all original atoms + new H
+        with open(out_path, "w") as f:
+            for line in other_lines:
+                f.write(line)
+            for a in atoms:
+                f.write(a["line"])
+            f.write(h_line)
+            # Update CONECT: add bond between site atom and new H
+            for cl in conect_lines:
+                f.write(cl)
+            f.write(f"CONECT{site_info['serial']:5d}{new_serial:5d}\n")
+            f.write(f"CONECT{new_serial:5d}{site_info['serial']:5d}\n")
+            f.write("END\n")
+
+        added_names = [h_name]
+        logging.info(f"  Added {h_name} on {site_atom} → {out_path}")
+
+    elif action == "deprotonate":
+        # Find an H atom bonded to the site atom (via CONECT or proximity)
+        h_to_remove = _find_h_on_atom(atoms, conect_lines, site_atom)
+
+        if not h_to_remove:
+            logging.error(f"  No H atom found on {site_atom} to remove")
+            return None, [], []
+
+        h_name = h_to_remove["name"]
+        h_serial = h_to_remove["serial"]
+
+        # Write PDB without this H atom
+        with open(out_path, "w") as f:
+            for line in other_lines:
+                f.write(line)
+            for a in atoms:
+                if a["serial"] != h_serial:
+                    f.write(a["line"])
+            # Remove this H from CONECT records
+            for cl in conect_lines:
+                if f"{h_serial:5d}" not in cl[6:]:
+                    f.write(cl)
+            f.write("END\n")
+
+        removed_names = [h_name]
+        logging.info(f"  Removed {h_name} from {site_atom} → {out_path}")
+
+    else:
+        logging.error(f"  Unknown action '{action}' for site-based PDB gen")
+        return None, [], []
+
+    return out_path, added_names, removed_names
+
+
+def _make_h_name_from_pdb(site_name, existing_names):
+    """Generate H atom name for a site. H on N19 → HN19, then HN1A etc."""
+    base = f"H{site_name}"[:4]
+    if base not in existing_names:
+        return base
+    for suffix in "ABCDEFGH":
+        candidate = f"{base[:3]}{suffix}"[:4]
+        if candidate not in existing_names:
+            return candidate
+    return base
+
+
+def _find_h_on_atom(atoms, conect_lines, site_name):
+    """Find an H atom bonded to the named atom, via CONECT or proximity."""
+    # Find site serial
+    site_serial = None
+    site_pos = None
+    for a in atoms:
+        if a["name"] == site_name:
+            site_serial = a["serial"]
+            site_pos = (a["x"], a["y"], a["z"])
+            break
+    if site_serial is None:
+        return None
+
+    # Try CONECT records first
+    bonded_serials = set()
+    for cl in conect_lines:
+        parts = cl[6:].split()
+        if not parts:
+            continue
+        try:
+            s = int(parts[0])
+            if s == site_serial:
+                for p in parts[1:]:
+                    bonded_serials.add(int(p))
+        except ValueError:
+            continue
+
+    # Find H atoms bonded to site
+    for a in atoms:
+        if a["serial"] in bonded_serials and (a["element"] == "H" or a["name"].startswith("H")):
+            return a
+
+    # Fallback: proximity (< 1.3 Å)
+    if site_pos:
+        for a in atoms:
+            if a["element"] == "H" or a["name"].startswith("H"):
+                dist = ((a["x"] - site_pos[0])**2 +
+                        (a["y"] - site_pos[1])**2 +
+                        (a["z"] - site_pos[2])**2) ** 0.5
+                if dist < 1.3:
+                    return a
+
+    return None
 
 
 def compute_h_diff(neutral_pdb, state_pdb):
@@ -363,11 +569,11 @@ def compute_h_diff(neutral_pdb, state_pdb):
 
 
 def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
-                           size=(450, 350)):
-    """Render molecule SVG highlighting added (green) and removed (red) H sites.
+                           size=(550, 450)):
+    """Render molecule SVG with ALL atoms labeled by PDB name.
 
-    Shows PDB atom name labels on ALL H atoms near the changed sites
-    so the user can see exactly which hydrogens differ.
+    v4: Labels EVERY atom (C, N, O, H, etc.) with its PDB atom name.
+    Highlights added H in green, removal sites in red.
     """
     try:
         from rdkit import Chem
@@ -383,10 +589,9 @@ def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
 
         AllChem.Compute2DCoords(mol)
 
-        # Map PDB atom names to indices
+        # Map PDB atom names to indices and build labels
         added_indices = []
-        all_h_indices = []
-        name_map = {}  # idx → PDB name
+        name_map = {}
         for atom in mol.GetAtoms():
             info = atom.GetPDBResidueInfo()
             if info:
@@ -394,44 +599,32 @@ def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
                 name_map[atom.GetIdx()] = name
                 if name in h_added_names:
                     added_indices.append(atom.GetIdx())
-                if atom.GetAtomicNum() == 1:
-                    all_h_indices.append(atom.GetIdx())
 
-        # Find parent heavy atoms of removed H (they won't be in this mol)
-        removed_parent_indices = []
-        # h_removed_names are H atoms that existed in neutral but not here
-        # We can't show them, but we can mark their parent sites
-
-        # Build highlight + color maps
+        # Build highlight colors
         highlight_atoms = list(added_indices)
         colors = {}
         for idx in added_indices:
-            colors[idx] = (0.3, 0.9, 0.3)  # green
+            colors[idx] = (0.3, 0.9, 0.3)  # green for added H
 
-        # Set atom labels: show PDB names on H atoms and changed sites
         drawer = rdMolDraw2D.MolDraw2DSVG(size[0], size[1])
         opts = drawer.drawOptions()
         opts.addAtomIndices = False
         opts.addStereoAnnotation = False
+        opts.bondLineWidth = 1.5
+        opts.multipleBondOffset = 0.15
+        opts.padding = 0.1
 
-        # Label ALL H atoms with their PDB name so user can see them
-        for h_idx in all_h_indices:
-            opts.atomLabels[h_idx] = name_map.get(h_idx, "H")
-
-        # Also label the parent heavy atoms of added H
-        for h_idx in added_indices:
-            atom = mol.GetAtomWithIdx(h_idx)
-            for nbr in atom.GetNeighbors():
-                if nbr.GetAtomicNum() != 1:
-                    parent_name = name_map.get(nbr.GetIdx(), "")
-                    if parent_name:
-                        opts.atomLabels[nbr.GetIdx()] = parent_name
+        # v4: Label EVERY atom with its PDB name
+        for idx, name in name_map.items():
+            opts.atomLabels[idx] = name
 
         if highlight_atoms:
             drawer.DrawMolecule(mol, highlightAtoms=highlight_atoms,
                                 highlightAtomColors=colors)
         else:
             drawer.DrawMolecule(mol)
+        drawer.FinishDrawing()
+        return drawer.GetDrawingText()
         drawer.FinishDrawing()
         return drawer.GetDrawingText()
 
