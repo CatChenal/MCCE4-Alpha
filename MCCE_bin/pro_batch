@@ -110,12 +110,11 @@ class JobPool:
 class SlurmPool:
     """Manages Slurm job submissions with a concurrency limit by polling squeue."""
 
-    SLURM_JOB_NAME = "mcce_batch"
-
     def __init__(self, max_jobs: int = DEFAULT_MAX_JOBS, nice: int = DEFAULT_SLURM_NICE,
-                 poll_interval: float = 30.0):
+                 job_name: str = "mcce_batch", poll_interval: float = 30.0):
         self.max_jobs = max_jobs
         self.nice = nice
+        self.job_name = job_name
         self.poll_interval = poll_interval
         self.submitted = []  # all protein names submitted
 
@@ -123,7 +122,7 @@ class SlurmPool:
         """Count our active (running + pending) Slurm jobs by job name."""
         try:
             result = subprocess.run(
-                ["squeue", "--me", "--name", self.SLURM_JOB_NAME,
+                ["squeue", "--me", "--name", self.job_name,
                  "--noheader", "--states", "R,PD"],
                 capture_output=True, text=True, timeout=15
             )
@@ -157,7 +156,7 @@ class SlurmPool:
         self.wait_for_slot()
 
         cmd = ["sbatch", f"--nice={self.nice}",
-               f"--job-name={self.SLURM_JOB_NAME}", script_name]
+               f"--job-name={self.job_name}", script_name]
         result = subprocess.run(cmd, cwd=str(p_dir), capture_output=True, text=True)
 
         if result.returncode == 0:
@@ -174,8 +173,8 @@ class SlurmPool:
         print(f"Slurm Summary: {len(self.submitted)} jobs submitted")
         print(f"  Nice priority : {self.nice}")
         print(f"  Max concurrent: {self.max_jobs}")
-        print(f"  Job name      : {self.SLURM_JOB_NAME}")
-        print(f"  Check status  : squeue --me --name {self.SLURM_JOB_NAME}")
+        print(f"  Job name      : {self.job_name}")
+        print(f"  Check status  : squeue --me --name {self.job_name}")
         print(f"{'=' * 45}")
 
 
@@ -315,6 +314,9 @@ def protein_batch():
     parser.add_argument("--no_slurm", action="store_true", default=False,
                         help="Run jobs directly via bash instead of the Slurm scheduler. "
                              "Jobs are still low priority (nice 10) unless --nice is set.")
+    parser.add_argument("--job_name", type=str, default="mcce_batch",
+                        help="Slurm job name for tracking (default: mcce_batch). "
+                             "Used with squeue --name to monitor your batch.")
     parser.add_argument("--check", action="store_true", help="Update book.txt status and exit.")
     args = parser.parse_args()
 
@@ -394,7 +396,7 @@ def protein_batch():
         mode_str = f"bash (max {args.jobs} concurrent, nice {nice})"
     else:
         nice = args.nice if args.nice is not None else DEFAULT_SLURM_NICE
-        pool = SlurmPool(max_jobs=args.jobs, nice=nice)
+        pool = SlurmPool(max_jobs=args.jobs, nice=nice, job_name=args.job_name)
         mode_str = f"Slurm (max {args.jobs} concurrent, nice {nice})"
 
     print(f"\nLaunching {len(final_targets)} runs via {mode_str}...")
@@ -403,12 +405,13 @@ def protein_batch():
         if fp.stem.upper() in final_targets:
             process_protein_file(fp, str(script_path), pool)
 
-    print("\nAll jobs submitted. Waiting for remaining jobs to finish...")
-    pool.wait_for_all()
+    if args.no_slurm:
+        print("\nAll jobs submitted. Waiting for remaining jobs to finish...")
+        pool.wait_for_all()
 
     update_book()
     pool.summary()
-    print(f"Monitor status in {BOOK}.")
+    print(f"Monitor status with: pro_batch {args.input_path} --check")
 
 
 if __name__ == "__main__":
