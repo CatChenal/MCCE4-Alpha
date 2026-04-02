@@ -625,8 +625,6 @@ def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
             drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         return drawer.GetDrawingText()
-        drawer.FinishDrawing()
-        return drawer.GetDrawingText()
 
     except Exception as e:
         logging.debug(f"  SVG H-diff rendering failed: {e}")

@@ -378,9 +378,11 @@ def generate_all_state_ftpls(lig_id, state_pdbs, output_dir="."):
 def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
     """Merge per-state ftpl files into a single master .ftpl.
 
-    Each state's ftpl has its own CONNECT and CHARGE blocks.
-    The merge takes header/metadata from neutral (01), then
-    combines all CONNECT, CHARGE, and CONFORMER blocks.
+    Each state's ftpl has its own CONNECT, CHARGE, RADIUS, and CONFORMER
+    blocks.  The merge:
+      1. Rebuilds CONFLIST to list ALL conformer states (not just neutral).
+      2. Combines CONNECT, CHARGE, RADIUS, and CONFORMER blocks from every
+         state in sorted label order.
 
     Returns True on success.
     """
@@ -388,8 +390,8 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
         logging.error("No ftpl files to merge")
         return False
 
-    # Use neutral as base
     neutral_label = "01" if "01" in per_state_ftpls else list(per_state_ftpls.keys())[0]
+    all_labels = sorted(per_state_ftpls.keys())
 
     parsed = {}
     for label, ftpl_path in per_state_ftpls.items():
@@ -398,55 +400,62 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
     base = parsed[neutral_label]
     merged = []
 
-    # Header (non-CONNECT, non-CHARGE, non-CONFORMER lines)
+    # ── Header: write section comment + merged CONFLIST ──
+    conftypes = ", ".join(f"{lig_id}{l}" for l in all_labels)
+    merged_conflist = f"CONFLIST, {lig_id}: {lig_id}BK, {conftypes}\n"
+    # Preserve any file-level comments (before the first CONFLIST/section line)
+    # and skip the per-section header comments that we re-emit below.
+    section_comments = {
+        "# conformer definition", "# atom name and bonds", "# atom charges",
+        "# atom radius", "# conformer parameters",
+    }
     for line in base["header"]:
-        merged.append(line)
+        stripped = line.strip().lower()
+        if stripped.startswith("conflist"):
+            merged.append(merged_conflist)
+        elif stripped in section_comments or stripped == "":
+            pass  # drop — we emit our own section headers below
+        else:
+            merged.append(line)
+    merged.append("\n")
 
-    # CONNECT blocks from all states
-    merged.append(f"# ── CONNECT records (per-state) {'─' * 40}\n")
-    for label in sorted(per_state_ftpls.keys()):
-        if label in parsed and parsed[label]["connect"]:
-            merged.append(f"# State {label}\n")
+    # ── CONNECT blocks from all states ──
+    merged.append(f"# ATOM name and bonds\n")
+    for label in all_labels:
+        if parsed[label]["connect"]:
             merged.extend(parsed[label]["connect"])
             merged.append("\n")
 
-    # CHARGE blocks from all states
-    merged.append(f"# ── CHARGE records (per-state) {'─' * 42}\n")
-    for label in sorted(per_state_ftpls.keys()):
-        if label in parsed and parsed[label]["charge"]:
-            merged.append(f"# State {label}\n")
+    # ── CHARGE blocks from all states ──
+    merged.append(f"# ATOM charges\n")
+    for label in all_labels:
+        if parsed[label]["charge"]:
             merged.extend(parsed[label]["charge"])
             merged.append("\n")
 
-    # CONFORMER lines
-    merged.append(f"# ── CONFORMER parameters {'─' * 47}\n")
-    for label in sorted(per_state_ftpls.keys()):
-        if label in parsed:
-            merged.extend(parsed[label]["conformer"])
+    # ── RADIUS blocks from all states ──
+    merged.append(f"# Atom radius, dielectric boundary radius, VDW radius, and energy well depth\n")
+    for label in all_labels:
+        if parsed[label].get("radius"):
+            merged.extend(parsed[label]["radius"])
+            merged.append("\n")
 
-    # Ensure rxn placeholders exist for all states
-    for label in sorted(per_state_ftpls.keys()):
-        ct = f"{lig_id}{label}"
-        for rxn_key in ["rxn02", "rxn04", "rxn08"]:
-            if not any(rxn_key in l and ct in l for l in merged):
-                merged.append(
-                    f"CONFORMER, {ct}: {rxn_key}=    0.000\n"
-                )
-
-    # Footer
-    merged.extend(base.get("footer", []))
+    # ── CONFORMER lines from all states ──
+    merged.append(f"# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn\n")
+    for label in all_labels:
+        merged.extend(parsed[label]["conformer"])
 
     with open(output_path, "w") as f:
         f.writelines(merged)
 
     logging.info(f"  Merged ftpl: {output_path}")
-    logging.info(f"    States: {', '.join(sorted(per_state_ftpls.keys()))}")
+    logging.info(f"    States: {', '.join(all_labels)}")
     return True
 
 
 def _parse_ftpl_sections(ftpl_path, lig_id):
-    """Parse a single-state ftpl into sections: header, connect, charge, conformer, footer."""
-    header, connect, charge, conformer, footer = [], [], [], [], []
+    """Parse a single-state ftpl into sections: header, connect, charge, radius, conformer."""
+    header, connect, charge, radius, conformer = [], [], [], [], []
     past_header = False
 
     with open(ftpl_path) as f:
@@ -458,16 +467,18 @@ def _parse_ftpl_sections(ftpl_path, lig_id):
             elif s.startswith("CHARGE"):
                 charge.append(line)
                 past_header = True
+            elif s.startswith("RADIUS"):
+                radius.append(line)
+                past_header = True
             elif s.startswith("CONFORMER"):
                 conformer.append(line)
                 past_header = True
             elif not past_header:
                 header.append(line)
-            else:
-                footer.append(line)
+            # blank/comment lines between sections are intentionally dropped
 
     return {"header": header, "connect": connect, "charge": charge,
-            "conformer": conformer, "footer": footer}
+            "radius": radius, "conformer": conformer}
 
 
 def fill_ftpl_charges_per_state(ftpl_path, per_state_charges, lig_id):
