@@ -25,11 +25,11 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
     state_smiles = [smiles]  # fallback
 
     try:
-        from dimorphite_dl.protonate import protonate_smiles
+        from dimorphite_dl import protonate_smiles
         results = protonate_smiles(
             smiles,
-            min_ph=ph - ph_tolerance,
-            max_ph=ph + ph_tolerance,
+            ph_min=ph - ph_tolerance,
+            ph_max=ph + ph_tolerance,
         )
         if results:
             state_smiles = list(set(results))

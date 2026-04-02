@@ -27,6 +27,7 @@ class GeminiLLM:
 
         try:
             from google import genai
+            logging.getLogger("google.genai").setLevel(logging.WARNING)
             self.client = genai.Client(api_key=api_key)
             self.available = True
             logging.info(f"🧠 LLM: {GEMINI_MODEL} (free tier)")
