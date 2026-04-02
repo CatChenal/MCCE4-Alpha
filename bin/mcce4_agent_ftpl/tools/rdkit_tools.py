@@ -237,9 +237,14 @@ def get_ionizable_sites(mol) -> list:
         n_hs = atom.GetTotalNumHs()
         fc = atom.GetFormalCharge()
 
-        if symbol == "N" and (n_hs > 0 or fc == 0):
-            sites.append({"idx": atom.GetIdx(), "name": name, "symbol": symbol,
-                          "type": "protonatable_N", "current_hs": n_hs, "formal_charge": fc})
+        if symbol == "N":
+            hybrid = atom.GetHybridization()
+            # Skip sp nitrogen (nitrile C≡N, isonitrile, etc.) — not ionizable at pH 7.4
+            if hybrid == Chem.rdchem.HybridizationType.SP:
+                continue
+            if n_hs > 0 or fc == 0:
+                sites.append({"idx": atom.GetIdx(), "name": name, "symbol": symbol,
+                              "type": "protonatable_N", "current_hs": n_hs, "formal_charge": fc})
         elif symbol == "O" and n_hs > 0:
             sites.append({"idx": atom.GetIdx(), "name": name, "symbol": symbol,
                           "type": "deprotonatable_OH", "current_hs": n_hs, "formal_charge": fc})
@@ -431,8 +436,11 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
         h_y = site_info["y"]
         h_z = site_info["z"]
 
+        # PDB atom name field: 4 chars. Names < 4 chars get a leading space;
+        # 4-char names (e.g. HC10, HN19) fill the field without a leading space.
+        _pdb_name = h_name if len(h_name) == 4 else f" {h_name:<3s}"
         h_line = (
-            f"HETATM{new_serial:5d}  {h_name:<3s} {lig_id:>3s} L   1    "
+            f"HETATM{new_serial:5d} {_pdb_name} {lig_id:>3s} L   1    "
             f"{h_x:8.3f}{h_y:8.3f}{h_z:8.3f}  1.00  0.00           H  \n"
         )
 
@@ -1046,7 +1054,8 @@ def _write_state_pdb(state_mol, orig_pdb, out_path, lig_id,
                 p = conf.GetAtomPosition(atom.GetIdx())
                 pos = (p.x, p.y, p.z)
                 break
-        hetatm = (f"HETATM{next_serial:5d}  {h_name:<3s} {lig_id:>3s} L   1    "
+        _pdb_name = h_name if len(h_name) == 4 else f" {h_name:<3s}"
+        hetatm = (f"HETATM{next_serial:5d} {_pdb_name} {lig_id:>3s} L   1    "
                   f"{pos[0]:8.3f}{pos[1]:8.3f}{pos[2]:8.3f}"
                   f"  1.00  0.00           H  \n")
         kept_lines.append(hetatm)

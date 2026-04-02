@@ -152,12 +152,13 @@ def update_conformer_params(ftpl_path: str, states: list, lig_id: str):
             pka = 0.0
 
         p = re.compile(rf"(CONFORMER,\s*{re.escape(ct)}:.*?nH=)\s*(\d+)")
-        if p.search(content):
-            content = p.sub(rf"\g<1>{nH}", content)
         p2 = re.compile(rf"(CONFORMER,\s*{re.escape(ct)}:.*?pKa0=)\s*([-\d.]+)")
-        if p2.search(content):
+        if p.search(content) and p2.search(content):
+            content = p.sub(rf"\g<1>{nH}", content)
             content = p2.sub(rf"\g<1>{pka:.2f}", content)
-        logging.info(f"  ✓ {ct}: nH={nH}, pKa0={pka:.2f}")
+            logging.info(f"  ✓ {ct}: nH={nH}, pKa0={pka:.2f}")
+        else:
+            logging.warning(f"  ⚠ {ct}: CONFORMER line not found in ftpl — skipping nH/pKa0 update")
 
     with open(ftpl_path, "w") as f:
         f.write(content)
@@ -362,10 +363,9 @@ def generate_all_state_ftpls(lig_id, state_pdbs, output_dir="."):
     ftpls = {}
     for label, pdb_path in state_pdbs.items():
         logging.info(f"\n  Generating ftpl for state {label}...")
-        # Copy state PDB to output_dir so pdb2ftpl can find it
+        # Copy state PDB to output_dir so pdb2ftpl can find it (always overwrite)
         pdb_dest = os.path.join(output_dir, os.path.basename(pdb_path))
-        if not os.path.exists(pdb_dest):
-            shutil.copy2(pdb_path, pdb_dest)
+        shutil.copy2(pdb_path, pdb_dest)
 
         ftpl = generate_ftpl_for_state(lig_id, pdb_path, label, output_dir)
         if ftpl:

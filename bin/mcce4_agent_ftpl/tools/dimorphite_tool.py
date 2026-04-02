@@ -4,7 +4,7 @@ Protonation state enumeration using Dimorphite-DL.
 
 import logging
 from typing import List
-from ..models import ConformerState
+from ..models import ConformerState, make_labels_unique
 from ..config import CHARGE_TO_CONF
 
 
@@ -49,9 +49,16 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
 
 
 def _smiles_to_states(smiles_list: list, ph: float) -> List[ConformerState]:
-    """Convert SMILES list to ConformerState objects with unique charges."""
+    """Convert SMILES list to ConformerState objects with one representative per charge.
+
+    Dimorphite-DL may return multiple tautomers with the same net charge.
+    We keep the first representative of each charge level (the ordering from
+    Dimorphite reflects pH proximity).  Distinct-charge variants are then
+    handled by make_labels_unique() only if the LLM or user later adds a
+    second state at the same charge.
+    """
     states = []
-    seen_charges = set()
+    seen_charges: set = set()
 
     try:
         from rdkit import Chem
@@ -81,4 +88,4 @@ def _smiles_to_states(smiles_list: list, ph: float) -> List[ConformerState]:
             source="fallback", rationale="No RDKit — assumed neutral"
         ))
 
-    return states
+    return make_labels_unique(states)

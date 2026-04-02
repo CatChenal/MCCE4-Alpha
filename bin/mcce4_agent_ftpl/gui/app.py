@@ -249,13 +249,13 @@ with tab_input:
                     for w in agent_state["warnings"]:
                         st.warning(w)
 
-                # Show captured log in an expander
+                # Show captured log — always expanded so the user can see processing
                 if log_text.strip():
-                    with st.expander("📋 Full agent log", expanded=False):
-                        st.code(log_text, language="text")
+                    st.markdown("**📋 Agent log:**")
+                    st.code(log_text, language="text")
 
             status.update(label="✅ Analysis complete — switch to **Conformer States** tab to review",
-                          state="complete", expanded=False)
+                          state="complete", expanded=True)
 
             st.session_state["agent_state"] = agent_state
             st.session_state["states"] = agent_state.get("states", [])
@@ -376,8 +376,8 @@ with tab_states:
         else:
             # No state_pdbs — render neutral PDB for all states
             neutral_pdb = st.session_state.get("pdb_path")
-            if pdb:
-                svg = mol_to_svg(pdb, size=(450, 350))
+            if neutral_pdb:
+                svg = mol_to_svg(neutral_pdb, size=(450, 350))
                 if svg:
                     st.image(svg, use_container_width=True)
                 if len(states) > 1:
@@ -722,6 +722,14 @@ with tab_states:
                 agent_state["user_approved"] = True
                 agent_state["needs_user_review"] = False
 
+                # Set up log capture for generation phases
+                import io as _io
+                gen_log_capture = _io.StringIO()
+                gen_log_handler = logging.StreamHandler(gen_log_capture)
+                gen_log_handler.setLevel(logging.INFO)
+                gen_log_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+                logging.getLogger().addHandler(gen_log_handler)
+
                 status = st.status("🔧 Generating topology file...", expanded=True)
                 generation_ok = True
 
@@ -779,10 +787,19 @@ with tab_states:
                         for w in agent_state["warnings"]:
                             st.warning(f"⚠ {w}")
 
+                    # Show generation log — always visible
+                    logging.getLogger().removeHandler(gen_log_handler)
+                    gen_log_text = gen_log_capture.getvalue()
+                    if gen_log_text.strip():
+                        st.markdown("**📋 Generation log:**")
+                        st.code(gen_log_text, language="text")
+
                 if generation_ok:
-                    status.update(label="✅ Topology file generated!", state="complete")
+                    status.update(label="✅ Topology file generated!", state="complete",
+                                  expanded=True)
                 else:
-                    status.update(label="❌ Generation failed — check errors above", state="error")
+                    status.update(label="❌ Generation failed — check errors above",
+                                  state="error", expanded=True)
 
                 st.session_state["agent_state"] = agent_state
                 st.session_state["phase"] = "complete"

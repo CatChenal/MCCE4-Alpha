@@ -47,6 +47,64 @@ class ConformerState:
                 f"nH={self.nH:+d}, source={self.source})")
 
 
+def make_labels_unique(states: list) -> list:
+    """Ensure all conformer state labels are distinct and ≤ 2 characters.
+
+    MCCE conformer type names are lig_id (3 chars) + label (≤ 2 chars),
+    so labels must not exceed 2 characters.
+
+    When multiple states share the same base label the disambiguation scheme
+    replaces the numeric part with a letter to stay within 2 chars:
+
+        '+1', '+1'  →  '+a', '+b'   (sign + letter)
+        '-1', '-1'  →  '-a', '-b'
+        '01', '01'  →  '0a', '0b'
+        '+2', '+2'  →  '2a', '2b'   (digit + letter, drop sign to fit)
+        '-2', '-2'  →  'Ma', 'Mb'   (M = minus, + letter)
+
+    A lone state keeps its original label.
+
+    Works with both ConformerState objects (mutated in place) and dicts
+    (replaced with a shallow copy).  Returns the modified list.
+    """
+    import logging
+    from collections import Counter
+
+    def _disambig(base: str, idx: int) -> str:
+        """Return a unique 2-char label for the idx-th duplicate of base."""
+        letter = chr(ord('a') + idx)
+        if base in ('+1', '-1', '01'):
+            return base[0] + letter          # '+a'/'-a'/'0a'
+        sign = base[0] if base[0] in ('+', '-') else ''
+        digit = base[1] if len(base) > 1 and base[1].isdigit() else base[0]
+        if sign == '+':
+            return digit + letter            # '2a', '3a', …
+        if sign == '-':
+            return 'M' + letter             # 'Ma', 'Mb', … (Minus)
+        return base[0] + letter             # fallback
+
+    label_counts = Counter(
+        s['label'] if isinstance(s, dict) else s.label for s in states
+    )
+    label_index: dict = {}
+    result = []
+    for s in states:
+        label = s['label'] if isinstance(s, dict) else s.label
+        if label_counts[label] > 1:
+            idx = label_index.get(label, 0)
+            new_label = _disambig(label, idx)
+            label_index[label] = idx + 1
+            logging.info(f"  Label disambiguated: '{label}' → '{new_label}'")
+        else:
+            new_label = label
+        if isinstance(s, dict):
+            s = {**s, 'label': new_label}
+        else:
+            s.label = new_label
+        result.append(s)
+    return result
+
+
 class AgentState(TypedDict, total=False):
     """State object for the LangGraph agent.
 

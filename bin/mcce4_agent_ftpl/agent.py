@@ -14,7 +14,7 @@ import logging
 from typing import Literal
 from datetime import datetime
 
-from .models import AgentState, ConformerState
+from .models import AgentState, ConformerState, make_labels_unique
 from .config import DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS, CHARGE_TO_CONF
 from .llm import GeminiLLM
 from .tools.mcce_tools import (
@@ -100,6 +100,7 @@ def node_enumerate_states(state: AgentState) -> AgentState:
         states = [ConformerState(label="01", charge=0, nH=0,
                                  source="fallback", rationale="Default neutral")]
 
+    states = make_labels_unique(states)
     state["states"] = [s.to_dict() for s in states]
     state["conformer_labels"] = [s.label for s in states]
     state["phase"] = "enumerate_states"
@@ -241,6 +242,7 @@ Respond ONLY in JSON (no markdown fences):
             else:
                 logging.warning(f"  State {label}: NO SMILES — per-state PDB will fail")
 
+        refined = make_labels_unique(refined)
         state["states"] = refined
         state["conformer_labels"] = [s["label"] for s in refined]
 
@@ -257,17 +259,31 @@ Respond ONLY in JSON (no markdown fences):
     return state
 
 
+def _read_pdb_atom_names(pdb_path: str) -> set:
+    """Return the set of atom names (stripped) present in a PDB file."""
+    names = set()
+    try:
+        with open(pdb_path) as f:
+            for line in f:
+                if line.startswith(("ATOM  ", "HETATM")):
+                    names.add(line[12:16].strip())
+    except Exception:
+        pass
+    return names
+
+
 def node_generate_state_pdbs(state: AgentState) -> AgentState:
     """PHASE 3b: Generate per-state PDBs with correct H atoms (v3).
 
     For each protonation state:
-      - Start from neutral PDB
-      - Use RDKit to add/remove H based on state SMILES
+      - Start from the PREVIOUS state's PDB (incremental protonation)
+      - Validate LLM site_atom against actual PDB atom names
+      - Fall back to detected ionizable sites when LLM gives a wrong name
       - Write per-state PDB (e.g., EMH_01.pdb, EMH_p1.pdb)
-      - Compute H-diff (which atoms differ from neutral)
+      - Compute H-diff vs neutral
 
-    This is the KEY v3 change: each state gets a real PDB with
-    correct atoms, so pdb2ftpl.py generates correct CONNECT records.
+    Incremental approach: +2 is built from +1, not from neutral.
+    This ensures each state correctly carries forward all previous protonations.
     """
     logging.info(f"\n{'─'*60}")
     logging.info(f"  PHASE 3b: Per-State PDB Generation (v3)")
@@ -280,16 +296,32 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
     state_pdbs_dir = os.path.join(work_dir, f"{lig_id}_state_pdbs")
     os.makedirs(state_pdbs_dir, exist_ok=True)
 
+    # Ionizable sites detected from the neutral PDB structure (reliable)
+    ionizable_sites = state.get("_ionizable_sites", [])
+    # Tertiary amines (fc=0, no H): best candidates for protonation
+    tertiary_amines = [
+        s for s in ionizable_sites
+        if s.get("type") == "protonatable_N" and s.get("current_hs", 0) == 0
+    ]
+    logging.info(f"  Detected tertiary amine sites for protonation: "
+                 f"{[s['name'] for s in tertiary_amines]}")
+
     state_pdbs = {}
     h_diffs = {}
     states = state.get("states", [])
 
-    for s in states:
+    # Sort states by charge so we build each from the previous one
+    sorted_states = sorted(states, key=lambda s: int(s.get('charge', 0) if isinstance(s, dict) else s.charge))
+
+    # Track which site atoms have been protonated across states
+    sites_used = []  # ordered list of site atom names protonated so far
+
+    for s in sorted_states:
         sd = s if isinstance(s, dict) else s.to_dict()
         label = sd["label"]
         smiles = sd.get("smiles", "")
         charge = int(sd.get('charge', 0) or 0)
-        site_atom = sd.get("site_atom", "")
+        llm_site_atom = (sd.get("site_atom") or "").strip()
 
         # Determine action from charge
         if charge > 0:
@@ -299,47 +331,93 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
         else:
             action = None
 
-        # Skip if neutral — just copy
-        if label in ("01", "00"):
-            pass  # generate_state_pdb handles this
-        elif not smiles and not site_atom:
-            logging.warning(f"  No SMILES and no site_atom for state {label} — skipping")
+        # Neutral state: just copy
+        if label in ("01", "00") or charge == 0:
+            logging.info(f"\n  Generating PDB for state {label} (neutral)...")
+            pdb_out, added, removed = generate_state_pdb(
+                neutral_pdb=pdb_path, state_smiles="",
+                lig_id=lig_id, label=label, output_dir=state_pdbs_dir,
+            )
+            if pdb_out:
+                state_pdbs[label] = pdb_out
+                if isinstance(s, dict):
+                    s["pdb_path"] = pdb_out
+                    s["h_added"] = []; s["h_removed"] = []; s["nH"] = 0
+                    s["proton_exchange"] = "none (neutral reference)"
+                h_diffs[label] = {"added": [], "removed": [], "added_on": {}, "removed_from": {}}
+            continue
+
+        # ── Non-neutral state: determine base PDB and site ──
+
+        # Base PDB: use charge-1 state if available, else neutral
+        prev_charge = charge - 1 if charge > 0 else charge + 1
+        base_label = next((
+            l for l, p in state_pdbs.items()
+            if int(next((x.get('charge', 0) for x in sorted_states
+                         if (x.get('label') if isinstance(x, dict) else x.label) == l), 0)) == prev_charge
+        ), None)
+        base_pdb = state_pdbs.get(base_label, pdb_path)
+
+        # Validate LLM site_atom against the BASE PDB's atom names
+        base_atom_names = _read_pdb_atom_names(base_pdb)
+        site_atom = None
+
+        if llm_site_atom and llm_site_atom in base_atom_names:
+            site_atom = llm_site_atom
+            logging.info(f"  ✓ LLM site_atom '{site_atom}' validated against PDB")
+        else:
+            if llm_site_atom:
+                logging.warning(f"  ⚠ LLM site_atom '{llm_site_atom}' not found in PDB "
+                                 f"— falling back to detected ionizable sites")
+            # Pick next unused tertiary amine from Phase 1 detection
+            for candidate in tertiary_amines:
+                if candidate["name"] not in sites_used and candidate["name"] in base_atom_names:
+                    site_atom = candidate["name"]
+                    logging.info(f"  Using detected ionizable site: {site_atom}")
+                    break
+
+        if not site_atom:
+            logging.warning(f"  No valid site_atom for state {label} (charge={charge:+d}) "
+                             f"— skipping")
+            errs = state.get("errors", [])
+            errs.append(f"No valid protonation site for state {label}")
+            state["errors"] = errs
             continue
 
         logging.info(f"\n  Generating PDB for state {label} (charge={charge:+d}, "
-                     f"site={site_atom or 'auto'})...")
+                     f"site={site_atom}, base={os.path.basename(base_pdb)})...")
 
         pdb_out, added, removed = generate_state_pdb(
-            neutral_pdb=pdb_path,
+            neutral_pdb=base_pdb,
             state_smiles=smiles,
             lig_id=lig_id,
             label=label,
             output_dir=state_pdbs_dir,
-            site_atom=site_atom or None,
+            site_atom=site_atom,
             action=action,
         )
 
         if pdb_out:
+            sites_used.append(site_atom)
             state_pdbs[label] = pdb_out
-            # Update state dict with per-state PDB info
+            # nH is vs neutral (use h_diff count, not just added-removed for this step)
             if isinstance(s, dict):
                 s["pdb_path"] = pdb_out
                 s["h_added"] = added
                 s["h_removed"] = removed
-                s["nH"] = len(added) - len(removed)
+                s["nH"] = charge  # nH = charge for simple protonation
             else:
                 s.pdb_path = pdb_out
                 s.h_added = added
                 s.h_removed = removed
-                s.nH = len(added) - len(removed)
+                s.nH = charge
 
             # H-diff vs neutral
-            if label not in ("01", "00") and "01" in state_pdbs:
+            if "01" in state_pdbs:
                 diff = compute_h_diff(state_pdbs["01"], pdb_out)
                 h_diffs[label] = diff
-                logging.info(f"    H-diff: +{diff['added']}  -{diff['removed']}")
+                logging.info(f"    H-diff vs neutral: +{diff['added']}  -{diff['removed']}")
 
-                # Overwrite proton_exchange with REAL PDB atom names
                 exchange_parts = []
                 for h_name in diff.get("added", []):
                     parent = diff.get("added_on", {}).get(h_name, "?")
@@ -348,21 +426,18 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
                     parent = diff.get("removed_from", {}).get(h_name, "?")
                     exchange_parts.append(f"-{h_name} from {parent}")
                 proton_ex = "; ".join(exchange_parts) if exchange_parts else ""
-
                 if isinstance(s, dict):
                     s["proton_exchange"] = proton_ex
                 else:
                     s.proton_exchange = proton_ex
             else:
-                h_diffs[label] = {"added": [], "removed": [],
-                                  "added_on": {}, "removed_from": {}}
-                if isinstance(s, dict) and label in ("01", "00"):
-                    s["proton_exchange"] = "none (neutral reference)"
+                h_diffs[label] = {"added": [], "removed": [], "added_on": {}, "removed_from": {}}
         else:
             errs = state.get("errors", [])
             errs.append(f"Failed to generate PDB for state {label}")
             state["errors"] = errs
 
+    # Re-sort state_pdbs back to original label order
     state["state_pdbs"] = state_pdbs
     state["h_diffs"] = h_diffs
 
@@ -795,4 +870,4 @@ def _parse_user_state_pdbs(pdb_paths: list, lig_id: str) -> list:
         ))
         logging.info(f"     {label}: {sp} (charge={charge:+d})")
 
-    return states
+    return make_labels_unique(states)
