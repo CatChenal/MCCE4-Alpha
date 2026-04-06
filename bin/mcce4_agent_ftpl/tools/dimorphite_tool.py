@@ -1,24 +1,36 @@
 """
 Protonation state enumeration using Dimorphite-DL.
+
+Naming convention:
+  - Single state per charge: 01 (neutral), +1 (protonated), -1 (deprotonated)
+  - Multiple states at same charge: +a/+b, -a/-b, 0a/0b, etc.
 """
 
 import logging
 from typing import List
+from collections import Counter
 from ..models import ConformerState, make_labels_unique
 from ..config import CHARGE_TO_CONF
 
 
 def enumerate_protonation_states(smiles: str, ph: float = 7.4,
-                                  ph_tolerance: float = 1.0) -> List[ConformerState]:
+                                  ph_tolerance: float = 1.0,
+                                  pdb_path: str = None) -> List[ConformerState]:
     """Enumerate protonation states at target pH using Dimorphite-DL.
+
+    Keeps ALL unique protonation states (multiple per charge).
+    Applies naming: single charge → 01/+1/-1, multiple → +a/+b.
+    If no deprotonated (-1) state found, checks for deprotonatable
+    sites (O-H, S-H, N-H) and adds -1 automatically.
 
     Args:
         smiles: Input SMILES string.
         ph: Target pH.
         ph_tolerance: pH range tolerance (±).
+        pdb_path: Optional path to PDB for detecting deprotonatable sites.
 
     Returns:
-        List of ConformerState objects for each unique charge state.
+        List of ConformerState objects for all unique protonation states.
     """
     logging.info(f"🧪 Enumerating protonation states at pH {ph} (± {ph_tolerance})...")
 
@@ -42,34 +54,99 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
     # Compute formal charges and build ConformerState objects
     states = _smiles_to_states(state_smiles, ph)
 
+    # ── Auto-add -1 state if no negative charge state was found ──
+    has_negative = any(s.charge < 0 for s in states)
+    if not has_negative and pdb_path:
+        deprot_state = _auto_add_deprotonation(pdb_path, ph)
+        if deprot_state:
+            states.append(deprot_state)
+            logging.info(f"  🔄 Auto-added -1 state: deprotonate at {deprot_state.site_atom}")
+
+    # Ensure neutral (01) is always present
+    has_neutral = any(s.charge == 0 for s in states)
+    if not has_neutral:
+        states.insert(0, ConformerState(
+            label="01", charge=0, nH=0, smiles=smiles,
+            source="dimorphite", rationale="Neutral reference (auto-added)"
+        ))
+
+    # Apply naming convention via make_labels_unique
+    states = make_labels_unique(states)
+
     for s in states:
-        logging.info(f"  📋 {s.label}: charge={s.charge:+d}, nH={s.nH:+d}")
+        logging.info(f"  📋 {s.label}: charge={s.charge:+d}, nH={s.nH:+d}, "
+                     f"smiles={s.smiles[:50] if s.smiles else 'N/A'}...")
 
     return states
 
 
-def _smiles_to_states(smiles_list: list, ph: float) -> List[ConformerState]:
-    """Convert SMILES list to ConformerState objects with one representative per charge.
+def _auto_add_deprotonation(pdb_path: str, ph: float) -> ConformerState:
+    """Check for deprotonatable sites (O-H, S-H, N-H) and create a -1 state.
 
-    Dimorphite-DL may return multiple tautomers with the same net charge.
-    We keep the first representative of each charge level (the ordering from
-    Dimorphite reflects pH proximity).  Distinct-charge variants are then
-    handled by make_labels_unique() only if the LLM or user later adds a
-    second state at the same charge.
+    Returns a ConformerState or None.
+    """
+    try:
+        from .charge_tools import get_ionizable_sites_oe
+        sites = get_ionizable_sites_oe(pdb_path)
+        deprot_candidates = [
+            s for s in sites
+            if s.get("current_hs", 0) > 0 and s.get("type", "").startswith("deprotonatable")
+        ]
+        if not deprot_candidates:
+            # Also check N-H sites (secondary amines can be deprotonated)
+            deprot_candidates = [
+                s for s in sites
+                if s.get("current_hs", 0) > 0
+            ]
+        if deprot_candidates:
+            # Prefer O-H (most commonly deprotonatable), then S-H, then N-H
+            for preferred_sym in ("O", "S", "N"):
+                for c in deprot_candidates:
+                    if c.get("symbol") == preferred_sym:
+                        return ConformerState(
+                            label="-1", charge=-1, nH=-1,
+                            smiles="", source="auto-detected",
+                            site_atom=c["name"],
+                            rationale=f"Deprotonation at {c['name']} ({c['type']})",
+                            proton_exchange=f"-H from {c['name']}",
+                        )
+            # Fallback: first candidate
+            c = deprot_candidates[0]
+            return ConformerState(
+                label="-1", charge=-1, nH=-1,
+                smiles="", source="auto-detected",
+                site_atom=c["name"],
+                rationale=f"Deprotonation at {c['name']} ({c['type']})",
+                proton_exchange=f"-H from {c['name']}",
+            )
+    except Exception as e:
+        logging.warning(f"  Auto-deprotonation detection failed: {e}")
+    return None
+
+
+def _smiles_to_states(smiles_list: list, ph: float) -> List[ConformerState]:
+    """Convert SMILES list to ConformerState objects.
+
+    Keeps ALL unique SMILES (multiple per charge level).
+    Labels are assigned using MCCE convention:
+      - Single state at charge 0  → "01"
+      - Single state at charge +1 → "+1"
+      - Single state at charge -1 → "-1"
+      - Multiple states at charge +1 → "+1", "+1" (make_labels_unique → "+a", "+b")
     """
     states = []
-    seen_charges: set = set()
+    seen_smiles: set = set()
 
     try:
         from rdkit import Chem
 
         for smi in smiles_list:
+            if smi in seen_smiles:
+                continue
+            seen_smiles.add(smi)
+
             mol = Chem.MolFromSmiles(smi)
             charge = Chem.GetFormalCharge(mol) if mol else 0
-
-            if charge in seen_charges:
-                continue
-            seen_charges.add(charge)
 
             label = CHARGE_TO_CONF.get(charge, f"{charge:+d}"[-2:])
             nH = charge  # relative to neutral

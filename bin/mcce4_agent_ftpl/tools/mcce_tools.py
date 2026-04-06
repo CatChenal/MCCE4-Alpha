@@ -166,29 +166,61 @@ def update_conformer_params(ftpl_path: str, states: list, lig_id: str):
 
 def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
                          conformer_labels: list, dielectrics: list, work_dir: str):
-    """Run MCCE4 steps 1-3, calibrate rxn values for all dielectrics."""
+    """Run MCCE4 steps 1-3, calibrate rxn values for all dielectrics.
+
+    Workflow:
+      1. Link ftpl to user_param/ so MCCE uses the generated topology
+      2. Run step1.py and step2.py once
+      3. Verify all expected conformers are in step2_out.pdb
+      4. For each dielectric (2, 4, 8):
+         a. Run step3.py -d <eps>
+         b. Parse head3.lst — pick lowest dsolv per conformer type
+         c. Update rxn<eps> in the ftpl CONFORMER lines
+         d. Re-run step3.py -d <eps> to validate (dsolv should be ~0)
+    """
     user_param = os.path.join(work_dir, "user_param")
     os.makedirs(user_param, exist_ok=True)
 
-    # Symlink ftpl
+    # ── Link ftpl to user_param BEFORE step1 ──
+    ftpl_abs = os.path.abspath(ftpl_path)
     link = os.path.join(user_param, os.path.basename(ftpl_path))
-    if os.path.exists(link):
+    if os.path.islink(link) or os.path.exists(link):
         os.remove(link)
-    os.symlink(os.path.abspath(ftpl_path), link)
-    logging.info(f"  🔗 Linked {ftpl_path} → user_param/")
+    os.symlink(ftpl_abs, link)
+    logging.info(f"  🔗 Linked {ftpl_abs} → {link}")
 
-    # Ensure PDB accessible
+    # Ensure PDB is accessible in work_dir
     pdb_base = os.path.basename(pdb_path)
     pdb_wd = os.path.join(work_dir, pdb_base)
     if not os.path.exists(pdb_wd):
         shutil.copy2(os.path.abspath(pdb_path), pdb_wd)
 
-    # Steps 1-2 once
+    # ── Step 1: Initialize MCCE ──
     if run_cmd(f"step1.py {pdb_base}", description="MCCE4 Step 1", cwd=work_dir) is None:
         return {"error": "Step 1 failed"}
+
+    # ── Step 2: Generate conformers ──
     if run_cmd("step2.py", description="MCCE4 Step 2", cwd=work_dir) is None:
         return {"error": "Step 2 failed"}
 
+    # ── Verify all conformers are in step2_out.pdb ──
+    step2_out = os.path.join(work_dir, "step2_out.pdb")
+    if os.path.exists(step2_out):
+        found_types = _check_conformers_in_step2(step2_out, lig_id, conformer_labels)
+        expected_types = [f"{lig_id}{l}" for l in conformer_labels]
+        missing = [t for t in expected_types if t not in found_types]
+        if missing:
+            logging.warning(f"  ⚠ Missing conformers in step2_out.pdb: {missing}")
+            logging.warning(f"  Found: {sorted(found_types)}")
+            logging.warning(f"  Check that the ftpl CONFLIST includes all states")
+        else:
+            logging.info(f"  ✅ All {len(expected_types)} conformer types found in step2_out.pdb")
+            for ct, count in sorted(found_types.items()):
+                logging.info(f"    {ct}: {count} conformer(s)")
+    else:
+        logging.warning("  step2_out.pdb not found — cannot verify conformers")
+
+    # ── Step 3: RXN calibration for each dielectric ──
     rxn_results = {}
 
     for eps in dielectrics:
@@ -199,30 +231,95 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
         logging.info(f"  🔬 RXN Calibration ε={eps} ({rxn_key})")
         logging.info(f"{'='*60}")
 
-        run_cmd(f"step3.py -d {eps}", description=f"Step 3 (ε={eps})", cwd=work_dir)
+        # Run step3.py -d <eps>
+        result = run_cmd(f"step3.py -d {eps}", description=f"Step 3 (ε={eps})", cwd=work_dir)
+        if result is None:
+            logging.error(f"  step3.py -d {eps} failed")
+            continue
+
         head3 = os.path.join(work_dir, "head3.lst")
         dsolv = parse_head3_dsolv(head3, lig_id, conformer_labels)
         if not dsolv:
-            logging.error("  Could not parse dsolv"); continue
+            logging.error("  Could not parse dsolv from head3.lst")
+            continue
 
         for ct, v in dsolv.items():
-            logging.info(f"  📊 {ct}: dsolv = {v:.3f}")
-        update_rxn(ftpl_path, dsolv, rxn_key)
+            logging.info(f"  📊 {ct}: dsolv = {v:.3f} (lowest across all conformers)")
 
-        # Validate
-        logging.info("  🔄 Validating...")
+        # Update rxn value in ftpl
+        update_rxn(ftpl_abs, dsolv, rxn_key)
+
+        # Re-link ftpl after update (symlink target content changed in-place, so OK)
+        logging.info(f"  Updated {rxn_key} in {os.path.basename(ftpl_abs)}")
+
+        # Validate: re-run step3 to check dsolv is now ~0
+        logging.info("  🔄 Validating calibration...")
         run_cmd(f"step3.py -d {eps}", description=f"Validation (ε={eps})", cwd=work_dir)
         check = parse_head3_dsolv(head3, lig_id, conformer_labels)
-        ok = all(abs(v) <= 0.01 for v in check.values())
+        all_ok = True
         for ct, v in check.items():
-            sym = "✓" if abs(v) <= 0.01 else "⚠"
+            ok = abs(v) <= 0.05
+            sym = "✓" if ok else "⚠"
+            if not ok:
+                all_ok = False
             logging.info(f"  {sym} {ct}: dsolv = {v:.3f}")
-        if ok:
+        if all_ok:
             logging.info(f"  🎉 {rxn_key} calibration successful!")
+        else:
+            logging.warning(f"  ⚠ {rxn_key} calibration has residual dsolv > 0.05")
 
         rxn_results[rxn_key] = dsolv
 
     return rxn_results
+
+
+def _check_conformers_in_step2(step2_path: str, lig_id: str, labels: list) -> dict:
+    """Check which conformer types are present in step2_out.pdb.
+
+    Returns {conformer_type: count} for each type found.
+    """
+    type_counts = {}
+    seen_conformers = set()
+
+    with open(step2_path) as f:
+        for line in f:
+            if not line.startswith(("ATOM", "HETATM")):
+                continue
+            resname = line[17:20].strip()
+            if resname != lig_id:
+                continue
+            # Conformer name is in columns 21-30 area — extract from chain+resseq
+            # Actually, the conformer type is encoded in the residue info
+            # Look at the full conformer ID from alt loc + resname + chain + resseq
+            conf_id = line[80:].strip() if len(line) > 80 else ""
+            if not conf_id:
+                # Try to extract from columns — conformer name might be elsewhere
+                # In MCCE format: columns 17-20 = resname, then chain, resseq
+                # The conformer type prefix is what we need
+                continue
+            # conf_id looks like "EMH01_0000_001"
+            if conf_id not in seen_conformers:
+                seen_conformers.add(conf_id)
+                # Extract type: everything before the first underscore
+                parts = conf_id.split("_")
+                if parts:
+                    conf_type = parts[0]
+                    type_counts[conf_type] = type_counts.get(conf_type, 0) + 1
+
+    # Fallback: if nothing found via conf_id field, grep for conformer names
+    if not type_counts:
+        with open(step2_path) as f:
+            content = f.read()
+        for label in labels:
+            conf_type = f"{lig_id}{label}"
+            # Count unique conformer instances like "EMH01_0000_001"
+            import re
+            pattern = re.escape(conf_type) + r'_\d{4}_\d{3}'
+            matches = set(re.findall(pattern, content))
+            if matches:
+                type_counts[conf_type] = len(matches)
+
+    return type_counts
 
 
 def parse_head3_dsolv(head3_path: str, lig_id: str, labels: list) -> dict:

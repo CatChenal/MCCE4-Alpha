@@ -30,7 +30,7 @@ from .tools.rdkit_tools import (
     generate_state_pdb, compute_h_diff, mol_to_svg_with_h_diff,
 )
 from .tools.dimorphite_tool import enumerate_protonation_states
-from .tools.charge_tools import generate_charges, generate_per_state_charges
+from .tools.charge_tools import generate_charges, generate_per_state_charges, get_ionizable_sites_oe
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -57,23 +57,25 @@ def node_molecule_intel(state: AgentState) -> AgentState:
     state["formal_charge"] = info.get("formal_charge", 0)
 
     # v3: detect ionizable sites for GUI protonation editor
+    # Try RDKit first; fall back to OEChem when RDKit cannot parse the molecule.
     try:
         mol = get_mol_from_pdb(pdb_path, remove_hs=False)
-        if mol:
-            ionizable = get_ionizable_sites(mol)
-            state["_ionizable_sites"] = ionizable
-            atom_info = get_atom_info(mol)
-            state["_atom_info"] = atom_info
-            logging.info(f"  🔍 {len(ionizable)} ionizable site(s) detected:")
-            for site in ionizable:
-                logging.info(f"     {site['name']} ({site['type']})")
-        else:
-            state["_ionizable_sites"] = []
-            state["_atom_info"] = []
+        ionizable = get_ionizable_sites(mol) if mol else []
+        atom_info = get_atom_info(mol) if mol else []
     except Exception as e:
-        logging.warning(f"  Ionizable site detection failed: {e}")
-        state["_ionizable_sites"] = []
-        state["_atom_info"] = []
+        logging.warning(f"  RDKit ionizable site detection failed: {e}")
+        ionizable = []
+        atom_info = []
+
+    if not ionizable:
+        logging.info("  RDKit found no ionizable sites — trying OEChem fallback")
+        ionizable = get_ionizable_sites_oe(pdb_path)
+
+    state["_ionizable_sites"] = ionizable
+    state["_atom_info"] = atom_info
+    logging.info(f"  🔍 {len(ionizable)} ionizable site(s) detected:")
+    for site in ionizable:
+        logging.info(f"     {site['name']} ({site['type']})")
 
     state["phase"] = "molecule_intel"
 
@@ -93,7 +95,8 @@ def node_enumerate_states(state: AgentState) -> AgentState:
         states = _parse_user_state_pdbs(user_pdbs, state["lig_id"])
     elif state.get("smiles"):
         states = enumerate_protonation_states(
-            state["smiles"], ph=state.get("ph", 7.4)
+            state["smiles"], ph=state.get("ph", 7.4),
+            pdb_path=state["pdb_path"],
         )
     else:
         logging.warning("  No SMILES — defaulting to neutral")
@@ -190,40 +193,41 @@ Respond ONLY in JSON (no markdown fences):
 }}""")
 
     if result and "states" in result:
-        # Build lookup of original Dimorphite-DL data by label and by charge
+        # Build lookup of original Dimorphite-DL data by label and by SMILES
         orig_states = state.get("states", [])
         smiles_by_label = {}
-        smiles_by_charge = {}
-        label_by_charge = {}  # preserve original MCCE-convention labels
+        smiles_by_charge = {}  # charge → list of SMILES
         for os_dict in orig_states:
             smi = os_dict.get("smiles", "")
             lbl = os_dict.get("label", "")
             chg = os_dict.get("charge", 0)
             if smi:
                 smiles_by_label[lbl] = smi
-                smiles_by_charge[chg] = smi
-            if lbl:
-                label_by_charge[chg] = lbl
+                smiles_by_charge.setdefault(chg, []).append(smi)
 
         refined = []
         for s in result["states"]:
-            llm_label = s["label"]
             charge = int(s.get("charge", 0) or 0)
 
-            # Prefer Dimorphite-DL label over LLM label — MCCE convention
-            # Dimorphite uses +1/-1/01, LLM may say 02/03/04
-            label = label_by_charge.get(charge, llm_label)
-            if label != llm_label:
-                logging.info(f"  Label override: LLM='{llm_label}' → Dimorphite='{label}' (charge={charge:+d})")
+            # Assign standard MCCE label based on charge
+            # make_labels_unique will handle duplicates later (+1 → +a/+b)
+            from .config import CHARGE_TO_CONF
+            label = CHARGE_TO_CONF.get(charge, f"{charge:+d}"[-2:])
 
             # Preserve SMILES from Dimorphite-DL — LLM rarely returns them
             llm_smiles = s.get("smiles", "")
-            preserved_smiles = (
-                llm_smiles
-                or smiles_by_label.get(label, "")
-                or smiles_by_label.get(llm_label, "")
-                or smiles_by_charge.get(charge, "")
-            )
+            preserved_smiles = llm_smiles
+            if not preserved_smiles:
+                # Try to find matching SMILES from Dimorphite by charge
+                charge_smiles = smiles_by_charge.get(charge, [])
+                if charge_smiles:
+                    preserved_smiles = charge_smiles.pop(0)  # consume one
+                else:
+                    # Try label-based lookup
+                    for lbl_key, smi_val in smiles_by_label.items():
+                        if smi_val:
+                            preserved_smiles = smi_val
+                            break
 
             refined.append({
                 "label": label, "charge": charge,
@@ -238,11 +242,30 @@ Respond ONLY in JSON (no markdown fences):
                 "h_added": [], "h_removed": [],
             })
             if preserved_smiles:
-                logging.info(f"  State {label}: SMILES={preserved_smiles[:60]}...")
+                logging.info(f"  State {label} (charge={charge:+d}): SMILES={preserved_smiles[:60]}...")
             else:
-                logging.warning(f"  State {label}: NO SMILES — per-state PDB will fail")
+                logging.warning(f"  State {label} (charge={charge:+d}): NO SMILES — per-state PDB may use site-based generation")
 
+        # Apply naming convention: single per charge → 01/+1/-1, multiple → +a/+b
         refined = make_labels_unique(refined)
+
+        # Ensure neutral (01) state is always present
+        has_neutral = any(
+            int(s.get("charge", 0) or 0) == 0 for s in refined
+        )
+        if not has_neutral:
+            logging.info("  Adding neutral (01) state — LLM did not include one")
+            neutral_smiles = smiles_by_charge.get(0, [""])[0] if smiles_by_charge.get(0) else ""
+            refined.insert(0, {
+                "label": "01", "charge": 0, "nH": 0, "pka": None,
+                "site_atom": None, "smiles": neutral_smiles,
+                "source": "auto", "pdb_path": None,
+                "rationale": "Neutral reference state (auto-added)",
+                "proton_exchange": "none (neutral reference)",
+                "llm_model": "", "references": [],
+                "h_added": [], "h_removed": [],
+            })
+
         state["states"] = refined
         state["conformer_labels"] = [s["label"] for s in refined]
 
@@ -273,7 +296,7 @@ def _read_pdb_atom_names(pdb_path: str) -> set:
 
 
 def node_generate_state_pdbs(state: AgentState) -> AgentState:
-    """PHASE 3b: Generate per-state PDBs with correct H atoms (v3).
+    """PHASE 4: Generate per-state PDBs with correct H atoms.
 
     For each protonation state:
       - Start from the PREVIOUS state's PDB (incremental protonation)
@@ -286,7 +309,7 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
     This ensures each state correctly carries forward all previous protonations.
     """
     logging.info(f"\n{'─'*60}")
-    logging.info(f"  PHASE 3b: Per-State PDB Generation (v3)")
+    logging.info(f"  PHASE 4: Per-State PDB Generation")
     logging.info(f"{'─'*60}")
 
     pdb_path = state["pdb_path"]
@@ -296,25 +319,65 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
     state_pdbs_dir = os.path.join(work_dir, f"{lig_id}_state_pdbs")
     os.makedirs(state_pdbs_dir, exist_ok=True)
 
-    # Ionizable sites detected from the neutral PDB structure (reliable)
-    ionizable_sites = state.get("_ionizable_sites", [])
-    # Tertiary amines (fc=0, no H): best candidates for protonation
-    tertiary_amines = [
-        s for s in ionizable_sites
-        if s.get("type") == "protonatable_N" and s.get("current_hs", 0) == 0
-    ]
-    logging.info(f"  Detected tertiary amine sites for protonation: "
-                 f"{[s['name'] for s in tertiary_amines]}")
-
     state_pdbs = {}
     h_diffs = {}
     states = state.get("states", [])
 
+    # ── Safety net: Auto-add deprotonation state (-1) if still missing ──
+    # Phase 2 should have added -1, but double-check here in case LLM removed it.
+    has_negative = any(
+        int(s.get('charge', 0) if isinstance(s, dict) else s.charge) < 0
+        for s in states
+    )
+    if not has_negative:
+        neutral_sites = get_ionizable_sites_oe(pdb_path)
+        # Prefer deprotonatable sites (O-H, S-H), then any site with H
+        deprot_candidates = [
+            s2 for s2 in neutral_sites
+            if s2.get("current_hs", 0) > 0 and s2.get("type", "").startswith("deprotonatable")
+        ]
+        if not deprot_candidates:
+            deprot_candidates = [
+                s2 for s2 in neutral_sites
+                if s2.get("current_hs", 0) > 0
+            ]
+        if deprot_candidates:
+            # Pick best deprotonation site: prefer O-H > S-H > N-H
+            site = None
+            for preferred_sym in ("O", "S", "N"):
+                for c in deprot_candidates:
+                    if c.get("symbol") == preferred_sym:
+                        site = c
+                        break
+                if site:
+                    break
+            if site is None:
+                site = deprot_candidates[0]
+
+            logging.info(f"  🔄 Auto-adding -1 state: deprotonate at {site['name']} "
+                         f"({site['type']}, current_hs={site['current_hs']})")
+            minus1 = {
+                "label": "-1", "charge": -1, "nH": -1,
+                "site_atom": site["name"],
+                "smiles": "", "source": "auto-detected",
+                "rationale": f"Deprotonation at {site['name']} ({site['type']})",
+                "proton_exchange": f"-H from {site['name']}",
+                "pka": 0.0,
+                "pdb_path": None, "h_added": [], "h_removed": [],
+                "references": [],
+            }
+            states.append(minus1)
+            state["states"] = states
+            state["conformer_labels"] = [
+                (s.get("label") if isinstance(s, dict) else s.label) for s in states
+            ]
+            logging.info(f"  Updated conformer labels: {state['conformer_labels']}")
+
     # Sort states by charge so we build each from the previous one
     sorted_states = sorted(states, key=lambda s: int(s.get('charge', 0) if isinstance(s, dict) else s.charge))
 
-    # Track which site atoms have been protonated across states
-    sites_used = []  # ordered list of site atom names protonated so far
+    # sites_used_per_base: {base_label → [site_atoms used]} for same-base disambiguation
+    sites_used_per_base: dict = {}
 
     for s in sorted_states:
         sd = s if isinstance(s, dict) else s.to_dict()
@@ -331,8 +394,8 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
         else:
             action = None
 
-        # Neutral state: just copy
-        if label in ("01", "00") or charge == 0:
+        # Neutral state (charge 0): just copy the neutral PDB
+        if charge == 0:
             logging.info(f"\n  Generating PDB for state {label} (neutral)...")
             pdb_out, added, removed = generate_state_pdb(
                 neutral_pdb=pdb_path, state_smiles="",
@@ -349,7 +412,7 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
 
         # ── Non-neutral state: determine base PDB and site ──
 
-        # Base PDB: use charge-1 state if available, else neutral
+        # Base PDB: use charge±1 state if available, else neutral
         prev_charge = charge - 1 if charge > 0 else charge + 1
         base_label = next((
             l for l, p in state_pdbs.items()
@@ -357,31 +420,56 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
                          if (x.get('label') if isinstance(x, dict) else x.label) == l), 0)) == prev_charge
         ), None)
         base_pdb = state_pdbs.get(base_label, pdb_path)
+        base_key  = base_label or "neutral"
 
-        # Validate LLM site_atom against the BASE PDB's atom names
+        # Detect available ionizable sites from the SPECIFIC base PDB using OEChem.
+        # This correctly handles multi-step protonation: a base that is already
+        # singly protonated (e.g., +a) will show fewer available tertiary amines
+        # than the original neutral, so the next protonation goes to the right atom.
+        base_oe_sites = get_ionizable_sites_oe(base_pdb)
+        if action == "protonate":
+            candidates = [
+                s2 for s2 in base_oe_sites
+                if s2.get("type") == "protonatable_N" and s2.get("current_hs", 0) == 0
+            ]
+        else:  # deprotonate
+            candidates = [
+                s2 for s2 in base_oe_sites
+                if s2.get("current_hs", 0) > 0
+            ]
+
         base_atom_names = _read_pdb_atom_names(base_pdb)
         site_atom = None
 
-        if llm_site_atom and llm_site_atom in base_atom_names:
+        # 1) Validate LLM suggestion against BOTH base PDB and OEChem candidates.
+        #    The LLM often confuses SMILES numbering with PDB atom names
+        #    (e.g. saying "N19" for nitrile N when it means N25 the piperidine).
+        #    We require the suggested atom to actually be an ionizable candidate.
+        candidate_names = {c["name"] for c in candidates}
+        if llm_site_atom and llm_site_atom in base_atom_names and llm_site_atom in candidate_names:
             site_atom = llm_site_atom
-            logging.info(f"  ✓ LLM site_atom '{site_atom}' validated against PDB")
+            logging.info(f"  ✓ LLM site_atom '{site_atom}' validated against base PDB "
+                         f"and OEChem ionizable sites")
         else:
             if llm_site_atom:
-                logging.warning(f"  ⚠ LLM site_atom '{llm_site_atom}' not found in PDB "
-                                 f"— falling back to detected ionizable sites")
-            # Pick next unused tertiary amine from Phase 1 detection
-            for candidate in tertiary_amines:
-                if candidate["name"] not in sites_used and candidate["name"] in base_atom_names:
-                    site_atom = candidate["name"]
-                    logging.info(f"  Using detected ionizable site: {site_atom}")
+                logging.warning(f"  ⚠ LLM site_atom '{llm_site_atom}' not in OEChem "
+                                 f"ionizable candidates {candidate_names} — "
+                                 "using OEChem-detected sites")
+            # 2) From OEChem candidates, pick the first not yet used for this base
+            used_for_base = sites_used_per_base.get(base_key, [])
+            for cand in candidates:
+                if cand["name"] not in used_for_base and cand["name"] in base_atom_names:
+                    site_atom = cand["name"]
+                    logging.info(f"  Using OEChem-detected site: {site_atom} "
+                                 f"(from base {base_key})")
                     break
 
         if not site_atom:
             logging.warning(f"  No valid site_atom for state {label} (charge={charge:+d}) "
-                             f"— skipping")
-            errs = state.get("errors", [])
-            errs.append(f"No valid protonation site for state {label}")
-            state["errors"] = errs
+                             f"— skipping (will attempt charge assignment from existing PDB)")
+            warns = state.get("warnings", [])
+            warns.append(f"No valid protonation site for state {label} — state PDB skipped")
+            state["warnings"] = warns
             continue
 
         logging.info(f"\n  Generating PDB for state {label} (charge={charge:+d}, "
@@ -398,7 +486,7 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
         )
 
         if pdb_out:
-            sites_used.append(site_atom)
+            sites_used_per_base.setdefault(base_key, []).append(site_atom)
             state_pdbs[label] = pdb_out
             # nH is vs neutral (use h_diff count, not just added-removed for this step)
             if isinstance(s, dict):
@@ -433,9 +521,9 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
             else:
                 h_diffs[label] = {"added": [], "removed": [], "added_on": {}, "removed_from": {}}
         else:
-            errs = state.get("errors", [])
-            errs.append(f"Failed to generate PDB for state {label}")
-            state["errors"] = errs
+            warns = state.get("warnings", [])
+            warns.append(f"Failed to generate PDB for state {label} — will use existing PDB if available")
+            state["warnings"] = warns
 
     # Re-sort state_pdbs back to original label order
     state["state_pdbs"] = state_pdbs
@@ -461,13 +549,13 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
 
 
 def node_user_review(state: AgentState) -> AgentState:
-    """PHASE 4: Pause for user review (GUI or terminal).
+    """Pause for user review (GUI or terminal) between Phase 4 and Phase 5.
 
     This node sets needs_user_review=True.
     The GUI/CLI layer handles the actual review and sets user_approved.
     """
     logging.info(f"\n{'─'*60}")
-    logging.info(f"  PHASE 4: Awaiting User Review")
+    logging.info(f"  Awaiting User Review (between Phase 4 & 5)")
     logging.info(f"{'─'*60}")
 
     state["needs_user_review"] = True
@@ -553,7 +641,19 @@ def node_assign_charges(state: AgentState) -> AgentState:
 
     lig_id = state["lig_id"]
     method = state.get("charge_method", DEFAULT_CHARGE_METHOD)
-    state_pdbs = state.get("state_pdbs", {})
+    state_pdbs = dict(state.get("state_pdbs", {}))  # copy — we may augment it
+
+    # Augment state_pdbs with any existing per-state PDB files not yet registered.
+    # State PDB filenames follow: {lig_id}_{label.replace('+','p').replace('-','m')}.pdb
+    work_dir = state.get("work_dir", ".")
+    state_pdbs_dir = os.path.join(work_dir, f"{lig_id}_state_pdbs")
+    for label in state.get("conformer_labels", []):
+        if label not in state_pdbs:
+            safe = label.replace('+', 'p').replace('-', 'm')
+            candidate = os.path.join(state_pdbs_dir, f"{lig_id}_{safe}.pdb")
+            if os.path.exists(candidate):
+                logging.info(f"  Found existing state PDB for {label}: {candidate}")
+                state_pdbs[label] = candidate
 
     if state_pdbs:
         # ── v3 path: per-state charges ──
@@ -681,7 +781,7 @@ def build_agent_graph(use_gui: bool = False):
     graph.add_node("molecule_intel", node_molecule_intel)
     graph.add_node("enumerate_states", node_enumerate_states)
     graph.add_node("llm_reasoning", node_llm_reasoning)
-    graph.add_node("generate_state_pdbs", node_generate_state_pdbs)  # v3
+    graph.add_node("generate_state_pdbs", node_generate_state_pdbs)  # Phase 4
     graph.add_node("generate_template", node_generate_template)
     graph.add_node("assign_charges", node_assign_charges)
     graph.add_node("rxn_calibration", node_rxn_calibration)
@@ -696,7 +796,7 @@ def build_agent_graph(use_gui: bool = False):
     # Add edges
     graph.add_edge("molecule_intel", "enumerate_states")
     graph.add_edge("enumerate_states", "llm_reasoning")
-    graph.add_edge("llm_reasoning", "generate_state_pdbs")  # v3: llm → state_pdbs
+    graph.add_edge("llm_reasoning", "generate_state_pdbs")  # Phase 3 → Phase 4
 
     if use_gui:
         graph.add_conditional_edges("generate_state_pdbs", should_review,

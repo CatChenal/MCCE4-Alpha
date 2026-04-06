@@ -5,7 +5,9 @@ Partial atomic charge generation tools.
 import os
 import re
 import logging
+import shutil
 import subprocess
+import tempfile
 
 
 def to_mcce_atom_name(name: str) -> str:
@@ -29,10 +31,13 @@ def _charges_openeye(pdb_path: str, method: str, lig_id: str) -> dict:
     """Generate charges via OpenEye QuacPac TK."""
     logging.info(f"⚡ Generating charges via OpenEye (method: {method})")
 
+    # Use absolute path so subprocess can find the file regardless of cwd
+    pdb_abs = os.path.abspath(pdb_path)
+    tmpdir = tempfile.mkdtemp(prefix="oe_charges_")
     try:
         result = subprocess.run(
-            f"oe_assigncharges_QuacpakTK.py -method {method} -in {pdb_path}",
-            shell=True, capture_output=True, text=True
+            f"oe_assigncharges_QuacpakTK.py -method {method} -in {pdb_abs}",
+            shell=True, capture_output=True, text=True, cwd=tmpdir
         )
         if result.returncode != 0:
             logging.error(f"  OpenEye failed: {result.stderr}")
@@ -40,6 +45,8 @@ def _charges_openeye(pdb_path: str, method: str, lig_id: str) -> dict:
     except Exception as e:
         logging.error(f"  Could not run OpenEye: {e}")
         return {}
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
     charges = _parse_openeye_output(result.stdout)
 
@@ -120,6 +127,85 @@ def _charges_antechamber(pdb_path: str, lig_id: str, nc: int = 0) -> dict:
         total = sum(charges.values())
         logging.info(f"  ✓ {len(charges)} charges (total: {total:.3f})")
     return charges
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# v4: OEChem-based ionizable site detection (fallback when RDKit fails)
+# ═════════════════════════════════════════════════════════════════════════════
+
+def get_ionizable_sites_oe(pdb_path: str) -> list:
+    """Detect ionizable N/O/S sites in a PDB using OEChem.
+
+    More robust than RDKit for unusual molecules (sp nitrile N, fused rings,
+    unusual valence, etc.).  Returns the same list-of-dicts format as
+    rdkit_tools.get_ionizable_sites:
+      [{"idx", "name", "symbol", "type", "current_hs", "formal_charge"}]
+    """
+    logging.info(f"  Detecting ionizable sites via OEChem: {pdb_path}")
+    try:
+        from openeye import oechem
+    except ImportError:
+        logging.warning("  OEChem not available for ionizable site detection")
+        return []
+
+    mol = oechem.OEMol()
+    ifs = oechem.oemolistream(pdb_path)
+    if not oechem.OEReadMolecule(ifs, mol):
+        logging.warning(f"  OEChem: cannot load {pdb_path}")
+        ifs.close()
+        return []
+    ifs.close()
+
+    oechem.OEAssignAromaticFlags(mol)
+    oechem.OEAssignHybridization(mol)
+
+    sites = []
+    for atom in mol.GetAtoms():
+        sym = oechem.OEGetAtomicSymbol(atom.GetAtomicNum())
+        if sym not in ("N", "O", "S"):
+            continue
+
+        # atom.GetName() gives the PDB atom name (e.g., "N25", " N9 ")
+        name = atom.GetName().strip() if atom.GetName() else f"{sym}{atom.GetIdx()}"
+
+        n_explicit_h = sum(
+            1 for bond in atom.GetBonds()
+            if bond.GetNbr(atom).GetAtomicNum() == 1
+        )
+        hybrid = atom.GetHyb()
+        fc = atom.GetFormalCharge()
+
+        if sym == "N":
+            # Skip sp N (nitrile, isonitrile, azide terminal, etc.)
+            if hybrid == oechem.OEHybridization_sp:
+                continue
+            # Use explicit H count as ground truth for protonation state.
+            # OEChem's fc can be unreliable for PDB HETATM atoms (it adds
+            # implicit H based on valence rules that don't match the actual
+            # neutral-PDB protonation).  A tertiary amine (no explicit H) is
+            # protonatable regardless of OEChem's perceived formal charge.
+            if n_explicit_h > 0 or fc == 0 or (n_explicit_h == 0 and fc == 1):
+                sites.append({
+                    "idx": atom.GetIdx(), "name": name, "symbol": sym,
+                    "type": "protonatable_N",
+                    "current_hs": n_explicit_h, "formal_charge": fc,
+                })
+        elif sym == "O" and n_explicit_h > 0:
+            sites.append({
+                "idx": atom.GetIdx(), "name": name, "symbol": sym,
+                "type": "deprotonatable_OH",
+                "current_hs": n_explicit_h, "formal_charge": fc,
+            })
+        elif sym == "S" and n_explicit_h > 0:
+            sites.append({
+                "idx": atom.GetIdx(), "name": name, "symbol": sym,
+                "type": "deprotonatable_SH",
+                "current_hs": n_explicit_h, "formal_charge": fc,
+            })
+
+    logging.info(f"  OEChem: {len(sites)} ionizable site(s): "
+                 f"{[s['name'] for s in sites]}")
+    return sites
 
 
 # ═════════════════════════════════════════════════════════════════════════════

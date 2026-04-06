@@ -2,6 +2,8 @@
 Streamlit Web GUI for the MCCE4 Topology Agent.
 
 Features:
+  - 7-phase progress tracker in sidebar
+  - Persistent scrollable log panel with protonation state highlighting
   - 2D molecule depiction with protonation site highlighting
   - Conformer state table with add/edit/remove
   - Molecule editor via Ketcher (if streamlit-ketcher installed)
@@ -19,6 +21,7 @@ import json
 import base64
 import logging
 import tempfile
+import io
 from pathlib import Path
 
 # Ensure package is importable
@@ -30,10 +33,105 @@ import streamlit as st
 
 from mcce4_agent_ftpl.models import ConformerState, AgentState
 from mcce4_agent_ftpl.config import (
-    GUI_TITLE, SUPPORTED_CHARGE_METHODS, DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS
+    GUI_TITLE, SUPPORTED_CHARGE_METHODS, DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS,
+    AGENT_PHASES, PHASE_NAME_MAP,
 )
 from mcce4_agent_ftpl.tools.rdkit_tools import mol_to_svg, get_mol_from_pdb, get_mol_from_smiles
 from mcce4_agent_ftpl.tools.mcce_tools import extract_lig_id_from_pdb
+import html as _html
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Log highlighting
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _highlight_log(log_text: str) -> str:
+    """Add HTML color highlighting to log text for protonation changes.
+
+    Green: added H, protonation events, success markers
+    Red: removed H, deprotonation events, errors
+    Yellow: warnings
+    Cyan: phase headers, calibration info
+    Magenta: dsolv/rxn values
+    Bold: state labels like EMH01, EMH+1, EMH+a
+    """
+    lines = []
+    for line in _html.escape(log_text).splitlines():
+        # Phase headers — cyan bold
+        if any(kw in line for kw in ["PHASE 1", "PHASE 2", "PHASE 3", "PHASE 4",
+                                      "PHASE 5", "PHASE 6", "PHASE 7"]):
+            line = f'<span style="color:#4fc1ff;font-weight:bold;">{line}</span>'
+        elif any(kw in line for kw in ["PHASE", "═", "─", "🔬", "🎉", "✅"]):
+            line = f'<span style="color:#4fc1ff;">{line}</span>'
+        # Protonation additions — green
+        elif any(kw in line for kw in ["+H ", "Added H", "added on", "protonate",
+                                        "🟢", "h_added", "Add H:", "Added "]):
+            line = f'<span style="color:#4ec94e;font-weight:bold;">▸ {line}</span>'
+        # Deprotonation removals — red
+        elif any(kw in line for kw in ["-H ", "Removed H", "removed from", "deprotonate",
+                                        "🔴", "h_removed", "Remove H:", "Removed "]):
+            line = f'<span style="color:#f44747;font-weight:bold;">▸ {line}</span>'
+        # State label lines — highlight the label
+        elif any(kw in line for kw in ["State +", "State -", "State 0",
+                                        "state +", "state -", "state 0"]):
+            line = f'<span style="color:#dcdcaa;">{line}</span>'
+        # Naming/label lines
+        elif any(kw in line for kw in ["Label disambiguated", "→", "label=",
+                                        "+a", "+b", "-a", "-b", "0a", "0b"]):
+            line = f'<span style="color:#ce9178;">{line}</span>'
+        # Warnings
+        elif any(kw in line for kw in ["⚠", "WARNING", "warning"]):
+            line = f'<span style="color:#cca700;">{line}</span>'
+        # Errors
+        elif any(kw in line for kw in ["❌", "ERROR", "failed", "FAILED"]):
+            line = f'<span style="color:#f44747;font-weight:bold;">{line}</span>'
+        # dsolv/rxn calibration values — magenta
+        elif any(kw in line for kw in ["📊", "dsolv", "rxn0", "rxn_"]):
+            line = f'<span style="color:#c586c0;">{line}</span>'
+        # Charge info
+        elif any(kw in line for kw in ["⚡", "Charges", "charges", "charge="]):
+            line = f'<span style="color:#9cdcfe;">{line}</span>'
+        # Conformer labels in output (EMH01, EMH+1, etc.)
+        elif any(kw in line for kw in ["Conformer", "conformer", "CONFLIST"]):
+            line = f'<span style="color:#dcdcaa;">{line}</span>'
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _render_log_panel(log_text: str, title: str = "Agent Log",
+                      max_height: int = 500, key_suffix: str = ""):
+    """Render a scrollable, syntax-highlighted log panel."""
+    if not log_text or not log_text.strip():
+        return
+    st.markdown(f"**📋 {title}** _(scroll to review all output)_")
+    st.markdown(
+        f'<div id="log-panel-{key_suffix}" style="max-height:{max_height}px; '
+        f'overflow-y:auto; background:#1e1e1e; color:#d4d4d4; padding:12px; '
+        f'border-radius:6px; font-family:\'Consolas\',\'Courier New\',monospace; '
+        f'font-size:13px; line-height:1.5; white-space:pre-wrap; '
+        f'border:1px solid #333;">{_highlight_log(log_text)}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Log capture helper
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _start_log_capture():
+    """Start capturing log output. Returns (StringIO, handler)."""
+    log_capture = io.StringIO()
+    log_handler = logging.StreamHandler(log_capture)
+    log_handler.setLevel(logging.INFO)
+    log_handler.setFormatter(logging.Formatter("%(message)s"))
+    logging.getLogger().addHandler(log_handler)
+    return log_capture, log_handler
+
+
+def _stop_log_capture(log_capture, log_handler):
+    """Stop capturing and return text."""
+    logging.getLogger().removeHandler(log_handler)
+    return log_capture.getvalue()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -62,6 +160,7 @@ def init_session():
         "running": False,
         "analysis_done": False,
         "log_output": "",
+        "phase_status": {},  # {phase_id: "pending"|"running"|"done"|"error"}
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -72,7 +171,7 @@ init_session()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Sidebar
+# Sidebar: Settings + 7-Phase Progress Tracker
 # ──────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.title("🤖 MCCE4 Agent")
@@ -88,26 +187,73 @@ with st.sidebar:
     dry_run = st.checkbox("Dry Run (skip RXN calibration)", value=False)
 
     st.markdown("---")
-    st.subheader("📋 Agent Status")
-    phase = st.session_state.get("phase", "upload")
-    phase_info = {
-        "upload": ("🔵", "Waiting for input"),
-        "analyzing": ("🟡", "Analyzing molecule..."),
-        "review": ("🟠", "Review conformer states"),
-        "running": ("🟢", "Generating topology file..."),
-        "complete": ("✅", "Complete!"),
-        "error": ("🔴", "Error occurred"),
-    }
-    icon, desc = phase_info.get(phase, ("⚪", phase))
-    st.write(f"{icon} **{desc}**")
 
-    # Show conformer count if available
-    states = st.session_state.get("states", [])
-    if states:
-        st.caption(f"{len(states)} conformer state(s) proposed")
+    # ── 7-Phase Progress Tracker ──
+    st.subheader("📊 Pipeline Progress")
+
+    phase_status = st.session_state.get("phase_status", {})
+    agent_state = st.session_state.get("agent_state")
+    current_internal_phase = ""
+    if agent_state:
+        current_internal_phase = agent_state.get("phase", "")
+
+    # Determine which phase ID is current
+    current_phase_id = PHASE_NAME_MAP.get(current_internal_phase)
+
+    for p in AGENT_PHASES:
+        pid = p["id"]
+        status = phase_status.get(pid, "pending")
+
+        if status == "done":
+            icon = "✅"
+            color = "#4ec94e"
+        elif status == "running":
+            icon = "🔄"
+            color = "#4fc1ff"
+        elif status == "error":
+            icon = "❌"
+            color = "#f44747"
+        else:
+            icon = "⬜"
+            color = "#666"
+
+        st.markdown(
+            f'<div style="padding:3px 0; color:{color}; font-size:13px;">'
+            f'{icon} <b>Phase {p["num"]}</b>: {p["name"]}'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("---")
+
+    # Naming convention legend
+    st.subheader("🏷️ Naming Convention")
+    st.markdown("""
+    <div style="font-size:12px; line-height:1.6;">
+    <b>Single state per charge:</b><br>
+    &nbsp;&nbsp;<code>01</code> = neutral<br>
+    &nbsp;&nbsp;<code>+1</code> = protonated (+1)<br>
+    &nbsp;&nbsp;<code>-1</code> = deprotonated (-1)<br>
+    <br>
+    <b>Multiple states at same charge:</b><br>
+    &nbsp;&nbsp;<code>+a, +b</code> = two +1 states<br>
+    &nbsp;&nbsp;<code>-a, -b</code> = two -1 states<br>
+    &nbsp;&nbsp;<code>0a, 0b</code> = two neutral states<br>
+    <br>
+    Names are disambiguated based on<br>
+    which atom site is protonated.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Ligand info
     lig_id = st.session_state.get("lig_id")
     if lig_id:
-        st.caption(f"Ligand: {lig_id}")
+        st.caption(f"Ligand: **{lig_id}**")
+    states = st.session_state.get("states", [])
+    if states:
+        st.caption(f"{len(states)} conformer state(s)")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -116,10 +262,11 @@ with st.sidebar:
 st.title("🧬 MCCE4 Topology File Agent")
 st.markdown("Create MCCE4 topology files (.ftpl) with AI-powered protonation state analysis")
 
-# ── Tab layout (v3: merged Editor into Conformer States) ──
-tab_input, tab_states, tab_output = st.tabs([
-    "📂 Input", "🧪 Conformer States & Editor", "📄 Output"
+# ── Tab layout: Input | Conformer States | Output | Log ──
+tab_input, tab_states, tab_output, tab_log = st.tabs([
+    "📂 Input", "🧪 Conformer States & Editor", "📄 Output", "📋 Log"
 ])
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # TAB 1: Input
@@ -171,22 +318,20 @@ with tab_input:
     if st.session_state.get("pdb_path"):
         if st.button("🧠 Analyze Protonation States", type="primary", use_container_width=True):
             st.session_state["phase"] = "analyzing"
+            # Reset phase status
+            st.session_state["phase_status"] = {}
 
             from mcce4_agent_ftpl.agent import run_agent
 
             # Show real-time progress below the button
             status = st.status("🤖 Agent is analyzing the molecule...", expanded=True)
 
-            with status:
-                st.write("**Phase 1:** Fetching molecule info from RCSB...")
+            log_capture, log_handler = _start_log_capture()
 
-                # Capture log output for display
-                import io
-                log_capture = io.StringIO()
-                log_handler = logging.StreamHandler(log_capture)
-                log_handler.setLevel(logging.INFO)
-                log_handler.setFormatter(logging.Formatter("%(message)s"))
-                logging.getLogger().addHandler(log_handler)
+            with status:
+                # Phase 1
+                st.session_state["phase_status"]["phase1"] = "running"
+                st.write("**Phase 1:** Molecule Intelligence — fetching info from RCSB...")
 
                 agent_state = run_agent(
                     st.session_state["pdb_path"],
@@ -197,19 +342,19 @@ with tab_input:
                     dry_run=dry_run,
                 )
 
-                # Remove the capture handler
-                logging.getLogger().removeHandler(log_handler)
+                # Update phase statuses based on what completed
+                for pid in ["phase1", "phase2", "phase3", "phase4"]:
+                    st.session_state["phase_status"][pid] = "done"
 
                 # Show what happened
-                log_text = log_capture.getvalue()
                 if agent_state.get("smiles"):
-                    st.write(f"✅ **SMILES:** `{agent_state['smiles'][:80]}...`"
-                             if len(agent_state.get('smiles', '')) > 80
-                             else f"✅ **SMILES:** `{agent_state.get('smiles', '')}`")
+                    smi = agent_state.get('smiles', '')
+                    display_smi = f"{smi[:80]}..." if len(smi) > 80 else smi
+                    st.write(f"✅ **SMILES:** `{display_smi}`")
                 if agent_state.get("name"):
                     st.write(f"✅ **Name:** {agent_state['name']}")
 
-                st.write("**Phase 2:** Enumerating protonation states...")
+                st.write("**Phase 2:** Protonation State Enumeration")
                 states = agent_state.get("states", [])
                 if states:
                     st.write(f"✅ Found **{len(states)}** conformer state(s):")
@@ -220,39 +365,69 @@ with tab_input:
                         pka_str = ""
                         if pka is not None:
                             try:
-                                # LLM may return "~8.7", ">10", "≈4.5" etc.
                                 pka_clean = str(pka).lstrip("~≈><≥≤ ")
                                 pka_str = f", pKa≈{float(pka_clean):.1f}"
                             except (ValueError, TypeError):
                                 pka_str = f", pKa={pka}"
                         source = s.get('source', '?')
-                        st.write(f"   • **{label}** (charge={charge:+d}{pka_str}) — {source}")
 
-                # v3: show per-state PDB generation results
-                state_pdbs = agent_state.get("state_pdbs", {})
-                if state_pdbs:
-                    st.write(f"**Phase 3b:** Generated **{len(state_pdbs)}** per-state PDB(s)")
+                        # Color-code by charge
+                        if charge > 0:
+                            badge = f'<span style="color:#4ec94e;font-weight:bold;">⊕ {label}</span>'
+                        elif charge < 0:
+                            badge = f'<span style="color:#f44747;font-weight:bold;">⊖ {label}</span>'
+                        else:
+                            badge = f'<span style="color:#4fc1ff;font-weight:bold;">◯ {label}</span>'
+
+                        proton_ex = s.get('proton_exchange', '')
+                        ex_str = f" — _{proton_ex}_" if proton_ex else ""
+                        st.markdown(
+                            f"&nbsp;&nbsp; {badge} (charge={charge:+d}{pka_str}) "
+                            f"— {source}{ex_str}",
+                            unsafe_allow_html=True,
+                        )
+
+                # Phase 4: show per-state PDB generation results
+                state_pdbs_result = agent_state.get("state_pdbs", {})
+                if state_pdbs_result:
+                    st.write(f"**Phase 4:** Generated **{len(state_pdbs_result)}** per-state PDB(s)")
                     h_diffs = agent_state.get("h_diffs", {})
-                    for label, pdb_path in state_pdbs.items():
+                    for label, pdb_path in state_pdbs_result.items():
                         diff = h_diffs.get(label, {})
                         added = diff.get("added", [])
                         removed = diff.get("removed", [])
-                        diff_str = ""
+                        diff_parts = []
                         if added:
-                            diff_str += f" +H: {', '.join(added)}"
+                            added_on = diff.get("added_on", {})
+                            for h in added:
+                                parent = added_on.get(h, "?")
+                                diff_parts.append(
+                                    f'<span style="color:#4ec94e;">+{h} on {parent}</span>'
+                                )
                         if removed:
-                            diff_str += f" -H: {', '.join(removed)}"
-                        st.write(f"   • **{label}**: `{os.path.basename(pdb_path)}`{diff_str}")
+                            removed_from = diff.get("removed_from", {})
+                            for h in removed:
+                                parent = removed_from.get(h, "?")
+                                diff_parts.append(
+                                    f'<span style="color:#f44747;">-{h} from {parent}</span>'
+                                )
+                        diff_html = ", ".join(diff_parts) if diff_parts else ""
+                        st.markdown(
+                            f"&nbsp;&nbsp; **{label}**: `{os.path.basename(pdb_path)}` "
+                            f"{diff_html}",
+                            unsafe_allow_html=True,
+                        )
 
                 if agent_state.get("warnings"):
                     st.write("**⚠️ Warnings:**")
                     for w in agent_state["warnings"]:
                         st.warning(w)
 
-                # Show captured log — always expanded so the user can see processing
+                # Show captured log in scrollable container
+                log_text = _stop_log_capture(log_capture, log_handler)
                 if log_text.strip():
-                    st.markdown("**📋 Agent log:**")
-                    st.code(log_text, language="text")
+                    _render_log_panel(log_text, "Analysis Log", 400, "analysis")
+                    st.session_state["log_output"] = log_text
 
             status.update(label="✅ Analysis complete — switch to **Conformer States** tab to review",
                           state="complete", expanded=True)
@@ -290,9 +465,14 @@ with tab_states:
         # SECTION 1: Hydrogen comparison table + per-state focused views
         # ══════════════════════════════════════════════════════════════════
 
-        # 1a. Hydrogen comparison table — the clearest way to show differences
+        # 1a. Hydrogen comparison table
         if h_diffs:
             st.markdown("#### Hydrogen Differences vs Neutral")
+            st.caption(
+                "🟢 Green = H added (protonation) | "
+                "🔴 Red = H removed (deprotonation) | "
+                "— = no change (neutral reference)"
+            )
             try:
                 from mcce4_agent_ftpl.tools.rdkit_tools import generate_state_comparison_table
                 comp_rows = generate_state_comparison_table(states, h_diffs, lig_id)
@@ -303,13 +483,14 @@ with tab_states:
             except Exception as e:
                 logging.warning(f"Comparison table failed: {e}")
 
-        # 1b. Per-state views side by side — H atoms labeled with PDB names
+        # 1b. Per-state views side by side
         if state_pdbs and len(state_pdbs) > 0:
             st.markdown("---")
             st.markdown(
                 "#### Per-State Structures\n"
                 "All atoms labeled with PDB names. "
-                "🟢 **Green** = H atom added vs neutral."
+                "🟢 **Green** = H atom added vs neutral. "
+                "🔴 **Red** = H atom removed vs neutral."
             )
 
             cols_per_row = min(3, len(states))
@@ -328,11 +509,26 @@ with tab_states:
                     h_removed = diff.get("removed", []) or sd.get("h_removed", [])
 
                     with col:
-                        st.markdown(f"**{lig_id}{label}** (charge: {charge:+d})")
+                        # Color-coded header
+                        if charge > 0:
+                            hdr_color = "#4ec94e"
+                            charge_icon = "⊕"
+                        elif charge < 0:
+                            hdr_color = "#f44747"
+                            charge_icon = "⊖"
+                        else:
+                            hdr_color = "#4fc1ff"
+                            charge_icon = "◯"
 
-                        # Determine which PDB to render:
-                        # 1. Per-state PDB (has correct H atoms for this state)
-                        # 2. Fallback to neutral PDB (at least shows the molecule)
+                        st.markdown(
+                            f'<div style="background:{hdr_color}22; border-left:4px solid {hdr_color}; '
+                            f'padding:6px 10px; border-radius:4px; margin-bottom:8px;">'
+                            f'<b>{charge_icon} {lig_id}{label}</b> (charge: {charge:+d})'
+                            f'</div>',
+                            unsafe_allow_html=True,
+                        )
+
+                        # Determine which PDB to render
                         pdb_for_state = state_pdbs.get(label) or sd.get("pdb_path")
                         if not pdb_for_state or not os.path.exists(str(pdb_for_state)):
                             pdb_for_state = st.session_state.get("pdb_path")
@@ -477,7 +673,7 @@ with tab_states:
             num_rows="dynamic",
             use_container_width=True,
             column_config={
-                "Label": st.column_config.TextColumn("Label", help="e.g., 01, +1, -1"),
+                "Label": st.column_config.TextColumn("Label", help="e.g., 01, +1, -1, +a, +b"),
                 "Charge": st.column_config.NumberColumn("Charge", format="%+d"),
                 "nH": st.column_config.NumberColumn("nH", help="Protons relative to neutral"),
                 "pKa": st.column_config.NumberColumn("pKa", format="%.1f"),
@@ -496,13 +692,13 @@ with tab_states:
             key="state_editor"
         )
 
-        # Merge edits back into state dicts — INCLUDING label changes
+        # Merge edits back into state dicts
         if edited_df is not None:
             old_labels = [
                 (s.get("label", "?") if isinstance(s, dict) else s.label)
                 for s in states
             ]
-            label_remap = {}  # old_label → new_label
+            label_remap = {}
 
             for i, row in edited_df.iterrows():
                 if i < len(states):
@@ -532,7 +728,6 @@ with tab_states:
 
             # Propagate label renames to agent_state keys
             if label_remap and agent_state:
-                # Update state_pdbs keys
                 if agent_state.get("state_pdbs"):
                     new_pdbs = {}
                     for old_lbl, pdb_path in agent_state["state_pdbs"].items():
@@ -540,7 +735,6 @@ with tab_states:
                         new_pdbs[new_lbl] = pdb_path
                     agent_state["state_pdbs"] = new_pdbs
 
-                # Update h_diffs keys
                 if agent_state.get("h_diffs"):
                     new_diffs = {}
                     for old_lbl, diff in agent_state["h_diffs"].items():
@@ -548,7 +742,6 @@ with tab_states:
                         new_diffs[new_lbl] = diff
                     agent_state["h_diffs"] = new_diffs
 
-                # Update conformer_labels
                 agent_state["conformer_labels"] = [
                     (s.get("label") if isinstance(s, dict) else s.label)
                     for s in states
@@ -556,12 +749,12 @@ with tab_states:
 
                 st.session_state["agent_state"] = agent_state
 
-        # Apply changes button — refreshes the page with updated labels
+        # Apply changes button
         if st.button("🔄 Apply Table Changes", help="Refresh page after editing labels or parameters"):
             st.rerun()
 
         # ══════════════════════════════════════════════════════════════════
-        # SECTION 3: Add custom state via ionizable site selector (not Ketcher)
+        # SECTION 3: Add custom state via ionizable site selector
         # ══════════════════════════════════════════════════════════════════
         st.markdown("---")
         st.subheader("🧪 Add / Remove Protonation State")
@@ -575,7 +768,6 @@ with tab_states:
         if agent_state:
             ionizable = agent_state.get("_ionizable_sites", [])
             if not ionizable:
-                # Try to compute from PDB
                 try:
                     from mcce4_agent_ftpl.tools.rdkit_tools import (
                         get_ionizable_sites, get_mol_from_pdb as _gm
@@ -701,6 +893,7 @@ with tab_states:
             if st.button("✖ Cancel", type="secondary", use_container_width=True):
                 st.session_state["phase"] = "upload"
                 st.session_state["states"] = []
+                st.session_state["phase_status"] = {}
                 st.rerun()
 
         with col_approve:
@@ -723,22 +916,20 @@ with tab_states:
                 agent_state["needs_user_review"] = False
 
                 # Set up log capture for generation phases
-                import io as _io
-                gen_log_capture = _io.StringIO()
-                gen_log_handler = logging.StreamHandler(gen_log_capture)
-                gen_log_handler.setLevel(logging.INFO)
-                gen_log_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-                logging.getLogger().addHandler(gen_log_handler)
+                gen_log_capture, gen_log_handler = _start_log_capture()
 
                 status = st.status("🔧 Generating topology file...", expanded=True)
                 generation_ok = True
 
                 with status:
                     # Phase 5: Template generation
+                    st.session_state["phase_status"]["phase5"] = "running"
                     st.write("**Phase 5:** Generating per-state ftpl templates (pdb2ftpl.py)...")
                     try:
                         agent_state = node_generate_template(agent_state)
+                        st.session_state["phase_status"]["phase5"] = "done"
                         if agent_state.get("errors"):
+                            st.session_state["phase_status"]["phase5"] = "error"
                             for e in agent_state["errors"]:
                                 st.error(f"❌ {e}")
                             generation_ok = False
@@ -746,15 +937,19 @@ with tab_states:
                             ftpl = agent_state.get("ftpl_path", "?")
                             st.write(f"✅ Template: `{ftpl}`")
                     except Exception as e:
+                        st.session_state["phase_status"]["phase5"] = "error"
                         st.error(f"❌ Template generation failed: {e}")
                         generation_ok = False
 
                     # Phase 6: Charge assignment
                     if generation_ok:
-                        st.write("**Phase 6:** Computing per-state charges...")
+                        st.session_state["phase_status"]["phase6"] = "running"
+                        st.write("**Phase 6:** Computing per-state charges (OpenEye QuacPac TK)...")
                         try:
                             agent_state = node_assign_charges(agent_state)
+                            st.session_state["phase_status"]["phase6"] = "done"
                             if agent_state.get("complete"):
+                                st.session_state["phase_status"]["phase6"] = "error"
                                 for e in agent_state.get("errors", []):
                                     st.error(f"❌ {e}")
                                 generation_ok = False
@@ -762,20 +957,35 @@ with tab_states:
                                 n_states = len(agent_state.get("per_state_charges", {}))
                                 st.write(f"✅ Charges computed for {n_states} state(s)")
                         except Exception as e:
+                            st.session_state["phase_status"]["phase6"] = "error"
                             st.error(f"❌ Charge assignment failed: {e}")
                             generation_ok = False
 
                     # Phase 7: RXN calibration
                     if generation_ok and not agent_state.get("dry_run", False):
-                        st.write("**Phase 7:** RXN calibration (step1 + step3 for each dielectric)...")
+                        st.session_state["phase_status"]["phase7"] = "running"
+                        st.write("**Phase 7:** RXN calibration — MCCE step1 + step2, "
+                                 "then step3.py for each dielectric (2, 4, 8)...")
+                        st.caption(
+                            "For each dielectric, the lowest dsolv across all conformers "
+                            "of each state is used to calibrate rxn."
+                        )
                         try:
                             agent_state = node_rxn_calibration(agent_state)
                             rxn = agent_state.get("rxn_values", {})
                             if isinstance(rxn, dict) and "error" not in str(rxn):
+                                st.session_state["phase_status"]["phase7"] = "done"
                                 st.write(f"✅ RXN calibration complete")
+                                # Show rxn summary
+                                for rxn_key, vals in rxn.items():
+                                    if isinstance(vals, dict):
+                                        parts = [f"{ct}: {v:.3f}" for ct, v in vals.items()]
+                                        st.caption(f"  {rxn_key}: {', '.join(parts)}")
                             else:
+                                st.session_state["phase_status"]["phase7"] = "error"
                                 st.warning(f"⚠ RXN calibration: {rxn}")
                         except Exception as e:
+                            st.session_state["phase_status"]["phase7"] = "error"
                             st.warning(f"⚠ RXN calibration failed: {e}")
                     elif agent_state.get("dry_run", False):
                         st.write("⏩ Dry run — RXN calibration skipped")
@@ -787,12 +997,19 @@ with tab_states:
                         for w in agent_state["warnings"]:
                             st.warning(f"⚠ {w}")
 
-                    # Show generation log — always visible
-                    logging.getLogger().removeHandler(gen_log_handler)
-                    gen_log_text = gen_log_capture.getvalue()
+                    # Show generation log
+                    gen_log_text = _stop_log_capture(gen_log_capture, gen_log_handler)
                     if gen_log_text.strip():
-                        st.markdown("**📋 Generation log:**")
-                        st.code(gen_log_text, language="text")
+                        _render_log_panel(gen_log_text, "Generation Log", 500, "generation")
+                        # Append to session log
+                        prev_log = st.session_state.get("log_output", "")
+                        st.session_state["log_output"] = (
+                            prev_log + "\n\n" +
+                            "=" * 60 + "\n" +
+                            "  GENERATION PHASES (5-7)\n" +
+                            "=" * 60 + "\n\n" +
+                            gen_log_text
+                        )
 
                 if generation_ok:
                     status.update(label="✅ Topology file generated!", state="complete",
@@ -848,8 +1065,80 @@ with tab_output:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# TAB 4: Full Session Log (persistent, always available)
+# ──────────────────────────────────────────────────────────────────────────────
+with tab_log:
+    st.subheader("📋 Full Session Log")
+    st.caption(
+        "Complete log of all agent phases. Scroll to review output at any time. "
+        "Protonation state changes are highlighted: "
+        "🟢 green = H added, 🔴 red = H removed, "
+        "🔵 cyan = phase headers, 🟣 magenta = dsolv/rxn values."
+    )
+
+    full_log = st.session_state.get("log_output", "")
+    if full_log.strip():
+        # Download log button
+        col_dl, col_clear = st.columns([1, 3])
+        with col_dl:
+            lig_id = st.session_state.get("lig_id", "LIG")
+            st.download_button(
+                "⬇️ Download Log",
+                data=full_log,
+                file_name=f"mcce4_agent_{lig_id}.log",
+                mime="text/plain",
+            )
+        with col_clear:
+            if st.button("🗑 Clear Log"):
+                st.session_state["log_output"] = ""
+                st.rerun()
+
+        # Render the full log with max height and scrolling
+        _render_log_panel(full_log, "Session Log", 700, "full_session")
+
+        # Show state naming summary if available
+        states = st.session_state.get("states", [])
+        if states:
+            st.markdown("---")
+            st.subheader("🏷️ State Naming Summary")
+            for s in states:
+                sd = s if isinstance(s, dict) else s.to_dict()
+                label = sd.get("label", "?")
+                charge = int(sd.get("charge", 0) or 0)
+                rationale = sd.get("rationale", "")
+                proton_ex = sd.get("proton_exchange", "")
+
+                if charge > 0:
+                    badge_color = "#4ec94e"
+                    badge_icon = "⊕"
+                elif charge < 0:
+                    badge_color = "#f44747"
+                    badge_icon = "⊖"
+                else:
+                    badge_color = "#4fc1ff"
+                    badge_icon = "◯"
+
+                st.markdown(
+                    f'<div style="padding:4px 0;">'
+                    f'<span style="background:{badge_color}33; color:{badge_color}; '
+                    f'padding:2px 8px; border-radius:3px; font-weight:bold;">'
+                    f'{badge_icon} {lig_id}{label}</span> '
+                    f'(charge={charge:+d}) '
+                    f'{"— " + proton_ex if proton_ex else ""} '
+                    f'<span style="color:#888;">| {rationale[:80]}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+    else:
+        st.info(
+            "No log output yet. Run the analysis from the **Input** tab to "
+            "start generating logs. All phase output will appear here."
+        )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Footer
 # ──────────────────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption("MCCE4 Topology Agent v4.0 | GunnerLab | "
+st.caption("MCCE4 Topology Agent v5.0 | GunnerLab | "
            "[Tutorial](https://gunnerlab.github.io/mcce4_tutorial/docs/topology/)")

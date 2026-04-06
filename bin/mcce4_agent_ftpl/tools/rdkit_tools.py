@@ -282,9 +282,10 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
         logging.error("RDKit required for per-state PDB generation")
         return None, [], []
 
-    # If neutral state, just copy
-    if label in ("01", "00"):
-        out_path = os.path.join(output_dir, f"{lig_id}_{label}.pdb")
+    # If neutral state (charge 0 or labels 01/00), just copy
+    if label in ("01", "00") or (action is None and site_atom is None):
+        safe_label = label.replace('+', 'p').replace('-', 'm')
+        out_path = os.path.join(output_dir, f"{lig_id}_{safe_label}.pdb")
         shutil.copy2(neutral_pdb, out_path)
         return out_path, [], []
 
@@ -439,8 +440,13 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
         # PDB atom name field: 4 chars. Names < 4 chars get a leading space;
         # 4-char names (e.g. HC10, HN19) fill the field without a leading space.
         _pdb_name = h_name if len(h_name) == 4 else f" {h_name:<3s}"
+        # Copy chain/residue/icode from the site atom to keep residue info consistent
+        _site_line = site_info["line"]
+        _chain  = _site_line[21]   if len(_site_line) > 21 else " "
+        _resnum = _site_line[22:26] if len(_site_line) > 25 else "   1"
+        _icode  = _site_line[26]   if len(_site_line) > 26 else " "
         h_line = (
-            f"HETATM{new_serial:5d} {_pdb_name} {lig_id:>3s} L   1    "
+            f"HETATM{new_serial:5d} {_pdb_name} {lig_id:>3s}{_chain}{_resnum}{_icode}   "
             f"{h_x:8.3f}{h_y:8.3f}{h_z:8.3f}  1.00  0.00           H  \n"
         )
 
@@ -451,11 +457,35 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
             for a in atoms:
                 f.write(a["line"])
             f.write(h_line)
-            # Update CONECT: add bond between site atom and new H
+            # Update CONECT: merge site atom's existing bonds with new H into
+            # a SINGLE CONECT record.  pdb2ftpl.py does connect[key]=value
+            # (overwrite), so two CONECT lines for the same atom serial would
+            # lose the first one.  We collect all bonded serials from any
+            # existing CONECT lines for the site atom, append the new H serial,
+            # and write one combined line.
+            site_serial = site_info['serial']
+            site_bonds = []
+            other_conect = []
             for cl in conect_lines:
+                bonded = []
+                for i in range(6, min(len(cl.rstrip('\n')), 31), 5):
+                    field = cl[i:i+5].strip()
+                    if field:
+                        bonded.append(int(field))
+                if bonded and bonded[0] == site_serial:
+                    site_bonds.extend(bonded[1:])
+                else:
+                    other_conect.append(cl)
+            if new_serial not in site_bonds:
+                site_bonds.append(new_serial)
+            # Write one merged CONECT line for the site atom
+            conect_line = f"CONECT{site_serial:5d}" + "".join(f"{b:5d}" for b in site_bonds)
+            f.write(conect_line + "\n")
+            # Write remaining CONECT lines unchanged
+            for cl in other_conect:
                 f.write(cl)
-            f.write(f"CONECT{site_info['serial']:5d}{new_serial:5d}\n")
-            f.write(f"CONECT{new_serial:5d}{site_info['serial']:5d}\n")
+            # Reverse bond: H → site atom
+            f.write(f"CONECT{new_serial:5d}{site_serial:5d}\n")
             f.write("END\n")
 
         added_names = [h_name]
@@ -479,10 +509,32 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
             for a in atoms:
                 if a["serial"] != h_serial:
                     f.write(a["line"])
-            # Remove this H from CONECT records
+            # Update CONECT records: remove the H serial from bond lists
+            # but keep parent atom bonds intact.
+            h_serial_str = f"{h_serial:5d}"
             for cl in conect_lines:
-                if f"{h_serial:5d}" not in cl[6:]:
+                fields = cl[6:].split()
+                if not fields:
+                    continue
+                try:
+                    primary = int(fields[0])
+                except ValueError:
                     f.write(cl)
+                    continue
+                # Skip CONECT lines where the H atom is the primary atom
+                if primary == h_serial:
+                    continue
+                # For other atoms, remove the H serial from bonded list
+                bonded = []
+                for fld in fields[1:]:
+                    try:
+                        s = int(fld)
+                        if s != h_serial:
+                            bonded.append(s)
+                    except ValueError:
+                        pass
+                new_cl = f"CONECT{primary:5d}" + "".join(f"{b:5d}" for b in bonded) + "\n"
+                f.write(new_cl)
             f.write("END\n")
 
         removed_names = [h_name]

@@ -82,7 +82,7 @@ def main():
     setup_logging(f"mcce4_agent_ftpl_{lig_id}.log", args.verbose)
 
     logging.info(f"{'='*60}")
-    logging.info(f"  🤖 MCCE4 Topology Agent v4.0 (LangGraph + per-state PDBs)")
+    logging.info(f"  🤖 MCCE4 Topology Agent v5.0 (LangGraph + per-state PDBs)")
     logging.info(f"{'='*60}")
     logging.info(f"  Input:  {os.path.abspath(args.pdb)}")
     logging.info(f"  Ligand: {lig_id}   pH: {args.ph}   Method: {args.charge_method}")
