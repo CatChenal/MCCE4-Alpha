@@ -48,11 +48,11 @@ BOOK = "book.txt"
 N_HEADER_LINES = 3
 DELIM_LINE = "-" * 38 + "\n"
 BOOK_FOOTER_LINES = [
-    "\n" + DELIM_LINE,
+    DELIM_LINE,
     "Legend:\n",
     " r : Pending, Ready or Running\n",
     " c : Completed (pK.out found)\n",
-    " e : Error (Check run.log in directory)\n"
+    " e : Error (Check run.log in directory or bench_book.txt for Failed @ prerun)\n"
 ]
 N_FOOTER_LINES = len(BOOK_FOOTER_LINES)
 
@@ -213,8 +213,15 @@ class SlurmPool:
 def get_protein_status(protein_name: str) -> Tuple[str, str]:
     """Determines status based on file presence in the protein directory.
     """
+    if protein_name.startswith("#"):
+        return "e", "Failed @ prerun"
+
     p_dir = Path(protein_name.upper())
     if not p_dir.exists():
+        return "r", "Pending"
+
+    log_file = p_dir/"run.log"
+    if not log_file.exists():
         return "r", "Pending"
 
     steps = [
@@ -234,14 +241,11 @@ def get_protein_status(protein_name: str) -> Tuple[str, str]:
     if last_valid_step == "Step4":
         return "c", "Completed"
 
-    log_file = p_dir/"run.log"
-    if log_file.exists():
-        if last_valid_step == "None":
-            return "e", "Failed @ Step1"
-        next_idx = int(last_valid_step[-1]) + 1
-        return "r", f"In Step{next_idx}"
+    if last_valid_step == "None":
+        return "e", "Failed @ Step1"
 
-    return "r", "Ready"
+    next_idx = int(last_valid_step[-1]) + 1
+    return "r", f"In Step{next_idx}"
 
 
 def book_header_lines() -> list:
@@ -273,10 +277,15 @@ def write_book(user_files: list, bench_book: bool=False):
         if bench_book_fp.name != previous_book:
             shutil.copy2(bench_book_fp, Path(previous_book))
 
-        # append non-commented out entries from book file:
-        content.extend([f"{line.split()[0]:<12} {'r':<8} Ready\n" 
-                        for line in bench_book_fp.read_text().splitlines()
-                        if not line.startswith("#")])
+        # keep commented out entries from book file, reformatted:
+        for line in bench_book_fp.read_text().splitlines():
+            if not line:
+                continue
+            parts = line.split(maxsplit=2)
+            if not line.startswith("#"):
+                content.append(f"{parts[0]:<12} {'r':<8} Pending\n")
+            else:
+                content.append(f"{parts[0]:<12} {'e':<8} {parts[2][2:]}\n")
             
     content.extend(BOOK_FOOTER_LINES)
     with open(BOOK, "w") as f:
@@ -300,7 +309,7 @@ def update_book():
         protein_ids.append(parts[0].upper())
 
     content = book_header_lines()
-    for pid in sorted(set(protein_ids)):
+    for pid in protein_ids:
         flag, step = get_protein_status(pid)
         content.append(f"{pid:<12} {flag:<8} {step}\n")
     content.extend(BOOK_FOOTER_LINES)
@@ -377,7 +386,7 @@ def get_user_files(input_path: str) -> Tuple[List[Path], bool]:
     # contains commented out entries for pdbs with new tpl created: to keep.
     # e.g.:
     #  9HPP    i
-    #  8V5W    i # prerun.step1: Generic tpl created...
+    #  #8V5W    e # prerun.step1: Generic tpl created...
     #
     # default behaviour for pro_batch: no prior setup:
     input_fp = Path(input_path)
