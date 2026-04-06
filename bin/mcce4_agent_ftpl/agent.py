@@ -14,7 +14,7 @@ import logging
 from typing import Literal
 from datetime import datetime
 
-from .models import AgentState, ConformerState, make_labels_unique
+from .models import AgentState, ConformerState, make_labels_unique, sort_conformer_labels
 from .config import DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS, CHARGE_TO_CONF
 from .llm import GeminiLLM
 from .tools.mcce_tools import (
@@ -105,7 +105,7 @@ def node_enumerate_states(state: AgentState) -> AgentState:
 
     states = make_labels_unique(states)
     state["states"] = [s.to_dict() for s in states]
-    state["conformer_labels"] = [s.label for s in states]
+    state["conformer_labels"] = sort_conformer_labels([s.label for s in states])
     state["phase"] = "enumerate_states"
     return state
 
@@ -167,7 +167,8 @@ For each state, provide:
   3. Literature references: cite academic papers, textbooks, or trusted
      databases (PubChem, DrugBank, IUPHAR). Provide DOI or URL.
 
-Add any missing states relevant at pH 7.4.
+Do NOT invent new protonation states beyond what Dimorphite-DL proposed.
+You may remove states that are chemically unreasonable, but do not add new ones.
 Flag any warnings (metals, unusual chemistry, etc.).
 
 Respond ONLY in JSON (no markdown fences):
@@ -267,7 +268,7 @@ Respond ONLY in JSON (no markdown fences):
             })
 
         state["states"] = refined
-        state["conformer_labels"] = [s["label"] for s in refined]
+        state["conformer_labels"] = sort_conformer_labels([s["label"] for s in refined])
 
         if result.get("warnings"):
             warnings = state.get("warnings", [])
@@ -323,55 +324,8 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
     h_diffs = {}
     states = state.get("states", [])
 
-    # ── Safety net: Auto-add deprotonation state (-1) if still missing ──
-    # Phase 2 should have added -1, but double-check here in case LLM removed it.
-    has_negative = any(
-        int(s.get('charge', 0) if isinstance(s, dict) else s.charge) < 0
-        for s in states
-    )
-    if not has_negative:
-        neutral_sites = get_ionizable_sites_oe(pdb_path)
-        # Prefer deprotonatable sites (O-H, S-H), then any site with H
-        deprot_candidates = [
-            s2 for s2 in neutral_sites
-            if s2.get("current_hs", 0) > 0 and s2.get("type", "").startswith("deprotonatable")
-        ]
-        if not deprot_candidates:
-            deprot_candidates = [
-                s2 for s2 in neutral_sites
-                if s2.get("current_hs", 0) > 0
-            ]
-        if deprot_candidates:
-            # Pick best deprotonation site: prefer O-H > S-H > N-H
-            site = None
-            for preferred_sym in ("O", "S", "N"):
-                for c in deprot_candidates:
-                    if c.get("symbol") == preferred_sym:
-                        site = c
-                        break
-                if site:
-                    break
-            if site is None:
-                site = deprot_candidates[0]
-
-            logging.info(f"  🔄 Auto-adding -1 state: deprotonate at {site['name']} "
-                         f"({site['type']}, current_hs={site['current_hs']})")
-            minus1 = {
-                "label": "-1", "charge": -1, "nH": -1,
-                "site_atom": site["name"],
-                "smiles": "", "source": "auto-detected",
-                "rationale": f"Deprotonation at {site['name']} ({site['type']})",
-                "proton_exchange": f"-H from {site['name']}",
-                "pka": 0.0,
-                "pdb_path": None, "h_added": [], "h_removed": [],
-                "references": [],
-            }
-            states.append(minus1)
-            state["states"] = states
-            state["conformer_labels"] = [
-                (s.get("label") if isinstance(s, dict) else s.label) for s in states
-            ]
-            logging.info(f"  Updated conformer labels: {state['conformer_labels']}")
+    # Trust Dimorphite-DL + LLM reasoning for protonation states.
+    # Do NOT auto-add a -1 state — use only what was enumerated and validated.
 
     # Sort states by charge so we build each from the previous one
     sorted_states = sorted(states, key=lambda s: int(s.get('charge', 0) if isinstance(s, dict) else s.charge))

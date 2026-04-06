@@ -254,6 +254,17 @@ def get_ionizable_sites(mol) -> list:
     return sites
 
 
+def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
+    """Copy a PDB file, assigning default_chain to any atom with a blank chain ID."""
+    with open(src_pdb) as f:
+        lines = f.readlines()
+    with open(dst_pdb, "w") as f:
+        for line in lines:
+            if line.startswith(("ATOM", "HETATM")) and len(line) > 21 and line[21] == " ":
+                line = line[:21] + default_chain + line[22:]
+            f.write(line)
+
+
 def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
                        site_atom=None, action=None):
     """Generate a PDB file for a specific protonation state.
@@ -282,11 +293,11 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
         logging.error("RDKit required for per-state PDB generation")
         return None, [], []
 
-    # If neutral state (charge 0 or labels 01/00), just copy
+    # If neutral state (charge 0 or labels 01/00), copy and fix chain IDs
     if label in ("01", "00") or (action is None and site_atom is None):
         safe_label = label.replace('+', 'p').replace('-', 'm')
         out_path = os.path.join(output_dir, f"{lig_id}_{safe_label}.pdb")
-        shutil.copy2(neutral_pdb, out_path)
+        _copy_pdb_with_chain_id(neutral_pdb, out_path)
         return out_path, [], []
 
     # ── v4: Try DIRECT site-based generation first ──
@@ -442,7 +453,9 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
         _pdb_name = h_name if len(h_name) == 4 else f" {h_name:<3s}"
         # Copy chain/residue/icode from the site atom to keep residue info consistent
         _site_line = site_info["line"]
-        _chain  = _site_line[21]   if len(_site_line) > 21 else " "
+        _chain  = _site_line[21]   if len(_site_line) > 21 else "A"
+        if _chain == " ":
+            _chain = "A"
         _resnum = _site_line[22:26] if len(_site_line) > 25 else "   1"
         _icode  = _site_line[26]   if len(_site_line) > 26 else " "
         h_line = (
@@ -455,7 +468,11 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
             for line in other_lines:
                 f.write(line)
             for a in atoms:
-                f.write(a["line"])
+                aline = a["line"]
+                # Ensure chain ID defaults to 'A' if blank
+                if len(aline) > 21 and aline[21] == " ":
+                    aline = aline[:21] + "A" + aline[22:]
+                f.write(aline)
             f.write(h_line)
             # Update CONECT: merge site atom's existing bonds with new H into
             # a SINGLE CONECT record.  pdb2ftpl.py does connect[key]=value
@@ -508,7 +525,11 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
                 f.write(line)
             for a in atoms:
                 if a["serial"] != h_serial:
-                    f.write(a["line"])
+                    aline = a["line"]
+                    # Ensure chain ID defaults to 'A' if blank
+                    if len(aline) > 21 and aline[21] == " ":
+                        aline = aline[:21] + "A" + aline[22:]
+                    f.write(aline)
             # Update CONECT records: remove the H serial from bond lists
             # but keep parent atom bonds intact.
             h_serial_str = f"{h_serial:5d}"
@@ -1085,6 +1106,9 @@ def _write_state_pdb(state_mol, orig_pdb, out_path, lig_id,
             if atom_name in removed_set:
                 removed_set.discard(atom_name)
                 continue
+            # Ensure chain ID defaults to 'A' if blank
+            if len(line) > 21 and line[21] == " ":
+                line = line[:21] + "A" + line[22:]
             kept_lines.append(line)
         elif line.startswith(("CONECT", "END")):
             continue
@@ -1107,7 +1131,7 @@ def _write_state_pdb(state_mol, orig_pdb, out_path, lig_id,
                 pos = (p.x, p.y, p.z)
                 break
         _pdb_name = h_name if len(h_name) == 4 else f" {h_name:<3s}"
-        hetatm = (f"HETATM{next_serial:5d} {_pdb_name} {lig_id:>3s} L   1    "
+        hetatm = (f"HETATM{next_serial:5d} {_pdb_name} {lig_id:>3s} A   1    "
                   f"{pos[0]:8.3f}{pos[1]:8.3f}{pos[2]:8.3f}"
                   f"  1.00  0.00           H  \n")
         kept_lines.append(hetatm)

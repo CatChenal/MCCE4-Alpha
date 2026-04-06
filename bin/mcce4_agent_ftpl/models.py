@@ -105,6 +105,29 @@ def make_labels_unique(states: list) -> list:
     return result
 
 
+def sort_conformer_labels(labels):
+    """Sort conformer labels: neutral first, then positive, then negative.
+
+    Label categories:
+      Neutral:  starts with '0'  (01, 0a, 0b)
+      Positive: starts with '+' or digit 1-9 (e.g., +1, +a, 2a, 3b)
+      Negative: starts with '-' or 'M'  (e.g., -1, -a, Ma, Mb)
+
+    Within each category, labels are sorted alphabetically.
+    Example: ['01', '+a', '+b', '2a', '-a', 'Ma']
+    """
+    def _sort_key(label):
+        if label.startswith('0'):
+            return (0, label)  # neutral
+        elif label.startswith('+') or (label[0].isdigit() and label[0] != '0'):
+            return (1, label)  # positive
+        elif label.startswith('-') or label.startswith('M'):
+            return (2, label)  # negative
+        else:
+            return (3, label)  # unknown — put last
+    return sorted(labels, key=_sort_key)
+
+
 class AgentState(TypedDict, total=False):
     """State object for the LangGraph agent.
 

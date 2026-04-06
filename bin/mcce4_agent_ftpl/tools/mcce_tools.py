@@ -13,6 +13,17 @@ from typing import Optional
 from ..config import DIELECTRIC_MAP, RCSB_SMILES_URL
 
 
+def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
+    """Copy a PDB file, assigning default_chain to any atom line with a blank chain ID."""
+    with open(src_pdb) as f:
+        lines = f.readlines()
+    with open(dst_pdb, "w") as f:
+        for line in lines:
+            if line.startswith(("ATOM", "HETATM")) and len(line) > 21 and line[21] == " ":
+                line = line[:21] + default_chain + line[22:]
+            f.write(line)
+
+
 def run_cmd(cmd, description="", capture=False, cwd=None):
     """Run a shell command with logging."""
     if description:
@@ -189,11 +200,33 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
     os.symlink(ftpl_abs, link)
     logging.info(f"  🔗 Linked {ftpl_abs} → {link}")
 
-    # Ensure PDB is accessible in work_dir
+    # Ensure PDB is accessible in work_dir, with chain ID defaulting to 'A'
     pdb_base = os.path.basename(pdb_path)
     pdb_wd = os.path.join(work_dir, pdb_base)
-    if not os.path.exists(pdb_wd):
-        shutil.copy2(os.path.abspath(pdb_path), pdb_wd)
+    _copy_pdb_with_chain_id(os.path.abspath(pdb_path), pdb_wd)
+
+    # ── Pre-flight: verify ftpl CONFLIST matches expected states ──
+    expected_types = [f"{lig_id}{l}" for l in conformer_labels]
+    with open(ftpl_abs) as f:
+        ftpl_content = f.read()
+    conflist_match = re.search(r'CONFLIST,\s*' + re.escape(lig_id) + r':\s*(.*)', ftpl_content)
+    if conflist_match:
+        conflist_str = conflist_match.group(1)
+        for ct in expected_types:
+            if ct not in conflist_str:
+                logging.error(f"  ✗ {ct} missing from ftpl CONFLIST — step2 will not create it")
+        # Also verify each conftype has CONNECT records
+        for ct in expected_types:
+            connect_count = len(re.findall(
+                r'^CONNECT,.*' + re.escape(ct) + r':',
+                ftpl_content, re.MULTILINE
+            ))
+            if connect_count == 0:
+                logging.error(f"  ✗ {ct} has NO CONNECT records in ftpl")
+            else:
+                logging.info(f"  ✓ {ct}: {connect_count} CONNECT records in ftpl")
+    else:
+        logging.error(f"  No CONFLIST found for {lig_id} in ftpl!")
 
     # ── Step 1: Initialize MCCE ──
     if run_cmd(f"step1.py {pdb_base}", description="MCCE4 Step 1", cwd=work_dir) is None:
@@ -212,7 +245,8 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
         if missing:
             logging.warning(f"  ⚠ Missing conformers in step2_out.pdb: {missing}")
             logging.warning(f"  Found: {sorted(found_types)}")
-            logging.warning(f"  Check that the ftpl CONFLIST includes all states")
+            # Diagnose: check ftpl for CONFLIST and CONNECT records
+            _diagnose_missing_conformers(ftpl_abs, lig_id, conformer_labels, missing)
         else:
             logging.info(f"  ✅ All {len(expected_types)} conformer types found in step2_out.pdb")
             for ct, count in sorted(found_types.items()):
@@ -276,50 +310,95 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
 def _check_conformers_in_step2(step2_path: str, lig_id: str, labels: list) -> dict:
     """Check which conformer types are present in step2_out.pdb.
 
-    Returns {conformer_type: count} for each type found.
+    MCCE PDB format:
+      - Columns 17:20 = resName (3-char, e.g., "EMH")
+      - Columns 80:82 = 2-char conformer type suffix (e.g., "01", "+1", "-1")
+      - confType = resName + suffix (e.g., "EMH01", "EMH+1")
+      - Full confID = confType + chainID + resSeq + iCode + confNum
+
+    Returns {conformer_type: count} where count = number of unique conformers.
     """
     type_counts = {}
+    # Track unique conformers by their full identity (confType + chain + seq + confNum)
     seen_conformers = set()
 
     with open(step2_path) as f:
         for line in f:
             if not line.startswith(("ATOM", "HETATM")):
                 continue
+            if len(line) < 82:
+                continue
             resname = line[17:20].strip()
             if resname != lig_id:
                 continue
-            # Conformer name is in columns 21-30 area — extract from chain+resseq
-            # Actually, the conformer type is encoded in the residue info
-            # Look at the full conformer ID from alt loc + resname + chain + resseq
-            conf_id = line[80:].strip() if len(line) > 80 else ""
-            if not conf_id:
-                # Try to extract from columns — conformer name might be elsewhere
-                # In MCCE format: columns 17-20 = resname, then chain, resseq
-                # The conformer type prefix is what we need
-                continue
-            # conf_id looks like "EMH01_0000_001"
-            if conf_id not in seen_conformers:
-                seen_conformers.add(conf_id)
-                # Extract type: everything before the first underscore
-                parts = conf_id.split("_")
-                if parts:
-                    conf_type = parts[0]
-                    type_counts[conf_type] = type_counts.get(conf_type, 0) + 1
 
-    # Fallback: if nothing found via conf_id field, grep for conformer names
-    if not type_counts:
-        with open(step2_path) as f:
-            content = f.read()
-        for label in labels:
-            conf_type = f"{lig_id}{label}"
-            # Count unique conformer instances like "EMH01_0000_001"
-            import re
-            pattern = re.escape(conf_type) + r'_\d{4}_\d{3}'
-            matches = set(re.findall(pattern, content))
-            if matches:
-                type_counts[conf_type] = len(matches)
+            # MCCE PDB: confType = resName(3) + cols 80:82(2)
+            conf_suffix = line[80:82]
+            conf_type = f"{resname}{conf_suffix}".rstrip()
+
+            # Build a unique conformer key from chain + resSeq + iCode + history
+            chain_id = line[21]
+            res_seq = line[22:26].strip()
+            icode = line[26]
+            history = line[80:].strip()
+            conf_key = f"{conf_type}_{chain_id}_{res_seq}_{icode}_{history}"
+
+            if conf_key not in seen_conformers:
+                seen_conformers.add(conf_key)
+                type_counts[conf_type] = type_counts.get(conf_type, 0) + 1
 
     return type_counts
+
+
+def _diagnose_missing_conformers(ftpl_path: str, lig_id: str, labels: list, missing: list):
+    """Diagnose why conformers are missing from step2_out.pdb.
+
+    Checks the ftpl file for:
+      1. CONFLIST line — does it include all expected conformer types?
+      2. CONNECT records — does each conformer type have atom definitions?
+    """
+    if not os.path.exists(ftpl_path):
+        logging.error(f"  ftpl file not found: {ftpl_path}")
+        return
+
+    with open(ftpl_path) as f:
+        content = f.read()
+
+    # Check CONFLIST
+    conflist_match = re.search(r'CONFLIST,\s*' + re.escape(lig_id) + r':\s*(.*)', content)
+    if conflist_match:
+        conflist_str = conflist_match.group(1)
+        logging.info(f"  CONFLIST in ftpl: {conflist_str.strip()}")
+        for m in missing:
+            if m not in conflist_str:
+                logging.error(f"    ✗ {m} is NOT in CONFLIST — step2 cannot create it")
+            else:
+                logging.info(f"    ✓ {m} is in CONFLIST")
+    else:
+        logging.error(f"  No CONFLIST line found for {lig_id} in ftpl!")
+
+    # Check CONNECT records per conformer type
+    for m in missing:
+        connect_count = len(re.findall(
+            r'^CONNECT,.*' + re.escape(m) + r':',
+            content, re.MULTILINE
+        ))
+        if connect_count == 0:
+            logging.error(f"    ✗ {m} has NO CONNECT records in ftpl — "
+                          f"step2 rot_ionization skips types without CONNECT")
+        else:
+            logging.info(f"    ✓ {m} has {connect_count} CONNECT record(s)")
+
+    # Check CHARGE records per conformer type
+    for m in missing:
+        charge_count = len(re.findall(
+            r'^CHARGE,\s*' + re.escape(m) + r',',
+            content, re.MULTILINE
+        ))
+        if charge_count == 0:
+            logging.warning(f"    ⚠ {m} has NO CHARGE records in ftpl")
+        else:
+            logging.info(f"    ✓ {m} has {charge_count} CHARGE record(s)")
 
 
 def parse_head3_dsolv(head3_path: str, lig_id: str, labels: list) -> dict:
@@ -460,9 +539,9 @@ def generate_all_state_ftpls(lig_id, state_pdbs, output_dir="."):
     ftpls = {}
     for label, pdb_path in state_pdbs.items():
         logging.info(f"\n  Generating ftpl for state {label}...")
-        # Copy state PDB to output_dir so pdb2ftpl can find it (always overwrite)
+        # Copy state PDB to output_dir, ensuring chain ID defaults to 'A'
         pdb_dest = os.path.join(output_dir, os.path.basename(pdb_path))
-        shutil.copy2(pdb_path, pdb_dest)
+        _copy_pdb_with_chain_id(pdb_path, pdb_dest)
 
         ftpl = generate_ftpl_for_state(lig_id, pdb_path, label, output_dir)
         if ftpl:
@@ -487,8 +566,9 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
         logging.error("No ftpl files to merge")
         return False
 
+    from ..models import sort_conformer_labels
     neutral_label = "01" if "01" in per_state_ftpls else list(per_state_ftpls.keys())[0]
-    all_labels = sorted(per_state_ftpls.keys())
+    all_labels = sort_conformer_labels(per_state_ftpls.keys())
 
     parsed = {}
     for label, ftpl_path in per_state_ftpls.items():
@@ -658,7 +738,8 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
     Returns:
         Path to the .pml file.
     """
-    labels = sorted(state_pdbs.keys())
+    from ..models import sort_conformer_labels
+    labels = sort_conformer_labels(state_pdbs.keys())
     spacing = 25.0  # Angstroms between states
 
     lines = [

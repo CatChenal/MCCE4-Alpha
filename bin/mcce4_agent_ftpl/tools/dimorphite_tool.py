@@ -20,14 +20,14 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
 
     Keeps ALL unique protonation states (multiple per charge).
     Applies naming: single charge → 01/+1/-1, multiple → +a/+b.
-    If no deprotonated (-1) state found, checks for deprotonatable
-    sites (O-H, S-H, N-H) and adds -1 automatically.
+    Does NOT auto-add states — trusts Dimorphite-DL output, with
+    LLM reasoning phase handling validation and trimming.
 
     Args:
         smiles: Input SMILES string.
         ph: Target pH.
         ph_tolerance: pH range tolerance (±).
-        pdb_path: Optional path to PDB for detecting deprotonatable sites.
+        pdb_path: Optional path to PDB (unused, kept for API compat).
 
     Returns:
         List of ConformerState objects for all unique protonation states.
@@ -54,13 +54,8 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
     # Compute formal charges and build ConformerState objects
     states = _smiles_to_states(state_smiles, ph)
 
-    # ── Auto-add -1 state if no negative charge state was found ──
-    has_negative = any(s.charge < 0 for s in states)
-    if not has_negative and pdb_path:
-        deprot_state = _auto_add_deprotonation(pdb_path, ph)
-        if deprot_state:
-            states.append(deprot_state)
-            logging.info(f"  🔄 Auto-added -1 state: deprotonate at {deprot_state.site_atom}")
+    # Trust Dimorphite-DL output — do NOT auto-add a -1 state.
+    # The LLM reasoning phase will validate and trim states as needed.
 
     # Ensure neutral (01) is always present
     has_neutral = any(s.charge == 0 for s in states)
