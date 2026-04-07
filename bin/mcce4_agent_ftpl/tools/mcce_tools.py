@@ -157,10 +157,20 @@ def update_conformer_params(ftpl_path: str, states: list, lig_id: str):
             nH = 0
 
         pka_raw = (s.get('pka', 0) if isinstance(s, dict) else s.pka)
+        charge = (s.get('charge', 0) if isinstance(s, dict) else getattr(s, 'charge', 0)) or 0
+        logging.info(f"  📝 {ct}: pka_raw={pka_raw!r} (type={type(pka_raw).__name__}), "
+                     f"from state dict pka key={s.get('pka') if isinstance(s, dict) else s.pka!r}")
         try:
             pka = float(str(pka_raw).lstrip("~≈><≥≤ ")) if pka_raw is not None else 0.0
         except (ValueError, TypeError):
             pka = 0.0
+
+        # Neutral reference states should have pKa0=0.0; charged states must not
+        is_neutral = (int(charge) == 0)
+        if not is_neutral and (pka == 0.0 or pka_raw is None):
+            logging.warning(f"  ⚠ {ct}: charged conformer (charge={charge}) has no pKa estimate "
+                            f"(pka_raw={pka_raw!r}). A pKa0 value is required for charged states.")
+        logging.info(f"  📝 {ct}: pka_raw={pka_raw!r} → final pKa0={pka:.2f}")
 
         p = re.compile(rf"(CONFORMER,\s*{re.escape(ct)}:.*?nH=)\s*(\d+)")
         p2 = re.compile(rf"(CONFORMER,\s*{re.escape(ct)}:.*?pKa0=)\s*([-\d.]+)")

@@ -163,7 +163,12 @@ IMPORTANT RULES:
     (e.g., "+H on N19" or "-H from O20").
 
 For each state, provide:
-  1. Estimated pKa and the PDB atom name of the protonation site
+  1. Estimated pKa and the PDB atom name of the protonation site.
+     CRITICAL: Every charged state (non-neutral) MUST have a numeric pKa
+     estimate — never null or 0.0. Only the neutral reference state ("01")
+     should have pka=null. If a state involves multiple protonation events
+     (e.g., nH=2, nH=4), estimate the pKa for the LAST protonation step
+     that produces that state. Use your best literature-informed estimate.
   2. EXACTLY which proton(s) are added or removed vs the neutral form
      using the PDB atom name (e.g., "+H on N19 (morpholine N)")
   3. Literature references: cite academic papers, textbooks, or trusted
@@ -196,6 +201,13 @@ Respond ONLY in JSON (no markdown fences):
 }}""")
 
     if result and "states" in result:
+        logging.info(f"  📝 Raw LLM JSON response: {result}")
+        for i, s_raw in enumerate(result["states"]):
+            logging.info(f"  📝 LLM state[{i}]: label={s_raw.get('label')}, "
+                         f"pka={s_raw.get('pka')!r} (type={type(s_raw.get('pka')).__name__}), "
+                         f"charge={s_raw.get('charge')}, nH={s_raw.get('nH')}, "
+                         f"site_atom={s_raw.get('site_atom')}")
+
         # Build lookup of original Dimorphite-DL data by label and by SMILES
         orig_states = state.get("states", [])
         smiles_by_label = {}
@@ -232,9 +244,14 @@ Respond ONLY in JSON (no markdown fences):
                             preserved_smiles = smi_val
                             break
 
+            llm_pka = s.get("pka")
+            logging.info(f"  📝 Refined state {label}: LLM pka={llm_pka!r} "
+                         f"(type={type(llm_pka).__name__}), charge={charge:+d}, "
+                         f"nH={s.get('nH')}, site_atom={s.get('site_atom')}")
+
             refined.append({
                 "label": label, "charge": charge,
-                "nH": int(s.get("nH", 0) or 0), "pka": s.get("pka"),
+                "nH": int(s.get("nH", 0) or 0), "pka": llm_pka,
                 "site_atom": s.get("site_atom"),
                 "smiles": preserved_smiles,
                 "source": f"llm ({llm_model_name})", "pdb_path": None,
@@ -248,6 +265,65 @@ Respond ONLY in JSON (no markdown fences):
                 logging.info(f"  State {label} (charge={charge:+d}): SMILES={preserved_smiles[:60]}...")
             else:
                 logging.warning(f"  State {label} (charge={charge:+d}): NO SMILES — per-state PDB may use site-based generation")
+
+        # Validate: every charged state must have a numeric pKa estimate.
+        # If any are missing, make a focused follow-up LLM query.
+        missing_pka = [
+            s for s in refined
+            if int(s.get("charge", 0) or 0) != 0
+            and (s.get("pka") is None or s.get("pka") == 0 or s.get("pka") == 0.0)
+        ]
+        if missing_pka:
+            missing_desc = "\n".join(
+                f"  {s['label']}: charge={int(s.get('charge',0)):+d}, nH={s.get('nH',0)}, "
+                f"site_atom={s.get('site_atom','?')}, smiles={s.get('smiles','')[:80]}"
+                for s in missing_pka
+            )
+            logging.info(f"  🔄 {len(missing_pka)} charged state(s) missing pKa — "
+                         f"making follow-up LLM query")
+            pka_result = llm.ask_json(f"""You are a computational chemistry expert.
+
+The following charged protonation states of ligand "{state.get('name', '')}"
+(SMILES: {state.get('smiles', '')}) are missing pKa estimates.
+
+States needing pKa values:
+{missing_desc}
+
+For EACH state listed above, estimate the solution pKa for the protonation
+equilibrium that produces that state. Use literature values, functional group
+pKa tables, or your best chemistry knowledge.
+
+Respond ONLY in JSON (no markdown fences):
+{{
+  "pka_estimates": [
+    {{"label": "...", "pka": 8.5, "rationale": "brief reason"}}
+  ]
+}}""")
+            if pka_result and "pka_estimates" in pka_result:
+                pka_lookup = {
+                    e["label"]: e["pka"]
+                    for e in pka_result["pka_estimates"]
+                    if e.get("pka") is not None
+                }
+                for s in refined:
+                    if s["label"] in pka_lookup:
+                        old_pka = s.get("pka")
+                        s["pka"] = pka_lookup[s["label"]]
+                        logging.info(f"  ✓ {s['label']}: pKa updated "
+                                     f"{old_pka!r} → {s['pka']}")
+            else:
+                logging.warning("  ⚠ Follow-up pKa query returned no results")
+
+            # Check if any are still missing after follow-up
+            still_missing = [
+                s for s in refined
+                if int(s.get("charge", 0) or 0) != 0
+                and (s.get("pka") is None or s.get("pka") == 0
+                     or s.get("pka") == 0.0)
+            ]
+            for s in still_missing:
+                logging.warning(f"  ⚠ {s['label']} (charge={int(s.get('charge',0)):+d}) "
+                                f"still has no pKa after follow-up query")
 
         # Apply naming convention: single per charge → 01/+1/-1, multiple → +a/+b
         refined = make_labels_unique(refined)
