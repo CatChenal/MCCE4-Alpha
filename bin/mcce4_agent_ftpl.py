@@ -8,13 +8,20 @@ mcce4_agent_ftpl/ package directory.
 
 Usage:
   mcce4_agent_ftpl.py EMH.pdb                                     # Full auto
+  mcce4_agent_ftpl.py EMH.cif                                     # CIF input (auto-converts)
   mcce4_agent_ftpl.py EMH.pdb --gui                               # Web GUI
   mcce4_agent_ftpl.py EMH.pdb --state-pdbs EMH_01.pdb EMH_+1.pdb  # User states
   mcce4_agent_ftpl.py EMH.pdb --no-llm --dry-run                  # Minimal run
+  mcce4_agent_ftpl.py EMH.pdb --llm-provider claude               # Use Claude LLM
+  mcce4_agent_ftpl.py EMH.pdb --llm-provider chatgpt              # Use ChatGPT LLM
+  mcce4_agent_ftpl.py EMH.pdb --llm-provider claude --api-key KEY  # Custom API key
 
 Install dependencies:
   pip install google-genai langgraph dimorphite-dl rdkit streamlit
+  pip install anthropic openai  # optional, for Claude/ChatGPT providers
   export GEMINI_API_KEY="your_free_key"   # from https://ai.google.dev
+  export ANTHROPIC_API_KEY="your_key"     # for Claude provider
+  export OPENAI_API_KEY="your_key"        # for ChatGPT provider
 """
 
 import sys

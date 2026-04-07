@@ -10,7 +10,8 @@ import logging
 import subprocess
 from datetime import datetime
 
-from .config import SUPPORTED_CHARGE_METHODS, DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS
+from .config import (SUPPORTED_CHARGE_METHODS, DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS,
+                      SUPPORTED_LLM_PROVIDERS, DEFAULT_LLM_PROVIDER)
 
 
 def setup_logging(log_file: str, verbose: bool = False):
@@ -36,18 +37,25 @@ def main():
         epilog=textwrap.dedent("""\
         Examples:
           %(prog)s EMH.pdb                                         # Full auto
+          %(prog)s EMH.cif                                         # CIF input (auto-converts)
           %(prog)s EMH.pdb --gui                                   # Web GUI (Streamlit)
           %(prog)s EMH.pdb --state-pdbs EMH_01.pdb EMH_+1.pdb     # User state PDBs
           %(prog)s EMH.pdb --no-llm                                # No LLM reasoning
           %(prog)s EMH.pdb --charge-method am1bcc                  # Override charges
           %(prog)s EMH.pdb --dry-run                               # Skip calibration
+          %(prog)s EMH.pdb --llm-provider claude --api-key sk-...  # Use Claude
+          %(prog)s EMH.pdb --llm-provider chatgpt --api-key sk-... # Use ChatGPT
 
         Install:
           pip install google-genai langgraph dimorphite-dl rdkit streamlit
-          export GEMINI_API_KEY="your_free_key"  # from https://ai.google.dev
+          pip install anthropic openai  # optional, for Claude/ChatGPT LLM providers
+          export GEMINI_API_KEY="your_free_key"   # from https://ai.google.dev
+          export ANTHROPIC_API_KEY="your_key"     # for Claude provider
+          export OPENAI_API_KEY="your_key"        # for ChatGPT provider
         """))
 
-    parser.add_argument("pdb", help="Ligand PDB file (e.g., EMH.pdb)")
+    parser.add_argument("input_file",
+                        help="Ligand PDB or CIF file (e.g., EMH.pdb or EMH.cif)")
     parser.add_argument("--state-pdbs", nargs="+", default=None,
                         help="PDB files for specific states (e.g., EMH_01.pdb EMH_+1.pdb)")
     parser.add_argument("--gui", action="store_true",
@@ -63,29 +71,49 @@ def main():
     parser.add_argument("-o", "--output", default=None, help="Output .ftpl filename")
     parser.add_argument("-v", "--verbose", action="store_true")
 
+    # LLM provider options
+    parser.add_argument("--llm-provider", default=DEFAULT_LLM_PROVIDER,
+                        choices=SUPPORTED_LLM_PROVIDERS,
+                        help=f"LLM provider (default: {DEFAULT_LLM_PROVIDER})")
+    parser.add_argument("--api-key", default=None,
+                        help="API key for the chosen LLM provider (overrides env vars)")
+
     args = parser.parse_args()
 
-    # Validate input
-    if not os.path.exists(args.pdb):
-        print(f"ERROR: PDB file not found: {args.pdb}")
+    # Validate input file exists
+    if not os.path.exists(args.input_file):
+        print(f"ERROR: Input file not found: {args.input_file}")
+        sys.exit(1)
+
+    # ── CIF → PDB conversion ──
+    pdb_path = args.input_file
+    if args.input_file.lower().endswith(".cif"):
+        pdb_path = _convert_cif_to_pdb(args.input_file)
+
+    elif not args.input_file.lower().endswith(".pdb"):
+        print(f"ERROR: Input file must be .pdb or .cif: {args.input_file}")
         sys.exit(1)
 
     # ── GUI mode: launch Streamlit ──
     if args.gui:
+        args.pdb = pdb_path  # GUI expects args.pdb
         launch_gui(args)
         return
 
     # ── CLI mode: run agent directly ──
     from .tools.mcce_tools import extract_lig_id_from_pdb
-    lig_id = extract_lig_id_from_pdb(args.pdb)
+    lig_id = extract_lig_id_from_pdb(pdb_path)
 
     setup_logging(f"mcce4_agent_ftpl_{lig_id}.log", args.verbose)
 
     logging.info(f"{'='*60}")
     logging.info(f"  🤖 MCCE4 Topology Agent v5.0 (LangGraph + per-state PDBs)")
     logging.info(f"{'='*60}")
-    logging.info(f"  Input:  {os.path.abspath(args.pdb)}")
+    logging.info(f"  Input:  {os.path.abspath(pdb_path)}")
+    if args.input_file.lower().endswith(".cif"):
+        logging.info(f"  (converted from {os.path.abspath(args.input_file)})")
     logging.info(f"  Ligand: {lig_id}   pH: {args.ph}   Method: {args.charge_method}")
+    logging.info(f"  LLM:    {args.llm_provider}")
     logging.info(f"  Time:   {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logging.info(f"{'='*60}\n")
 
@@ -93,11 +121,13 @@ def main():
     if args.no_llm:
         os.environ.pop("GEMINI_API_KEY", None)
         os.environ.pop("GOOGLE_API_KEY", None)
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+        os.environ.pop("OPENAI_API_KEY", None)
 
     from .agent import run_agent
 
     final_state = run_agent(
-        pdb_path=args.pdb,
+        pdb_path=pdb_path,
         use_gui=False,
         charge_method=args.charge_method,
         dielectrics=args.dielectric,
@@ -106,11 +136,53 @@ def main():
         dry_run=args.dry_run,
         user_state_pdbs=args.state_pdbs,
         output=args.output,
+        llm_provider=args.llm_provider,
+        api_key=args.api_key,
     )
 
     # Exit code based on errors
     if final_state.get("errors"):
         sys.exit(1)
+
+
+def _convert_cif_to_pdb(cif_path: str) -> str:
+    """Convert a .cif file to .pdb using cif2pdb_PyMOL.
+
+    Returns the path to the generated PDB file.
+    """
+    # Locate cif2pdb_PyMOL in the same bin/ directory
+    bin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    converter = os.path.join(bin_dir, "cif2pdb_PyMOL")
+
+    if not os.path.exists(converter):
+        print(f"ERROR: cif2pdb_PyMOL not found at {converter}")
+        print("  This script is required to convert .cif files to .pdb format.")
+        sys.exit(1)
+
+    pdb_path = os.path.splitext(cif_path)[0] + ".pdb"
+    print(f"🔄 Converting {cif_path} → {pdb_path} using cif2pdb_PyMOL ...")
+
+    try:
+        result = subprocess.run(
+            [sys.executable, converter, cif_path, pdb_path],
+            capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode != 0:
+            print(f"ERROR: CIF to PDB conversion failed:")
+            print(result.stderr or result.stdout)
+            sys.exit(1)
+        if not os.path.exists(pdb_path):
+            print(f"ERROR: Conversion completed but {pdb_path} was not created.")
+            sys.exit(1)
+        print(f"✅ Converted successfully: {pdb_path}")
+    except subprocess.TimeoutExpired:
+        print(f"ERROR: CIF to PDB conversion timed out.")
+        sys.exit(1)
+    except FileNotFoundError:
+        print(f"ERROR: Could not run cif2pdb_PyMOL. Ensure PyMOL is installed.")
+        sys.exit(1)
+
+    return pdb_path
 
 
 def launch_gui(args):

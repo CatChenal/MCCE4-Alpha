@@ -16,7 +16,7 @@ from datetime import datetime
 
 from .models import AgentState, ConformerState, make_labels_unique, sort_conformer_labels
 from .config import DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS, CHARGE_TO_CONF
-from .llm import GeminiLLM
+from .llm import create_llm
 from .tools.mcce_tools import (
     extract_lig_id_from_pdb, fetch_rcsb_info, generate_ftpl_template,
     fill_ftpl_charges, update_conformer_params, run_rxn_calibration,
@@ -116,14 +116,15 @@ def node_llm_reasoning(state: AgentState) -> AgentState:
     logging.info(f"  PHASE 3: Agent Reasoning (LLM)")
     logging.info(f"{'─'*60}")
 
-    llm = GeminiLLM()
+    llm_provider = state.get("llm_provider", "gemini")
+    llm_api_key = state.get("llm_api_key")
+    llm = create_llm(provider=llm_provider, api_key=llm_api_key)
     if not llm.available:
         logging.info("  Skipping LLM (not configured)")
         state["phase"] = "llm_reasoning"
         return state
 
-    from .config import GEMINI_MODEL
-    llm_model_name = GEMINI_MODEL  # e.g., "gemini-2.5-flash"
+    llm_model_name = llm.model_name
 
     states = state.get("states", [])
     states_desc = "\n".join(
@@ -781,7 +782,9 @@ def run_agent(pdb_path: str, use_gui: bool = False,
                dielectrics: list = None, ph: float = 7.4,
                work_dir: str = ".", dry_run: bool = False,
                user_state_pdbs: list = None,
-               output: str = None) -> AgentState:
+               output: str = None,
+               llm_provider: str = "gemini",
+               api_key: str = None) -> AgentState:
     """Run the full agent pipeline.
 
     Args:
@@ -794,6 +797,8 @@ def run_agent(pdb_path: str, use_gui: bool = False,
         dry_run: Skip RXN calibration.
         user_state_pdbs: User-supplied state PDB paths.
         output: Output .ftpl filename.
+        llm_provider: LLM provider ("gemini", "claude", or "chatgpt").
+        api_key: Optional API key for the LLM provider.
 
     Returns:
         Final AgentState dict.
@@ -832,6 +837,9 @@ def run_agent(pdb_path: str, use_gui: bool = False,
         "h_diffs": {},
         "per_state_charges": {},
         "per_state_connects": {},
+        # LLM configuration
+        "llm_provider": llm_provider,
+        "llm_api_key": api_key,
     }
 
     # Build and run graph

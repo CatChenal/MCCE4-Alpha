@@ -40,10 +40,23 @@ CHARGE_TO_CONF = {
 # LLM
 # ──────────────────────────────────────────────────────────────────────────────
 GEMINI_MODEL = "gemini-2.5-flash"
+CLAUDE_MODEL = "claude-sonnet-4-20250514"
+CHATGPT_MODEL = "gpt-4o"
+
+SUPPORTED_LLM_PROVIDERS = ["gemini", "claude", "chatgpt"]
+DEFAULT_LLM_PROVIDER = "gemini"
 
 def get_gemini_api_key() -> str:
-    """Get API key from environment."""
+    """Get Gemini API key from environment."""
     return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
+
+def get_anthropic_api_key() -> str:
+    """Get Anthropic API key from environment."""
+    return os.environ.get("ANTHROPIC_API_KEY", "")
+
+def get_openai_api_key() -> str:
+    """Get OpenAI API key from environment."""
+    return os.environ.get("OPENAI_API_KEY", "")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # GUI
