@@ -22,6 +22,7 @@ from .tools.mcce_tools import (
     fill_ftpl_charges, update_conformer_params, run_rxn_calibration,
     # v3:
     generate_all_state_ftpls, merge_ftpl_files, fill_ftpl_charges_per_state,
+    ensure_connect_hybridizations,
 )
 from .tools.rdkit_tools import (
     get_smiles_from_pdb, validate_hybridizations, mol_to_svg,
@@ -568,6 +569,16 @@ def node_generate_template(state: AgentState) -> AgentState:
             state["complete"] = True
             return state
         state["ftpl_path"] = ftpl_path
+
+    # Ensure every CONNECT line has a valid hybridization (s, sp, sp2, sp3)
+    try:
+        n_fixed = ensure_connect_hybridizations(
+            state["ftpl_path"], pdb_path=pdb_path, lig_id=lig_id
+        )
+        if n_fixed:
+            logging.info(f"  Fixed {n_fixed} CONNECT line(s) with missing/invalid hybridization")
+    except Exception as e:
+        logging.warning(f"  Hybridization enforcement skipped: {e}")
 
     # Hybridization validation
     if state.get("smiles"):

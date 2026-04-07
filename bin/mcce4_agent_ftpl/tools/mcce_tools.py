@@ -630,6 +630,120 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
     return True
 
 
+VALID_HYBRIDIZATIONS = {"s", "sp", "sp2", "sp3", "d2sp3"}
+
+
+def ensure_connect_hybridizations(ftpl_path, pdb_path=None, lig_id=None):
+    """Ensure every CONNECT line in the ftpl has a valid hybridization.
+
+    Reads the ftpl, checks each CONNECT line for a valid hybridization
+    (s, sp, sp2, sp3, d2sp3).  Lines with missing or invalid hybridization
+    (e.g. "ion", "udf", or blank) are corrected:
+      - Using RDKit-perceived hybridization when available
+      - Otherwise inferred from the number of bonded atoms listed on the line
+
+    Rewrites the file in-place.  Returns the number of lines corrected.
+    """
+    # Try to build an RDKit hybridization map from the PDB
+    rdkit_hybs = {}
+    if pdb_path:
+        try:
+            from .rdkit_tools import get_mol_from_pdb, RDKIT_TO_MCCE_HYB
+            mol = get_mol_from_pdb(pdb_path, remove_hs=False)
+            if mol:
+                for atom in mol.GetAtoms():
+                    pdb_info = atom.GetPDBResidueInfo()
+                    if pdb_info:
+                        name = pdb_info.GetName().strip()
+                        hyb = str(atom.GetHybridization()).split(".")[-1]
+                        rdkit_hybs[name] = RDKIT_TO_MCCE_HYB.get(hyb, hyb.lower())
+        except Exception as e:
+            logging.debug(f"  RDKit hybridization lookup skipped: {e}")
+
+    # Pattern to parse CONNECT lines:
+    #   CONNECT, " C1 ", EMH01:  sp2, " N1 "," C2 "
+    # Group 1: prefix up to and including the colon
+    # Group 2: hybridization field (may be invalid)
+    # Group 3: rest of line (bonded atom list)
+    connect_pat = re.compile(
+        r'^(CONNECT,\s*"(.{4})",\s*\S+:\s*)'   # prefix + atom name (grp2)
+        r'(\S+)'                                 # hybridization field
+        r'(,\s*.*)$'                             # bonded atoms
+    )
+    # Also catch CONNECT lines where hybridization might be entirely missing
+    # e.g. CONNECT, " X  ", EMH01: , " C1 "
+    connect_nohyb_pat = re.compile(
+        r'^(CONNECT,\s*"(.{4})",\s*\S+:\s*)'   # prefix + atom name
+        r'(,\s*".*)$'                            # bonded atoms (starts with comma)
+    )
+
+    with open(ftpl_path) as f:
+        lines = f.readlines()
+
+    fixed = 0
+    new_lines = []
+    for line in lines:
+        m = connect_pat.match(line)
+        if m:
+            prefix, atom_name_raw, hyb_field, bonded = m.groups()
+            atom_name = atom_name_raw.strip()
+            hyb_clean = hyb_field.strip().lower()
+
+            if hyb_clean not in VALID_HYBRIDIZATIONS:
+                new_hyb = _infer_hybridization(atom_name, bonded, rdkit_hybs)
+                # Preserve original field width (4 chars right-aligned)
+                new_lines.append(f"{prefix}{new_hyb:>4s}{bonded}\n")
+                logging.info(f"  Fixed hybridization: {atom_name} '{hyb_field}' → '{new_hyb}'")
+                fixed += 1
+                continue
+
+        m2 = connect_nohyb_pat.match(line)
+        if m2 and not connect_pat.match(line):
+            prefix, atom_name_raw, bonded = m2.groups()
+            atom_name = atom_name_raw.strip()
+            new_hyb = _infer_hybridization(atom_name, bonded, rdkit_hybs)
+            new_lines.append(f"{prefix}{new_hyb:>4s}{bonded}\n")
+            logging.info(f"  Fixed hybridization: {atom_name} (missing) → '{new_hyb}'")
+            fixed += 1
+            continue
+
+        new_lines.append(line)
+
+    if fixed:
+        with open(ftpl_path, "w") as f:
+            f.writelines(new_lines)
+        logging.info(f"  Corrected {fixed} CONNECT hybridization(s) in {ftpl_path}")
+
+    return fixed
+
+
+def _infer_hybridization(atom_name, bonded_str, rdkit_hybs):
+    """Infer hybridization for an atom from RDKit data or bond count."""
+    # Prefer RDKit if available
+    if atom_name in rdkit_hybs:
+        hyb = rdkit_hybs[atom_name]
+        if hyb in VALID_HYBRIDIZATIONS:
+            return hyb
+
+    # Count bonded atoms from the CONNECT line
+    num_bonds = bonded_str.count('"') // 2
+
+    # Hydrogen is always s
+    if atom_name.lstrip().startswith("H"):
+        return "s"
+
+    if num_bonds >= 4:
+        return "sp3"
+    elif num_bonds == 3:
+        return "sp2"
+    elif num_bonds == 2:
+        return "sp2"
+    elif num_bonds == 1:
+        return "sp3"
+    else:
+        return "sp3"  # isolated atom fallback
+
+
 def _parse_ftpl_sections(ftpl_path, lig_id):
     """Parse a single-state ftpl into sections: header, connect, charge, radius, conformer."""
     header, connect, charge, radius, conformer = [], [], [], [], []
