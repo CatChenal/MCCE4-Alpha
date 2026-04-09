@@ -14,9 +14,22 @@ from ..config import CHARGE_TO_CONF
 
 
 def enumerate_protonation_states(smiles: str, ph: float = 7.4,
-                                  ph_tolerance: float = 1.0,
-                                  pdb_path: str = None) -> List[ConformerState]:
+                                  pdb_path: str = None,
+                                  ph_min: float = 6.4,
+                                  ph_max: float = 8.4,
+                                  precision: float = 1.0,
+                                  max_variants: int = 128,
+                                  label_states: bool = False) -> List[ConformerState]:
     """Enumerate protonation states at target pH using Dimorphite-DL.
+
+    Dimorphite-DL is an open-source tool that enumerates small-molecule
+    ionization states (protonation/deprotonation) based on a pH range.
+    It accepts SMILES input and returns protonated SMILES variants.
+
+    This is distinct from Phase 1 ionizable site detection, which uses
+    RDKit heuristics on the 3D PDB structure to identify *potential*
+    protonation sites (N, O, S atoms). Dimorphite-DL actually *enumerates*
+    the chemically relevant states at the target pH.
 
     Keeps ALL unique protonation states (multiple per charge).
     Applies naming: single charge → 01/+1/-1, multiple → +a/+b.
@@ -25,14 +38,22 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
 
     Args:
         smiles: Input SMILES string.
-        ph: Target pH.
-        ph_tolerance: pH range tolerance (±).
+        ph: Target pH (used for state rationale text).
         pdb_path: Optional path to PDB (unused, kept for API compat).
+        ph_min: Minimum pH for protonation enumeration (default: 6.4).
+        ph_max: Maximum pH for protonation enumeration (default: 8.4).
+        precision: pKa precision factor (std devs from mean pKa).
+        max_variants: Max protonation variants per compound.
+        label_states: Label output SMILES as PROTONATED/DEPROTONATED/BOTH.
 
     Returns:
         List of ConformerState objects for all unique protonation states.
     """
-    logging.info(f"🧪 Enumerating protonation states at pH {ph} (± {ph_tolerance})...")
+    logging.info(f"  Dimorphite-DL: enumerating protonation states from SMILES")
+    logging.info(f"    ph_min={ph_min}, ph_max={ph_max}")
+    logging.info(f"    precision={precision}, max_variants={max_variants}"
+                 f"{', label_states=True' if label_states else ''}")
+    logging.info(f"    Input SMILES: {smiles}")
 
     state_smiles = [smiles]  # fallback
 
@@ -40,16 +61,23 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
         from dimorphite_dl import protonate_smiles
         results = protonate_smiles(
             smiles,
-            ph_min=ph - ph_tolerance,
-            ph_max=ph + ph_tolerance,
+            ph_min=ph_min,
+            ph_max=ph_max,
+            precision=precision,
+            max_variants=max_variants,
+            label_states=label_states,
         )
         if results:
             state_smiles = list(set(results))
-        logging.info(f"  ✓ Dimorphite-DL found {len(state_smiles)} state(s)")
+        logging.info(f"  ✓ Dimorphite-DL returned {len(state_smiles)} unique state(s)")
+        for i, smi in enumerate(state_smiles, 1):
+            logging.info(f"    [{i}] {smi}")
     except ImportError:
-        logging.warning("  Dimorphite-DL not installed (pip install dimorphite-dl)")
+        logging.warning("  ⚠ Dimorphite-DL not installed (pip install dimorphite-dl)")
+        logging.warning("    Falling back to input SMILES as single neutral state")
     except Exception as e:
-        logging.warning(f"  Dimorphite-DL error: {e}")
+        logging.warning(f"  ⚠ Dimorphite-DL error: {e}")
+        logging.warning("    Falling back to input SMILES as single neutral state")
 
     # Compute formal charges and build ConformerState objects
     states = _smiles_to_states(state_smiles, ph)

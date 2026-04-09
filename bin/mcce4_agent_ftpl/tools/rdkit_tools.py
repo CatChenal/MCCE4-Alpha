@@ -254,6 +254,48 @@ def get_ionizable_sites(mol) -> list:
     return sites
 
 
+def _rebuild_conect_records(pdb_block, mol):
+    """Rebuild CONECT records so every atom lists ALL bonded atoms.
+
+    RDKit's MolToPDBBlock writes unidirectional CONECT (each bond appears
+    once, on the lower-serial atom's line). MCCE's pdb2ftpl.py expects
+    bidirectional CONECT — each atom's line must list every neighbor.
+
+    Rebuilds CONECT from the RDKit mol's bond table, using PDB serial
+    numbers (1-based atom index).
+    """
+    from collections import defaultdict
+
+    # Build full adjacency from mol bonds (serial = atom_idx + 1)
+    adjacency = defaultdict(list)
+    for bond in mol.GetBonds():
+        s1 = bond.GetBeginAtomIdx() + 1
+        s2 = bond.GetEndAtomIdx() + 1
+        # Double/triple bonds: repeat the serial per PDB CONECT convention
+        order = int(bond.GetBondTypeAsDouble())
+        for _ in range(order):
+            adjacency[s1].append(s2)
+            adjacency[s2].append(s1)
+
+    # Strip old CONECT and END lines
+    lines = []
+    for line in pdb_block.splitlines(True):
+        if not line.startswith(("CONECT", "END")):
+            lines.append(line)
+
+    # Write new CONECT records (sorted by serial)
+    for serial in sorted(adjacency.keys()):
+        neighbors = adjacency[serial]
+        # PDB CONECT format: CONECT + serial(5) + up to 4 bonded(5) per line
+        for i in range(0, len(neighbors), 4):
+            chunk = neighbors[i:i+4]
+            line = f"CONECT{serial:5d}" + "".join(f"{n:5d}" for n in chunk) + "\n"
+            lines.append(line)
+
+    lines.append("END\n")
+    return "".join(lines)
+
+
 def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
     """Copy a PDB file, assigning default_chain to any atom with a blank chain ID."""
     with open(src_pdb) as f:
@@ -263,6 +305,217 @@ def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
             if line.startswith(("ATOM", "HETATM")) and len(line) > 21 and line[21] == " ":
                 line = line[:21] + default_chain + line[22:]
             f.write(line)
+
+
+def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
+                          output_dir: str = ".", charge: int = 0,
+                          rationale: str = "", source: str = "dimorphite") -> Optional[str]:
+    """Build a 3D PDB file from a SMILES string using RDKit.
+
+    Generates 3D coordinates via ETKDG, optimizes with MMFF94, and writes
+    a PDB file with REMARK headers containing protonation state metadata.
+
+    Args:
+        smiles: SMILES string for this protonation state.
+        lig_id: 3-letter ligand code (e.g., "EMH").
+        label: Conformer label (e.g., "01", "+1", "-1", "A1").
+        output_dir: Directory to write the PDB file.
+        charge: Net formal charge of this state.
+        rationale: Description of this protonation state.
+        source: Source of this state (e.g., "dimorphite", "llm").
+
+    Returns:
+        Path to the generated PDB file, or None on failure.
+    """
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import AllChem, rdDistGeom
+    except ImportError:
+        logging.error("RDKit required for SMILES-to-PDB conversion")
+        return None
+
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        logging.error(f"  Cannot parse SMILES for state {label}: {smiles}")
+        return None
+
+    # Add explicit hydrogens
+    mol = Chem.AddHs(mol)
+
+    # Generate 3D coordinates using ETKDG
+    params = rdDistGeom.ETKDGv3()
+    params.randomSeed = 42
+    status = AllChem.EmbedMolecule(mol, params)
+    if status != 0:
+        logging.warning(f"  ETKDG embedding failed for {label}, trying random coords")
+        AllChem.EmbedMolecule(mol, useRandomCoords=True, randomSeed=42)
+
+    # Optimize geometry with MMFF94
+    try:
+        AllChem.MMFFOptimizeMolecule(mol, maxIters=500)
+    except Exception as e:
+        logging.warning(f"  MMFF optimization failed for {label}: {e}")
+        try:
+            AllChem.UFFOptimizeMolecule(mol, maxIters=500)
+        except Exception:
+            pass  # keep un-optimized coords
+
+    # Set PDB residue info for all atoms — two-pass to avoid duplicate names.
+    # Pass 1: name heavy atoms (element + 1-based index)
+    # Pass 2: name H atoms with global uniqueness tracking
+    used_names: set = set()
+
+    for atom in mol.GetAtoms():
+        if atom.GetAtomicNum() == 1:
+            continue  # skip H in first pass
+        symbol = atom.GetSymbol()
+        idx = atom.GetIdx()
+        atom_name = f"{symbol}{idx + 1}"
+        used_names.add(atom_name)
+        ri = Chem.AtomPDBResidueInfo()
+        pdb_name = f" {atom_name:<3s}" if len(atom_name) < 4 else atom_name[:4]
+        ri.SetName(pdb_name)
+        ri.SetResidueName(lig_id)
+        ri.SetResidueNumber(1)
+        ri.SetChainId("A")
+        ri.SetIsHeteroAtom(True)
+        atom.SetPDBResidueInfo(ri)
+
+    # Pass 2: name H atoms, ensuring global uniqueness
+    for atom in mol.GetAtoms():
+        if atom.GetAtomicNum() != 1:
+            continue
+        neighbors = atom.GetNeighbors()
+        if neighbors:
+            parent_info = neighbors[0].GetPDBResidueInfo()
+            parent_name = parent_info.GetName().strip() if parent_info else f"X{atom.GetIdx()}"
+        else:
+            parent_name = f"X{atom.GetIdx()}"
+        atom_name = _make_h_name_unique(parent_name, used_names)
+        used_names.add(atom_name)
+        ri = Chem.AtomPDBResidueInfo()
+        pdb_name = f" {atom_name:<3s}" if len(atom_name) < 4 else atom_name[:4]
+        ri.SetName(pdb_name)
+        ri.SetResidueName(lig_id)
+        ri.SetResidueNumber(1)
+        ri.SetChainId("A")
+        ri.SetIsHeteroAtom(True)
+        atom.SetPDBResidueInfo(ri)
+
+    # Write PDB
+    safe_label = label.replace('+', 'p').replace('-', 'm')
+    out_path = os.path.join(output_dir, f"{lig_id}_{safe_label}.pdb")
+    os.makedirs(output_dir, exist_ok=True)
+
+    pdb_block = Chem.MolToPDBBlock(mol)
+    if not pdb_block:
+        logging.error(f"  Failed to generate PDB block for {label}")
+        return None
+
+    # Fix CONECT records: RDKit writes unidirectional CONECT (only to higher
+    # serial numbers). pdb2ftpl.py needs each atom's CONECT line to list ALL
+    # bonded atoms. Rebuild CONECT from the mol's bond table.
+    pdb_block = _rebuild_conect_records(pdb_block, mol)
+
+    # Write with REMARK headers
+    with open(out_path, "w") as f:
+        f.write(f"REMARK   1 MCCE4 Topology Agent — Protonation State PDB\n")
+        f.write(f"REMARK   2 Ligand:       {lig_id}\n")
+        f.write(f"REMARK   3 Conformer:    {lig_id}{label}\n")
+        f.write(f"REMARK   4 Charge:       {charge:+d}\n")
+        f.write(f"REMARK   5 SMILES:       {smiles}\n")
+        f.write(f"REMARK   6 Source:       {source}\n")
+        if rationale:
+            # Wrap long rationale lines at 70 chars
+            for i in range(0, len(rationale), 60):
+                f.write(f"REMARK   7 Rationale:   {rationale[i:i+60]}\n")
+        f.write(pdb_block)
+
+    logging.info(f"  Built PDB from SMILES for {lig_id}{label}: {out_path}")
+    return out_path
+
+
+def build_all_state_pdbs_from_smiles(states: list, lig_id: str,
+                                      output_dir: str = ".") -> dict:
+    """Build PDB files for all protonation states from their SMILES strings.
+
+    This is the primary pathway when no input PDB file is provided
+    (--lig-code mode). Each state's SMILES from Dimorphite-DL is used
+    to generate a 3D PDB with RDKit.
+
+    Args:
+        states: List of ConformerState dicts with 'smiles', 'label', 'charge'.
+        lig_id: 3-letter ligand code.
+        output_dir: Directory for output PDB files.
+
+    Returns:
+        Dict of {label: pdb_path} for successfully generated PDBs.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    state_pdbs = {}
+
+    for s in states:
+        sd = s if isinstance(s, dict) else s.to_dict()
+        label = sd["label"]
+        smiles = sd.get("smiles", "")
+        charge = int(sd.get("charge", 0) or 0)
+        rationale = sd.get("rationale", "")
+        source = sd.get("source", "dimorphite")
+
+        if not smiles:
+            logging.warning(f"  No SMILES for state {label} — cannot build PDB")
+            continue
+
+        pdb_path = build_pdb_from_smiles(
+            smiles=smiles, lig_id=lig_id, label=label,
+            output_dir=output_dir, charge=charge,
+            rationale=rationale, source=source,
+        )
+        if pdb_path:
+            state_pdbs[label] = pdb_path
+            # Update the state dict with the PDB path
+            if isinstance(s, dict):
+                s["pdb_path"] = pdb_path
+
+    logging.info(f"  Built {len(state_pdbs)}/{len(states)} state PDBs from SMILES")
+    return state_pdbs
+
+
+def write_pdb_state_header(pdb_path: str, lig_id: str, label: str,
+                           charge: int, smiles: str, source: str = "",
+                           rationale: str = ""):
+    """Prepend REMARK headers with protonation state info to an existing PDB file.
+
+    Args:
+        pdb_path: Path to the PDB file to update.
+        lig_id: 3-letter ligand code.
+        label: Conformer label.
+        charge: Formal charge.
+        smiles: SMILES string for this state.
+        source: Source of this state.
+        rationale: Rationale/description.
+    """
+    with open(pdb_path) as f:
+        content = f.read()
+
+    # Don't add duplicate headers
+    if "MCCE4 Topology Agent" in content:
+        return
+
+    header = (
+        f"REMARK   1 MCCE4 Topology Agent — Protonation State PDB\n"
+        f"REMARK   2 Ligand:       {lig_id}\n"
+        f"REMARK   3 Conformer:    {lig_id}{label}\n"
+        f"REMARK   4 Charge:       {charge:+d}\n"
+        f"REMARK   5 SMILES:       {smiles}\n"
+        f"REMARK   6 Source:       {source}\n"
+    )
+    if rationale:
+        for i in range(0, len(rationale), 60):
+            header += f"REMARK   7 Rationale:   {rationale[i:i+60]}\n"
+
+    with open(pdb_path, "w") as f:
+        f.write(header + content)
 
 
 def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
@@ -1009,7 +1262,13 @@ def _modify_mol_hydrogens(mol, pdb_path, h_to_add, h_to_remove, lig_id, label):
         for i in range(count):
             h_idx = rw_mol.AddAtom(Chem.Atom(1))
             rw_mol.AddBond(heavy_idx_new, h_idx, Chem.BondType.SINGLE)
-            h_name = _make_h_name(heavy_name, rw_mol)
+            # Collect existing names from mol for uniqueness check
+            _existing = set()
+            for a in rw_mol.GetAtoms():
+                ainfo = a.GetPDBResidueInfo()
+                if ainfo:
+                    _existing.add(ainfo.GetName().strip())
+            h_name = _make_h_name_unique(heavy_name, _existing)
             added_names.append(h_name)
 
             # Set PDB info
@@ -1037,21 +1296,34 @@ def _modify_mol_hydrogens(mol, pdb_path, h_to_add, h_to_remove, lig_id, label):
     return rw_mol.GetMol(), added_names, removed_names
 
 
-def _make_h_name(heavy_name, mol):
-    """Generate MCCE-compatible H atom name: H on N1 → HN1, then HN1A, etc."""
+def _make_h_name_unique(heavy_name, used_names):
+    """Generate a unique H atom name for PDB (max 4 chars).
+
+    Strategy: H + heavy atom name, truncated to 4 chars.
+    If collision, append numeric suffix (1-99) to disambiguate.
+    E.g., H on C19: HC19, then H191, H192, ...
+    E.g., H on N1:  HN1,  then HN11, HN12, ...
+
+    Args:
+        heavy_name: Parent heavy atom name (e.g., "C19", "N1").
+        used_names: Set of already-used atom names (mutated by caller).
+    """
     base = f"H{heavy_name}"[:4]
-    existing = set()
-    for atom in mol.GetAtoms():
-        info = atom.GetPDBResidueInfo()
-        if info:
-            existing.add(info.GetName().strip())
-    if base not in existing:
+    if base not in used_names:
         return base
-    for suffix in "ABCDEFGH":
-        candidate = f"{base[:3]}{suffix}"[:4]
-        if candidate not in existing:
+    # Try numeric suffixes: use last 1-2 chars of heavy name + digit
+    # to keep names readable and unique
+    prefix = f"H{heavy_name}"[:3]
+    for i in range(1, 100):
+        candidate = f"{prefix}{i}"[:4]
+        if candidate not in used_names:
             return candidate
-    return base
+    # Last resort: H + sequential number
+    for i in range(1, 10000):
+        candidate = f"H{i:03d}"[:4]
+        if candidate not in used_names:
+            return candidate
+    return base  # should never reach here
 
 
 def _extract_h_atoms_from_pdb(pdb_path):

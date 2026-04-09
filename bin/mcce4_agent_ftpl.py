@@ -7,8 +7,11 @@ Launcher script. Place this in MCCE4-Alpha/bin/ alongside the
 mcce4_agent_ftpl/ package directory.
 
 Usage:
-  mcce4_agent_ftpl.py EMH.pdb                                     # Full auto
+  mcce4_agent_ftpl.py EMH.pdb                                     # Full auto (PDB input)
   mcce4_agent_ftpl.py EMH.cif                                     # CIF input (auto-converts)
+  mcce4_agent_ftpl.py --lig-code EMH                               # Ligand code only (fetches from RCSB)
+  mcce4_agent_ftpl.py EMH.pdb --lig-code EMH                      # PDB + ligand code
+  mcce4_agent_ftpl.py --lig-code EMH --dry-run --no-llm            # Quick test from RCSB
   mcce4_agent_ftpl.py EMH.pdb --gui                               # Web GUI
   mcce4_agent_ftpl.py EMH.pdb --state-pdbs EMH_01.pdb EMH_+1.pdb  # User states
   mcce4_agent_ftpl.py EMH.pdb --no-llm --dry-run                  # Minimal run

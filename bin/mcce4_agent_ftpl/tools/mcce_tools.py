@@ -10,7 +10,7 @@ import subprocess
 import json
 from pathlib import Path
 from typing import Optional
-from ..config import DIELECTRIC_MAP, RCSB_SMILES_URL
+from ..config import DIELECTRIC_MAP, RCSB_GRAPHQL_URL, RCSB_GRAPHQL_QUERY, RCSB_SMILES_URL
 
 
 def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
@@ -52,37 +52,173 @@ def extract_lig_id_from_pdb(pdb_path: str) -> str:
     return max(res_counts, key=res_counts.get)
 
 
-def fetch_rcsb_info(lig_id: str) -> dict:
-    """Fetch SMILES and metadata from RCSB chemical component dictionary."""
-    logging.info(f"🔍 Fetching info for '{lig_id}' from RCSB...")
-    url = RCSB_SMILES_URL.format(lig_id=lig_id)
-    result = run_cmd(f'curl -s "{url}"', description="Querying RCSB", capture=True)
+def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
+    """Fetch SMILES and comprehensive metadata from RCSB via GraphQL.
+
+    Uses the RCSB GraphQL API to retrieve all available ligand metadata
+    including SMILES, InChI, DrugBank info, synonyms, and related resources.
+    Logs everything and saves the SMILES string to {lig_id}.smi.
+
+    Args:
+        lig_id: 3-letter RCSB ligand code (e.g., "EMH").
+        work_dir: Directory to save the .smi file.
+
+    Returns:
+        Dict with keys: name, formula, formal_charge, molecular_weight,
+        smiles, smiles_stereo, inchi, inchi_key, type, drugbank, etc.
+    """
+    logging.info(f"🔍 Fetching info for '{lig_id}' from RCSB GraphQL...")
+    logging.info(f"   Ligand page: https://www.rcsb.org/ligand/{lig_id}")
+
+    # Build GraphQL request
+    payload = json.dumps({
+        "query": RCSB_GRAPHQL_QUERY,
+        "variables": {"id": lig_id}
+    })
+
+    result = run_cmd(
+        f"curl -s -X POST -H 'Content-Type: application/json' "
+        f"-d '{payload}' '{RCSB_GRAPHQL_URL}'",
+        description="Querying RCSB GraphQL", capture=True,
+    )
     if result is None or not result.stdout.strip():
+        logging.warning("  RCSB GraphQL query returned empty response")
         return {}
 
     try:
-        data = json.loads(result.stdout)
-        chem = data.get("chem_comp", {})
+        response = json.loads(result.stdout)
+        data = response.get("data", {}).get("chem_comp", {})
+        if not data:
+            logging.warning(f"  No data returned for ligand '{lig_id}'")
+            return {}
+
+        # ── Core chemical component info ──
+        chem = data.get("chem_comp") or {}
         info = {
             "name": chem.get("name", "Unknown"),
             "formula": chem.get("formula", "Unknown"),
             "formal_charge": chem.get("pdbx_formal_charge", 0) or 0,
+            "molecular_weight": chem.get("formula_weight"),
+            "type": chem.get("type"),
             "smiles": None,
+            "smiles_stereo": None,
+            "inchi": None,
+            "inchi_key": None,
         }
-        # Get SMILES
-        descriptors = data.get("rcsb_chem_comp_descriptor", [])
-        if isinstance(descriptors, list):
-            for desc in descriptors:
-                if isinstance(desc, dict) and "SMILES" in desc.get("type", ""):
-                    info["smiles"] = desc.get("descriptor")
-                    if "CANONICAL" in desc.get("type", ""):
-                        break
+
+        # ── Descriptors (SMILES, InChI) — direct fields from GraphQL ──
+        desc = data.get("rcsb_chem_comp_descriptor") or {}
+        if desc.get("SMILES"):
+            info["smiles"] = desc["SMILES"]
+        if desc.get("SMILES_stereo"):
+            info["smiles_stereo"] = desc["SMILES_stereo"]
+        if desc.get("InChI"):
+            info["inchi"] = desc["InChI"]
+        if desc.get("InChIKey"):
+            info["inchi_key"] = desc["InChIKey"]
+
+        # ── Additional descriptors (pdbx_chem_comp_descriptor) ──
+        pdbx_desc = data.get("pdbx_chem_comp_descriptor") or []
+        for d in pdbx_desc:
+            if not isinstance(d, dict):
+                continue
+            dtype = d.get("type", "")
+            descriptor = d.get("descriptor", "")
+            program = d.get("program", "")
+            version = d.get("program_version", "")
+            if descriptor:
+                logging.info(f"  ✓ {dtype} ({program} {version}): {descriptor[:120]}")
+            # Fallback: if SMILES wasn't in rcsb_chem_comp_descriptor
+            if "SMILES" in dtype and not info["smiles"]:
+                info["smiles"] = descriptor
+
+        # ── Compound info (atom/bond counts, dates) ──
+        comp_info = data.get("rcsb_chem_comp_info") or {}
+        if comp_info:
+            info["atom_count"] = comp_info.get("atom_count")
+            info["bond_count"] = comp_info.get("bond_count")
+            info["bond_count_aromatic"] = comp_info.get("bond_count_aromatic")
+            info["atom_count_chiral"] = comp_info.get("atom_count_chiral")
+            info["initial_deposition_date"] = comp_info.get("initial_deposition_date")
+            info["revision_date"] = comp_info.get("revision_date")
+
+        # ── Identifiers (IUPAC name, etc.) ──
+        identifiers = data.get("pdbx_chem_comp_identifier") or []
+        for ident in identifiers:
+            if isinstance(ident, dict) and ident.get("identifier"):
+                logging.info(f"  ✓ Identifier ({ident.get('program', '?')}): "
+                             f"{ident['identifier'][:120]}")
+
+        # ── Synonyms ──
+        synonyms = data.get("rcsb_chem_comp_synonyms") or []
+        synonym_names = [s.get("name") for s in synonyms
+                         if isinstance(s, dict) and s.get("name")]
+        if synonym_names:
+            info["synonyms"] = synonym_names
+
+        # ── DrugBank info ──
+        drugbank = data.get("drugbank") or {}
+        db_info = drugbank.get("drugbank_info") or {}
+        if db_info:
+            info["drugbank_id"] = db_info.get("drugbank_id")
+            info["drugbank_name"] = db_info.get("name")
+            info["cas_number"] = db_info.get("cas_number")
+            info["drug_categories"] = db_info.get("drug_categories")
+            info["mechanism_of_action"] = db_info.get("mechanism_of_action")
+            info["drug_groups"] = db_info.get("drug_groups")
+            info["indication"] = db_info.get("indication")
+
+        # ── Reference molecule (PRD info) ──
+        ref_mol = data.get("pdbx_reference_molecule") or {}
+        if ref_mol and ref_mol.get("prd_id"):
+            info["prd_id"] = ref_mol.get("prd_id")
+            info["prd_class"] = ref_mol.get("class")
+            info["representative_pdb"] = ref_mol.get("representative_PDB_id_code")
+
+        # ── Related resources (PubChem, ChEBI, etc.) ──
+        related = data.get("rcsb_chem_comp_related") or []
+        external_ids = {}
+        for r in related:
+            if isinstance(r, dict) and r.get("resource_name") and r.get("resource_accession_code"):
+                external_ids[r["resource_name"]] = r["resource_accession_code"]
+        if external_ids:
+            info["external_ids"] = external_ids
+
+        # ── Log all retrieved metadata ──
+        logging.info(f"\n  {'─'*55}")
+        logging.info(f"  RCSB Ligand Summary: {lig_id}")
+        logging.info(f"  {'─'*55}")
         for k, v in info.items():
-            if v is not None:
-                logging.info(f"  ✓ {k}: {v}")
+            if v is not None and k not in ("external_ids", "synonyms",
+                                            "drug_categories", "mechanism_of_action",
+                                            "indication"):
+                display = str(v)[:100]
+                logging.info(f"    {k:30s}: {display}")
+        if info.get("synonyms"):
+            logging.info(f"    {'synonyms':30s}: {', '.join(info['synonyms'][:5])}")
+        if info.get("external_ids"):
+            for res, acc in info["external_ids"].items():
+                logging.info(f"    {'external: ' + res:30s}: {acc}")
+        if info.get("drugbank_id"):
+            logging.info(f"    {'drugbank_id':30s}: {info['drugbank_id']}")
+            if info.get("mechanism_of_action"):
+                logging.info(f"    {'mechanism_of_action':30s}: "
+                             f"{str(info['mechanism_of_action'])[:100]}")
+        logging.info(f"  {'─'*55}")
+
+        # ── Save SMILES to .smi file ──
+        smiles = info.get("smiles") or info.get("smiles_stereo")
+        if smiles:
+            smi_path = os.path.join(work_dir, f"{lig_id}.smi")
+            with open(smi_path, "w") as f:
+                f.write(f"{smiles} {lig_id}\n")
+            logging.info(f"  💾 SMILES saved to: {smi_path}")
+            info["smi_path"] = smi_path
+
         return info
+
     except (json.JSONDecodeError, KeyError) as e:
-        logging.warning(f"  RCSB parse error: {e}")
+        logging.warning(f"  RCSB GraphQL parse error: {e}")
         return {}
 
 
@@ -561,14 +697,25 @@ def generate_all_state_ftpls(lig_id, state_pdbs, output_dir="."):
     return ftpls
 
 
-def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
+def merge_ftpl_files(per_state_ftpls, lig_id, output_path,
+                     states=None, smiles="", warnings=None):
     """Merge per-state ftpl files into a single master .ftpl.
 
     Each state's ftpl has its own CONNECT, CHARGE, RADIUS, and CONFORMER
     blocks.  The merge:
-      1. Rebuilds CONFLIST to list ALL conformer states (not just neutral).
-      2. Combines CONNECT, CHARGE, RADIUS, and CONFORMER blocks from every
+      1. Writes header comment block with molecule metadata.
+      2. Rebuilds CONFLIST to list ALL conformer states (not just neutral).
+      3. Combines CONNECT, CHARGE, RADIUS, and CONFORMER blocks from every
          state in sorted label order.
+      4. Appends any warnings as comments at the bottom.
+
+    Args:
+        per_state_ftpls: {label: ftpl_path} for each state.
+        lig_id: 3-letter ligand code.
+        output_path: Path for merged output .ftpl.
+        states: List of ConformerState dicts (for header metadata).
+        smiles: Canonical SMILES string (for header).
+        warnings: List of warning strings to append as comments.
 
     Returns True on success.
     """
@@ -577,6 +724,8 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
         return False
 
     from ..models import sort_conformer_labels
+    from datetime import datetime
+
     neutral_label = "01" if "01" in per_state_ftpls else list(per_state_ftpls.keys())[0]
     all_labels = sort_conformer_labels(per_state_ftpls.keys())
 
@@ -587,34 +736,47 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
     base = parsed[neutral_label]
     merged = []
 
-    # ── Header: write section comment + merged CONFLIST ──
+    # ── Header comment block ──
+    merged.append(f">>>START of original comments, this file was generated by MCCE4 Topology Agent\n")
+    merged.append(f"# Ligand: {lig_id}\n")
+    if smiles:
+        merged.append(f"# SMILES: {smiles}\n")
+    # Per-state info
+    if states:
+        for s in states:
+            sd = s if isinstance(s, dict) else s.to_dict() if hasattr(s, 'to_dict') else {}
+            label = sd.get('label', '?')
+            charge = sd.get('charge', 0)
+            smi = sd.get('smiles', '')
+            src = sd.get('source', '')
+            rat = sd.get('rationale', '')
+            merged.append(f"# {lig_id}{label}: charge={charge:+d}, source={src}\n")
+            if smi:
+                merged.append(f"#   SMILES: {smi}\n")
+            if rat:
+                merged.append(f"#   Rationale: {rat}\n")
+    merged.append(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    merged.append(f"#23456789A123456789B123456789C123456789D123456789E123456789F123456789G123456789H123456789I\n")
+    merged.append(f"#ONNECT   conf atom  orbital  ires conn ires conn ires conn ires conn\n")
+    merged.append(f"#ONNECT |-----|----|---------|----|----|----|----|----|----|----|----|----|----|----|----|  \n")
+    merged.append(f"<<<END of original comments\n")
+    merged.append(f"\n")
+
+    # ── CONFLIST ──
+    merged.append(f"# Values of the same key are appended and separated by \",\"\n")
     conftypes = ", ".join(f"{lig_id}{l}" for l in all_labels)
-    merged_conflist = f"CONFLIST, {lig_id}: {lig_id}BK, {conftypes}\n"
-    # Preserve any file-level comments (before the first CONFLIST/section line)
-    # and skip the per-section header comments that we re-emit below.
-    section_comments = {
-        "# conformer definition", "# atom name and bonds", "# atom charges",
-        "# atom radius", "# conformer parameters",
-    }
-    for line in base["header"]:
-        stripped = line.strip().lower()
-        if stripped.startswith("conflist"):
-            merged.append(merged_conflist)
-        elif stripped in section_comments or stripped == "":
-            pass  # drop — we emit our own section headers below
-        else:
-            merged.append(line)
-    merged.append("\n")
+    merged.append(f"CONFLIST, {lig_id}: {lig_id}BK, {conftypes}\n")
+    merged.append(f"\n")
 
     # ── CONNECT blocks from all states ──
-    merged.append(f"# ATOM name and bonds\n")
+    merged.append(f"# Atom definition\n")
     for label in all_labels:
         if parsed[label]["connect"]:
             merged.extend(parsed[label]["connect"])
             merged.append("\n")
 
     # ── CHARGE blocks from all states ──
-    merged.append(f"# ATOM charges\n")
+    merged.append(f"# Atom charges\n")
     for label in all_labels:
         if parsed[label]["charge"]:
             merged.extend(parsed[label]["charge"])
@@ -631,6 +793,17 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path):
     merged.append(f"# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn\n")
     for label in all_labels:
         merged.extend(parsed[label]["conformer"])
+
+    # ── Warnings as comments at bottom ──
+    if warnings:
+        merged.append(f"\n")
+        merged.append(f"# {'='*60}\n")
+        merged.append(f"# WARNINGS from MCCE4 Topology Agent\n")
+        merged.append(f"# {'='*60}\n")
+        for w in warnings:
+            # Wrap long warnings
+            for i in range(0, len(w), 70):
+                merged.append(f"# {w[i:i+70]}\n")
 
     with open(output_path, "w") as f:
         f.writelines(merged)

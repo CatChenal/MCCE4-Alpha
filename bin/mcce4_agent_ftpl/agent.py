@@ -29,6 +29,9 @@ from .tools.rdkit_tools import (
     # v3:
     get_mol_from_pdb, get_atom_info, get_ionizable_sites,
     generate_state_pdb, compute_h_diff, mol_to_svg_with_h_diff,
+    # v5.1: SMILES-to-PDB pipeline
+    build_pdb_from_smiles, build_all_state_pdbs_from_smiles,
+    write_pdb_state_header,
 )
 from .tools.dimorphite_tool import enumerate_protonation_states
 from .tools.charge_tools import generate_charges, generate_per_state_charges, get_ionizable_sites_oe
@@ -39,17 +42,27 @@ from .tools.charge_tools import generate_charges, generate_per_state_charges, ge
 # ──────────────────────────────────────────────────────────────────────────────
 
 def node_molecule_intel(state: AgentState) -> AgentState:
-    """PHASE 1: Gather molecule intelligence."""
+    """PHASE 1: Gather molecule intelligence.
+
+    Handles two input modes:
+      1. PDB/CIF file provided → extract lig_id from PDB, fetch RCSB info
+      2. --lig-code only (no PDB) → fetch SMILES from RCSB, build neutral PDB from SMILES
+    """
     logging.info(f"\n{'─'*60}")
     logging.info(f"  PHASE 1: Molecule Intelligence")
     logging.info(f"{'─'*60}")
 
-    pdb_path = state["pdb_path"]
-    lig_id = state.get("lig_id") or extract_lig_id_from_pdb(pdb_path)
+    pdb_path = state.get("pdb_path")
+    lig_id = state.get("lig_id") or (extract_lig_id_from_pdb(pdb_path) if pdb_path else "LIG")
+    work_dir = state.get("work_dir", ".")
 
-    # Fetch RCSB info
-    info = fetch_rcsb_info(lig_id)
-    smiles = info.get("smiles") or get_smiles_from_pdb(pdb_path)
+    # Fetch RCSB info (enhanced: saves .smi file, logs all metadata)
+    info = fetch_rcsb_info(lig_id, work_dir=work_dir)
+
+    # Get SMILES: prefer RCSB, fall back to PDB extraction
+    smiles = info.get("smiles")
+    if not smiles and pdb_path:
+        smiles = get_smiles_from_pdb(pdb_path)
 
     state["lig_id"] = lig_id
     state["smiles"] = smiles or ""
@@ -57,8 +70,41 @@ def node_molecule_intel(state: AgentState) -> AgentState:
     state["formula"] = info.get("formula", "")
     state["formal_charge"] = info.get("formal_charge", 0)
 
-    # v3: detect ionizable sites for GUI protonation editor
-    # Try RDKit first; fall back to OEChem when RDKit cannot parse the molecule.
+    # ── No PDB provided (--lig-code mode): build neutral PDB from SMILES ──
+    if not pdb_path and smiles:
+        logging.info(f"  No input PDB — building neutral structure from SMILES...")
+        neutral_pdb = build_pdb_from_smiles(
+            smiles=smiles, lig_id=lig_id, label="01",
+            output_dir=work_dir, charge=0,
+            rationale="Neutral reference — built from RCSB SMILES",
+            source="rcsb",
+        )
+        if neutral_pdb:
+            state["pdb_path"] = os.path.abspath(neutral_pdb)
+            pdb_path = state["pdb_path"]
+            logging.info(f"  ✓ Neutral PDB built: {neutral_pdb}")
+        else:
+            logging.error(f"  Failed to build PDB from SMILES: {smiles}")
+            state["errors"] = state.get("errors", []) + [
+                "Cannot build PDB from SMILES — provide an input PDB/CIF file"
+            ]
+            state["phase"] = "molecule_intel"
+            return state
+    elif not pdb_path and not smiles:
+        logging.error(f"  No PDB and no SMILES available for {lig_id}")
+        state["errors"] = state.get("errors", []) + [
+            f"No PDB file and RCSB lookup for '{lig_id}' returned no SMILES"
+        ]
+        state["phase"] = "molecule_intel"
+        return state
+
+    # Detect ionizable sites from PDB structure using RDKit heuristics.
+    # NOTE: This is a rule-based scan of N/O/S atoms in the 3D structure,
+    # NOT Dimorphite-DL. Dimorphite-DL enumeration happens in Phase 2.
+    # This step identifies *potential* protonation sites for the GUI editor
+    # and LLM reasoning context.
+    logging.info(f"  Scanning PDB for potential ionizable sites (RDKit heuristic)...")
+    logging.info(f"    (Dimorphite-DL protonation enumeration occurs in Phase 2)")
     try:
         mol = get_mol_from_pdb(pdb_path, remove_hs=False)
         ionizable = get_ionizable_sites(mol) if mol else []
@@ -74,7 +120,7 @@ def node_molecule_intel(state: AgentState) -> AgentState:
 
     state["_ionizable_sites"] = ionizable
     state["_atom_info"] = atom_info
-    logging.info(f"  🔍 {len(ionizable)} ionizable site(s) detected:")
+    logging.info(f"  {len(ionizable)} potential ionizable site(s) found (RDKit heuristic):")
     for site in ionizable:
         logging.info(f"     {site['name']} ({site['type']})")
 
@@ -84,9 +130,9 @@ def node_molecule_intel(state: AgentState) -> AgentState:
 
 
 def node_enumerate_states(state: AgentState) -> AgentState:
-    """PHASE 2: Enumerate protonation states."""
+    """PHASE 2: Enumerate protonation states using Dimorphite-DL."""
     logging.info(f"\n{'─'*60}")
-    logging.info(f"  PHASE 2: Protonation State Enumeration")
+    logging.info(f"  PHASE 2: Protonation State Enumeration (Dimorphite-DL)")
     logging.info(f"{'─'*60}")
 
     # If user provided state PDBs, use those
@@ -98,6 +144,11 @@ def node_enumerate_states(state: AgentState) -> AgentState:
         states = enumerate_protonation_states(
             state["smiles"], ph=state.get("ph", 7.4),
             pdb_path=state["pdb_path"],
+            ph_min=state.get("_dimorphite_ph_min", 6.4),
+            ph_max=state.get("_dimorphite_ph_max", 8.4),
+            precision=state.get("_dimorphite_precision", 1.0),
+            max_variants=state.get("_dimorphite_max_variants", 128),
+            label_states=state.get("_dimorphite_label_states", False),
         )
     else:
         logging.warning("  No SMILES — defaulting to neutral")
@@ -377,21 +428,19 @@ def _read_pdb_atom_names(pdb_path: str) -> set:
 def node_generate_state_pdbs(state: AgentState) -> AgentState:
     """PHASE 4: Generate per-state PDBs with correct H atoms.
 
-    For each protonation state:
-      - Start from the PREVIOUS state's PDB (incremental protonation)
-      - Validate LLM site_atom against actual PDB atom names
-      - Fall back to detected ionizable sites when LLM gives a wrong name
-      - Write per-state PDB (e.g., EMH_01.pdb, EMH_p1.pdb)
-      - Compute H-diff vs neutral
+    Two pathways:
+      A) SMILES-only mode (--lig-code, no user PDB): Build all state PDBs
+         directly from Dimorphite-DL SMILES using RDKit 3D embedding.
+      B) PDB-based mode (input PDB provided): Incremental protonation from
+         neutral PDB, using site-based H addition/removal.
 
-    Incremental approach: +2 is built from +1, not from neutral.
-    This ensures each state correctly carries forward all previous protonations.
+    All generated PDBs include REMARK headers with state metadata and SMILES.
     """
     logging.info(f"\n{'─'*60}")
     logging.info(f"  PHASE 4: Per-State PDB Generation")
     logging.info(f"{'─'*60}")
 
-    pdb_path = state["pdb_path"]
+    pdb_path = state.get("pdb_path")
     lig_id = state.get("lig_id", "LIG")
     work_dir = state.get("work_dir", ".")
 
@@ -401,6 +450,41 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
     state_pdbs = {}
     h_diffs = {}
     states = state.get("states", [])
+
+    # ── Pathway A: SMILES-only mode ──
+    # If the neutral PDB was built from SMILES (no user-supplied PDB),
+    # build ALL state PDBs directly from their SMILES strings.
+    smiles_mode = state.get("_smiles_build_mode", False)
+    all_have_smiles = all(
+        (s.get("smiles") if isinstance(s, dict) else s.smiles)
+        for s in states
+    )
+    if smiles_mode or (all_have_smiles and not state.get("_user_pdb_provided")):
+        logging.info("  Using SMILES-to-PDB pipeline (all states built from SMILES)")
+        state_pdbs = build_all_state_pdbs_from_smiles(
+            states, lig_id, output_dir=state_pdbs_dir
+        )
+
+        # Compute H-diffs vs neutral
+        neutral_pdb = state_pdbs.get("01")
+        for label, pdb in state_pdbs.items():
+            if label == "01" or not neutral_pdb:
+                h_diffs[label] = {"added": [], "removed": [],
+                                  "added_on": {}, "removed_from": {}}
+            else:
+                h_diffs[label] = compute_h_diff(neutral_pdb, pdb)
+
+        # Update pdb_path to the neutral PDB if it was built
+        if neutral_pdb and not state.get("_user_pdb_provided"):
+            state["pdb_path"] = neutral_pdb
+
+        state["state_pdbs"] = state_pdbs
+        state["h_diffs"] = h_diffs
+        logging.info(f"\n  Generated {len(state_pdbs)}/{len(states)} state PDBs from SMILES")
+        state["phase"] = "generate_state_pdbs"
+        return state
+
+    # ── Pathway B: PDB-based incremental protonation ──
 
     # Trust Dimorphite-DL + LLM reasoning for protonation states.
     # Do NOT auto-add a -1 state — use only what was enumerated and validated.
@@ -557,6 +641,20 @@ def node_generate_state_pdbs(state: AgentState) -> AgentState:
             warns.append(f"Failed to generate PDB for state {label} — will use existing PDB if available")
             state["warnings"] = warns
 
+    # Write REMARK headers with state metadata and SMILES to all state PDBs
+    for s in states:
+        sd = s if isinstance(s, dict) else s.to_dict()
+        label = sd["label"]
+        if label in state_pdbs:
+            write_pdb_state_header(
+                pdb_path=state_pdbs[label],
+                lig_id=lig_id, label=label,
+                charge=int(sd.get("charge", 0) or 0),
+                smiles=sd.get("smiles", ""),
+                source=sd.get("source", ""),
+                rationale=sd.get("rationale", ""),
+            )
+
     # Re-sort state_pdbs back to original label order
     state["state_pdbs"] = state_pdbs
     state["h_diffs"] = h_diffs
@@ -628,7 +726,12 @@ def node_generate_template(state: AgentState) -> AgentState:
             return state
 
         merged_path = os.path.join(work_dir, ftpl_path)
-        success = merge_ftpl_files(per_state_ftpls, lig_id, merged_path)
+        success = merge_ftpl_files(
+            per_state_ftpls, lig_id, merged_path,
+            states=state.get("states", []),
+            smiles=state.get("smiles", ""),
+            warnings=state.get("warnings", []),
+        )
         if not success:
             state["errors"] = state.get("errors", []) + ["ftpl merge failed"]
             state["complete"] = True
@@ -752,7 +855,7 @@ def node_rxn_calibration(state: AgentState) -> AgentState:
 
 
 def node_done(state: AgentState) -> AgentState:
-    """Final node — print summary."""
+    """Final node — print summary and append late warnings to ftpl."""
     logging.info(f"\n{'='*60}")
     logging.info(f"  🤖 MCCE4 Topology Agent — COMPLETE")
     logging.info(f"{'='*60}")
@@ -766,6 +869,24 @@ def node_done(state: AgentState) -> AgentState:
         for w in state["warnings"]:
             logging.warning(f"  ⚠ {w}")
     logging.info(f"{'='*60}")
+
+    # Append any warnings accumulated after the merge to the final ftpl
+    ftpl_path = state.get("ftpl_path")
+    warnings = state.get("warnings", [])
+    if ftpl_path and os.path.exists(ftpl_path) and warnings:
+        with open(ftpl_path) as f:
+            content = f.read()
+        # Only append if not already present (avoid duplicates on re-run)
+        if "# WARNINGS from MCCE4 Topology Agent" not in content:
+            with open(ftpl_path, "a") as f:
+                f.write(f"\n# {'='*60}\n")
+                f.write(f"# WARNINGS from MCCE4 Topology Agent\n")
+                f.write(f"# {'='*60}\n")
+                for w in warnings:
+                    for i in range(0, len(w), 70):
+                        f.write(f"# {w[i:i+70]}\n")
+            logging.info(f"  Appended {len(warnings)} warning(s) to {ftpl_path}")
+
     state["complete"] = True
     return state
 
@@ -864,18 +985,24 @@ def build_agent_graph(use_gui: bool = False):
 # Runner
 # ──────────────────────────────────────────────────────────────────────────────
 
-def run_agent(pdb_path: str, use_gui: bool = False,
+def run_agent(pdb_path: str = None, use_gui: bool = False,
                charge_method: str = DEFAULT_CHARGE_METHOD,
                dielectrics: list = None, ph: float = 7.4,
                work_dir: str = ".", dry_run: bool = False,
                user_state_pdbs: list = None,
                output: str = None,
                llm_provider: str = "gemini",
-               api_key: str = None) -> AgentState:
+               api_key: str = None,
+               lig_code: str = None,
+               ph_min: float = 6.4,
+               ph_max: float = 8.4,
+               precision: float = 1.0,
+               max_variants: int = 128,
+               label_states: bool = False) -> AgentState:
     """Run the full agent pipeline.
 
     Args:
-        pdb_path: Path to the ligand PDB file.
+        pdb_path: Path to the ligand PDB file. Optional if lig_code is provided.
         use_gui: Whether to launch Streamlit GUI for review.
         charge_method: Charge calculation method.
         dielectrics: List of dielectric constants.
@@ -886,14 +1013,30 @@ def run_agent(pdb_path: str, use_gui: bool = False,
         output: Output .ftpl filename.
         llm_provider: LLM provider ("gemini", "claude", or "chatgpt").
         api_key: Optional API key for the LLM provider.
+        lig_code: 3-letter RCSB ligand code. When provided without pdb_path,
+                  SMILES is fetched from RCSB and 3D structures are built.
+        ph_min: Dimorphite-DL minimum pH (default: 6.4).
+        ph_max: Dimorphite-DL maximum pH (default: 8.4).
+        precision: Dimorphite-DL pKa precision (std devs from mean).
+        max_variants: Dimorphite-DL max protonation variants per compound.
+        label_states: Dimorphite-DL label output SMILES.
 
     Returns:
         Final AgentState dict.
     """
-    lig_id = extract_lig_id_from_pdb(pdb_path)
+    # Determine lig_id from lig_code or PDB
+    if lig_code:
+        lig_id = lig_code.upper()
+    elif pdb_path:
+        lig_id = extract_lig_id_from_pdb(pdb_path)
+    else:
+        raise ValueError("Either pdb_path or lig_code must be provided")
+
+    user_pdb_provided = pdb_path is not None
+    smiles_build_mode = not user_pdb_provided
 
     initial_state: AgentState = {
-        "pdb_path": os.path.abspath(pdb_path),
+        "pdb_path": os.path.abspath(pdb_path) if pdb_path else "",
         "lig_id": lig_id,
         "ph": ph,
         "charge_method": charge_method,
@@ -927,6 +1070,15 @@ def run_agent(pdb_path: str, use_gui: bool = False,
         # LLM configuration
         "llm_provider": llm_provider,
         "llm_api_key": api_key,
+        # v5.1: SMILES-build mode flags
+        "_smiles_build_mode": smiles_build_mode,
+        "_user_pdb_provided": user_pdb_provided,
+        # Dimorphite-DL parameters
+        "_dimorphite_ph_min": ph_min,
+        "_dimorphite_ph_max": ph_max,
+        "_dimorphite_precision": precision,
+        "_dimorphite_max_variants": max_variants,
+        "_dimorphite_label_states": label_states,
     }
 
     # Build and run graph

@@ -7,8 +7,89 @@ import os
 # ──────────────────────────────────────────────────────────────────────────────
 # URLs
 # ──────────────────────────────────────────────────────────────────────────────
-RCSB_SMILES_URL = "https://data.rcsb.org/rest/v1/core/chemcomp/{lig_id}"
+RCSB_GRAPHQL_URL = "https://data.rcsb.org/graphql"
+RCSB_SMILES_URL = "https://data.rcsb.org/rest/v1/core/chemcomp/{lig_id}"  # legacy REST fallback
 LIGAND_EXPO_URL = "http://ligand-expo.rcsb.org/reports/{first_char}/{lig_id}/{lig_id}_ideal.pdb"
+
+# GraphQL query to fetch comprehensive ligand info from RCSB
+RCSB_GRAPHQL_QUERY = """
+query molecule ($id: String!) {
+    chem_comp(comp_id:$id){
+        chem_comp {
+            id
+            name
+            formula
+            pdbx_formal_charge
+            formula_weight
+            type
+        }
+        pdbx_reference_molecule {
+            prd_id
+            chem_comp_id
+            type
+            class
+            name
+            represent_as
+            representative_PDB_id_code
+        }
+        rcsb_chem_comp_info {
+            atom_count
+            bond_count
+            bond_count_aromatic
+            atom_count_chiral
+            initial_deposition_date
+            revision_date
+        }
+        rcsb_chem_comp_descriptor {
+            InChI
+            InChIKey
+            SMILES
+            SMILES_stereo
+        }
+        pdbx_chem_comp_identifier {
+            identifier
+            program
+        }
+        pdbx_chem_comp_descriptor {
+            type
+            descriptor
+            program
+            program_version
+        }
+        rcsb_chem_comp_synonyms {
+            name
+            type
+            provenance_source
+        }
+        drugbank {
+            drugbank_info {
+                drugbank_id
+                cas_number
+                drug_categories
+                mechanism_of_action
+                synonyms
+                name
+                drug_groups
+                description
+                affected_organisms
+                brand_names
+                indication
+                pharmacology
+                atc_codes
+            }
+            drugbank_target {
+                target_actions
+                name
+                interaction_type
+            }
+        }
+        rcsb_chem_comp_related {
+            resource_name
+            resource_accession_code
+        }
+    }
+}
+"""
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Charge methods
@@ -34,7 +115,15 @@ CHARGE_TO_CONF = {
     -1: "-1",   # deprotonated (-1 charge)
     2: "+2",    # doubly protonated
     -2: "-2",   # doubly deprotonated
+    3: "+3",    # triply protonated
+    -3: "-3",   # triply deprotonated
 }
+
+# 5-character naming: magnitude → letter for disambiguation
+# Positive: A=+1, B=+2, C=+3, ...
+# Negative: a=-1, b=-2, c=-3, ...
+CHARGE_DISAMBIG_POS = {i: chr(ord('A') + i - 1) for i in range(1, 27)}
+CHARGE_DISAMBIG_NEG = {i: chr(ord('a') + i - 1) for i in range(1, 27)}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # LLM
@@ -94,6 +183,18 @@ PHASE_NAME_MAP = {
     "assign_charges": "phase6",
     "rxn_calibration": "phase7",
 }
+
+# ──────────────────────────────────────────────────────────────────────────────
+# v3: Per-state PDB / RXN calibration
+# ──────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Dimorphite-DL defaults
+# ──────────────────────────────────────────────────────────────────────────────
+DIMORPHITE_PH_MIN = 6.4           # Minimum pH for protonation enumeration
+DIMORPHITE_PH_MAX = 8.4           # Maximum pH for protonation enumeration
+DIMORPHITE_PRECISION = 1.0        # pKa precision (std devs from mean pKa)
+DIMORPHITE_MAX_VARIANTS = 128     # Max protonation variants per compound
+DIMORPHITE_LABEL_STATES = False   # Label output SMILES as PROTONATED/DEPROTONATED/BOTH
 
 # ──────────────────────────────────────────────────────────────────────────────
 # v3: Per-state PDB / RXN calibration
