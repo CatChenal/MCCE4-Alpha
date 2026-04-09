@@ -103,7 +103,7 @@ def print_single_state(results, label=""):
 
 
 def print_ph_table(results):
-    """Print compact pH scan table."""
+    """Print compact pH scan table with magnitudes and vectors."""
     ph = results["ph_values"]
     print(f"\n{'=' * 72}")
     print(f"  pH-Dependent Dipole Moments (Debye)")
@@ -117,6 +117,35 @@ def print_ph_table(results):
         mag_full = np.linalg.norm(results["full_dipole"][i])
         nq = results["net_charge"][i]
         print(f"  {ph[i]:5.1f}  {mag_bb:10.2f}  {mag_ion:10.2f}  {mag_full:10.2f}  {nq:10.3f}")
+    print()
+
+    # Dipole vector components: negative end <-> positive end
+    center = results["center"]
+    print(f"  Geometric center: ({center[0]:.2f}, {center[1]:.2f}, {center[2]:.2f})")
+    print(f"\n{'=' * 100}")
+    print(f"  pH-Dependent Dipole Vectors: (-) end  <-->  (+) end   (Debye)")
+    print(f"  Convention: mu = Sum(q*r) points from (-) to (+)")
+    print(f"{'=' * 100}")
+
+    for i in range(len(ph)):
+        bb = results["backbone_dipole"][i]
+        ion = results["ionizable_dipole"][i]
+        full = results["full_dipole"][i]
+
+        print(f"\n  pH {ph[i]:.1f}:")
+        for label, mu in [("Backbone ", bb),
+                          ("Ionizable", ion),
+                          ("Full     ", full)]:
+            mag = np.linalg.norm(mu)
+            if mag > 0.1:
+                direction = mu / mag
+                neg_end = center - direction * mag * 0.1
+                pos_end = center + direction * mag * 0.1
+                print(f"    {label}  ({neg_end[0]:8.2f},{neg_end[1]:8.2f},{neg_end[2]:8.2f})"
+                      f"  <-->  ({pos_end[0]:8.2f},{pos_end[1]:8.2f},{pos_end[2]:8.2f})"
+                      f"   |mu|={mag:.1f} D")
+            else:
+                print(f"    {label}  (magnitude too small: {mag:.2f} D)")
     print()
 
 

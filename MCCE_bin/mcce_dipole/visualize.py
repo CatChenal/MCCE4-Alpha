@@ -1,9 +1,8 @@
 """
 visualize.py - Generate PyMOL .pml scripts for dipole visualization.
 
-CGO arrow = CYLINDER (shaft) + SPHERE (tip marker).
-Uses only the most basic CGO primitives — guaranteed to work in
-every PyMOL version including Educational and Open-Source builds.
+CGO arrow = CYLINDER (shaft) + CONE (arrowhead).
+Uses standard CGO primitives for PyMOL visualization.
 
 Color scheme:
   - Backbone dipole:   blue    (0.3, 0.5, 1.0)
@@ -31,25 +30,31 @@ def _normalize(v):
 
 
 def _cgo_arrow(origin, direction, magnitude, color,
-               shaft_radius=0.6, tip_radius=1.4,
-               scale=0.1, min_length=8.0):
+               shaft_radius=0.6, tip_radius=1.4, tip_length=3.0,
+               scale=0.1):
     """
-    CGO arrow: CYLINDER shaft + SPHERE tip.
-    Works in every PyMOL version.
+    CGO arrow: CYLINDER shaft + CONE arrowhead.
+    Arrow length is proportional to magnitude (no minimum clamp).
     """
-    length = max(magnitude * scale, min_length)
-    tip = origin + direction * length
+    length = magnitude * scale
+    shaft_end = origin + direction * length
+    cone_tip = shaft_end + direction * tip_length
     r, g, b = color
 
     cgo = "[\n"
     cgo += f"    CYLINDER,\n"
     cgo += f"    {origin[0]:.3f}, {origin[1]:.3f}, {origin[2]:.3f},\n"
-    cgo += f"    {tip[0]:.3f}, {tip[1]:.3f}, {tip[2]:.3f},\n"
+    cgo += f"    {shaft_end[0]:.3f}, {shaft_end[1]:.3f}, {shaft_end[2]:.3f},\n"
     cgo += f"    {shaft_radius:.3f},\n"
     cgo += f"    {r:.3f}, {g:.3f}, {b:.3f},\n"
     cgo += f"    {r:.3f}, {g:.3f}, {b:.3f},\n"
-    cgo += f"    COLOR, {r:.3f}, {g:.3f}, {b:.3f},\n"
-    cgo += f"    SPHERE, {tip[0]:.3f}, {tip[1]:.3f}, {tip[2]:.3f}, {tip_radius:.3f},\n"
+    cgo += f"    CONE,\n"
+    cgo += f"    {shaft_end[0]:.3f}, {shaft_end[1]:.3f}, {shaft_end[2]:.3f},\n"
+    cgo += f"    {cone_tip[0]:.3f}, {cone_tip[1]:.3f}, {cone_tip[2]:.3f},\n"
+    cgo += f"    {tip_radius:.3f}, 0.0,\n"
+    cgo += f"    {r:.3f}, {g:.3f}, {b:.3f},\n"
+    cgo += f"    {r:.3f}, {g:.3f}, {b:.3f},\n"
+    cgo += f"    1.0, 1.0,\n"
     cgo += "]"
     return cgo
 
@@ -324,16 +329,48 @@ def generate_pymol_script(protein_pdb, results, output_path, ph_index=None,
 
 
 def generate_ph_scan_csv(results, output_path):
-    """Write pH scan CSV."""
+    """Write pH scan CSV with magnitudes, vector components, and endpoints."""
     ph = results["ph_values"]
+    center = results["center"]
     with open(output_path, "w") as fh:
-        fh.write("pH,backbone_D,ionizable_D,full_D,net_charge,Q_eig1,Q_eig2,Q_eig3\n")
+        fh.write("pH,backbone_D,ionizable_D,full_D,net_charge,"
+                 "bb_x,bb_y,bb_z,ion_x,ion_y,ion_z,full_x,full_y,full_z,"
+                 "bb_neg_x,bb_neg_y,bb_neg_z,bb_pos_x,bb_pos_y,bb_pos_z,"
+                 "ion_neg_x,ion_neg_y,ion_neg_z,ion_pos_x,ion_pos_y,ion_pos_z,"
+                 "full_neg_x,full_neg_y,full_neg_z,full_pos_x,full_pos_y,full_pos_z,"
+                 "Q_eig1,Q_eig2,Q_eig3\n")
         for i in range(len(ph)):
             mag_bb = np.linalg.norm(results["backbone_dipole"][i])
             mag_ion = np.linalg.norm(results["ionizable_dipole"][i])
             mag_full = np.linalg.norm(results["full_dipole"][i])
+            bb = results["backbone_dipole"][i]
+            ion = results["ionizable_dipole"][i]
+            full = results["full_dipole"][i]
             nq = results["net_charge"][i]
             qe = results["quadrupole_eigenvalues"][i]
+
+            # Compute negative and positive endpoints for each dipole
+            endpoints = []
+            for mu, mag in [(bb, mag_bb), (ion, mag_ion), (full, mag_full)]:
+                if mag > 0.1:
+                    d = mu / mag
+                    neg = center - d * mag * 0.1
+                    pos = center + d * mag * 0.1
+                else:
+                    neg = center.copy()
+                    pos = center.copy()
+                endpoints.extend([neg, pos])
+
             fh.write(f"{ph[i]:.1f},{mag_bb:.2f},{mag_ion:.2f},{mag_full:.2f},"
-                     f"{nq:.3f},{qe[0]:.2f},{qe[1]:.2f},{qe[2]:.2f}\n")
+                     f"{nq:.3f},"
+                     f"{bb[0]:.2f},{bb[1]:.2f},{bb[2]:.2f},"
+                     f"{ion[0]:.2f},{ion[1]:.2f},{ion[2]:.2f},"
+                     f"{full[0]:.2f},{full[1]:.2f},{full[2]:.2f},"
+                     f"{endpoints[0][0]:.2f},{endpoints[0][1]:.2f},{endpoints[0][2]:.2f},"
+                     f"{endpoints[1][0]:.2f},{endpoints[1][1]:.2f},{endpoints[1][2]:.2f},"
+                     f"{endpoints[2][0]:.2f},{endpoints[2][1]:.2f},{endpoints[2][2]:.2f},"
+                     f"{endpoints[3][0]:.2f},{endpoints[3][1]:.2f},{endpoints[3][2]:.2f},"
+                     f"{endpoints[4][0]:.2f},{endpoints[4][1]:.2f},{endpoints[4][2]:.2f},"
+                     f"{endpoints[5][0]:.2f},{endpoints[5][1]:.2f},{endpoints[5][2]:.2f},"
+                     f"{qe[0]:.2f},{qe[1]:.2f},{qe[2]:.2f}\n")
     return output_path
