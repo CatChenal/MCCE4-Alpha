@@ -138,6 +138,17 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
 .analysis-ph{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--radius-lg);padding:32px;text-align:center;color:var(--tx2)}
 .analysis-ph h3{font-size:15px;color:var(--tx1);margin-bottom:6px}
 
+/* ── Dipole Viewer ───────────────────────────── */
+.dipole-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:6px 0}
+.dipole-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--tx1);user-select:none}
+.dipole-toggle input{width:14px;height:14px;cursor:pointer}
+.dipole-swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:2px}
+.dipole-ph-ctrl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx1)}
+.dipole-ph-ctrl input[type=range]{width:140px;accent-color:var(--accent)}
+.dipole-ph-val{font-family:var(--mono);font-weight:600;min-width:36px}
+.dipole-legend{display:flex;gap:12px;font-size:11px;color:var(--tx2);padding:4px 0}
+.dipole-mag{font-family:var(--mono);font-size:11px;color:var(--tx1)}
+
 /* ── File Browser Modal ──────────────────────── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100}
 .modal-overlay.open{display:flex}
@@ -404,6 +415,45 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
     <div class="cfg-card">
       <div class="cfg-card-t">Net charge vs pH</div>
       <div id="plot-charge" style="width:100%;height:300px"></div>
+    </div>
+    <!-- Dipole section: magnitude plot (left) + 3D viewer (right) -->
+    <div id="dipole-section" style="display:none">
+      <div class="cfg-card" style="margin-bottom:14px">
+        <div class="cfg-card-t">Dipole moments vs pH</div>
+        <div id="plot-dipole-mag" style="width:100%;height:300px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="cfg-card">
+          <div class="cfg-card-t">Dipole vectors — 3D view</div>
+          <div class="dipole-controls">
+            <div class="dipole-ph-ctrl">
+              <span>pH:</span>
+              <input type="range" id="dipole-ph-slider" min="0" max="14" step="1" value="7">
+              <span class="dipole-ph-val" id="dipole-ph-label">7.0</span>
+            </div>
+          </div>
+          <div class="dipole-controls">
+            <label class="dipole-toggle">
+              <input type="checkbox" id="dip-bb" checked>
+              <span class="dipole-swatch" style="background:rgb(77,128,255)"></span> Backbone
+            </label>
+            <label class="dipole-toggle">
+              <input type="checkbox" id="dip-ion" checked>
+              <span class="dipole-swatch" style="background:rgb(255,51,51)"></span> Ionizable
+            </label>
+            <label class="dipole-toggle">
+              <input type="checkbox" id="dip-full" checked>
+              <span class="dipole-swatch" style="background:rgb(51,230,77)"></span> Full protein
+            </label>
+          </div>
+          <div id="dipole-viewer-3d" style="width:100%;height:380px;position:relative;background:var(--bg0);border:1px solid var(--bdr);border-radius:var(--radius);overflow:hidden"></div>
+          <div class="dipole-mag" id="dipole-mag-info"></div>
+        </div>
+        <div class="cfg-card">
+          <div class="cfg-card-t">Quadrupole eigenvalues vs pH</div>
+          <div id="plot-quadrupole" style="width:100%;height:440px"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -725,6 +775,9 @@ async function loadAnalysis(){
     const c=$('analysis-content');c.classList.remove('hidden');c.style.display='flex';
     appendLog('>> Analysis loaded. Click residues in the table to plot titration curves.');
   }
+
+  /* Load dipole data if available */
+  loadDipoleData();
 }
 
 /* ── Residue selection for titration curves ──── */
@@ -791,6 +844,228 @@ function updateTitrationPlot(){
   },{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
 }
 
+/* ═══════════════════ DIPOLE VIEWER ═══════════════ */
+let dipoleViewer=null;
+let dipoleData=null;
+let dipoleShapes=[];
+
+function initDipoleViewer(){
+  if(typeof $3Dmol==='undefined')return;
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  dipoleViewer=$3Dmol.createViewer($('dipole-viewer-3d'),{
+    backgroundColor:isDark?'#0f1117':'#ffffff',antialias:true
+  });
+}
+
+async function loadDipoleData(){
+  try{
+    const data=await api('/api/analysis/dipole');
+    if(!data||data.error)return;
+    dipoleData=data;
+
+    /* Show dipole section */
+    $('dipole-section').style.display='block';
+
+    /* Set up pH slider based on actual pH values */
+    const slider=$('dipole-ph-slider');
+    slider.min=0;
+    slider.max=data.ph_values.length-1;
+    slider.step=1;
+    /* Default to pH 7 or closest */
+    let bestIdx=0,bestDist=999;
+    data.ph_values.forEach((ph,i)=>{const d=Math.abs(ph-7);if(d<bestDist){bestDist=d;bestIdx=i}});
+    slider.value=bestIdx;
+    $('dipole-ph-label').textContent=data.ph_values[bestIdx].toFixed(1);
+
+    slider.addEventListener('input',()=>{
+      const idx=parseInt(slider.value);
+      $('dipole-ph-label').textContent=data.ph_values[idx].toFixed(1);
+      renderDipoleArrows(idx);
+    });
+
+    $('dip-bb').addEventListener('change',()=>renderDipoleArrows(parseInt(slider.value)));
+    $('dip-ion').addEventListener('change',()=>renderDipoleArrows(parseInt(slider.value)));
+    $('dip-full').addEventListener('change',()=>renderDipoleArrows(parseInt(slider.value)));
+
+    /* Load structure into dipole viewer */
+    if(!dipoleViewer)initDipoleViewer();
+    if(!dipoleViewer)return;
+
+    /* Protein style matching PyMOL: palegreen cartoon, slight transparency,
+       black background — same as generate_pymol_script() */
+    function applyDipoleProteinStyle(){
+      dipoleViewer.setStyle({},{cartoon:{color:'0x98fb98',opacity:0.85}});
+      dipoleViewer.setStyle({ss:'s'},{cartoon:{color:'0xeee8aa',opacity:0.85}});
+      const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+      dipoleViewer.setBackgroundColor(isDark?'#0a0a14':'#ffffff');
+      dipoleViewer.zoomTo();dipoleViewer.render();dipoleViewer.zoom(0.9);dipoleViewer.render();
+    }
+    try{
+      const pdb=await api('/api/pdb/step2_content');
+      if(pdb&&pdb.content){
+        dipoleViewer.removeAllModels();
+        dipoleViewer.addModel(pdb.content,'pdb');
+        applyDipoleProteinStyle();
+      }
+    }catch(e){
+      /* Try the user-loaded PDB as fallback */
+      try{
+        const pdb=await api('/api/pdb/content');
+        if(pdb&&pdb.content){
+          dipoleViewer.removeAllModels();
+          dipoleViewer.addModel(pdb.content,'pdb');
+          applyDipoleProteinStyle();
+        }
+      }catch(e2){}
+    }
+
+    renderDipoleArrows(bestIdx);
+    plotDipoleMagnitudes(data);
+    plotQuadrupole(data);
+    appendLog('>> Dipole data loaded. Use pH slider and toggles to explore dipole vectors.');
+  }catch(e){/* dipole data not available — silently skip */}
+}
+
+function renderDipoleArrows(phIdx){
+  if(!dipoleViewer||!dipoleData)return;
+
+  /* Remove old shapes */
+  dipoleShapes.forEach(s=>dipoleViewer.removeShape(s));
+  dipoleShapes=[];
+
+  const arrows=dipoleData.arrows;
+  const showBB=$('dip-bb').checked;
+  const showIon=$('dip-ion').checked;
+  const showFull=$('dip-full').checked;
+
+  /*
+   * Match PyMOL color scheme from visualize.py COLORS dict:
+   *   backbone:  (0.3, 0.5, 1.0)  ionizable: (1.0, 0.2, 0.2)  full: (0.2, 0.9, 0.3)
+   *
+   * Arrow geometry mirrors _cgo_arrow():
+   *   origin = geometric center (neg endpoint in CSV is center - dir*mag*scale)
+   *   CYLINDER shaft: origin -> shaft_end (origin + dir * mag * scale)
+   *   CONE arrowhead: shaft_end -> cone_tip (shaft_end + dir * tip_length)
+   *   shaft_radius=0.6, tip_radius=1.4, tip_length=3.0, scale=0.1
+   *
+   * The CSV stores neg = center - dir*mag*0.1, pos = center + dir*mag*0.1
+   * So: center = midpoint(neg, pos), shaft length = distance(center, pos)
+   * Cone tip extends 3.0 A beyond pos in the same direction.
+   */
+  const configs=[
+    {key:'backbone',  show:showBB,   rgb:[0.3,0.5,1.0], label:'Backbone'},
+    {key:'ionizable', show:showIon,  rgb:[1.0,0.2,0.2], label:'Ionizable'},
+    {key:'full',      show:showFull, rgb:[0.2,0.9,0.3], label:'Full protein'},
+  ];
+
+  /* Convert PyMOL (0-1) RGB to hex */
+  function rgbHex(c){
+    return '#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');
+  }
+
+  let info=`pH ${dipoleData.ph_values[phIdx].toFixed(1)}: `;
+  const mags=[
+    {label:'BB',val:dipoleData.backbone_D[phIdx]},
+    {label:'Ion',val:dipoleData.ionizable_D[phIdx]},
+    {label:'Full',val:dipoleData.full_D[phIdx]},
+  ];
+  info+=mags.map(m=>`${m.label}=${m.val.toFixed(1)} D`).join('  ');
+  $('dipole-mag-info').textContent=info;
+
+  /* Center marker — white sphere at geometric center (PyMOL prot_center, sphere_scale=0.8) */
+  if(configs.some(c=>c.show)){
+    const a0=arrows['backbone'][phIdx];
+    const cx=(a0.neg[0]+a0.pos[0])/2, cy=(a0.neg[1]+a0.pos[1])/2, cz=(a0.neg[2]+a0.pos[2])/2;
+    const cs=dipoleViewer.addSphere({
+      center:{x:cx,y:cy,z:cz},radius:0.8,color:'white'
+    });
+    dipoleShapes.push(cs);
+  }
+
+  configs.forEach(cfg=>{
+    if(!cfg.show)return;
+    const a=arrows[cfg.key][phIdx];
+    const neg=a.neg, pos=a.pos;
+
+    /* Reconstruct center and direction from CSV endpoints
+       CSV: neg = center - dir*mag*0.1, pos = center + dir*mag*0.1 */
+    const cx=(neg[0]+pos[0])/2, cy=(neg[1]+pos[1])/2, cz=(neg[2]+pos[2])/2;
+    const dx=pos[0]-cx, dy=pos[1]-cy, dz=pos[2]-cz;
+    const shaftLen=Math.sqrt(dx*dx+dy*dy+dz*dz);
+    if(shaftLen<0.05)return;
+
+    /* Normalized direction (center -> positive end) */
+    const nx=dx/shaftLen, ny=dy/shaftLen, nz=dz/shaftLen;
+
+    /* _cgo_arrow: shaft from center to pos, cone from pos + 3.0 A further
+       shaft_radius=0.6, tip_radius=1.4, tip_length=3.0
+       Solid uniform color on both shaft and cone (no gradient) */
+    const tipLength=3.0;
+    const coneTip={x:pos[0]+nx*tipLength, y:pos[1]+ny*tipLength, z:pos[2]+nz*tipLength};
+    const color=rgbHex(cfg.rgb);
+
+    /* Cylinder shaft: center -> pos (shaft_radius=0.6, solid color) */
+    const sid=dipoleViewer.addCylinder({
+      start:{x:cx,y:cy,z:cz},
+      end:{x:pos[0],y:pos[1],z:pos[2]},
+      radius:0.6,
+      color:color,
+      fromCap:2,toCap:0,
+    });
+    dipoleShapes.push(sid);
+
+    /* Cone arrowhead: pos -> cone_tip (tip_radius=1.4 tapering to 0) */
+    const cid=dipoleViewer.addCylinder({
+      start:{x:pos[0],y:pos[1],z:pos[2]},
+      end:coneTip,
+      radius:1.4,
+      color:color,
+      fromCap:0,toCap:2,
+      radiusRatio:0,
+    });
+    dipoleShapes.push(cid);
+  });
+
+  dipoleViewer.render();
+}
+
+function plotDipoleMagnitudes(data){
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const layout={...window._plotLayout,
+    xaxis:{...window._plotLayout.xaxis,title:{text:'pH'}},
+    yaxis:{...window._plotLayout.yaxis,title:{text:'Dipole moment (Debye)'}},
+    showlegend:true,
+    legend:{...window._plotLayout.legend,x:0.02,y:0.98},
+  };
+  Plotly.newPlot('plot-dipole-mag',[
+    {x:data.ph_values,y:data.backbone_D,name:'Backbone',type:'scatter',mode:'lines+markers',
+     line:{width:2.5,color:'#4d80ff'},marker:{size:4}},
+    {x:data.ph_values,y:data.ionizable_D,name:'Ionizable',type:'scatter',mode:'lines+markers',
+     line:{width:2.5,color:'#ff3333'},marker:{size:4}},
+    {x:data.ph_values,y:data.full_D,name:'Full protein',type:'scatter',mode:'lines+markers',
+     line:{width:2.5,color:'#33e64d'},marker:{size:4}},
+  ],layout,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
+}
+
+function plotQuadrupole(data){
+  const layout={...window._plotLayout,
+    xaxis:{...window._plotLayout.xaxis,title:{text:'pH'}},
+    yaxis:{...window._plotLayout.yaxis,title:{text:'Eigenvalue (e\u00B7\u00C5\u00B2)'}},
+    showlegend:true,
+    legend:{...window._plotLayout.legend,x:0.02,y:0.98},
+  };
+  const e1=[],e2=[],e3=[];
+  data.quadrupole_eigenvalues.forEach(ev=>{e1.push(ev[0]);e2.push(ev[1]);e3.push(ev[2])});
+  Plotly.newPlot('plot-quadrupole',[
+    {x:data.ph_values,y:e1,name:'Q\u2081',type:'scatter',mode:'lines+markers',
+     line:{width:2,color:'#d97706'},marker:{size:3}},
+    {x:data.ph_values,y:e2,name:'Q\u2082',type:'scatter',mode:'lines+markers',
+     line:{width:2,color:'#7c3aed'},marker:{size:3}},
+    {x:data.ph_values,y:e3,name:'Q\u2083',type:'scatter',mode:'lines+markers',
+     line:{width:2,color:'#0891b2'},marker:{size:3}},
+  ],layout,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
+}
+
 /* ═══════════════════ INIT ═════════════════════════ */
 window.addEventListener('DOMContentLoaded',async()=>{
   wsConnect();initViewer();
@@ -801,10 +1076,14 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
 /* Theme-aware viewer resize */
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{
-  if(viewer3d){const d=matchMedia('(prefers-color-scheme:dark)').matches;
-    viewer3d.setBackgroundColor(d?'#0f1117':'#ffffff');viewer3d.render()}
+  const d=matchMedia('(prefers-color-scheme:dark)').matches;
+  if(viewer3d){viewer3d.setBackgroundColor(d?'#0f1117':'#ffffff');viewer3d.render()}
+  if(dipoleViewer){dipoleViewer.setBackgroundColor(d?'#0f1117':'#ffffff');dipoleViewer.render()}
 });
-window.addEventListener('resize',()=>{if(viewer3d)viewer3d.resize()});
+window.addEventListener('resize',()=>{
+  if(viewer3d)viewer3d.resize();
+  if(dipoleViewer)dipoleViewer.resize();
+});
 </script>
 </body>
 </html>
