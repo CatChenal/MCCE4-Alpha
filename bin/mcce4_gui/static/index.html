@@ -416,8 +416,19 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
       <div class="cfg-card-t">Net charge vs pH</div>
       <div id="plot-charge" style="width:100%;height:300px"></div>
     </div>
-    <!-- Dipole section: magnitude plot (left) + 3D viewer (right) -->
+    <!-- Dipole section: run prompt OR results -->
     <div id="dipole-section" style="display:none">
+      <!-- Run prompt: shown when CSV doesn't exist but required files are present -->
+      <div id="dipole-run-prompt" class="cfg-card" style="display:none;text-align:center;padding:24px">
+        <div class="cfg-card-t">Dipole moment analysis</div>
+        <p style="color:var(--tx2);font-size:12px;margin:10px 0">Required files (step2_out.pdb, head3.lst, fort.38) are available. Run ms_dipole to compute pH-dependent dipole moments.</p>
+        <div class="btn-row" style="justify-content:center;margin-top:10px">
+          <button class="btn btn-p" id="dipole-run-btn" onclick="runDipoleAnalysis()">Run dipole analysis</button>
+        </div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:8px" id="dipole-run-status"></div>
+      </div>
+      <!-- Results: shown once dipole data is loaded -->
+      <div id="dipole-results" style="display:none">
       <div class="cfg-card" style="margin-bottom:14px">
         <div class="cfg-card-t">Dipole moments vs pH</div>
         <div id="plot-dipole-mag" style="width:100%;height:300px"></div>
@@ -435,17 +446,18 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
           <div class="dipole-controls">
             <label class="dipole-toggle">
               <input type="checkbox" id="dip-bb" checked>
-              <span class="dipole-swatch" style="background:rgb(77,128,255)"></span> Backbone
+              <span class="dipole-swatch" style="background:linear-gradient(90deg,rgb(255,217,0),rgb(204,140,0))"></span> Backbone
             </label>
             <label class="dipole-toggle">
               <input type="checkbox" id="dip-ion" checked>
-              <span class="dipole-swatch" style="background:rgb(255,51,51)"></span> Ionizable
+              <span class="dipole-swatch" style="background:linear-gradient(90deg,rgb(0,204,51),rgb(217,51,217))"></span> Ionizable
             </label>
             <label class="dipole-toggle">
               <input type="checkbox" id="dip-full" checked>
-              <span class="dipole-swatch" style="background:rgb(51,230,77)"></span> Full protein
+              <span class="dipole-swatch" style="background:linear-gradient(90deg,rgb(77,128,255),rgb(255,51,51))"></span> Full protein
             </label>
           </div>
+          <div style="font-size:10px;color:var(--tx2);padding:2px 0">Convention: <b>+</b> cross mark &mdash; gradient &mdash; arrowhead <b>&minus;</b></div>
           <div id="dipole-viewer-3d" style="width:100%;height:380px;position:relative;background:var(--bg0);border:1px solid var(--bdr);border-radius:var(--radius);overflow:hidden"></div>
           <div class="dipole-mag" id="dipole-mag-info"></div>
         </div>
@@ -454,9 +466,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
           <div id="plot-quadrupole" style="width:100%;height:440px"></div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
+      </div><!-- /dipole-results -->
+    </div><!-- /dipole-section -->
+  </div><!-- /analysis-content -->
+</div><!-- /tab-analysis -->
 </div>
 
 <!-- ═══════════════ FILE BROWSER MODAL ═════════════── -->
@@ -859,47 +872,91 @@ function initDipoleViewer(){
 
 async function loadDipoleData(){
   try{
-    const data=await api('/api/analysis/dipole');
-    if(!data||data.error)return;
-    dipoleData=data;
+    /* Check dipole status: CSV exists, or can we run ms_dipole? */
+    const status=await api('/api/analysis/dipole/status');
 
-    /* Show dipole section */
-    $('dipole-section').style.display='block';
+    if(status.has_csv){
+      /* CSV already exists — load it directly */
+      const data=await api('/api/analysis/dipole');
+      if(data&&!data.error) displayDipoleData(data);
+    }else if(status.can_run){
+      /* Required files present but no CSV yet — show run button */
+      $('dipole-section').style.display='block';
+      $('dipole-run-prompt').style.display='block';
+      $('dipole-results').style.display='none';
+    }
+    /* else: missing required files — silently skip */
+  }catch(e){/* dipole API not available — silently skip */}
+}
 
-    /* Set up pH slider based on actual pH values */
-    const slider=$('dipole-ph-slider');
-    slider.min=0;
-    slider.max=data.ph_values.length-1;
-    slider.step=1;
-    /* Default to pH 7 or closest */
-    let bestIdx=0,bestDist=999;
-    data.ph_values.forEach((ph,i)=>{const d=Math.abs(ph-7);if(d<bestDist){bestDist=d;bestIdx=i}});
-    slider.value=bestIdx;
-    $('dipole-ph-label').textContent=data.ph_values[bestIdx].toFixed(1);
+let dipoleListenersAttached=false;
 
+async function runDipoleAnalysis(){
+  const btn=$('dipole-run-btn');
+  btn.disabled=true;btn.textContent='Running...';
+  $('dipole-run-status').textContent='Computing dipole moments (this may take a moment)...';
+  try{
+    const data=await fetch('/api/analysis/dipole/run',{method:'POST'}).then(r=>{
+      if(!r.ok)throw new Error(r.statusText);return r.json();
+    });
+    if(data&&!data.error){
+      $('dipole-run-prompt').style.display='none';
+      displayDipoleData(data);
+    }else{
+      $('dipole-run-status').textContent='Error: '+(data.error||'Unknown error');
+      btn.disabled=false;btn.textContent='Run dipole analysis';
+    }
+  }catch(e){
+    $('dipole-run-status').textContent='Error: '+e.message;
+    btn.disabled=false;btn.textContent='Run dipole analysis';
+  }
+}
+
+function displayDipoleData(data){
+  dipoleData=data;
+
+  /* Show dipole section and results, hide run prompt */
+  $('dipole-section').style.display='block';
+  $('dipole-run-prompt').style.display='none';
+  $('dipole-results').style.display='block';
+
+  /* Set up pH slider based on actual pH values */
+  const slider=$('dipole-ph-slider');
+  slider.min=0;
+  slider.max=data.ph_values.length-1;
+  slider.step=1;
+  /* Default to pH 7 or closest */
+  let bestIdx=0,bestDist=999;
+  data.ph_values.forEach((ph,i)=>{const d=Math.abs(ph-7);if(d<bestDist){bestDist=d;bestIdx=i}});
+  slider.value=bestIdx;
+  $('dipole-ph-label').textContent=data.ph_values[bestIdx].toFixed(1);
+
+  if(!dipoleListenersAttached){
+    dipoleListenersAttached=true;
     slider.addEventListener('input',()=>{
       const idx=parseInt(slider.value);
       $('dipole-ph-label').textContent=data.ph_values[idx].toFixed(1);
       renderDipoleArrows(idx);
     });
+    $('dip-bb').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
+    $('dip-ion').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
+    $('dip-full').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
+  }
 
-    $('dip-bb').addEventListener('change',()=>renderDipoleArrows(parseInt(slider.value)));
-    $('dip-ion').addEventListener('change',()=>renderDipoleArrows(parseInt(slider.value)));
-    $('dip-full').addEventListener('change',()=>renderDipoleArrows(parseInt(slider.value)));
+  /* Load structure into dipole viewer */
+  if(!dipoleViewer)initDipoleViewer();
+  if(!dipoleViewer)return;
 
-    /* Load structure into dipole viewer */
-    if(!dipoleViewer)initDipoleViewer();
-    if(!dipoleViewer)return;
-
-    /* Protein style matching PyMOL: palegreen cartoon, slight transparency,
-       black background — same as generate_pymol_script() */
-    function applyDipoleProteinStyle(){
-      dipoleViewer.setStyle({},{cartoon:{color:'0x98fb98',opacity:0.85}});
-      dipoleViewer.setStyle({ss:'s'},{cartoon:{color:'0xeee8aa',opacity:0.85}});
-      const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-      dipoleViewer.setBackgroundColor(isDark?'#0a0a14':'#ffffff');
-      dipoleViewer.zoomTo();dipoleViewer.render();dipoleViewer.zoom(0.9);dipoleViewer.render();
-    }
+  /* Protein style matching PyMOL: palegreen cartoon, slight transparency,
+     black background — same as generate_pymol_script() */
+  function applyDipoleProteinStyle(){
+    dipoleViewer.setStyle({},{cartoon:{color:'0x98fb98',opacity:0.85}});
+    dipoleViewer.setStyle({ss:'s'},{cartoon:{color:'0xeee8aa',opacity:0.85}});
+    const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+    dipoleViewer.setBackgroundColor(isDark?'#0a0a14':'#ffffff');
+    dipoleViewer.zoomTo();dipoleViewer.render();dipoleViewer.zoom(0.9);dipoleViewer.render();
+  }
+  (async()=>{
     try{
       const pdb=await api('/api/pdb/step2_content');
       if(pdb&&pdb.content){
@@ -908,7 +965,6 @@ async function loadDipoleData(){
         applyDipoleProteinStyle();
       }
     }catch(e){
-      /* Try the user-loaded PDB as fallback */
       try{
         const pdb=await api('/api/pdb/content');
         if(pdb&&pdb.content){
@@ -918,12 +974,12 @@ async function loadDipoleData(){
         }
       }catch(e2){}
     }
-
     renderDipoleArrows(bestIdx);
-    plotDipoleMagnitudes(data);
-    plotQuadrupole(data);
-    appendLog('>> Dipole data loaded. Use pH slider and toggles to explore dipole vectors.');
-  }catch(e){/* dipole data not available — silently skip */}
+  })();
+
+  plotDipoleMagnitudes(data);
+  plotQuadrupole(data);
+  appendLog('>> Dipole data loaded. Use pH slider and toggles to explore dipole vectors.');
 }
 
 function renderDipoleArrows(phIdx){
@@ -939,28 +995,36 @@ function renderDipoleArrows(phIdx){
   const showFull=$('dip-full').checked;
 
   /*
-   * Match PyMOL color scheme from visualize.py COLORS dict:
-   *   backbone:  (0.3, 0.5, 1.0)  ionizable: (1.0, 0.2, 0.2)  full: (0.2, 0.9, 0.3)
+   * Matches _cgo_dipole() in visualize.py exactly:
    *
-   * Arrow geometry mirrors _cgo_arrow():
-   *   origin = geometric center (neg endpoint in CSV is center - dir*mag*scale)
-   *   CYLINDER shaft: origin -> shaft_end (origin + dir * mag * scale)
-   *   CONE arrowhead: shaft_end -> cone_tip (shaft_end + dir * tip_length)
-   *   shaft_radius=0.6, tip_radius=1.4, tip_length=3.0, scale=0.1
+   * DIPOLE_COLORS (two-tone per dipole):
+   *   backbone:   yellow (+) (1.0,0.85,0.0)  / dark gold (-) (0.8,0.55,0.0)
+   *   ionizable:  green  (+) (0.0,0.8,0.2)   / magenta   (-) (0.85,0.2,0.85)
+   *   full:       blue   (+) (0.3,0.5,1.0)   / red       (-) (1.0,0.2,0.2)
    *
-   * The CSV stores neg = center - dir*mag*0.1, pos = center + dir*mag*0.1
-   * So: center = midpoint(neg, pos), shaft length = distance(center, pos)
-   * Cone tip extends 3.0 A beyond pos in the same direction.
+   * Arrow geometry:
+   *   mu points (-) -> (+). Arrow drawn from (+) toward (-).
+   *   pos_tip = center + dir * half    (+) end, cross mark here
+   *   neg_tip = center - dir * half    (-) end, arrowhead here
+   *   Gradient shaft: n_grad=8 segments, color_pos -> color_neg
+   *   Arrowhead: n_taper=6 segments, head_radius=1.4 tapering to 0
+   *   (+) cross: two perpendicular bars, cross_size=2.0, cross_radius=0.3
+   *   shaft_radius=0.5, scale=0.1, min_length=5.0
    */
   const configs=[
-    {key:'backbone',  show:showBB,   rgb:[0.3,0.5,1.0], label:'Backbone'},
-    {key:'ionizable', show:showIon,  rgb:[1.0,0.2,0.2], label:'Ionizable'},
-    {key:'full',      show:showFull, rgb:[0.2,0.9,0.3], label:'Full protein'},
+    {key:'backbone',  show:showBB,
+     cPos:[1.0,0.85,0.0], cNeg:[0.8,0.55,0.0], label:'Backbone'},
+    {key:'ionizable', show:showIon,
+     cPos:[0.0,0.8,0.2],  cNeg:[0.85,0.2,0.85], label:'Ionizable'},
+    {key:'full',      show:showFull,
+     cPos:[0.3,0.5,1.0],  cNeg:[1.0,0.2,0.2],   label:'Full protein'},
   ];
 
-  /* Convert PyMOL (0-1) RGB to hex */
   function rgbHex(c){
     return '#'+c.map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');
+  }
+  function lerpColor(a,b,t){
+    return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
   }
 
   let info=`pH ${dipoleData.ph_values[phIdx].toFixed(1)}: `;
@@ -972,12 +1036,12 @@ function renderDipoleArrows(phIdx){
   info+=mags.map(m=>`${m.label}=${m.val.toFixed(1)} D`).join('  ');
   $('dipole-mag-info').textContent=info;
 
-  /* Center marker — white sphere at geometric center (PyMOL prot_center, sphere_scale=0.8) */
+  /* Center marker — white sphere (PyMOL center_marker, sphere_scale=0.5) */
   if(configs.some(c=>c.show)){
     const a0=arrows['backbone'][phIdx];
     const cx=(a0.neg[0]+a0.pos[0])/2, cy=(a0.neg[1]+a0.pos[1])/2, cz=(a0.neg[2]+a0.pos[2])/2;
     const cs=dipoleViewer.addSphere({
-      center:{x:cx,y:cy,z:cz},radius:0.8,color:'white'
+      center:{x:cx,y:cy,z:cz},radius:0.5,color:'white'
     });
     dipoleShapes.push(cs);
   }
@@ -985,45 +1049,122 @@ function renderDipoleArrows(phIdx){
   configs.forEach(cfg=>{
     if(!cfg.show)return;
     const a=arrows[cfg.key][phIdx];
-    const neg=a.neg, pos=a.pos;
 
-    /* Reconstruct center and direction from CSV endpoints
-       CSV: neg = center - dir*mag*0.1, pos = center + dir*mag*0.1 */
-    const cx=(neg[0]+pos[0])/2, cy=(neg[1]+pos[1])/2, cz=(neg[2]+pos[2])/2;
-    const dx=pos[0]-cx, dy=pos[1]-cy, dz=pos[2]-cz;
-    const shaftLen=Math.sqrt(dx*dx+dy*dy+dz*dz);
-    if(shaftLen<0.05)return;
+    /* CSV: neg = center - dir*mag*0.1, pos = center + dir*mag*0.1
+       These are the endpoints at scale=0.1. Reconstruct geometry. */
+    const cx=(a.neg[0]+a.pos[0])/2, cy=(a.neg[1]+a.pos[1])/2, cz=(a.neg[2]+a.pos[2])/2;
+    const dx=a.pos[0]-a.neg[0], dy=a.pos[1]-a.neg[1], dz=a.pos[2]-a.neg[2];
+    const fullLen=Math.sqrt(dx*dx+dy*dy+dz*dz);
+    if(fullLen<0.1)return;
 
-    /* Normalized direction (center -> positive end) */
-    const nx=dx/shaftLen, ny=dy/shaftLen, nz=dz/shaftLen;
+    /* Direction: from (-) toward (+), i.e. neg -> pos */
+    const nx=dx/fullLen, ny=dy/fullLen, nz=dz/fullLen;
 
-    /* _cgo_arrow: shaft from center to pos, cone from pos + 3.0 A further
-       shaft_radius=0.6, tip_radius=1.4, tip_length=3.0
-       Solid uniform color on both shaft and cone (no gradient) */
-    const tipLength=3.0;
-    const coneTip={x:pos[0]+nx*tipLength, y:pos[1]+ny*tipLength, z:pos[2]+nz*tipLength};
-    const color=rgbHex(cfg.rgb);
+    /* _cgo_dipole uses half = max(mag*scale, min_length)*0.5
+       With the CSV endpoints, half = fullLen/2 already accounts for scale.
+       But we need to enforce min_length=5.0 (so half >= 2.5). */
+    let half=fullLen/2;
+    if(half<2.5)half=2.5;
 
-    /* Cylinder shaft: center -> pos (shaft_radius=0.6, solid color) */
-    const sid=dipoleViewer.addCylinder({
-      start:{x:cx,y:cy,z:cz},
-      end:{x:pos[0],y:pos[1],z:pos[2]},
-      radius:0.6,
-      color:color,
-      fromCap:2,toCap:0,
-    });
-    dipoleShapes.push(sid);
+    /* (+) end = center + dir*half,  (-) end = center - dir*half */
+    const posTip={x:cx+nx*half, y:cy+ny*half, z:cz+nz*half};
+    const negTip={x:cx-nx*half, y:cy-ny*half, z:cz-nz*half};
 
-    /* Cone arrowhead: pos -> cone_tip (tip_radius=1.4 tapering to 0) */
-    const cid=dipoleViewer.addCylinder({
-      start:{x:pos[0],y:pos[1],z:pos[2]},
-      end:coneTip,
-      radius:1.4,
-      color:color,
-      fromCap:0,toCap:2,
-      radiusRatio:0,
-    });
-    dipoleShapes.push(cid);
+    /* head_fraction=0.12 of total arrow length */
+    const headLen=half*0.12*2;
+    /* head_start is headLen before neg_tip */
+    const headStart={
+      x:negTip.x+nx*headLen,
+      y:negTip.y+ny*headLen,
+      z:negTip.z+nz*headLen
+    };
+
+    const shaftRadius=0.5;
+    const headRadius=1.4;
+    const nGrad=8;
+    const nTaper=6;
+
+    /*
+     * Gradient shaft: nGrad segments from posTip to headStart
+     * Color interpolates from cPos at posTip to cNeg at headStart
+     * Direction of segments: posTip -> headStart (from + toward -)
+     */
+    const shaftLen=half*2-headLen;
+    for(let i=0;i<nGrad;i++){
+      const t0=i/nGrad, t1=(i+1)/nGrad;
+      const p0={
+        x:posTip.x-nx*shaftLen*t0,
+        y:posTip.y-ny*shaftLen*t0,
+        z:posTip.z-nz*shaftLen*t0
+      };
+      const p1={
+        x:posTip.x-nx*shaftLen*t1,
+        y:posTip.y-ny*shaftLen*t1,
+        z:posTip.z-nz*shaftLen*t1
+      };
+      const c0=rgbHex(lerpColor(cfg.cPos,cfg.cNeg,t0));
+      const c1=rgbHex(lerpColor(cfg.cPos,cfg.cNeg,t1));
+      const sid=dipoleViewer.addCylinder({
+        start:p0, end:p1,
+        radius:shaftRadius,
+        color:c0, color2:c1,
+        fromCap:i===0?2:0, toCap:0,
+      });
+      dipoleShapes.push(sid);
+    }
+
+    /*
+     * Arrowhead at (-) end: nTaper segments from headStart to negTip
+     * Radius tapers from headRadius to ~0, solid cNeg color
+     */
+    const negColor=rgbHex(cfg.cNeg);
+    for(let i=0;i<nTaper;i++){
+      const f0=i/nTaper, f1=(i+1)/nTaper;
+      const s0={
+        x:headStart.x+(negTip.x-headStart.x)*f0,
+        y:headStart.y+(negTip.y-headStart.y)*f0,
+        z:headStart.z+(negTip.z-headStart.z)*f0
+      };
+      const s1={
+        x:headStart.x+(negTip.x-headStart.x)*f1,
+        y:headStart.y+(negTip.y-headStart.y)*f1,
+        z:headStart.z+(negTip.z-headStart.z)*f1
+      };
+      let rSeg=headRadius*(1.0-(f0+f1)*0.5);
+      if(rSeg<0.05)rSeg=0.05;
+      const tid=dipoleViewer.addCylinder({
+        start:s0, end:s1,
+        radius:rSeg,
+        color:negColor,
+        fromCap:0, toCap:i===nTaper-1?2:0,
+      });
+      dipoleShapes.push(tid);
+    }
+
+    /*
+     * (+) cross mark at posTip: two perpendicular bars
+     * cross_size=2.0, cross_radius=0.3, colored cPos
+     */
+    const posColor=rgbHex(cfg.cPos);
+    const crossSize=2.0, crossRadius=0.3;
+    /* Compute two vectors perpendicular to direction */
+    const ref=Math.abs(nx)<0.9?[1,0,0]:[0,1,0];
+    let ux=ref[1]*nz-ref[2]*ny, uy=ref[2]*nx-ref[0]*nz, uz=ref[0]*ny-ref[1]*nx;
+    const umag=Math.sqrt(ux*ux+uy*uy+uz*uz);
+    ux/=umag;uy/=umag;uz/=umag;
+    let vx=ny*uz-nz*uy, vy=nz*ux-nx*uz, vz=nx*uy-ny*ux;
+
+    for(const[px,py,pz] of [[ux,uy,uz],[vx,vy,vz]]){
+      const barStart={x:posTip.x-px*crossSize*0.5, y:posTip.y-py*crossSize*0.5, z:posTip.z-pz*crossSize*0.5};
+      const barEnd={x:posTip.x+px*crossSize*0.5, y:posTip.y+py*crossSize*0.5, z:posTip.z+pz*crossSize*0.5};
+      const bid=dipoleViewer.addCylinder({
+        start:barStart, end:barEnd,
+        radius:crossRadius,
+        color:posColor,
+        fromCap:2, toCap:2,
+      });
+      dipoleShapes.push(bid);
+    }
   });
 
   dipoleViewer.render();
@@ -1037,13 +1178,15 @@ function plotDipoleMagnitudes(data){
     showlegend:true,
     legend:{...window._plotLayout.legend,x:0.02,y:0.98},
   };
+  /* Plot colors match (+) color from DIPOLE_COLORS in visualize.py:
+     backbone: yellow (1.0,0.85,0.0), ionizable: green (0.0,0.8,0.2), full: blue (0.3,0.5,1.0) */
   Plotly.newPlot('plot-dipole-mag',[
     {x:data.ph_values,y:data.backbone_D,name:'Backbone',type:'scatter',mode:'lines+markers',
-     line:{width:2.5,color:'#4d80ff'},marker:{size:4}},
+     line:{width:2.5,color:'#ffd900'},marker:{size:4}},
     {x:data.ph_values,y:data.ionizable_D,name:'Ionizable',type:'scatter',mode:'lines+markers',
-     line:{width:2.5,color:'#ff3333'},marker:{size:4}},
+     line:{width:2.5,color:'#00cc33'},marker:{size:4}},
     {x:data.ph_values,y:data.full_D,name:'Full protein',type:'scatter',mode:'lines+markers',
-     line:{width:2.5,color:'#33e64d'},marker:{size:4}},
+     line:{width:2.5,color:'#4d80ff'},marker:{size:4}},
   ],layout,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
 }
 
@@ -1056,13 +1199,14 @@ function plotQuadrupole(data){
   };
   const e1=[],e2=[],e3=[];
   data.quadrupole_eigenvalues.forEach(ev=>{e1.push(ev[0]);e2.push(ev[1]);e3.push(ev[2])});
+  /* QUAD_COLOR = (0.0, 0.85, 1.0) = cyan; use 3 shades for eigenvalues */
   Plotly.newPlot('plot-quadrupole',[
     {x:data.ph_values,y:e1,name:'Q\u2081',type:'scatter',mode:'lines+markers',
-     line:{width:2,color:'#d97706'},marker:{size:3}},
+     line:{width:2,color:'#00d9ff'},marker:{size:3}},
     {x:data.ph_values,y:e2,name:'Q\u2082',type:'scatter',mode:'lines+markers',
-     line:{width:2,color:'#7c3aed'},marker:{size:3}},
+     line:{width:2,color:'#009db8'},marker:{size:3}},
     {x:data.ph_values,y:e3,name:'Q\u2083',type:'scatter',mode:'lines+markers',
-     line:{width:2,color:'#0891b2'},marker:{size:3}},
+     line:{width:2,color:'#006680'},marker:{size:3}},
   ],layout,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
 }
 
