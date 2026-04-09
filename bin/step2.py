@@ -350,8 +350,7 @@ if __name__ == "__main__":
         newlines = []
         newlines = label_het(lines)
         open("step2_out.pdb", "w").writelines(newlines)
-        shutil.copy("progress.log", "progress_step2.log")
-
+        Path("progress_step2.log").touch()
 
     if detected:
         restore_runprm()
