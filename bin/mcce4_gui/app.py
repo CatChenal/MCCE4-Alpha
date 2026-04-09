@@ -350,6 +350,24 @@ async def analysis_conformers():
     return data
 
 
+@app.get("/api/analysis/dipole")
+async def analysis_dipole():
+    data = analysis_mod.parse_dipole_csv()
+    if "error" in data:
+        raise HTTPException(404, data["error"])
+    return data
+
+
+@app.get("/api/pdb/step2_content")
+async def get_step2_pdb_content():
+    """Serve step2_out.pdb content for 3D dipole visualization."""
+    p = "step2_out.pdb"
+    if not os.path.isfile(p):
+        raise HTTPException(404, "step2_out.pdb not found")
+    with open(p, "r") as f:
+        return {"content": f.read(), "filename": "step2_out.pdb"}
+
+
 # ══════════════════════════════════════════════════════════════════
 # WEBSOCKET
 # ══════════════════════════════════════════════════════════════════
