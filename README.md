@@ -257,8 +257,7 @@ _This section will reflect important changes and will provide you with informati
   - Feature Merge: MCCE4 GUI
   - Feature Merge: Protein Dipole Vectors and Visualization
   - __Apply changes: cd to your clone, then run `git pull`__
-  - __Apply changes: run `./setup.sh` to build the new container image__
-  - 
+ 
 * 2026-02-20:
   - Feature Merge: Integrated Apptainer/Singularity containerization for the MCCE4-Alpha CLI tool.
   - Automated environment setup and image building via setup.sh to ensure cross-platform portability.
