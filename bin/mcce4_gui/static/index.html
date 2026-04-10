@@ -23,7 +23,7 @@
   --radius:8px;--radius-lg:12px;
   color-scheme:light dark;
 }
-@media(prefers-color-scheme:dark){:root{
+[data-theme="dark"]{
   --bg0:#0f1117;--bg1:#181b25;--bg2:#1e2231;--bg3:#2a2f40;
   --tx0:#e5e7eb;--tx1:#9ca3af;--tx2:#6b7280;
   --bdr:rgba(255,255,255,.06);--bdr-h:rgba(255,255,255,.12);
@@ -32,7 +32,14 @@
   --amber:#fbbf24;--amber-dim:rgba(251,191,36,.1);
   --blue:#60a5fa;--blue-dim:rgba(96,165,250,.1);
   --log-bg:#0c0e18;--log-tx:#86efac;
-}}
+  color-scheme:dark;
+}
+
+/* ── Theme toggle ───────────────────────────── */
+.theme-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 10px;border-radius:99px;border:1px solid var(--bdr);background:var(--bg2);transition:all .15s;user-select:none}
+.theme-toggle:hover{border-color:var(--bdr-h);background:var(--bg3)}
+.theme-toggle svg{width:14px;height:14px;color:var(--tx1);flex-shrink:0}
+.theme-toggle span{font-size:11px;color:var(--tx1);font-weight:500}
 
 body{font-family:var(--sans);background:var(--bg0);color:var(--tx0);font-size:13px;line-height:1.5;height:100vh;overflow:hidden}
 
@@ -189,6 +196,19 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
 }
 .hidden{display:none!important}
 </style>
+<script>
+/* Apply theme before paint to prevent flash.
+   Default depends on time of day: 7am-7pm = light, else dark.
+   User choice (from localStorage) always overrides. */
+(function(){
+  var t=localStorage.getItem('mcce4-theme');
+  if(!t){
+    var h=new Date().getHours();
+    t=(h>=7&&h<19)?'light':'dark';
+  }
+  document.documentElement.dataset.theme=t;
+})();
+</script>
 </head>
 <body>
 
@@ -200,6 +220,12 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
     <span class="topbar-sub">Multi-conformation continuum electrostatics</span>
   </div>
   <div class="topbar-status">
+    <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span id="theme-label">Light</span>
+    </div>
+    <div style="width:1px;height:16px;background:var(--bdr);margin:0 4px"></div>
     <div class="dot" id="ws-dot"></div>
     <span class="topbar-sub" id="ws-lbl">connecting...</span>
   </div>
@@ -268,6 +294,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
 
     <div class="section"><div class="sh">Step 1 &mdash; Preparation</div>
       <label class="cr"><input type="checkbox" id="s1-dry" checked> Dry run (remove waters)</label>
+      <label class="cr"><input type="checkbox" id="s1-center" checked> Center protein (orientation.py)</label>
     </div>
 
     <div class="section"><div class="sh">Step 2 &mdash; Rotamers</div>
@@ -411,31 +438,46 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
         <div id="titration-empty" style="text-align:center;color:var(--tx2);font-size:12px;padding:20px">Select residues from the table to plot their charge vs pH</div>
       </div>
     </div>
-    <!-- Bottom: net charge (full width, auto-displayed) -->
-    <div class="cfg-card">
-      <div class="cfg-card-t">Net charge vs pH</div>
-      <div id="plot-charge" style="width:100%;height:300px"></div>
-    </div>
-    <!-- Dipole section: run prompt OR results -->
-    <div id="dipole-section" style="display:none">
-      <!-- Run prompt: shown when CSV doesn't exist but required files are present -->
-      <div id="dipole-run-prompt" class="cfg-card" style="display:none;text-align:center;padding:24px">
-        <div class="cfg-card-t">Dipole moment analysis</div>
-        <p style="color:var(--tx2);font-size:12px;margin:10px 0">Required files (step2_out.pdb, head3.lst, fort.38) are available. Run ms_dipole to compute pH-dependent dipole moments.</p>
-        <div class="btn-row" style="justify-content:center;margin-top:10px">
-          <button class="btn btn-p" id="dipole-run-btn" onclick="runDipoleAnalysis()">Run dipole analysis</button>
-        </div>
-        <div style="font-size:11px;color:var(--tx2);margin-top:8px" id="dipole-run-status"></div>
+    <!-- Bottom row: Net charge (left) + Dipole magnitudes (right) -->
+    <div id="charge-dipole-row" style="display:grid;grid-template-columns:1fr;gap:14px">
+      <div class="cfg-card">
+        <div class="cfg-card-t">Net charge vs pH</div>
+        <div id="plot-charge" style="width:100%;height:300px"></div>
       </div>
-      <!-- Results: shown once dipole data is loaded -->
-      <div id="dipole-results" style="display:none">
-      <div class="cfg-card" style="margin-bottom:14px">
+      <div class="cfg-card" id="dipole-mag-card" style="display:none">
         <div class="cfg-card-t">Dipole moments vs pH</div>
         <div id="plot-dipole-mag" style="width:100%;height:300px"></div>
       </div>
+    </div>
+    <!-- Dipole section: run prompt OR results -->
+    <div id="dipole-section" style="display:none">
+      <!-- Run prompt: professional card shown when CSV doesn't exist but required files are present -->
+      <div id="dipole-run-prompt" class="cfg-card" style="display:none;padding:0;overflow:hidden">
+        <div style="display:flex;align-items:stretch">
+          <div style="flex:0 0 56px;display:flex;align-items:center;justify-content:center;background:var(--accent-dim)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".5" fill="var(--accent)"/></svg>
+          </div>
+          <div style="flex:1;padding:16px 20px">
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">Dipole Moment Analysis</div>
+            <div style="font-size:12px;color:var(--tx2);line-height:1.5;margin-bottom:12px">
+              Compute pH-dependent backbone, ionizable, and full protein dipole moments using <span style="font-family:var(--mono);font-size:11px;background:var(--bg2);padding:1px 5px;border-radius:3px">ms_dipole</span>.
+              <br>Required files detected: <span style="color:var(--accent)">step2_out.pdb</span>, <span style="color:var(--accent)">head3.lst</span>, <span style="color:var(--accent)">fort.38</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="btn btn-p" id="dipole-run-btn" onclick="runDipoleAnalysis()" style="padding:0 20px">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><polygon points="4,2 14,8 4,14"/></svg>
+                Run analysis
+              </button>
+              <span style="font-size:11px;color:var(--tx2)" id="dipole-run-status"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Results: shown once dipole data is loaded -->
+      <div id="dipole-results" style="display:none">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <div class="cfg-card">
-          <div class="cfg-card-t">Dipole vectors — 3D view</div>
+          <div class="cfg-card-t">Dipole &amp; Quadrupole vectors — 3D view</div>
           <div class="dipole-controls">
             <div class="dipole-ph-ctrl">
               <span>pH:</span>
@@ -456,8 +498,12 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
               <input type="checkbox" id="dip-full" checked>
               <span class="dipole-swatch" style="background:linear-gradient(90deg,rgb(77,128,255),rgb(255,51,51))"></span> Full protein
             </label>
+            <label class="dipole-toggle">
+              <input type="checkbox" id="dip-quad">
+              <span class="dipole-swatch" style="background:linear-gradient(90deg,#ff3366,#33ff66,#3399ff)"></span> Quadrupole
+            </label>
           </div>
-          <div style="font-size:10px;color:var(--tx2);padding:2px 0">Convention: <b>+</b> cross mark &mdash; gradient &mdash; arrowhead <b>&minus;</b></div>
+          <div style="font-size:10px;color:var(--tx2);padding:2px 0">Convention: <b>+</b> cross mark &mdash; gradient &mdash; arrowhead <b>&minus;</b> | Quadrupole: principal axes scaled by eigenvalue</div>
           <div id="dipole-viewer-3d" style="width:100%;height:380px;position:relative;background:var(--bg0);border:1px solid var(--bdr);border-radius:var(--radius);overflow:hidden"></div>
           <div class="dipole-mag" id="dipole-mag-info"></div>
         </div>
@@ -494,6 +540,25 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10
 
 <script>
 const $ = id => document.getElementById(id);
+
+/* ═══════════════════ THEME ═════════════════════════ */
+function isDark(){return document.documentElement.dataset.theme==='dark'}
+
+function toggleTheme(){
+  const next=isDark()?'light':'dark';
+  document.documentElement.dataset.theme=next;
+  localStorage.setItem('mcce4-theme',next);
+  updateThemeUI();
+  if(viewer3d){viewer3d.setBackgroundColor(isDark()?'#0f1117':'#ffffff');viewer3d.render()}
+  if(dipoleViewer){dipoleViewer.setBackgroundColor(isDark()?'#0a0a14':'#ffffff');dipoleViewer.render()}
+}
+
+function updateThemeUI(){
+  const dark=isDark();
+  $('theme-icon-sun').style.display=dark?'none':'block';
+  $('theme-icon-moon').style.display=dark?'block':'none';
+  $('theme-label').textContent=dark?'Dark':'Light';
+}
 
 /* ═══════════════════ TABS ═══════════════════════════ */
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
@@ -559,7 +624,7 @@ function gather(){return{
   pdb_file:$('pdb-file').value,mcce_home:$('mcce-home').value,extra_tpl:$('extra-tpl').value,
   user_param:$('user-param')?.value||'./user_param',
   inner_dielectric:parseFloat($('di').value)||4,outer_dielectric:parseFloat($('do').value)||80,
-  step1:{enabled:$('s1-on').checked,dry:$('s1-dry').checked},
+  step1:{enabled:$('s1-on').checked,dry:$('s1-dry').checked,center_protein:$('s1-center').checked},
   step2:{enabled:$('s2-on').checked,conformer_level:parseInt($('s2-cl').value)||1},
   step3:{enabled:$('s3-on').checked,pbe_solver:$('s3-pbe').value,processes:parseInt($('s3-p').value)||1,
     salt:parseFloat($('s3-salt').value)||.15,tmp_folder:$('s3-tmp').value||'/tmp',
@@ -576,7 +641,7 @@ function populate(c){
   if(!c)return;
   $('pdb-file').value=c.pdb_file||'';$('mcce-home').value=c.mcce_home||'';$('extra-tpl').value=c.extra_tpl||'';
   $('di').value=c.inner_dielectric||4;$('do').value=c.outer_dielectric||80;
-  if(c.step1){$('s1-on').checked=c.step1.enabled!==false;$('s1-dry').checked=c.step1.dry!==false}
+  if(c.step1){$('s1-on').checked=c.step1.enabled!==false;$('s1-dry').checked=c.step1.dry!==false;$('s1-center').checked=c.step1.center_protein!==false}
   if(c.step2){$('s2-on').checked=c.step2.enabled!==false;$('s2-cl').value=c.step2.conformer_level||1}
   if(c.step3){$('s3-on').checked=c.step3.enabled!==false;$('s3-pbe').value=c.step3.pbe_solver||'ngpb';
     $('s3-p').value=c.step3.processes||1;$('s3-salt').value=c.step3.salt||.15;$('s3-tmp').value=c.step3.tmp_folder||'/tmp';
@@ -619,8 +684,8 @@ $('pdb-upload').addEventListener('change',async e=>{
 let viewer3d=null;
 function initViewer(){
   if(typeof $3Dmol==='undefined')return;
-  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-  viewer3d=$3Dmol.createViewer($('viewer-3d'),{backgroundColor:isDark?'#0f1117':'#ffffff',antialias:true});
+  const _dark=isDark();
+  viewer3d=$3Dmol.createViewer($('viewer-3d'),{backgroundColor:_dark?'#0f1117':'#ffffff',antialias:true});
 }
 async function loadStructure(){
   try{const d=await api('/api/pdb/content');if(!d.content)return;
@@ -729,10 +794,10 @@ async function checkOutputs(){
 }
 
 async function loadAnalysis(){
-  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-  const plotBg=isDark?'#181b25':'#f8f9fa';
-  const plotGrid=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
-  const plotText=isDark?'#9ca3af':'#4b5563';
+  const _dark=isDark();
+  const plotBg=_dark?'#181b25':'#f8f9fa';
+  const plotGrid=_dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+  const plotText=_dark?'#9ca3af':'#4b5563';
   window._plotLayout={paper_bgcolor:'transparent',plot_bgcolor:plotBg,
     font:{family:'-apple-system,system-ui,sans-serif',size:11,color:plotText},
     margin:{l:55,r:20,t:10,b:40},
@@ -753,7 +818,7 @@ async function loadAnalysis(){
     if(crg.ph_values&&crg.total_charge&&crg.total_charge.length>0){
       Plotly.newPlot('plot-charge',[{
         x:crg.ph_values,y:crg.total_charge,type:'scatter',mode:'lines+markers',
-        line:{width:2.5,color:isDark?'#60a5fa':'#2563eb'},marker:{size:4},name:'Net charge',
+        line:{width:2.5,color:_dark?'#60a5fa':'#2563eb'},marker:{size:4},name:'Net charge',
       }],{...window._plotLayout,
         xaxis:{...window._plotLayout.xaxis,title:{text:'pH'}},
         yaxis:{...window._plotLayout.yaxis,title:{text:'Net charge (e)'}},
@@ -834,7 +899,7 @@ function updateTitrationPlot(){
   }
   if(emptyMsg)emptyMsg.style.display='none';
 
-  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const _dark=isDark();
   const traces=[];
   let i=0;
   sel.forEach(name=>{
@@ -864,9 +929,9 @@ let dipoleShapes=[];
 
 function initDipoleViewer(){
   if(typeof $3Dmol==='undefined')return;
-  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const _dark=isDark();
   dipoleViewer=$3Dmol.createViewer($('dipole-viewer-3d'),{
-    backgroundColor:isDark?'#0f1117':'#ffffff',antialias:true
+    backgroundColor:_dark?'#0f1117':'#ffffff',antialias:true
   });
 }
 
@@ -919,6 +984,8 @@ function displayDipoleData(data){
   $('dipole-section').style.display='block';
   $('dipole-run-prompt').style.display='none';
   $('dipole-results').style.display='block';
+  $('dipole-mag-card').style.display='flex';
+  $('charge-dipole-row').style.gridTemplateColumns='1fr 1fr';
 
   /* Set up pH slider based on actual pH values */
   const slider=$('dipole-ph-slider');
@@ -941,6 +1008,7 @@ function displayDipoleData(data){
     $('dip-bb').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
     $('dip-ion').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
     $('dip-full').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
+    $('dip-quad').addEventListener('change',()=>renderDipoleArrows(parseInt($('dipole-ph-slider').value)));
   }
 
   /* Load structure into dipole viewer */
@@ -952,8 +1020,8 @@ function displayDipoleData(data){
   function applyDipoleProteinStyle(){
     dipoleViewer.setStyle({},{cartoon:{color:'0x98fb98',opacity:0.85}});
     dipoleViewer.setStyle({ss:'s'},{cartoon:{color:'0xeee8aa',opacity:0.85}});
-    const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-    dipoleViewer.setBackgroundColor(isDark?'#0a0a14':'#ffffff');
+    const _dark=isDark();
+    dipoleViewer.setBackgroundColor(_dark?'#0a0a14':'#ffffff');
     dipoleViewer.zoomTo();dipoleViewer.render();dipoleViewer.zoom(0.9);dipoleViewer.render();
   }
   (async()=>{
@@ -993,6 +1061,7 @@ function renderDipoleArrows(phIdx){
   const showBB=$('dip-bb').checked;
   const showIon=$('dip-ion').checked;
   const showFull=$('dip-full').checked;
+  const showQuad=$('dip-quad').checked;
 
   /*
    * Matches _cgo_dipole() in visualize.py exactly:
@@ -1167,11 +1236,53 @@ function renderDipoleArrows(phIdx){
     }
   });
 
+  /* Quadrupole principal axes visualization
+   * Draw 3 axes from the geometric center, each scaled by its eigenvalue.
+   * Colors: Q1=#ff3366 (red), Q2=#33ff66 (green), Q3=#3399ff (blue) */
+  if(showQuad && dipoleData.quadrupole_eigenvalues){
+    const qev=dipoleData.quadrupole_eigenvalues[phIdx];
+    const a0=arrows['backbone'][phIdx];
+    const cx=(a0.neg[0]+a0.pos[0])/2, cy=(a0.neg[1]+a0.pos[1])/2, cz=(a0.neg[2]+a0.pos[2])/2;
+
+    /* Use full dipole direction as axis 1, then perpendiculars for 2 & 3 */
+    const af=arrows['full'][phIdx];
+    let ax=af.pos[0]-af.neg[0], ay=af.pos[1]-af.neg[1], az=af.pos[2]-af.neg[2];
+    const amag=Math.sqrt(ax*ax+ay*ay+az*az);
+    if(amag>0.01){ax/=amag;ay/=amag;az/=amag}else{ax=1;ay=0;az=0}
+
+    const qref=Math.abs(ax)<0.9?[1,0,0]:[0,1,0];
+    let bx=qref[1]*az-qref[2]*ay, by=qref[2]*ax-qref[0]*az, bz=qref[0]*ay-qref[1]*ax;
+    const bmag=Math.sqrt(bx*bx+by*by+bz*bz);
+    bx/=bmag;by/=bmag;bz/=bmag;
+    let gx=ay*bz-az*by, gy=az*bx-ax*bz, gz=ax*by-ay*bx;
+
+    const qAxes=[[ax,ay,az],[bx,by,bz],[gx,gy,gz]];
+    const qColors=['#ff3366','#33ff66','#3399ff'];
+    const maxEig=Math.max(Math.abs(qev[0]),Math.abs(qev[1]),Math.abs(qev[2]),1);
+    const qScale=8.0/maxEig;
+
+    for(let qi=0;qi<3;qi++){
+      const len=Math.abs(qev[qi])*qScale;
+      if(len<0.5)continue;
+      const d=qAxes[qi];
+      const p1={x:cx-d[0]*len,y:cy-d[1]*len,z:cz-d[2]*len};
+      const p2={x:cx+d[0]*len,y:cy+d[1]*len,z:cz+d[2]*len};
+      const qcid=dipoleViewer.addCylinder({
+        start:p1,end:p2,radius:0.35,color:qColors[qi],
+        fromCap:2,toCap:2,dashed:true
+      });
+      dipoleShapes.push(qcid);
+      const qs1=dipoleViewer.addSphere({center:p1,radius:0.8,color:qColors[qi]});
+      const qs2=dipoleViewer.addSphere({center:p2,radius:0.8,color:qColors[qi]});
+      dipoleShapes.push(qs1);dipoleShapes.push(qs2);
+    }
+  }
+
   dipoleViewer.render();
 }
 
 function plotDipoleMagnitudes(data){
-  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const _dark=isDark();
   const layout={...window._plotLayout,
     xaxis:{...window._plotLayout.xaxis,title:{text:'pH'}},
     yaxis:{...window._plotLayout.yaxis,title:{text:'Dipole moment (Debye)'}},
@@ -1199,30 +1310,24 @@ function plotQuadrupole(data){
   };
   const e1=[],e2=[],e3=[];
   data.quadrupole_eigenvalues.forEach(ev=>{e1.push(ev[0]);e2.push(ev[1]);e3.push(ev[2])});
-  /* QUAD_COLOR = (0.0, 0.85, 1.0) = cyan; use 3 shades for eigenvalues */
+  /* Distinct bright colors matching 3D quadrupole axes: red, green, blue */
   Plotly.newPlot('plot-quadrupole',[
     {x:data.ph_values,y:e1,name:'Q\u2081',type:'scatter',mode:'lines+markers',
-     line:{width:2,color:'#00d9ff'},marker:{size:3}},
+     line:{width:2.5,color:'#ff3366'},marker:{size:4}},
     {x:data.ph_values,y:e2,name:'Q\u2082',type:'scatter',mode:'lines+markers',
-     line:{width:2,color:'#009db8'},marker:{size:3}},
+     line:{width:2.5,color:'#33ff66'},marker:{size:4}},
     {x:data.ph_values,y:e3,name:'Q\u2083',type:'scatter',mode:'lines+markers',
-     line:{width:2,color:'#006680'},marker:{size:3}},
+     line:{width:2.5,color:'#3399ff'},marker:{size:4}},
   ],layout,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d']});
 }
 
 /* ═══════════════════ INIT ═════════════════════════ */
 window.addEventListener('DOMContentLoaded',async()=>{
+  updateThemeUI();
   wsConnect();initViewer();
   try{const c=await api('/api/config');populate(c)}catch(e){}
   try{const s=await api('/api/pipeline/status');if(s.steps?.length)updateStatus(s)}catch(e){}
   try{const d=await api('/api/analysis/available');$('workdir').value=d.workdir||''}catch(e){}
-});
-
-/* Theme-aware viewer resize */
-matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{
-  const d=matchMedia('(prefers-color-scheme:dark)').matches;
-  if(viewer3d){viewer3d.setBackgroundColor(d?'#0f1117':'#ffffff');viewer3d.render()}
-  if(dipoleViewer){dipoleViewer.setBackgroundColor(d?'#0f1117':'#ffffff');dipoleViewer.render()}
 });
 window.addEventListener('resize',()=>{
   if(viewer3d)viewer3d.resize();
