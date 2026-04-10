@@ -544,7 +544,7 @@ def protein_batch():
     modify_script_for_runprm(script_path)
 
     # --- LAUNCH JOB(s) ---
-    if shutil.which("slurm") is None and not args.no_slurm:
+    if shutil.which("sbatch") is None and not args.no_slurm:
         if ask_user("Slurm is not installed, use bash for submitting instead?"):
             args.no_slurm = True
         else:
