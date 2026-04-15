@@ -57,12 +57,18 @@ def main():
     print("  │            MCCE4 Web GUI v1.0.0            │")
     print("  ├───────────────────────────────────────────┤")
     print(f"  │  URL:      {url:<31s}│")
-    if is_ssh or args.host == "127.0.0.1":
-        print(f"  │  Tunnel:   ssh -L {args.port}:localhost:{args.port} user@host   │")
     print(f"  │  Workdir:  {os.getcwd()[:31]:<31s}│")
     mcce = os.environ.get("MCCE_HOME", args.mcce_home or "auto-detect")
     print(f"  │  MCCE:     {str(mcce)[:31]:<31s}│")
     print("  ╰───────────────────────────────────────────╯")
+    if is_ssh:
+        print()
+        print("  SSH session detected — browser can't open on")
+        print("  the remote server. On your LOCAL machine, run:")
+        print()
+        print(f"    ssh -L {args.port}:localhost:{args.port} {os.environ.get('USER', 'user')}@<server>")
+        print()
+        print(f"  Then open {url} in your local browser.")
     print()
 
     if not args.no_browser and not is_ssh:
