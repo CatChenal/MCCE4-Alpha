@@ -8,7 +8,6 @@ name: mc4
 channels:
   - openeye     
   - conda-forge
-  - openeye
   - defaults
 dependencies:
   - python=3.10
