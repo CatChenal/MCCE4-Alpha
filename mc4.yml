@@ -31,3 +31,4 @@ dependencies:
     - uvicorn[standard]>=0.20.0
     - python-multipart>=0.0.5
     - websockets>=10.0
+    - dimorphite-dl
