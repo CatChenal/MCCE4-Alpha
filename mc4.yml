@@ -8,14 +8,14 @@ name: mc4
 channels:
   - openeye
   - conda-forge
+  - openeye
   - defaults
-
 dependencies:
   - python=3.10
   - pip
-  - mdanalysis
   - numpy
   - numba
+  - mdanalysis  
   - parmed
   - vtk=9.3
   - setuptools>=64
