@@ -1,53 +1,36 @@
 #!/bin/bash
+
+# Parameter/Options for SLURM (Simple Linux Utility for Resource Management)
 #SBATCH --job-name=stepM
+#SBATCH --output=stepM.log
 #SBATCH --nodes=1
+#SBATCH --cpus-per-task=20
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4         # Adjust number of cores if needed
-#SBATCH --mem=24G                 # Adjust memory if needed
-
-# =============================================================================
-# Script Name  : stepM.sh
-# Purpose      : Automate extraction and MCCE preprocessing for membrane protein systems with specified chain subsets.
-# Description  :
-#   - Reads a `master_chains.txt` file to identify the PDB ID and relevant chain selections
-#   - Extracts specified protein-only (PROT) and protein+membrane (PROT_MEM) chains from a PDB structure
-#   - Prepares and organizes input files for MCCE simulation in a new directory (PROT_MEM/)
-#   - Executes MCCE Step 1 and Step 2 with user-defined parameters for membrane generation
-#   - Tracks timing for each step and generates detailed logs
-#   - Validates output presence and alerts on failures or missing files
-#
-# Input Files  :
-#   - master_chains.txt (format: PDBID PROT_CHAIN_IDS PROT_MEM_CHAIN_IDS)
-#    - A 3-column file with PDBID, protein chain IDs of interest (PROT), and protein chain IDs of interest of membrane generation (PROT_MEM)
-#   - <PDBID>.pdb files in the current working directory
-#   - Checks for successful output files and logs any warnings or failures
-#
-# Output Files :
-#   - prot.pdb (protein-only chains)
-#   - PROT_MEM/prot_mem.pdb (protein + membrane chains)
-#   - step1.log, step2.log (MCCE logs)
-#   - step1_out.pdb, step2_out.pdb (MCCE outputs)
-#   - mcce_timing.log (runtime summary)
-#
-# Notes:
-#   - Only the first matching PDB file is used
-#   - The script is SLURM-compatible for HPC environments
-#   - Chain extraction uses grep and positional filtering
-#
-# Author       : Gehan A. Ranepura
-# Created      : July 2025
-# =============================================================================
+#SBATCH --mem=12G                 # Adjust memory if needed
+#SBATCH --time=24:00:00
+#SBATCH --export=ALL
 
 #=============================================================================
 #-----------------------------------------------------------------------------
-# Input and Output:
-# A 3-column file with PDBID, protein chain IDs of interest (PROT), and protein chain IDs of interest of membrane generation (PROT_MEM)
-master_chains="/path/to/master_chains.txt"                                    # Replace with actual file path   
+# >>> Automated Parameters (best not change)
+APPTNR=$(command -v apptainer) || { echo "apptainer not found"; exit 1; }
+MCCE=$(command -v mcce)        || { echo "mcce not found"; exit 1; }
+PYEX=$(python3 -c "import sys; print(sys.executable)")
+PYENV="${PYEX%python3}"
+MCBIN=$(cd "$(dirname "$MCCE")" && pwd)
+MCCE_HOME=$(cd "$(dirname "$MCCE")/.." && pwd)
+APPTAINER_BIN=$(dirname "$APPTNR")
+[[ -x "$MCCE_HOME/bin/mcce" ]] || { echo "[ERROR] mcce not found in $MCCE_HOME/bin"; exit 1; }
+# <<<
 
-# Set MCCE4 Parameters
-MCCE_HOME="/path/to/MCCE4"
-USER_PARAM="./user_param"
-EXTRA="./user_param/extra.tpl"
+# Input and Output: A 3-column file with PDBID, protein chain IDs of interest (PROT), and protein chain IDs of interest of membrane generation (PROT_MEM)
+master_chains="/path/to/master_chains.txt"                                    # Replace with actual file path
+USER_PARAM="./user_param"          # PATH to "user_param" directory containing additonal topology files (local files). This directory must be called "user_param" (default: MCCE_HOME/param)
+EXTRA="./user_param/extra.tpl"     # PATH to an different "extra.tpl" file (local file). (default: MCCE_HOME/extra.tpl)
+TMP="/tmp"                         # PATH to temporary directory for storing PBE calculation files during step3
+CPUS=1                             # Number of CPU cores to use for parallelizable MCCE calculations
+EPS=4                              # Protein dielectric constant
 
 # MCCE Simulation
 STEP1="step1.py \$input_prot_mem -d 4 --dry"
@@ -60,7 +43,7 @@ MEM="-u IPECE_ADD_MEM=t,IPECE_MEM_THICKNESS=33,IPECE_MEM_CHAINID=M"
 #==============================================================================
 
 # Clean old file if exists
-rm -f "prot.pdb" "chains.txt"
+rm -f "prot.pdb" "chains.txt" "prot_center.pdb"
 
 # Process each entry in master_chains.txt starting from line 2
 printf "%-6s %-10s %-10s\n" "PDBID" "PROT" "PROT_MEM" > chains.txt
@@ -69,7 +52,7 @@ while read -r pdbid prot prot_mem; do
         pdb_file="${variant}.pdb"
         if [[ -f "$pdb_file" ]]; then
             printf "%-6s %-10s %-10s\n" "$pdbid" "$prot" "$prot_mem" >> chains.txt
-            output=$(orientation.py "$pdb_file")
+	    output=$(orientation.py "$pdb_file")
             master_pdb=$(echo "$output" | grep "Structure moved to origin" | awk '{print $NF}')
             if [[ ! -f "$master_pdb" ]]; then
                echo "Error: Centered PDB file '$master_pdb' was not created. Exiting."
@@ -99,13 +82,14 @@ echo "Created directory: PROT_MEM"
 
 # Extract PROT chains → prot.pdb
 echo "Extracting PROT chains into:     prot.pdb ..."
-grep -E "^ATOM|^HETATM" "$master_pdb" \
+grep -E "^ATOM" "$master_pdb" \
   | grep -E "^.{21}[$prot_chains]" \
   | grep -v " OXT" > prot.pdb
+cp prot.pdb prot_center.pdb
 
 # Extract PROT_MEM chains → PROT_MEM/prot_mem.pdb
 echo "Extracting PROT_MEM chains into: PROT_MEM/prot_mem.pdb ..."
-grep -E "^ATOM|^HETATM" "$master_pdb" \
+grep -E "^ATOM" "$master_pdb" \
   | grep -E "^.{21}[$prot_mem_chains]" \
   | grep -v " OXT" > PROT_MEM/prot_mem.pdb
 
@@ -130,7 +114,7 @@ fi
 
 # Inititiate MCCE_HOME PATH, timing log and set to exit on errors for critical parts
 echo "Preparing MCCE Simulation..."
-export PATH="$MCCE_HOME/bin:$PATH"  # Add MCCE_HOME/bin to PATH for mcce step executables
+#export PATH="$MCCE_HOME/bin:$PATH"  # Add MCCE_HOME/bin to PATH for mcce step executables
 TIMING_FILE="mcce_timing.log"
 echo "MCCE Timing Report" > $TIMING_FILE
 echo "====================================" >> $TIMING_FILE
@@ -257,4 +241,35 @@ echo "Script complete."
 echo "Timing report written to $TIMING_FILE"
 
 
-
+# =============================================================================
+# Script Name  : stepM.sh
+# Purpose      : Automate extraction and MCCE preprocessing for membrane protein systems with specified chain subsets.
+# Description  :
+#   - Reads a `master_chains.txt` file to identify the PDB ID and relevant chain selections
+#   - Extracts specified protein-only (PROT) and protein+membrane (PROT_MEM) chains from a PDB structure
+#   - Prepares and organizes input files for MCCE simulation in a new directory (PROT_MEM/)
+#   - Executes MCCE Step 1 and Step 2 with user-defined parameters for membrane generation
+#   - Tracks timing for each step and generates detailed logs
+#   - Validates output presence and alerts on failures or missing files
+#
+# Input Files  :
+#   - master_chains.txt (format: PDBID PROT_CHAIN_IDS PROT_MEM_CHAIN_IDS)
+#    - A 3-column file with PDBID, protein chain IDs of interest (PROT), and protein chain IDs of interest of membrane generation (PROT_MEM)
+#   - <PDBID>.pdb files in the current working directory
+#   - Checks for successful output files and logs any warnings or failures
+#
+# Output Files :
+#   - prot.pdb (protein-only chains)
+#   - PROT_MEM/prot_mem.pdb (protein + membrane chains)
+#   - step1.log, step2.log (MCCE logs)
+#   - step1_out.pdb, step2_out.pdb (MCCE outputs)
+#   - mcce_timing.log (runtime summary)
+#
+# Notes:
+#   - Only the first matching PDB file is used
+#   - The script is SLURM-compatible for HPC environments
+#   - Chain extraction uses grep and positional filtering
+#
+# Author       : Gehan A. Ranepura
+# Created      : July 2025
+# =============================================================================
