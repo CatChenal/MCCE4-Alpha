@@ -361,7 +361,10 @@ async def analysis_dipole():
 @app.get("/api/analysis/dipole/status")
 async def dipole_status():
     """Check if dipole CSV exists or if ms_dipole can be run."""
-    return analysis_mod.can_run_dipole()
+    result = analysis_mod.can_run_dipole()
+    pdb_status = analysis_mod.can_run_pdb_dipole()
+    result["pdb_available"] = pdb_status["can_run"]
+    return result
 
 
 @app.post("/api/analysis/dipole/run")
@@ -401,6 +404,55 @@ async def dipole_run():
 
     await state.broadcast_log(">> Dipole analysis complete.")
     return data
+
+
+@app.get("/api/analysis/dipole/pdb_status")
+async def pdb_dipole_status():
+    """Check if PDB standard protonation dipole can be computed."""
+    return analysis_mod.can_run_pdb_dipole()
+
+
+@app.post("/api/analysis/dipole/pdb_run")
+async def pdb_dipole_run():
+    """Compute PDB standard protonation dipole and return results."""
+    status = analysis_mod.can_run_pdb_dipole()
+    if not status["can_run"]:
+        raise HTTPException(400, f"Missing required files: {', '.join(status['missing'])}")
+
+    await state.broadcast_log(">> Running PDB dipole analysis...")
+    loop = asyncio.get_event_loop()
+
+    log_messages = []
+    def sync_log(msg):
+        log_messages.append(msg)
+
+    try:
+        data = await loop.run_in_executor(
+            None, lambda: analysis_mod.run_pdb_dipole(log_callback=sync_log)
+        )
+    except Exception as e:
+        await state.broadcast_log(f"PDB dipole error: {e}")
+        raise HTTPException(500, str(e))
+
+    for msg in log_messages:
+        await state.broadcast_log(msg)
+
+    if "error" in data:
+        await state.broadcast_log(f"PDB dipole error: {data['error']}")
+        raise HTTPException(500, data["error"])
+
+    await state.broadcast_log(">> PDB dipole analysis complete.")
+    return data
+
+
+@app.get("/api/pdb/protein_content")
+async def get_protein_content():
+    """Serve best available protein PDB for 3D visualization."""
+    for name in ("prot_center.pdb", "prot.pdb", "step2_out.pdb"):
+        if os.path.isfile(name):
+            with open(name, "r") as f:
+                return {"content": f.read(), "filename": name}
+    raise HTTPException(404, "No protein PDB found")
 
 
 @app.get("/api/pdb/step2_content")
