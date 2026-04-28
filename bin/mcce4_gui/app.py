@@ -369,40 +369,66 @@ async def dipole_status():
 
 @app.post("/api/analysis/dipole/run")
 async def dipole_run():
-    """Run ms_dipole ensemble computation and return results."""
+    """Run ms_dipole ensemble computation and return results.
+
+    Also computes PDB standard protonation dipole if step1_out.pdb + param/
+    are available, returned under the 'pdb_data' key.
+    """
     status = analysis_mod.can_run_dipole()
+    pdb_status = analysis_mod.can_run_pdb_dipole()
+
     if status["has_csv"]:
-        # Already computed — just return existing data
-        return analysis_mod.parse_dipole_csv()
-    if not status["can_run"]:
+        data = analysis_mod.parse_dipole_csv()
+    elif status["can_run"]:
+        await state.broadcast_log(">> Running ensemble dipole analysis...")
+        loop = asyncio.get_event_loop()
+
+        log_messages = []
+        def sync_log(msg):
+            log_messages.append(msg)
+
+        try:
+            data = await loop.run_in_executor(
+                None, lambda: analysis_mod.run_dipole(log_callback=sync_log)
+            )
+        except Exception as e:
+            await state.broadcast_log(f"Dipole error: {e}")
+            raise HTTPException(500, str(e))
+
+        for msg in log_messages:
+            await state.broadcast_log(msg)
+
+        if "error" in data:
+            await state.broadcast_log(f"Dipole error: {data['error']}")
+            raise HTTPException(500, data["error"])
+
+        await state.broadcast_log(">> Ensemble dipole analysis complete.")
+    else:
         raise HTTPException(400, f"Missing required files: {', '.join(status['missing'])}")
 
-    await state.broadcast_log(">> Running dipole analysis...")
+    # Also compute PDB dipole if possible
+    if pdb_status["can_run"]:
+        await state.broadcast_log(">> Running PDB standard protonation dipole...")
+        loop = asyncio.get_event_loop()
 
-    # Run in executor to avoid blocking the event loop
-    loop = asyncio.get_event_loop()
+        pdb_log = []
+        def pdb_sync_log(msg):
+            pdb_log.append(msg)
 
-    log_messages = []
-    def sync_log(msg):
-        log_messages.append(msg)
+        try:
+            pdb_data = await loop.run_in_executor(
+                None, lambda: analysis_mod.run_pdb_dipole(log_callback=pdb_sync_log)
+            )
+        except Exception:
+            pdb_data = None
 
-    try:
-        data = await loop.run_in_executor(
-            None, lambda: analysis_mod.run_dipole(log_callback=sync_log)
-        )
-    except Exception as e:
-        await state.broadcast_log(f"Dipole error: {e}")
-        raise HTTPException(500, str(e))
+        for msg in pdb_log:
+            await state.broadcast_log(msg)
 
-    # Broadcast collected log messages
-    for msg in log_messages:
-        await state.broadcast_log(msg)
+        if pdb_data and "error" not in pdb_data:
+            data["pdb_data"] = pdb_data
+            await state.broadcast_log(">> PDB dipole analysis complete.")
 
-    if "error" in data:
-        await state.broadcast_log(f"Dipole error: {data['error']}")
-        raise HTTPException(500, data["error"])
-
-    await state.broadcast_log(">> Dipole analysis complete.")
     return data
 
 

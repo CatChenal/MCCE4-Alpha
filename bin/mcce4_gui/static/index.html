@@ -953,7 +953,18 @@ async function loadDipoleData(){
     if(status.has_csv){
       /* CSV already exists — load it directly */
       const data=await api('/api/analysis/dipole');
-      if(data&&!data.error) displayDipoleData(data);
+      if(data&&!data.error){
+        /* Pre-fetch PDB dipole data if available */
+        if(pdbDipoleAvailable&&!pdbDipoleData){
+          try{
+            const pdb=await fetch('/api/analysis/dipole/pdb_run',{method:'POST'}).then(r=>{
+              if(!r.ok)throw new Error(r.statusText);return r.json();
+            });
+            if(pdb&&!pdb.error) pdbDipoleData=pdb;
+          }catch(e2){/* PDB dipole optional */}
+        }
+        displayDipoleData(data);
+      }
     }else if(status.can_run){
       /* Required files present but no CSV yet — show run button */
       $('dipole-section').style.display='block';
@@ -976,14 +987,10 @@ async function runDipoleAnalysis(){
     });
     if(data&&!data.error){
       $('dipole-run-prompt').style.display='none';
-      /* Also compute PDB dipole if available */
-      if(pdbDipoleAvailable){
-        try{
-          const pdbData=await fetch('/api/analysis/dipole/pdb_run',{method:'POST'}).then(r=>{
-            if(!r.ok)throw new Error(r.statusText);return r.json();
-          });
-          if(pdbData&&!pdbData.error) pdbDipoleData=pdbData;
-        }catch(e2){/* PDB dipole optional — ignore errors */}
+      /* Backend includes pdb_data when step1_out.pdb + param/ are available */
+      if(data.pdb_data){
+        pdbDipoleData=data.pdb_data;
+        pdbDipoleAvailable=true;
       }
       displayDipoleData(data);
     }else{
