@@ -7,7 +7,6 @@
 #SBATCH --cpus-per-task=5
 #SBATCH --ntasks=1
 #SBATCH --mem=12G                 # Adjust memory if needed
-#SBATCH --time=24:00:00
 #SBATCH --export=ALL
 
 #=============================================================================

@@ -8,7 +8,6 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4         # Adjust number of cores if needed
 #SBATCH --mem=12G                 # Adjust memory if needed
-#SBATCH --time=24:00:00
 #SBATCH --export=ALL
 
 #=============================================================================
