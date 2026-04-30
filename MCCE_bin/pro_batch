@@ -2,7 +2,7 @@
 
 """
 CLI Module: pro_batch
-Version: pro_batch_v2
+Version: pro_batch_v3
 
 NOTES:
 1. The current implementation uses the cwd submit script as the master, which is
@@ -145,6 +145,7 @@ class JobPool:
         self.pids[protein_name] = proc.pid
         print(f"  -> Started {protein_name} (PID {proc.pid}, "
               f"nice {self.nice}, {len(self.running)}/{self.max_jobs} slots)")
+        self.save_tracking()
 
     def save_tracking(self):
         data = _load_tracking()
@@ -214,6 +215,7 @@ class SlurmPool:
             self.job_ids[protein_name] = job_id
             print(f"  -> Submitted {protein_name} (Slurm job {job_id}, "
                   f"nice {self.nice}, {len(self.job_ids)} total)")
+            self.save_tracking()
         else:
             print(f"  !! sbatch failed for {protein_name}: {result.stderr.strip()}")
 
@@ -564,6 +566,12 @@ def cli_parser() -> argparse.ArgumentParser:
                         default="",
                         help="Path to custom bash script."
                         )
+    parser.add_argument("-job_name",
+                        type=str,
+                        default=None,
+                        help="A unique name for this batch (e.g. 'pH7_mutations'). "
+                             "Required for launching, --check, and --stop."
+                        )
     parser.add_argument("-j", "--jobs",
                         type=int,
                         default=DEFAULT_MAX_JOBS,
@@ -581,12 +589,6 @@ def cli_parser() -> argparse.ArgumentParser:
                         default=False,
                         help="Use bash instead of the Slurm scheduler to run jobs. NOTE: Jobs are "
                              f"still low priority ({DEFAULT_NICE}) unless --nice is set with a lower value."
-                        )
-    parser.add_argument("-job_name",
-                        type=str,
-                        default=None,
-                        help="A unique name for this batch (e.g. 'pH7_mutations'). "
-                             "Required for launching, --check, and --stop."
                         )
     parser.add_argument("--check",
                         action="store_true",
@@ -742,6 +744,30 @@ def protein_batch():
         mode_str = f"Slurm (max {args.jobs} concurrent, nice {nice})"
 
     print(f"\nLaunching {len(final_targets)} runs via {mode_str}...")
+    print(f"  Log file: {log_name}")
+    print("Backgrounding — you can continue using this terminal.\n")
+
+    pool.save_tracking()
+    _log_fh.flush()
+    pid = os.fork()
+
+    if pid > 0:
+        sys.stdout = sys.stdout.terminal if isinstance(sys.stdout, TeeWriter) else sys.__stdout__
+        sys.stderr = sys.stderr.terminal if isinstance(sys.stderr, TeeWriter) else sys.__stderr__
+        _log_fh.close()
+        return
+
+    # Child: detach from terminal, run jobs in background
+    os.setsid()
+    devnull_fd = os.open(os.devnull, os.O_RDWR)
+    os.dup2(devnull_fd, 0)
+    log_fd = _log_fh.fileno()
+    os.dup2(log_fd, 1)
+    os.dup2(log_fd, 2)
+    os.close(devnull_fd)
+    sys.stdin = open(os.devnull, "r")
+    sys.stdout = _log_fh
+    sys.stderr = _log_fh
 
     target_set = set(final_targets)
     for fp in user_files:
@@ -751,7 +777,9 @@ def protein_batch():
     pool.save_tracking()
     update_book()
     pool.summary()
-    print(f"  Log file: {log_name}")
+    print(f"  Finished: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    _log_fh.close()
+    os._exit(0)
 
 
 if __name__ == "__main__":
