@@ -1,5 +1,5 @@
 """
-mcce4_agent_ftpl — MCCE4 Topology File AI Agent Package
+mcce_ftpl_agent — MCCE4 Topology File AI Agent Package
 =========================================================
 
 An AI agent for creating MCCE4 topology files (.ftpl) from ligand PDB files.
@@ -12,10 +12,10 @@ Install:
 
 Usage:
     # CLI
-    mcce4_agent_ftpl.py EMH.pdb --gui
+    mcce_ftpl EMH.pdb --gui
 
     # Python
-    from mcce4_agent_ftpl.agent import run_agent
+    from mcce_ftpl_agent.agent import run_agent
     run_agent("EMH.pdb")
 """
 

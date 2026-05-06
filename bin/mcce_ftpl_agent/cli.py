@@ -151,7 +151,7 @@ def main():
         return
 
     # ── CLI mode: run agent directly ──
-    setup_logging(f"mcce4_agent_ftpl_{lig_id}.log", args.verbose)
+    setup_logging(f"mcce_ftpl_{lig_id}.log", args.verbose)
 
     logging.info(f"{'='*60}")
     logging.info(f"  🤖 MCCE4 Topology Agent v5.1 (LangGraph + per-state PDBs)")

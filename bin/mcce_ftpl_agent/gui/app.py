@@ -10,9 +10,9 @@ Features:
   - Runs in browser — works over SSH tunnel, no X11 needed
 
 Launch:
-  streamlit run mcce4_agent_ftpl/gui/app.py -- EMH.pdb
+  streamlit run mcce_ftpl_agent/gui/app.py -- EMH.pdb
   # Or via the CLI:
-  mcce4_agent_ftpl.py EMH.pdb --gui
+  mcce_ftpl EMH.pdb --gui
 """
 
 import os
@@ -31,13 +31,13 @@ if PACKAGE_DIR not in sys.path:
 
 import streamlit as st
 
-from mcce4_agent_ftpl.models import ConformerState, AgentState
-from mcce4_agent_ftpl.config import (
+from mcce_ftpl_agent.models import ConformerState, AgentState
+from mcce_ftpl_agent.config import (
     GUI_TITLE, SUPPORTED_CHARGE_METHODS, DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS,
     AGENT_PHASES, PHASE_NAME_MAP,
 )
-from mcce4_agent_ftpl.tools.rdkit_tools import mol_to_svg, get_mol_from_pdb, get_mol_from_smiles
-from mcce4_agent_ftpl.tools.mcce_tools import extract_lig_id_from_pdb
+from mcce_ftpl_agent.tools.rdkit_tools import mol_to_svg, get_mol_from_pdb, get_mol_from_smiles
+from mcce_ftpl_agent.tools.mcce_tools import extract_lig_id_from_pdb
 import html as _html
 
 
@@ -321,7 +321,7 @@ with tab_input:
             # Reset phase status
             st.session_state["phase_status"] = {}
 
-            from mcce4_agent_ftpl.agent import run_agent
+            from mcce_ftpl_agent.agent import run_agent
 
             # Show real-time progress below the button
             status = st.status("🤖 Agent is analyzing the molecule...", expanded=True)
@@ -474,7 +474,7 @@ with tab_states:
                 "— = no change (neutral reference)"
             )
             try:
-                from mcce4_agent_ftpl.tools.rdkit_tools import generate_state_comparison_table
+                from mcce_ftpl_agent.tools.rdkit_tools import generate_state_comparison_table
                 comp_rows = generate_state_comparison_table(states, h_diffs, lig_id)
                 if comp_rows:
                     import pandas as pd
@@ -536,7 +536,7 @@ with tab_states:
                         rendered = False
                         if pdb_for_state and os.path.exists(str(pdb_for_state)):
                             try:
-                                from mcce4_agent_ftpl.tools.rdkit_tools import (
+                                from mcce_ftpl_agent.tools.rdkit_tools import (
                                     mol_to_svg_with_h_diff,
                                 )
                                 svg = mol_to_svg_with_h_diff(
@@ -769,7 +769,7 @@ with tab_states:
             ionizable = agent_state.get("_ionizable_sites", [])
             if not ionizable:
                 try:
-                    from mcce4_agent_ftpl.tools.rdkit_tools import (
+                    from mcce_ftpl_agent.tools.rdkit_tools import (
                         get_ionizable_sites, get_mol_from_pdb as _gm
                     )
                     pdb = st.session_state.get("pdb_path")
@@ -901,7 +901,7 @@ with tab_states:
                 st.session_state["phase"] = "running"
                 st.session_state["approved"] = True
 
-                from mcce4_agent_ftpl.agent import (
+                from mcce_ftpl_agent.agent import (
                     node_generate_template, node_assign_charges,
                     node_rxn_calibration, node_done,
                 )
