@@ -19,7 +19,15 @@ dependencies:
   - vtk=9.3
   - setuptools>=64
   - pymol-open-source
+  - rdkit
   - openeye-toolkits
+  # Agent dependencies
+  - langgraph
+  - dimorphite-dl
+  - google-genai
+  - anthropic
+  - openai
+  - streamlit
   - pip:
     - scipy
     - matplotlib
@@ -31,4 +39,3 @@ dependencies:
     - uvicorn[standard]>=0.20.0
     - python-multipart>=0.0.5
     - websockets>=10.0
-    - dimorphite-dl
