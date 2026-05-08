@@ -3,6 +3,9 @@ _notebooks/
 _sandbox
 _tmp
 .github/ISSUE_TEMPLATE/
+*/meta_bench/
+benchmark.log
+
 
 # Executables
 *.sif
@@ -14,8 +17,6 @@ lib/mcce.a
 # Test folder
 ngpb_test/
 mcce_workflows/
-benchmark.info
-benchmark.log
 .qodo
 
 # Byte-compiled / optimized / DLL files/ IDE
@@ -26,6 +27,8 @@ bin/__pycache__/*
 */MCCE_bin/mcce4/__pycache__/*
 *.py[cod]
 *$py.class
+
+*/.DS_Store
 
 # C extensions
 *.so
