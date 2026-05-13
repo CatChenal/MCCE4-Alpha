@@ -1,7 +1,7 @@
 CC      = gcc -fcommon
-#CC      = x86_64-linux-gnu-gcc -g
+#CC      = x86_64-linux-gnu-gcc
 CC2     = g++ -std=c++11 -fcommon
-#CC2     = x86_64-linux-gnu-g++ -g
+#CC2     = x86_64-linux-gnu-g++
 
 LDIR    = lib
 DEPS    = $(LDIR)/mcce.h
@@ -31,8 +31,13 @@ ngpb:
 	@echo "Building Apptainer Image for NGPB container (.sif) ..."
 	sudo apptainer build $(BIN)/NextGenPB_MCCE4.sif $(BIN)/recipe_MCCE.def
 
+# born_radii
+born:
+	ml_pbs.py train ml_trainingset/local_density.csv
+	mv born_radius_model.pkl $(BIN)/
+
 # all = Build  mcce, delphi, ngpb
-all: $(MCCE) $(DELPHI) ngpb
+all: $(MCCE) $(DELPHI) ngpb born
 
 # bin/mcce = core solver
 $(MCCE): mcce.c $(LIB) $(DEPS) $(STEP6)
