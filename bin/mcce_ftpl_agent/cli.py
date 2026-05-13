@@ -41,8 +41,8 @@ def main():
           %(prog)s EMH.pdb                                         # PDB file
           %(prog)s EMH.cif                                         # CIF file (auto-converts)
           %(prog)s -lig_code EMH                                   # 3-letter RCSB ligand code
-          %(prog)s -smiles "c1ccccc1"                              # SMILES string
-          %(prog)s -smiles molecule.smi                             # SMILES from .smi file
+          %(prog)s -smiles "c1ccccc1" -lig_id BEN                    # SMILES string + code
+          %(prog)s -smiles EMH.smi                                  # SMILES from .smi file
 
         Options:
           %(prog)s EMH.pdb --dry-run --no-llm                      # Quick test
@@ -68,7 +68,12 @@ def main():
     parser.add_argument("-smiles", default=None,
                         help="SMILES string or .smi file (e.g., \"c1ccccc1\" or "
                              "molecule.smi). 3D structure is built using RDKit. "
-                             "For .smi files, ligand code is derived from filename.")
+                             "Requires -lig_id for raw strings; for .smi files, "
+                             "the 3-letter code is derived from the filename.")
+    parser.add_argument("-lig_id", default=None,
+                        help="3-letter ligand identifier for ftpl naming (e.g., TMA). "
+                             "Required with -smiles when a raw SMILES string is given. "
+                             "For .smi files, defaults to the first 3 chars of the filename.")
     parser.add_argument("-state_pdbs", nargs="+", default=None,
                         help="PDB files for specific states (e.g., EMH_01.pdb EMH_+1.pdb)")
     parser.add_argument("--gui", action="store_true",
@@ -149,26 +154,39 @@ def main():
                 print(f"ERROR: SMILES file not found: {args.smiles}")
                 sys.exit(1)
             with open(args.smiles) as f:
-                line = f.readline().strip()
-            if not line:
+                lines = [l.strip() for l in f if l.strip()]
+            if not lines:
                 print(f"ERROR: SMILES file is empty: {args.smiles}")
                 sys.exit(1)
-            smiles_input = line.split()[0]
+            if len(lines) > 1:
+                print(f"ERROR: .smi file must contain exactly one molecule, "
+                      f"found {len(lines)}: {args.smiles}")
+                sys.exit(1)
+            smiles_input = lines[0].split()[0]
         else:
+            if not args.lig_id:
+                parser.error("-smiles with a raw SMILES string requires -lig_id "
+                             "(e.g., -smiles \"c1ccccc1\" -lig_id BEN).")
             smiles_input = args.smiles
 
     # Determine lig_id
-    if lig_code:
+    if args.lig_id:
+        lig_id = args.lig_id.upper()[:3]
+        if len(lig_id) != 3:
+            parser.error(f"-lig_id must be exactly 3 characters, got: '{args.lig_id}'")
+    elif lig_code:
         lig_id = lig_code
     elif pdb_path:
         from .tools.mcce_tools import extract_lig_id_from_pdb
         lig_id = extract_lig_id_from_pdb(pdb_path)
+    elif args.smiles and args.smiles.endswith(".smi"):
+        name = os.path.splitext(os.path.basename(args.smiles))[0].upper()[:3]
+        if len(name) != 3:
+            parser.error(f".smi filename must be at least 3 characters for ligand code, "
+                         f"got: '{os.path.basename(args.smiles)}'. Use -lig_id instead.")
+        lig_id = name
     else:
-        if args.smiles and args.smiles.endswith(".smi"):
-            name = os.path.splitext(os.path.basename(args.smiles))[0].upper()[:3]
-            lig_id = name if len(name) == 3 else "LIG"
-        else:
-            lig_id = "LIG"
+        lig_id = "LIG"
 
     # ── GUI mode: launch Streamlit ──
     if args.gui:

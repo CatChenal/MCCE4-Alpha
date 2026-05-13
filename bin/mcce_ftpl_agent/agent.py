@@ -58,7 +58,7 @@ def node_molecule_intel(state: AgentState) -> AgentState:
     lig_code = state.get("_lig_code_flag")
     work_dir = state.get("work_dir", ".")
 
-    smiles_input = state.get("_smiles_input")
+    smiles_input = state.get("_smiles_input") or state.get("smiles") or None
 
     if pdb_path:
         logging.info(f"  Converting {os.path.basename(pdb_path)} to SMILES (Open Babel / RDKit)...")
@@ -1071,7 +1071,7 @@ def run_agent(pdb_path: str = None, use_gui: bool = False,
         "user_approved": not use_gui,  # auto-approve if no GUI
         "complete": False,
         "dry_run": dry_run,
-        "smiles": "",
+        "smiles": smiles_input or "",
         "name": "",
         "formula": "",
         "formal_charge": 0,

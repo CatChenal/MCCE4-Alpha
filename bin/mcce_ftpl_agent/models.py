@@ -221,3 +221,20 @@ class AgentState(TypedDict, total=False):
     user_approved: bool             # Whether user approved states
     complete: bool                  # Whether agent is done
     dry_run: bool                   # Skip RXN calibration
+
+    # ── LLM configuration ──
+    llm_provider: str               # "gemini", "claude", or "chatgpt"
+    llm_api_key: str                # API key override
+
+    # ── Input mode flags ──
+    _lig_code_flag: str             # -lig_code value (triggers RCSB fetch)
+    _smiles_input: str              # -smiles value (direct SMILES input)
+    _smiles_build_mode: bool        # True when building all PDBs from SMILES
+    _user_pdb_provided: bool        # True when user supplied a PDB/CIF file
+
+    # ── Dimorphite-DL parameters ──
+    _dimorphite_ph_min: float       # pH range min (default: 6.5)
+    _dimorphite_ph_max: float       # pH range max (default: 7.5)
+    _dimorphite_precision: float    # pKa precision factor
+    _dimorphite_max_variants: int   # Max protonation variants
+    _dimorphite_label_states: bool  # Label output SMILES

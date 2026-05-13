@@ -10,8 +10,8 @@ Input (use exactly one):
   mcce_ftpl EMH.pdb                                      # PDB file
   mcce_ftpl EMH.cif                                      # CIF file (auto-converts)
   mcce_ftpl -lig_code EMH                                # 3-letter RCSB ligand code
-  mcce_ftpl -smiles "c1ccccc1"                           # SMILES string
-  mcce_ftpl -smiles molecule.smi                         # SMILES from .smi file
+  mcce_ftpl -smiles "c1ccccc1" -lig_id BEN                # SMILES string + 3-letter code
+  mcce_ftpl -smiles EMH.smi                              # SMILES from .smi file (code from filename)
 
 Options:
   mcce_ftpl EMH.pdb --dry-run --no-llm                   # Quick test
@@ -19,7 +19,7 @@ Options:
   mcce_ftpl EMH.pdb -state_pdbs EMH_01.pdb EMH_+1.pdb   # User states
   mcce_ftpl EMH.pdb -charge_method am1bcc                # Override charges
   mcce_ftpl -lig_code EMH -llm_provider claude           # Use Claude LLM
-  mcce_ftpl -smiles "CCO" -ph_min 5.0 -ph_max 9.0       # Custom pH range
+  mcce_ftpl -smiles "CCO" -lig_id ETH -ph_min 5.0        # Custom pH range
 
 Install dependencies:
   conda install -c conda-forge google-genai langgraph dimorphite_dl rdkit streamlit
