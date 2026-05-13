@@ -130,7 +130,7 @@ def shortest_d(res1, res2):
     return math.sqrt(ddmin)
 
 
-def fix_format(fname):
+def fix_format(fname, noter=False):
     # make sure NT atoms appear before CTR atoms.
     # truncate ending special characters from Windows.
     NTR_atoms = [" CA ", " N  ", " HA ", " H  ", " H2 ", " H3 "]
@@ -150,6 +150,9 @@ def fix_format(fname):
             if line[16] == "A":
                 line = line[:16] + " " + line[17:]
             elif line[16] != " ":
+                continue
+
+            if noter and line[12:16] == " OXT":
                 continue
 
             resid = line[17:27]
@@ -520,7 +523,7 @@ if __name__ == "__main__":
 
     if not args.norun:
         trim_pdb_after_endmdl(args.prot[0])
-        new_pdblines = fix_format(args.prot[0])
+        new_pdblines = fix_format(args.prot[0], noter=args.noter)
         print("Preprocessing input pdb file, identifying ligands ...")
         new_pdblines = identify_ligands(new_pdblines)
         print("Done, writing to step0_out.pdb ...")
