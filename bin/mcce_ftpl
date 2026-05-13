@@ -6,18 +6,20 @@ mcce_ftpl — MCCE4 Topology File AI Agent
 Launcher script. Place this in MCCE4-Alpha/bin/ alongside the
 mcce_ftpl_agent/ package directory.
 
-Usage:
-  mcce_ftpl EMH.pdb                                     # Full auto (PDB input)
-  mcce_ftpl EMH.cif                                     # CIF input (auto-converts)
-  mcce_ftpl -lig_code EMH                               # Ligand code only (fetches from RCSB)
-  mcce_ftpl EMH.pdb -lig_code EMH                       # PDB + ligand code
-  mcce_ftpl -lig_code EMH --dry-run --no-llm            # Quick test from RCSB
-  mcce_ftpl EMH.pdb --gui                               # Web GUI
-  mcce_ftpl EMH.pdb --state-pdbs EMH_01.pdb EMH_+1.pdb  # User states
-  mcce_ftpl EMH.pdb --no-llm --dry-run                  # Minimal run
-  mcce_ftpl EMH.pdb --llm-provider claude               # Use Claude LLM
-  mcce_ftpl EMH.pdb --llm-provider chatgpt              # Use ChatGPT LLM
-  mcce_ftpl EMH.pdb --llm-provider claude --api-key KEY  # Custom API key
+Input (use exactly one):
+  mcce_ftpl EMH.pdb                                      # PDB file
+  mcce_ftpl EMH.cif                                      # CIF file (auto-converts)
+  mcce_ftpl -lig_code EMH                                # 3-letter RCSB ligand code
+  mcce_ftpl -smiles "c1ccccc1"                           # SMILES string
+  mcce_ftpl -smiles molecule.smi                         # SMILES from .smi file
+
+Options:
+  mcce_ftpl EMH.pdb --dry-run --no-llm                   # Quick test
+  mcce_ftpl EMH.pdb --gui                                # Web GUI
+  mcce_ftpl EMH.pdb -state_pdbs EMH_01.pdb EMH_+1.pdb   # User states
+  mcce_ftpl EMH.pdb -charge_method am1bcc                # Override charges
+  mcce_ftpl -lig_code EMH -llm_provider claude           # Use Claude LLM
+  mcce_ftpl -smiles "CCO" -ph_min 5.0 -ph_max 9.0       # Custom pH range
 
 Install dependencies:
   conda install -c conda-forge google-genai langgraph dimorphite_dl rdkit streamlit

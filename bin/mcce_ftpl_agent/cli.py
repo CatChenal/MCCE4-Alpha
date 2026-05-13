@@ -37,19 +37,19 @@ def main():
         description="🤖 MCCE4 Topology File AI Agent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent("""\
-        Examples:
-          %(prog)s EMH.pdb                                         # Full auto (PDB input)
-          %(prog)s EMH.cif                                         # CIF input (auto-converts)
-          %(prog)s -lig_code EMH                                   # Ligand code only (RCSB)
-          %(prog)s EMH.pdb -lig_code EMH                           # PDB + ligand code
-          %(prog)s -lig_code EMH --dry-run --no-llm                # Quick test
+        Input (use exactly one):
+          %(prog)s EMH.pdb                                         # PDB file
+          %(prog)s EMH.cif                                         # CIF file (auto-converts)
+          %(prog)s -lig_code EMH                                   # 3-letter RCSB ligand code
+          %(prog)s -smiles "c1ccccc1"                              # SMILES string
+          %(prog)s -smiles molecule.smi                             # SMILES from .smi file
+
+        Options:
+          %(prog)s EMH.pdb --dry-run --no-llm                      # Quick test
           %(prog)s EMH.pdb --gui                                   # Web GUI (Streamlit)
-          %(prog)s EMH.pdb --state-pdbs EMH_01.pdb EMH_+1.pdb     # User state PDBs
-          %(prog)s EMH.pdb --no-llm                                # No LLM reasoning
-          %(prog)s EMH.pdb --charge-method am1bcc                  # Override charges
-          %(prog)s EMH.pdb --dry-run                               # Skip calibration
-          %(prog)s EMH.pdb --llm-provider claude --api-key sk-...  # Use Claude
-          %(prog)s EMH.pdb --llm-provider chatgpt --api-key sk-... # Use ChatGPT
+          %(prog)s EMH.pdb -state_pdbs EMH_01.pdb EMH_+1.pdb      # User state PDBs
+          %(prog)s EMH.pdb -charge_method am1bcc                   # Override charges
+          %(prog)s -lig_code EMH -llm_provider claude              # Use Claude LLM
 
         Install:
           conda install -c conda-forge google-genai langgraph dimorphite_dl rdkit streamlit
@@ -60,21 +60,23 @@ def main():
         """))
 
     parser.add_argument("input_file", nargs="?", default=None,
-                        help="Ligand PDB or CIF file (e.g., EMH.pdb or EMH.cif). "
-                             "Optional if -lig_code is provided.")
+                        help="Ligand PDB or CIF file (e.g., EMH.pdb or EMH.cif).")
     parser.add_argument("-lig_code", default=None,
-                        help="3-letter RCSB ligand code (e.g., EMH). When provided, "
-                             "SMILES and metadata are fetched from RCSB. A PDB/CIF "
-                             "file is optional — if omitted, the 3D structure is "
+                        help="3-letter RCSB ligand code (e.g., EMH). SMILES and "
+                             "metadata are fetched from RCSB, 3D structure is "
                              "built from SMILES using RDKit.")
-    parser.add_argument("--state-pdbs", nargs="+", default=None,
+    parser.add_argument("-smiles", default=None,
+                        help="SMILES string or .smi file (e.g., \"c1ccccc1\" or "
+                             "molecule.smi). 3D structure is built using RDKit. "
+                             "For .smi files, ligand code is derived from filename.")
+    parser.add_argument("-state_pdbs", nargs="+", default=None,
                         help="PDB files for specific states (e.g., EMH_01.pdb EMH_+1.pdb)")
     parser.add_argument("--gui", action="store_true",
                         help="Launch web GUI (Streamlit) for interactive review")
-    parser.add_argument("--ph", type=float, default=7.4, help="Target pH (default: 7.4)")
-    parser.add_argument("--charge-method", default=DEFAULT_CHARGE_METHOD,
+    parser.add_argument("-charge_method", default=DEFAULT_CHARGE_METHOD,
                         choices=SUPPORTED_CHARGE_METHODS, help="Charge method")
-    parser.add_argument("-d", "--dielectric", nargs="+", type=int, default=DEFAULT_DIELECTRICS,
+    parser.add_argument("-d", "-dielectric", dest="dielectric",
+                        nargs="+", type=int, default=DEFAULT_DIELECTRICS,
                         help="Dielectric constants (default: 2 4 8)")
     parser.add_argument("--no-llm", action="store_true", help="Disable LLM reasoning")
     parser.add_argument("--dry-run", action="store_true", help="Skip RXN calibration")
@@ -82,51 +84,58 @@ def main():
     # Dimorphite-DL options
     dimorphite_group = parser.add_argument_group("Dimorphite-DL options",
         "Control protonation state enumeration (Phase 2)")
-    dimorphite_group.add_argument("--ph-min", type=float,
+    dimorphite_group.add_argument("-ph_min", type=float,
                                   default=DIMORPHITE_PH_MIN,
                                   help=f"Minimum pH for protonation enumeration "
                                        f"(default: {DIMORPHITE_PH_MIN})")
-    dimorphite_group.add_argument("--ph-max", type=float,
+    dimorphite_group.add_argument("-ph_max", type=float,
                                   default=DIMORPHITE_PH_MAX,
                                   help=f"Maximum pH for protonation enumeration "
                                        f"(default: {DIMORPHITE_PH_MAX})")
-    dimorphite_group.add_argument("--precision", type=float,
+    dimorphite_group.add_argument("-precision", type=float,
                                   default=DIMORPHITE_PRECISION,
                                   help=f"pKa precision factor: number of std deviations "
                                        f"from mean pKa to consider (default: {DIMORPHITE_PRECISION})")
-    dimorphite_group.add_argument("--max-variants", type=int,
+    dimorphite_group.add_argument("-max_variants", type=int,
                                   default=DIMORPHITE_MAX_VARIANTS,
                                   help=f"Max protonation variants per compound "
                                        f"(default: {DIMORPHITE_MAX_VARIANTS})")
     dimorphite_group.add_argument("--label-states", action="store_true",
                                   default=DIMORPHITE_LABEL_STATES,
                                   help="Label output SMILES as PROTONATED/DEPROTONATED/BOTH")
-    parser.add_argument("--work-dir", default=".", help="Working directory")
-    parser.add_argument("-o", "--output", default=None, help="Output .ftpl filename")
+    parser.add_argument("-work_dir", default=".", help="Working directory")
+    parser.add_argument("-o", "-output", dest="output",
+                        default=None, help="Output .ftpl filename")
     parser.add_argument("-v", "--verbose", action="store_true")
 
     # LLM provider options
-    parser.add_argument("--llm-provider", default=DEFAULT_LLM_PROVIDER,
+    parser.add_argument("-llm_provider", default=DEFAULT_LLM_PROVIDER,
                         choices=SUPPORTED_LLM_PROVIDERS,
                         help=f"LLM provider (default: {DEFAULT_LLM_PROVIDER})")
-    parser.add_argument("--api-key", default=None,
+    parser.add_argument("-api_key", default=None,
                         help="API key for the chosen LLM provider (overrides env vars)")
 
     args = parser.parse_args()
 
-    # ── Validate inputs: need either input_file or --lig-code ──
-    if args.input_file is None and args.lig_code is None:
-        parser.error("Either an input PDB/CIF file or -lig_code must be provided.")
+    # ── Validate inputs: exactly one of input_file, -lig_code, or -smiles ──
+    n_inputs = sum([
+        args.input_file is not None,
+        args.lig_code is not None,
+        args.smiles is not None,
+    ])
+    if n_inputs == 0:
+        parser.error("Provide one of: PDB/CIF file, -lig_code, or -smiles.")
+    if n_inputs > 1:
+        parser.error("Use only one input mode: PDB/CIF file, -lig_code, or -smiles.")
 
     lig_code = args.lig_code.upper() if args.lig_code else None
     pdb_path = None
+    smiles_input = None
 
     if args.input_file is not None:
         if not os.path.exists(args.input_file):
             print(f"ERROR: Input file not found: {args.input_file}")
             sys.exit(1)
-
-        # ── CIF → PDB conversion ──
         pdb_path = args.input_file
         if args.input_file.lower().endswith(".cif"):
             pdb_path = _convert_cif_to_pdb(args.input_file)
@@ -134,12 +143,32 @@ def main():
             print(f"ERROR: Input file must be .pdb or .cif: {args.input_file}")
             sys.exit(1)
 
-    # Determine lig_id: --lig-code takes precedence, else extract from PDB
+    if args.smiles is not None:
+        if args.smiles.endswith(".smi"):
+            if not os.path.exists(args.smiles):
+                print(f"ERROR: SMILES file not found: {args.smiles}")
+                sys.exit(1)
+            with open(args.smiles) as f:
+                line = f.readline().strip()
+            if not line:
+                print(f"ERROR: SMILES file is empty: {args.smiles}")
+                sys.exit(1)
+            smiles_input = line.split()[0]
+        else:
+            smiles_input = args.smiles
+
+    # Determine lig_id
     if lig_code:
         lig_id = lig_code
-    else:
+    elif pdb_path:
         from .tools.mcce_tools import extract_lig_id_from_pdb
         lig_id = extract_lig_id_from_pdb(pdb_path)
+    else:
+        if args.smiles and args.smiles.endswith(".smi"):
+            name = os.path.splitext(os.path.basename(args.smiles))[0].upper()[:3]
+            lig_id = name if len(name) == 3 else "LIG"
+        else:
+            lig_id = "LIG"
 
     # ── GUI mode: launch Streamlit ──
     if args.gui:
@@ -160,10 +189,14 @@ def main():
         logging.info(f"  Input:  {os.path.abspath(pdb_path)}")
         if args.input_file and args.input_file.lower().endswith(".cif"):
             logging.info(f"  (converted from {os.path.abspath(args.input_file)})")
+    elif smiles_input:
+        logging.info(f"  Input:  -smiles {smiles_input[:80]}")
+        logging.info(f"  (3D structure will be built from SMILES using RDKit)")
     else:
-        logging.info(f"  Input:  -lig_code {lig_id} (no PDB file — will build from SMILES)")
-    logging.info(f"  Ligand: {lig_id}   pH: {args.ph}   Method: {args.charge_method}")
-    logging.info(f"  Dimorphite-DL: ph_min={args.ph_min}, ph_max={args.ph_max}, "
+        logging.info(f"  Input:  -lig_code {lig_id} (fetching from RCSB)")
+    ph = (args.ph_min + args.ph_max) / 2
+    logging.info(f"  Ligand: {lig_id}   Method: {args.charge_method}")
+    logging.info(f"  Dimorphite-DL: ph_min={args.ph_min}, ph_max={args.ph_max} (pH={ph:.1f}), "
                  f"precision={args.precision}, max_variants={args.max_variants}"
                  f"{', label_states=True' if args.label_states else ''}")
     logging.info(f"  LLM:    {args.llm_provider}")
@@ -184,7 +217,7 @@ def main():
         use_gui=False,
         charge_method=args.charge_method,
         dielectrics=args.dielectric,
-        ph=args.ph,
+        ph=ph,
         work_dir=args.work_dir,
         dry_run=args.dry_run,
         user_state_pdbs=args.state_pdbs,
@@ -192,6 +225,8 @@ def main():
         llm_provider=args.llm_provider,
         api_key=args.api_key,
         lig_code=lig_code,
+        smiles_input=smiles_input,
+        lig_id=lig_id,
         ph_min=args.ph_min,
         ph_max=args.ph_max,
         precision=args.precision,
@@ -303,7 +338,7 @@ def launch_gui(args):
 
     # Pass PDB path via environment so Streamlit can access it
     os.environ["MCCE_AGENT_PDB"] = os.path.abspath(args.pdb)
-    os.environ["MCCE_AGENT_PH"] = str(args.ph)
+    os.environ["MCCE_AGENT_PH"] = str((args.ph_min + args.ph_max) / 2)
     os.environ["MCCE_AGENT_CHARGE_METHOD"] = args.charge_method
 
     print(f"🌐 Launching MCCE4 Topology Agent GUI...")

@@ -44,9 +44,10 @@ from .tools.charge_tools import generate_charges, generate_per_state_charges, ge
 def node_molecule_intel(state: AgentState) -> AgentState:
     """PHASE 1: Gather molecule intelligence.
 
-    Handles two input modes:
+    Handles three input modes:
       1. PDB/CIF file provided → convert to SMILES via Open Babel / RDKit
-      2. -lig_code only (no PDB) → fetch SMILES from RCSB, build neutral PDB from SMILES
+      2. -lig_code only (no PDB) → fetch SMILES from RCSB, build neutral PDB
+      3. -smiles (direct SMILES) → use as-is, build neutral PDB from SMILES
     """
     logging.info(f"\n{'─'*60}")
     logging.info(f"  PHASE 1: Molecule Intelligence")
@@ -57,13 +58,17 @@ def node_molecule_intel(state: AgentState) -> AgentState:
     lig_code = state.get("_lig_code_flag")
     work_dir = state.get("work_dir", ".")
 
+    smiles_input = state.get("_smiles_input")
+
     if pdb_path:
-        # ── PDB/CIF input: convert structure to SMILES locally ──
         logging.info(f"  Converting {os.path.basename(pdb_path)} to SMILES (Open Babel / RDKit)...")
         smiles = convert_structure_to_smiles(pdb_path)
         info = {}
+    elif smiles_input:
+        logging.info(f"  Using direct SMILES input: {smiles_input[:80]}")
+        smiles = smiles_input
+        info = {}
     else:
-        # ── -lig_code mode: fetch from RCSB ──
         info = fetch_rcsb_info(lig_id, work_dir=work_dir)
         smiles = info.get("smiles")
 
@@ -73,14 +78,16 @@ def node_molecule_intel(state: AgentState) -> AgentState:
     state["formula"] = info.get("formula", "")
     state["formal_charge"] = info.get("formal_charge", 0)
 
-    # ── No PDB provided (-lig_code mode): build neutral PDB from SMILES ──
     if not pdb_path and smiles:
+        src = "smiles-input" if smiles_input else "rcsb"
+        rationale = ("Neutral reference — built from input SMILES" if smiles_input
+                     else "Neutral reference — built from RCSB SMILES")
         logging.info(f"  No input PDB — building neutral structure from SMILES...")
         neutral_pdb = build_pdb_from_smiles(
             smiles=smiles, lig_id=lig_id, label="01",
             output_dir=work_dir, charge=0,
-            rationale="Neutral reference — built from RCSB SMILES",
-            source="rcsb",
+            rationale=rationale,
+            source=src,
         )
         if neutral_pdb:
             state["pdb_path"] = os.path.abspath(neutral_pdb)
@@ -96,7 +103,7 @@ def node_molecule_intel(state: AgentState) -> AgentState:
     elif not pdb_path and not smiles:
         logging.error(f"  No PDB and no SMILES available for {lig_id}")
         state["errors"] = state.get("errors", []) + [
-            f"No PDB file and RCSB lookup for '{lig_id}' returned no SMILES"
+            f"No PDB file and no SMILES available for '{lig_id}'"
         ]
         state["phase"] = "molecule_intel"
         return state
@@ -997,6 +1004,8 @@ def run_agent(pdb_path: str = None, use_gui: bool = False,
                llm_provider: str = "gemini",
                api_key: str = None,
                lig_code: str = None,
+               smiles_input: str = None,
+               lig_id: str = None,
                ph_min: float = 6.5,
                ph_max: float = 7.5,
                precision: float = 1.0,
@@ -1018,6 +1027,9 @@ def run_agent(pdb_path: str = None, use_gui: bool = False,
         api_key: Optional API key for the LLM provider.
         lig_code: 3-letter RCSB ligand code. When provided without pdb_path,
                   SMILES is fetched from RCSB and 3D structures are built.
+        smiles_input: Direct SMILES string input. 3D structure is built
+                      from SMILES using RDKit.
+        lig_id: 3-letter ligand identifier (overrides auto-detection).
         ph_min: Dimorphite-DL minimum pH (default: 6.5).
         ph_max: Dimorphite-DL maximum pH (default: 7.5).
         precision: Dimorphite-DL pKa precision (std devs from mean).
@@ -1027,13 +1039,16 @@ def run_agent(pdb_path: str = None, use_gui: bool = False,
     Returns:
         Final AgentState dict.
     """
-    # Determine lig_id from lig_code or PDB
-    if lig_code:
+    if lig_id:
+        lig_id = lig_id.upper()[:3]
+    elif lig_code:
         lig_id = lig_code.upper()
     elif pdb_path:
         lig_id = extract_lig_id_from_pdb(pdb_path)
+    elif smiles_input:
+        lig_id = "LIG"
     else:
-        raise ValueError("Either pdb_path or lig_code must be provided")
+        raise ValueError("One of pdb_path, lig_code, or smiles_input must be provided")
 
     user_pdb_provided = pdb_path is not None
     smiles_build_mode = not user_pdb_provided
@@ -1077,6 +1092,7 @@ def run_agent(pdb_path: str = None, use_gui: bool = False,
         "_smiles_build_mode": smiles_build_mode,
         "_user_pdb_provided": user_pdb_provided,
         "_lig_code_flag": lig_code,
+        "_smiles_input": smiles_input,
         # Dimorphite-DL parameters
         "_dimorphite_ph_min": ph_min,
         "_dimorphite_ph_max": ph_max,
