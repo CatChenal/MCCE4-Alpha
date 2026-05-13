@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
+
 """
 Partial atomic charge generation tools.
 """
 
+import logging
 import os
 import re
-import logging
 import shutil
 import subprocess
 import tempfile
@@ -13,10 +15,14 @@ import tempfile
 def to_mcce_atom_name(name: str) -> str:
     """Convert atom name to MCCE 4-char padded format."""
     name = name.strip()
-    if len(name) >= 4: return name[:4]
-    elif len(name) == 3: return f" {name}"
-    elif len(name) == 2: return f" {name} "
-    elif len(name) == 1: return f" {name}  "
+    if len(name) >= 4:
+        return name[:4]
+    elif len(name) == 3:
+        return f" {name}"
+    elif len(name) == 2:
+        return f" {name} "
+    elif len(name) == 1:
+        return f" {name}  "
     return name.ljust(4)
 
 
@@ -30,6 +36,13 @@ def generate_charges(pdb_path: str, method: str, lig_id: str) -> dict:
 def _charges_openeye(pdb_path: str, method: str, lig_id: str) -> dict:
     """Generate charges via OpenEye QuacPac TK."""
     logging.info(f"⚡ Generating charges via OpenEye (method: {method})")
+
+    try:
+        from openeye import oequacpac
+    except ImportError:
+        logging.warning("  OpenEye not available for charge generation, license required; "
+                        "  Update mc4 with: conda install -c openeye openeye-toolkits")
+        return {}
 
     # Use absolute path so subprocess can find the file regardless of cwd
     pdb_abs = os.path.abspath(pdb_path)
@@ -74,7 +87,7 @@ def _parse_openeye_output(output: str) -> dict:
     for line in output.splitlines():
         m = pattern.search(line)
         if m:
-            name, sym, charge = m.group(1), m.group(2), float(m.group(3))
+            name, _, charge = m.group(1), m.group(2), float(m.group(3))
             raw.append((name, charge))
             atom_counts[name] = atom_counts.get(name, 0) + 1
 
@@ -103,7 +116,7 @@ def _charges_antechamber(pdb_path: str, lig_id: str, nc: int = 0) -> dict:
             shell=True, capture_output=True, text=True
         )
         if result.returncode != 0 or not os.path.exists(mol2):
-            logging.error(f"  antechamber failed")
+            logging.error("  antechamber failed")
             return {}
     except Exception as e:
         logging.error(f"  Could not run antechamber: {e}")
@@ -113,13 +126,15 @@ def _charges_antechamber(pdb_path: str, lig_id: str, nc: int = 0) -> dict:
     in_atoms = False
     with open(mol2) as f:
         for line in f:
-            l = line.strip()
-            if l.startswith("@<TRIPOS>ATOM"):
-                in_atoms = True; continue
-            elif l.startswith("@<TRIPOS>"):
-                in_atoms = False; continue
-            if in_atoms and l:
-                p = l.split()
+            line = line.strip()
+            if line.startswith("@<TRIPOS>ATOM"):
+                in_atoms = True
+                continue
+            elif line.startswith("@<TRIPOS>"):
+                in_atoms = False
+                continue
+            if in_atoms and line:
+                p = line.split()
                 if len(p) >= 9:
                     charges[to_mcce_atom_name(p[1])] = float(p[8])
 
@@ -129,8 +144,7 @@ def _charges_antechamber(pdb_path: str, lig_id: str, nc: int = 0) -> dict:
     return charges
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# v4: OEChem-based ionizable site detection (fallback when RDKit fails)
+# OEChem-based ionizable site detection (fallback when RDKit fails)
 # ═════════════════════════════════════════════════════════════════════════════
 
 def get_ionizable_sites_oe(pdb_path: str) -> list:
@@ -208,8 +222,7 @@ def get_ionizable_sites_oe(pdb_path: str) -> list:
     return sites
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# v3: Per-State Charge Generation
+# Per-State Charge Generation
 # ═════════════════════════════════════════════════════════════════════════════
 
 def generate_per_state_charges(state_pdbs, method, lig_id):

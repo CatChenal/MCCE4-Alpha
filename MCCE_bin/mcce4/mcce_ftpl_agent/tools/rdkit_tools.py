@@ -1,26 +1,44 @@
+#!/usr/bin/env python3
 """
 RDKit-based tools for molecule intelligence and validation.
 """
-
 import logging
 import os
 import re
-import io
+import shutil
+import subprocess
 from typing import Optional
-from pathlib import Path
+
+from rdkit.Chem import (
+    AddHs,
+    AllChem,
+    Atom,
+    BondType,
+    AtomPDBResidueInfo,
+    Draw,
+    GetFormalCharge,
+    MolFromPDBFile,
+    MolFromSmiles,
+    MolFromSmarts,
+    MolToPDBBlock,
+    MolToSmiles,
+    rdchem,
+    rdDistGeom,
+    RemoveHs,
+    rdFMCS,
+    RWMol,
+    SanitizeMol,
+)
 
 
 def get_smiles_from_pdb(pdb_path: str) -> Optional[str]:
     """Extract SMILES from a PDB file using RDKit."""
     try:
-        from rdkit import Chem
-        mol = Chem.MolFromPDBFile(pdb_path, removeHs=False)
+        mol = MolFromPDBFile(pdb_path, removeHs=False)
         if mol:
-            smiles = Chem.MolToSmiles(mol)
+            smiles = MolToSmiles(mol)
             logging.info(f"  ✓ SMILES from PDB (RDKit): {smiles}")
             return smiles
-    except ImportError:
-        logging.warning("  RDKit not available — install: conda install -c conda-forge rdkit")
     except Exception as e:
         logging.warning(f"  RDKit SMILES extraction failed: {e}")
     return None
@@ -31,9 +49,6 @@ def convert_structure_to_smiles(file_path: str) -> Optional[str]:
 
     Tries Open Babel first (obabel), falls back to RDKit.
     """
-    import subprocess
-    import shutil
-
     abs_path = os.path.abspath(file_path)
     ext = os.path.splitext(abs_path)[1].lower()
 
@@ -64,13 +79,10 @@ def convert_structure_to_smiles(file_path: str) -> Optional[str]:
 def get_mol_from_pdb(pdb_path: str, remove_hs: bool = True):
     """Load an RDKit Mol object from PDB, with fallback for sanitization."""
     try:
-        from rdkit import Chem
-        mol = Chem.MolFromPDBFile(pdb_path, removeHs=remove_hs, sanitize=True)
+        mol = MolFromPDBFile(pdb_path, removeHs=remove_hs, sanitize=True)
         if mol is None:
-            mol = Chem.MolFromPDBFile(pdb_path, removeHs=remove_hs, sanitize=False)
+            mol = MolFromPDBFile(pdb_path, removeHs=remove_hs, sanitize=False)
         return mol
-    except ImportError:
-        return None
     except Exception:
         return None
 
@@ -78,8 +90,7 @@ def get_mol_from_pdb(pdb_path: str, remove_hs: bool = True):
 def get_mol_from_smiles(smiles: str):
     """Load an RDKit Mol from SMILES."""
     try:
-        from rdkit import Chem
-        return Chem.MolFromSmiles(smiles)
+        return MolFromSmiles(smiles)
     except ImportError:
         return None
 
@@ -87,10 +98,9 @@ def get_mol_from_smiles(smiles: str):
 def get_formal_charge(smiles: str) -> int:
     """Compute formal charge from SMILES."""
     try:
-        from rdkit import Chem
-        mol = Chem.MolFromSmiles(smiles)
+        mol = MolFromSmiles(smiles)
         if mol:
-            return Chem.GetFormalCharge(mol)
+            return GetFormalCharge(mol)
     except ImportError:
         pass
     return 0
@@ -108,9 +118,6 @@ def mol_to_png_bytes(mol_or_pdb, size=(450, 350), highlight_atoms=None) -> Optio
         PNG image bytes, or None if rendering fails.
     """
     try:
-        from rdkit import Chem
-        from rdkit.Chem import Draw, AllChem
-
         if isinstance(mol_or_pdb, str):
             mol = get_mol_from_pdb(mol_or_pdb, remove_hs=True)
         else:
@@ -132,10 +139,6 @@ def mol_to_png_bytes(mol_or_pdb, size=(450, 350), highlight_atoms=None) -> Optio
             drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         return drawer.GetDrawingText()
-
-    except ImportError:
-        logging.debug("  RDKit not available for molecule rendering")
-        return None
     except Exception as e:
         logging.debug(f"  Molecule rendering failed: {e}")
         return None
@@ -153,9 +156,6 @@ def mol_to_svg(mol_or_pdb, size=(450, 350), highlight_atoms=None) -> Optional[st
         SVG string, or None.
     """
     try:
-        from rdkit import Chem
-        from rdkit.Chem import Draw, AllChem
-
         if isinstance(mol_or_pdb, str):
             mol = get_mol_from_pdb(mol_or_pdb, remove_hs=True)
         else:
@@ -175,7 +175,6 @@ def mol_to_svg(mol_or_pdb, size=(450, 350), highlight_atoms=None) -> Optional[st
             drawer.DrawMolecule(mol)
         drawer.FinishDrawing()
         return drawer.GetDrawingText()
-
     except Exception as e:
         logging.debug(f"  SVG rendering failed: {e}")
         return None
@@ -190,15 +189,13 @@ def find_protonation_site_atoms(smiles_neutral: str, smiles_protonated: str) -> 
         List of atom indices (in the neutral molecule) where protonation changed.
     """
     try:
-        from rdkit import Chem
-
-        mol_n = Chem.MolFromSmiles(smiles_neutral)
-        mol_p = Chem.MolFromSmiles(smiles_protonated)
+        mol_n = MolFromSmiles(smiles_neutral)
+        mol_p = MolFromSmiles(smiles_protonated)
         if mol_n is None or mol_p is None:
             return []
 
-        mol_n = Chem.AddHs(mol_n)
-        mol_p = Chem.AddHs(mol_p)
+        mol_n = AddHs(mol_n)
+        mol_p = AddHs(mol_p)
 
         # Count H neighbors per heavy atom
         def h_counts(mol):
@@ -225,13 +222,11 @@ def find_protonation_site_atoms(smiles_neutral: str, smiles_protonated: str) -> 
 
 
 RDKIT_TO_MCCE_HYB = {
-    "SP": "sp", "SP2": "sp2", "SP3": "sp3",
-    "SP3D2": "d2sp3", "S": "s",
+    "SP": "sp", "SP2": "sp2", "SP3": "sp3", "SP3D2": "d2sp3", "S": "s",
 }
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# v3: Per-State PDB Generation
+# Per-State PDB Generation
 # ═════════════════════════════════════════════════════════════════════════════
 
 def get_atom_info(mol) -> list:
@@ -257,11 +252,6 @@ def get_ionizable_sites(mol) -> list:
 
     Returns list of dicts with atom index, name, symbol, and site type.
     """
-    try:
-        from rdkit import Chem
-    except ImportError:
-        return []
-
     sites = []
     for atom in mol.GetAtoms():
         symbol = atom.GetSymbol()
@@ -275,7 +265,7 @@ def get_ionizable_sites(mol) -> list:
         if symbol == "N":
             hybrid = atom.GetHybridization()
             # Skip sp nitrogen (nitrile C≡N, isonitrile, etc.) — not ionizable at pH 7.4
-            if hybrid == Chem.rdchem.HybridizationType.SP:
+            if hybrid == rdchem.HybridizationType.SP:
                 continue
             if n_hs > 0 or fc == 0:
                 sites.append({"idx": atom.GetIdx(), "name": name, "symbol": symbol,
@@ -362,20 +352,13 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
     Returns:
         Path to the generated PDB file, or None on failure.
     """
-    try:
-        from rdkit import Chem
-        from rdkit.Chem import AllChem, rdDistGeom
-    except ImportError:
-        logging.error("RDKit required for SMILES-to-PDB conversion — install: conda install -c conda-forge rdkit")
-        return None
-
-    mol = Chem.MolFromSmiles(smiles)
+    mol = MolFromSmiles(smiles)
     if mol is None:
         logging.error(f"  Cannot parse SMILES for state {label}: {smiles}")
         return None
 
     # Add explicit hydrogens
-    mol = Chem.AddHs(mol)
+    mol = AddHs(mol)
 
     # Generate 3D coordinates using ETKDG
     params = rdDistGeom.ETKDGv3()
@@ -398,7 +381,7 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
     # Set PDB residue info for all atoms — two-pass to avoid duplicate names.
     # Pass 1: name heavy atoms (element + 1-based index)
     # Pass 2: name H atoms with global uniqueness tracking
-    used_names: set = set()
+    used_names = set()
 
     for atom in mol.GetAtoms():
         if atom.GetAtomicNum() == 1:
@@ -407,7 +390,7 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
         idx = atom.GetIdx()
         atom_name = f"{symbol}{idx + 1}"
         used_names.add(atom_name)
-        ri = Chem.AtomPDBResidueInfo()
+        ri = AtomPDBResidueInfo()
         pdb_name = f" {atom_name:<3s}" if len(atom_name) < 4 else atom_name[:4]
         ri.SetName(pdb_name)
         ri.SetResidueName(lig_id)
@@ -428,7 +411,7 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
             parent_name = f"X{atom.GetIdx()}"
         atom_name = _make_h_name_unique(parent_name, used_names)
         used_names.add(atom_name)
-        ri = Chem.AtomPDBResidueInfo()
+        ri = AtomPDBResidueInfo()
         pdb_name = f" {atom_name:<3s}" if len(atom_name) < 4 else atom_name[:4]
         ri.SetName(pdb_name)
         ri.SetResidueName(lig_id)
@@ -442,7 +425,7 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
     out_path = os.path.join(output_dir, f"{lig_id}_{safe_label}.pdb")
     os.makedirs(output_dir, exist_ok=True)
 
-    pdb_block = Chem.MolToPDBBlock(mol)
+    pdb_block = MolToPDBBlock(mol)
     if not pdb_block:
         logging.error(f"  Failed to generate PDB block for {label}")
         return None
@@ -454,7 +437,7 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
 
     # Write with REMARK headers
     with open(out_path, "w") as f:
-        f.write(f"REMARK   1 MCCE4 Topology Agent — Protonation State PDB\n")
+        f.write("REMARK   1 MCCE4 Topology Agent — Protonation State PDB\n")
         f.write(f"REMARK   2 Ligand:       {lig_id}\n")
         f.write(f"REMARK   3 Conformer:    {lig_id}{label}\n")
         f.write(f"REMARK   4 Charge:       {charge:+d}\n")
@@ -471,11 +454,11 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
 
 
 def build_all_state_pdbs_from_smiles(states: list, lig_id: str,
-                                      output_dir: str = ".") -> dict:
+                                     output_dir: str = ".") -> dict:
     """Build PDB files for all protonation states from their SMILES strings.
 
     This is the primary pathway when no input PDB file is provided
-    (--lig-code mode). Each state's SMILES from Dimorphite-DL is used
+    (-lig-code mode). Each state's SMILES from Dimorphite-DL is used
     to generate a 3D PDB with RDKit.
 
     Args:
@@ -573,14 +556,6 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
         (pdb_path, h_added_names, h_removed_names)
         pdb_path is None on failure.
     """
-    import shutil
-    try:
-        from rdkit import Chem
-        from rdkit.Chem import AllChem, rdFMCS
-    except ImportError:
-        logging.error("RDKit required for per-state PDB generation — install: conda install -c conda-forge rdkit")
-        return None, [], []
-
     # If neutral state (charge 0 or labels 01/00), copy and fix chain IDs
     if label in ("01", "00") or (action is None and site_atom is None):
         safe_label = label.replace('+', 'p').replace('-', 'm')
@@ -596,7 +571,7 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
         )
         if result[0] is not None:
             return result
-        logging.warning(f"  Site-based generation failed, trying SMILES method...")
+        logging.warning("  Site-based generation failed, trying SMILES method...")
 
     # ── Fallback: SMILES-based comparison ──
     if not state_smiles:
@@ -604,18 +579,18 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
         return None, [], []
 
     try:
-        neutral_mol = Chem.MolFromPDBFile(neutral_pdb, removeHs=False, sanitize=True)
+        neutral_mol = MolFromPDBFile(neutral_pdb, removeHs=False, sanitize=True)
         if neutral_mol is None:
-            neutral_mol = Chem.MolFromPDBFile(neutral_pdb, removeHs=False, sanitize=False)
+            neutral_mol = MolFromPDBFile(neutral_pdb, removeHs=False, sanitize=False)
         if neutral_mol is None:
             logging.error(f"Cannot load neutral PDB: {neutral_pdb}")
             return None, [], []
 
-        target_mol = Chem.MolFromSmiles(state_smiles)
+        target_mol = MolFromSmiles(state_smiles)
         if target_mol is None:
             logging.error(f"Cannot parse state SMILES: {state_smiles}")
             return None, [], []
-        target_mol = Chem.AddHs(target_mol)
+        target_mol = AddHs(target_mol)
 
         neutral_hc = _count_h_per_heavy(neutral_mol)
         target_hc = _map_target_h_counts(neutral_mol, target_mol)
@@ -660,7 +635,7 @@ def generate_state_pdb(neutral_pdb, state_smiles, lig_id, label, output_dir=".",
 
 
 def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
-                           site_atom, action):
+                          site_atom, action):
     """Generate per-state PDB by directly adding/removing H at a named atom.
 
     This is the v4 PRIMARY method — much more reliable than SMILES comparison
@@ -677,8 +652,6 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
     Returns:
         (pdb_path, h_added_names, h_removed_names)
     """
-    import shutil
-
     # Read original PDB lines
     with open(neutral_pdb) as f:
         orig_lines = f.readlines()
@@ -741,11 +714,11 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
         _pdb_name = h_name if len(h_name) == 4 else f" {h_name:<3s}"
         # Copy chain/residue/icode from the site atom to keep residue info consistent
         _site_line = site_info["line"]
-        _chain  = _site_line[21]   if len(_site_line) > 21 else "A"
+        _chain = _site_line[21] if len(_site_line) > 21 else "A"
         if _chain == " ":
             _chain = "A"
         _resnum = _site_line[22:26] if len(_site_line) > 25 else "   1"
-        _icode  = _site_line[26]   if len(_site_line) > 26 else " "
+        _icode = _site_line[26] if len(_site_line) > 26 else " "
         h_line = (
             f"HETATM{new_serial:5d} {_pdb_name} {lig_id:>3s}{_chain}{_resnum}{_icode}   "
             f"{h_x:8.3f}{h_y:8.3f}{h_z:8.3f}  1.00  0.00           H  \n"
@@ -820,7 +793,7 @@ def _generate_pdb_by_site(neutral_pdb, lig_id, label, output_dir,
                     f.write(aline)
             # Update CONECT records: remove the H serial from bond lists
             # but keep parent atom bonds intact.
-            h_serial_str = f"{h_serial:5d}"
+            # h_serial_str = f"{h_serial:5d}"
             for cl in conect_lines:
                 fields = cl[6:].split()
                 if not fields:
@@ -945,10 +918,6 @@ def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
     Highlights added H in green, removal sites in red.
     """
     try:
-        from rdkit import Chem
-        from rdkit.Chem import Draw, AllChem
-        from rdkit.Chem.Draw import rdMolDraw2D
-
         if isinstance(mol_or_pdb, str):
             mol = get_mol_from_pdb(mol_or_pdb, remove_hs=False)
         else:
@@ -975,7 +944,7 @@ def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
         for idx in added_indices:
             colors[idx] = (0.3, 0.9, 0.3)  # green for added H
 
-        drawer = rdMolDraw2D.MolDraw2DSVG(size[0], size[1])
+        drawer = Draw.rdMolDraw2D.MolDraw2DSVG(size[0], size[1])
         opts = drawer.drawOptions()
         opts.addAtomIndices = False
         opts.addStereoAnnotation = False
@@ -1000,9 +969,13 @@ def mol_to_svg_with_h_diff(mol_or_pdb, h_added_names, h_removed_names,
         return None
 
 
-def render_protonation_site_view(pdb_path, site_atom_name, h_atom_names,
-                                  lig_id, label, size=(350, 300),
-                                  highlight_color=(0.3, 0.9, 0.3)):
+def render_protonation_site_view(pdb_path,
+                                 site_atom_name,
+                                 h_atom_names,
+                                 lig_id,
+                                 label,
+                                 size=(350, 300),
+                                 highlight_color=(0.3, 0.9, 0.3)):
     """Render a FOCUSED view of a protonation site and its neighborhood.
 
     Shows only the ionizable site atom + atoms within 2 bonds, WITH
@@ -1021,14 +994,7 @@ def render_protonation_site_view(pdb_path, site_atom_name, h_atom_names,
     Returns:
         SVG string or None.
     """
-    try:
-        from rdkit import Chem
-        from rdkit.Chem import AllChem
-        from rdkit.Chem.Draw import rdMolDraw2D
-    except ImportError:
-        return None
-
-    mol = Chem.MolFromPDBFile(pdb_path, removeHs=False, sanitize=False)
+    mol = MolFromPDBFile(pdb_path, removeHs=False, sanitize=False)
     if mol is None:
         return None
 
@@ -1085,7 +1051,7 @@ def render_protonation_site_view(pdb_path, site_atom_name, h_atom_names,
     colors[site_idx] = (0.7, 0.85, 1.0)  # light blue for the site
 
     # Draw with atom labels for the neighborhood
-    drawer = rdMolDraw2D.MolDraw2DSVG(size[0], size[1])
+    drawer = Draw.rdMolDraw2D.MolDraw2DSVG(size[0], size[1])
     opts = drawer.drawOptions()
     opts.addAtomIndices = False
 
@@ -1162,7 +1128,7 @@ def generate_state_comparison_table(states, h_diffs, lig_id):
     return rows
 
 
-# ── v3 internal helpers ──────────────────────────────────────────────────────
+# internal helpers ──────────────────────────────────────────────────────
 
 def _count_h_per_heavy(mol) -> dict:
     """Count H atoms bonded to each heavy atom. Returns {heavy_idx: count}."""
@@ -1182,11 +1148,8 @@ def _map_target_h_counts(neutral_mol, target_mol) -> dict:
     Returns {neutral_heavy_idx: target_h_count}.
     """
     try:
-        from rdkit import Chem
-        from rdkit.Chem import rdFMCS
-
-        neutral_noH = Chem.RemoveHs(Chem.RWMol(neutral_mol))
-        target_noH = Chem.RemoveHs(Chem.RWMol(target_mol))
+        neutral_noH = RemoveHs(RWMol(neutral_mol))
+        target_noH = RemoveHs(RWMol(target_mol))
 
         match = neutral_noH.GetSubstructMatch(target_noH)
         if not match and target_noH.GetNumAtoms() <= neutral_noH.GetNumAtoms():
@@ -1207,7 +1170,7 @@ def _map_target_h_counts(neutral_mol, target_mol) -> dict:
         if not match:
             # MCS fallback
             mcs = rdFMCS.FindMCS([neutral_noH, target_noH], timeout=10)
-            mcs_mol = Chem.MolFromSmarts(mcs.smartsString)
+            mcs_mol = MolFromSmarts(mcs.smartsString)
             if mcs_mol is None:
                 return _count_h_per_heavy(neutral_mol)  # give up
             m1 = neutral_noH.GetSubstructMatch(mcs_mol)
@@ -1251,15 +1214,9 @@ def _modify_mol_hydrogens(mol, pdb_path, h_to_add, h_to_remove, lig_id, label):
 
     Returns (modified_mol, added_atom_names, removed_atom_names).
     """
-    try:
-        from rdkit import Chem
-        from rdkit.Chem import AllChem
-    except ImportError:
-        return None, [], []
-
     added_names = []
     removed_names = []
-    rw_mol = Chem.RWMol(mol)
+    rw_mol = RWMol(mol)
 
     # Remove H first (high→low index to preserve indices)
     h_indices_to_remove = []
@@ -1295,8 +1252,8 @@ def _modify_mol_hydrogens(mol, pdb_path, h_to_add, h_to_remove, lig_id, label):
             continue
 
         for i in range(count):
-            h_idx = rw_mol.AddAtom(Chem.Atom(1))
-            rw_mol.AddBond(heavy_idx_new, h_idx, Chem.BondType.SINGLE)
+            h_idx = rw_mol.AddAtom(Atom(1))
+            rw_mol.AddBond(heavy_idx_new, h_idx, BondType.SINGLE)
             # Collect existing names from mol for uniqueness check
             _existing = set()
             for a in rw_mol.GetAtoms():
@@ -1307,7 +1264,7 @@ def _modify_mol_hydrogens(mol, pdb_path, h_to_add, h_to_remove, lig_id, label):
             added_names.append(h_name)
 
             # Set PDB info
-            ri = Chem.AtomPDBResidueInfo()
+            ri = AtomPDBResidueInfo()
             ri.SetName(f" {h_name:<3s}")
             ri.SetResidueName(lig_id)
             ri.SetResidueNumber(1)
@@ -1317,7 +1274,7 @@ def _modify_mol_hydrogens(mol, pdb_path, h_to_add, h_to_remove, lig_id, label):
             logging.info(f"    Add H: {h_name} (on {heavy_name})")
 
     try:
-        Chem.SanitizeMol(rw_mol)
+        SanitizeMol(rw_mol)
     except Exception as e:
         logging.warning(f"Sanitization warning for {label}: {e}")
 
@@ -1397,11 +1354,6 @@ def _extract_h_atoms_from_pdb(pdb_path):
 def _write_state_pdb(state_mol, orig_pdb, out_path, lig_id,
                      added_names, removed_names):
     """Write per-state PDB preserving original formatting for unchanged atoms."""
-    try:
-        from rdkit import Chem
-    except ImportError:
-        return
-
     with open(orig_pdb) as f:
         orig_lines = f.readlines()
 
@@ -1424,9 +1376,8 @@ def _write_state_pdb(state_mol, orig_pdb, out_path, lig_id,
 
     # Add new H atoms
     next_serial = max(
-        (int(l[6:11].strip()) for l in kept_lines if l.startswith(("ATOM", "HETATM"))),
-        default=0
-    ) + 1
+         (int(line[6:11].strip()) for line in kept_lines
+          if line.startswith(("ATOM", "HETATM"))), default=0) + 1
 
     conf = state_mol.GetConformer(0) if state_mol.GetNumConformers() > 0 else None
     for h_name in added_names:
@@ -1476,18 +1427,14 @@ def _write_state_pdb(state_mol, orig_pdb, out_path, lig_id,
         f.writelines(kept_lines)
 
 
-def validate_hybridizations(pdb_path: str, ftpl_content: str,
-                              lig_id: str) -> list:
+def validate_hybridizations(pdb_path: str,
+                            ftpl_content: str,
+                            lig_id: str) -> list:
     """Compare RDKit-perceived hybridizations against CONNECT records.
 
     Returns:
         List of (atom_name, ftpl_hyb, rdkit_hyb) for mismatches.
     """
-    try:
-        from rdkit import Chem
-    except ImportError:
-        return []
-
     logging.info("🔬 Validating hybridizations with RDKit...")
     mol = get_mol_from_pdb(pdb_path, remove_hs=False)
     if mol is None:
@@ -1521,7 +1468,7 @@ def validate_hybridizations(pdb_path: str, ftpl_content: str,
     if mismatches:
         logging.info(f"  ⚠ {len(mismatches)} hybridization mismatch(es)")
     else:
-        logging.info(f"  ✓ All hybridizations match")
+        logging.info("  ✓ All hybridizations match")
 
     return mismatches
 
@@ -1549,13 +1496,6 @@ def generate_h_diff_grid_svg(state_pdbs, h_diffs, lig_id,
     Returns:
         SVG string, or None on failure.
     """
-    try:
-        from rdkit import Chem
-        from rdkit.Chem import AllChem, Draw
-        from rdkit.Chem.Draw import rdMolDraw2D
-    except ImportError:
-        return None
-
     labels = sorted(state_pdbs.keys())
     if not labels:
         return None
@@ -1587,7 +1527,7 @@ def generate_h_diff_grid_svg(state_pdbs, h_diffs, lig_id,
         # Load mol from per-state PDB
         mol = None
         if pdb_path and os.path.exists(str(pdb_path)):
-            mol = Chem.MolFromPDBFile(str(pdb_path), removeHs=False, sanitize=False)
+            mol = MolFromPDBFile(str(pdb_path), removeHs=False, sanitize=False)
 
         if mol is None:
             # Placeholder
@@ -1615,7 +1555,7 @@ def generate_h_diff_grid_svg(state_pdbs, h_diffs, lig_id,
 
             # For removed H, find parent heavy atoms in the NEUTRAL mol
             if h_removed and "01" in state_pdbs:
-                neutral_mol = Chem.MolFromPDBFile(
+                neutral_mol = MolFromPDBFile(
                     str(state_pdbs["01"]), removeHs=False, sanitize=False
                 )
                 if neutral_mol:
@@ -1637,7 +1577,7 @@ def generate_h_diff_grid_svg(state_pdbs, h_diffs, lig_id,
                 colors[idx] = (0.9, 0.3, 0.3)  # red
 
             # Draw this cell
-            drawer = rdMolDraw2D.MolDraw2DSVG(cw, ch)
+            drawer = Draw.rdMolDraw2D.MolDraw2DSVG(cw, ch)
             opts = drawer.drawOptions()
             opts.addAtomIndices = False
             opts.addStereoAnnotation = False

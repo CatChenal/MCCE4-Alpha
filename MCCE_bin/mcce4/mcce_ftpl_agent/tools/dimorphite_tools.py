@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Protonation state enumeration using Dimorphite-DL.
 
@@ -5,21 +7,20 @@ Naming convention:
   - Single state per charge: 01 (neutral), +1 (protonated), -1 (deprotonated)
   - Multiple states at same charge: +a/+b, -a/-b, 0a/0b, etc.
 """
-
 import logging
 from typing import List
-from collections import Counter
+
 from ..models import ConformerState, make_labels_unique
 from ..config import CHARGE_TO_CONF
 
 
 def enumerate_protonation_states(smiles: str, ph: float = 7.4,
-                                  pdb_path: str = None,
-                                  ph_min: float = 6.5,
-                                  ph_max: float = 7.5,
-                                  precision: float = 1.0,
-                                  max_variants: int = 32,
-                                  label_states: bool = False) -> List[ConformerState]:
+                                 pdb_path: str = None,
+                                 ph_min: float = 6.5,
+                                 ph_max: float = 7.5,
+                                 precision: float = 1.0,
+                                 max_variants: int = 32,
+                                 label_states: bool = False) -> List[ConformerState]:
     """Enumerate protonation states at target pH using Dimorphite-DL.
 
     Dimorphite-DL is an open-source tool that enumerates small-molecule
@@ -49,7 +50,7 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
     Returns:
         List of ConformerState objects for all unique protonation states.
     """
-    logging.info(f"  Dimorphite-DL: enumerating protonation states from SMILES")
+    logging.info("  Dimorphite-DL: enumerating protonation states from SMILES")
     logging.info(f"    ph_min={ph_min}, ph_max={ph_max}")
     logging.info(f"    precision={precision}, max_variants={max_variants}"
                  f"{', label_states=True' if label_states else ''}")

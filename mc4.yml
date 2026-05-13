@@ -6,8 +6,8 @@
 #
 name: mc4
 channels:
-  - openeye
   - conda-forge
+  - openeye
   - defaults
 dependencies:
   - python=3.10
@@ -21,21 +21,11 @@ dependencies:
   - pymol-open-source
   - rdkit
   - openeye-toolkits
-  # Agent dependencies
   - langgraph
+  # ftpl agent dependencies from conda-forge:
   - dimorphite-dl
-  - google-genai
-  - anthropic
-  - openai
-  - streamlit
+  # other ftpl agent LLM providers (default: gemini)
+  #- anthropic
+  #- openai
   - pip:
-    - scipy
-    - matplotlib
-    - pandas
-    - networkx
-    - requests
-    - seaborn
-    - fastapi>=0.100.0
-    - uvicorn[standard]>=0.20.0
-    - python-multipart>=0.0.5
-    - websockets>=10.0
+    - -r requirements.txt

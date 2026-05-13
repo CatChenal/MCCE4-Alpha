@@ -1,20 +1,26 @@
+#!/usr/bin/env python3
+
 """
 MCCE4 pipeline tools — template generation, calibration, parsing.
 """
-
+import json
+import logging
 import os
+from pathlib import Path
 import re
 import shutil
-import logging
 import subprocess
-import json
-from pathlib import Path
-from typing import Optional
-from ..config import DIELECTRIC_MAP, RCSB_GRAPHQL_URL, RCSB_GRAPHQL_QUERY, RCSB_SMILES_URL
+
+import requests
+
+from mcce4.mcce_ftpl_agent.config import DIELECTRIC_MAP, RCSB_GRAPHQL_URL, RCSB_GRAPHQL_QUERY
 
 
-def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
-    """Copy a PDB file, assigning default_chain to any atom line with a blank chain ID."""
+def _copy_pdb_with_chain_id(src_pdb: str,
+                            dst_pdb: str,
+                            default_chain: str = "A"):
+    """Copy a PDB file, assigning default_chain to any atom line with a blank chain ID.
+    """
     with open(src_pdb) as f:
         lines = f.readlines()
     with open(dst_pdb, "w") as f:
@@ -25,7 +31,8 @@ def _copy_pdb_with_chain_id(src_pdb, dst_pdb, default_chain="A"):
 
 
 def run_cmd(cmd, description="", capture=False, cwd=None):
-    """Run a shell command with logging."""
+    """Run a shell command with logging.
+    """
     if description:
         logging.info(f"▶ {description}")
     logging.debug(f"  CMD: {cmd}")
@@ -75,11 +82,11 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
         "query": RCSB_GRAPHQL_QUERY,
         "variables": {"id": lig_id}
     })
-
     result = run_cmd(
         f"curl -s -X POST -H 'Content-Type: application/json' "
         f"-d '{payload}' '{RCSB_GRAPHQL_URL}'",
-        description="Querying RCSB GraphQL", capture=True,
+        description="Querying RCSB GraphQL",
+        capture=True,
     )
     if result is None or not result.stdout.strip():
         logging.warning("  RCSB GraphQL query returned empty response")
@@ -92,7 +99,7 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
             logging.warning(f"  No data returned for ligand '{lig_id}'")
             return {}
 
-        # ── Core chemical component info ──
+        # Core chemical component info
         chem = data.get("chem_comp") or {}
         info = {
             "name": chem.get("name", "Unknown"),
@@ -102,22 +109,16 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
             "type": chem.get("type"),
             "smiles": None,
             "smiles_stereo": None,
-            "inchi": None,
-            "inchi_key": None,
         }
 
-        # ── Descriptors (SMILES, InChI) — direct fields from GraphQL ──
+        # Descriptors (SMILES)
         desc = data.get("rcsb_chem_comp_descriptor") or {}
         if desc.get("SMILES"):
             info["smiles"] = desc["SMILES"]
         if desc.get("SMILES_stereo"):
             info["smiles_stereo"] = desc["SMILES_stereo"]
-        if desc.get("InChI"):
-            info["inchi"] = desc["InChI"]
-        if desc.get("InChIKey"):
-            info["inchi_key"] = desc["InChIKey"]
 
-        # ── Additional descriptors (pdbx_chem_comp_descriptor) ──
+        # Additional descriptors
         pdbx_desc = data.get("pdbx_chem_comp_descriptor") or []
         for d in pdbx_desc:
             if not isinstance(d, dict):
@@ -129,10 +130,10 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
             if descriptor:
                 logging.info(f"  ✓ {dtype} ({program} {version}): {descriptor[:120]}")
             # Fallback: if SMILES wasn't in rcsb_chem_comp_descriptor
-            if "SMILES" in dtype and not info["smiles"]:
-                info["smiles"] = descriptor
+            # if "SMILES" in dtype and not info["smiles"]:
+            #     info["smiles"] = descriptor
 
-        # ── Compound info (atom/bond counts, dates) ──
+        # Compound info (atom/bond counts, dates)
         comp_info = data.get("rcsb_chem_comp_info") or {}
         if comp_info:
             info["atom_count"] = comp_info.get("atom_count")
@@ -142,21 +143,21 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
             info["initial_deposition_date"] = comp_info.get("initial_deposition_date")
             info["revision_date"] = comp_info.get("revision_date")
 
-        # ── Identifiers (IUPAC name, etc.) ──
+        # Identifiers (IUPAC name, etc.)
         identifiers = data.get("pdbx_chem_comp_identifier") or []
         for ident in identifiers:
             if isinstance(ident, dict) and ident.get("identifier"):
                 logging.info(f"  ✓ Identifier ({ident.get('program', '?')}): "
                              f"{ident['identifier'][:120]}")
 
-        # ── Synonyms ──
+        # Synonyms
         synonyms = data.get("rcsb_chem_comp_synonyms") or []
         synonym_names = [s.get("name") for s in synonyms
                          if isinstance(s, dict) and s.get("name")]
         if synonym_names:
             info["synonyms"] = synonym_names
 
-        # ── DrugBank info ──
+        # DrugBank info
         drugbank = data.get("drugbank") or {}
         db_info = drugbank.get("drugbank_info") or {}
         if db_info:
@@ -168,21 +169,21 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
             info["drug_groups"] = db_info.get("drug_groups")
             info["indication"] = db_info.get("indication")
 
-        # ── Reference molecule (PRD info) ──
+        # Reference molecule (PRD info)
         ref_mol = data.get("pdbx_reference_molecule") or {}
         if ref_mol and ref_mol.get("prd_id"):
             info["prd_id"] = ref_mol.get("prd_id")
             info["prd_class"] = ref_mol.get("class")
             info["representative_pdb"] = ref_mol.get("representative_PDB_id_code")
 
-        # ── Related resources (PubChem, ChEBI, etc.) ──
-        related = data.get("rcsb_chem_comp_related") or []
-        external_ids = {}
-        for r in related:
-            if isinstance(r, dict) and r.get("resource_name") and r.get("resource_accession_code"):
-                external_ids[r["resource_name"]] = r["resource_accession_code"]
-        if external_ids:
-            info["external_ids"] = external_ids
+        # # Related resources (PubChem, ChEBI, etc.)
+        # related = data.get("rcsb_chem_comp_related") or []
+        # external_ids = {}
+        # for r in related:
+        #     if isinstance(r, dict) and r.get("resource_name") and r.get("resource_accession_code"):
+        #         external_ids[r["resource_name"]] = r["resource_accession_code"]
+        # if external_ids:
+        #     info["external_ids"] = external_ids
 
         # ── Log all retrieved metadata ──
         logging.info(f"\n  {'─'*55}")
@@ -190,8 +191,8 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
         logging.info(f"  {'─'*55}")
         for k, v in info.items():
             if v is not None and k not in ("external_ids", "synonyms",
-                                            "drug_categories", "mechanism_of_action",
-                                            "indication"):
+                                           "drug_categories", "mechanism_of_action",
+                                           "indication"):
                 display = str(v)[:100]
                 logging.info(f"    {k:30s}: {display}")
         if info.get("synonyms"):
@@ -222,9 +223,12 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
         return {}
 
 
-def generate_ftpl_template(lig_id: str, pdb_path: str,
-                            conformer_labels: list, ftpl_path: str) -> int:
-    """Generate .ftpl template via pdb2ftpl.py. Returns count of unfilled entries."""
+def generate_ftpl_template(lig_id: str,
+                           pdb_path: str,
+                           conformer_labels: list,
+                           ftpl_path: str) -> int:
+    """Generate .ftpl template via pdb2ftpl.py. Returns count of unfilled entries.
+    """
     conf_str = " ".join(conformer_labels)
     logging.info(f"📝 Generating .ftpl: {lig_id} with conformers = {conf_str}")
     result = run_cmd(f"pdb2ftpl.py -p {pdb_path} -c {conf_str}",
@@ -259,16 +263,20 @@ def fill_ftpl_charges(ftpl_path: str, charges: dict, lig_id: str) -> int:
             # Exact match
             if atom_name in charges:
                 new_lines.append(f"{prefix}{charges[atom_name]:7.3f} # auto-filled{suffix}\n")
-                filled += 1; matched = True
+                filled += 1
+                matched = True
             # Stripped match
             if not matched:
                 stripped = atom_name.strip()
                 for cn, cv in charges.items():
                     if cn.strip() == stripped:
                         new_lines.append(f"{prefix}{cv:7.3f} # auto-filled{suffix}\n")
-                        filled += 1; matched = True; break
+                        filled += 1
+                        matched = True
+                        break
             if not matched:
-                new_lines.append(line); unfilled += 1
+                new_lines.append(line)
+                unfilled += 1
         else:
             new_lines.append(line)
 
@@ -279,7 +287,8 @@ def fill_ftpl_charges(ftpl_path: str, charges: dict, lig_id: str) -> int:
 
 
 def update_conformer_params(ftpl_path: str, states: list, lig_id: str):
-    """Update nH and pKa0 in CONFORMER lines."""
+    """Update nH and pKa0 in CONFORMER lines.
+    """
     logging.info("📋 Updating CONFORMER parameters...")
     with open(ftpl_path) as f:
         content = f.read()
@@ -321,8 +330,12 @@ def update_conformer_params(ftpl_path: str, states: list, lig_id: str):
         f.write(content)
 
 
-def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
-                         conformer_labels: list, dielectrics: list, work_dir: str):
+def run_rxn_calibration(lig_id: str,
+                        ftpl_path: str,
+                        pdb_path: str,
+                        conformer_labels: list,
+                        dielectrics: list,
+                        work_dir: str):
     """Run MCCE4 steps 1-3, calibrate rxn values for all dielectrics.
 
     Workflow:
@@ -352,7 +365,7 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
     _copy_pdb_with_chain_id(os.path.abspath(pdb_path), pdb_wd)
 
     # ── Pre-flight: verify ftpl CONFLIST matches expected states ──
-    expected_types = [f"{lig_id}{l}" for l in conformer_labels]
+    expected_types = [f"{lig_id}{cl}" for cl in conformer_labels]
     with open(ftpl_abs) as f:
         ftpl_content = f.read()
     conflist_match = re.search(r'CONFLIST,\s*' + re.escape(lig_id) + r':\s*(.*)', ftpl_content)
@@ -386,7 +399,7 @@ def run_rxn_calibration(lig_id: str, ftpl_path: str, pdb_path: str,
     step2_out = os.path.join(work_dir, "step2_out.pdb")
     if os.path.exists(step2_out):
         found_types = _check_conformers_in_step2(step2_out, lig_id, conformer_labels)
-        expected_types = [f"{lig_id}{l}" for l in conformer_labels]
+        expected_types = [f"{lig_id}{cl}" for cl in conformer_labels]
         missing = [t for t in expected_types if t not in found_types]
         if missing:
             logging.warning(f"  ⚠ Missing conformers in step2_out.pdb: {missing}")
@@ -561,11 +574,11 @@ def parse_head3_dsolv(head3_path: str, lig_id: str, labels: list) -> dict:
     with open(head3_path) as f:
         lines = f.readlines()
 
-    types = [f"{lig_id}{l}" for l in labels]
+    types = [f"{lig_id}{lb}" for lb in labels]
     logging.info(f"  Looking for conformer types: {types}")
 
     # Find dsolv column from header
-    header = next((l for l in lines if "dsolv" in l.lower() and "iConf" in l), None)
+    header = next((line for line in lines if "dsolv" in line.lower() and "iConf" in line), None)
     if not header:
         logging.warning("  No header with 'dsolv' found in head3.lst")
         return {}
@@ -726,18 +739,18 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path,
     from ..models import sort_conformer_labels
     from datetime import datetime
 
-    neutral_label = "01" if "01" in per_state_ftpls else list(per_state_ftpls.keys())[0]
+    # neutral_label = "01" if "01" in per_state_ftpls else list(per_state_ftpls.keys())[0]
     all_labels = sort_conformer_labels(per_state_ftpls.keys())
 
     parsed = {}
     for label, ftpl_path in per_state_ftpls.items():
         parsed[label] = _parse_ftpl_sections(ftpl_path, lig_id)
 
-    base = parsed[neutral_label]
+    # base = parsed[neutral_label]
     merged = []
 
     # ── Header comment block ──
-    merged.append(f">>>START of original comments, this file was generated by MCCE4 Topology Agent\n")
+    merged.append(">>>START of original comments, this file was generated by MCCE4 Topology Agent\n")
     merged.append(f"# Ligand: {lig_id}\n")
     if smiles:
         merged.append(f"# SMILES: {smiles}\n")
@@ -756,49 +769,46 @@ def merge_ftpl_files(per_state_ftpls, lig_id, output_path,
             if rat:
                 merged.append(f"#   Rationale: {rat}\n")
     merged.append(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-    merged.append(f"#23456789A123456789B123456789C123456789D123456789E123456789F123456789G123456789H123456789I\n")
-    merged.append(f"#ONNECT   conf atom  orbital  ires conn ires conn ires conn ires conn\n")
-    merged.append(f"#ONNECT |-----|----|---------|----|----|----|----|----|----|----|----|----|----|----|----|  \n")
-    merged.append(f"<<<END of original comments\n")
-    merged.append(f"\n")
+    merged.append("#23456789A123456789B123456789C123456789D123456789E123456789F123456789G123456789H123456789I\n")
+    merged.append("#ONNECT   conf atom  orbital  ires conn ires conn ires conn ires conn\n")
+    merged.append("#ONNECT |-----|----|---------|----|----|----|----|----|----|----|----|----|----|----|----|  \n")
+    merged.append("<<<END of original comments\n\n")
 
     # ── CONFLIST ──
-    merged.append(f"# Values of the same key are appended and separated by \",\"\n")
-    conftypes = ", ".join(f"{lig_id}{l}" for l in all_labels)
-    merged.append(f"CONFLIST, {lig_id}: {lig_id}BK, {conftypes}\n")
-    merged.append(f"\n")
+    merged.append("# Values of the same key are appended and separated by \",\"\n")
+    conftypes = ", ".join(f"{lig_id}{lb}" for lb in all_labels)
+    merged.append(f"CONFLIST, {lig_id}: {lig_id}BK, {conftypes}\n\n")
 
     # ── CONNECT blocks from all states ──
-    merged.append(f"# Atom definition\n")
+    merged.append("# Atom definition\n")
     for label in all_labels:
         if parsed[label]["connect"]:
             merged.extend(parsed[label]["connect"])
             merged.append("\n")
 
     # ── CHARGE blocks from all states ──
-    merged.append(f"# Atom charges\n")
+    merged.append("# Atom charges\n")
     for label in all_labels:
         if parsed[label]["charge"]:
             merged.extend(parsed[label]["charge"])
             merged.append("\n")
 
     # ── RADIUS blocks from all states ──
-    merged.append(f"# Atom radius, dielectric boundary radius, VDW radius, and energy well depth\n")
+    merged.append("# Atom radius, dielectric boundary radius, VDW radius, and energy well depth\n")
     for label in all_labels:
         if parsed[label].get("radius"):
             merged.extend(parsed[label]["radius"])
             merged.append("\n")
 
     # ── CONFORMER lines from all states ──
-    merged.append(f"# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn\n")
+    merged.append("# Conformer parameters that appear in head3.lst: ne, Em0, nH, pKa0, rxn\n")
     for label in all_labels:
         merged.extend(parsed[label]["conformer"])
 
     # ── Warnings as comments at bottom ──
     if warnings:
-        merged.append(f"\n")
-        merged.append(f"# {'='*60}\n")
-        merged.append(f"# WARNINGS from MCCE4 Topology Agent\n")
+        merged.append(f"\n# {'='*60}\n")
+        merged.append("# WARNINGS from MCCE4 Topology Agent\n")
         merged.append(f"# {'='*60}\n")
         for w in warnings:
             # Wrap long warnings
@@ -987,7 +997,8 @@ def fill_ftpl_charges_per_state(ftpl_path, per_state_charges, lig_id):
             # Try exact match
             if atom_name in charges:
                 new_lines.append(f"{prefix}{charges[atom_name]:7.3f} # auto-filled{suffix}\n")
-                filled += 1; matched = True
+                filled += 1
+                matched = True
 
             # Try stripped match
             if not matched:
@@ -996,7 +1007,9 @@ def fill_ftpl_charges_per_state(ftpl_path, per_state_charges, lig_id):
                 for cn, cv in charges.items():
                     if cn.strip() == stripped or to_mcce_atom_name(cn) == mcce:
                         new_lines.append(f"{prefix}{cv:7.3f} # auto-filled{suffix}\n")
-                        filled += 1; matched = True; break
+                        filled += 1
+                        matched = True
+                        break
 
             if not matched:
                 new_lines.append(line)
@@ -1041,7 +1054,7 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
 
     lines = [
         f"# PyMOL script: {lig_id} protonation state comparison",
-        f"# Generated by mcce_ftpl v3",
+        "# Generated by mcce_ftpl",
         f"# Usage: pymol {os.path.basename(output_path)}",
         "",
         "# Settings for H atom visibility",
@@ -1060,7 +1073,7 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
         obj_name = f"{lig_id}_{label.replace('+', 'p').replace('-', 'm')}"
         diff = h_diffs.get(label, {})
         h_added = diff.get("added", [])
-        h_removed = diff.get("removed", [])
+        # h_removed = diff.get("removed", [])
 
         lines.append(f"# ── State {label} ──")
         lines.append(f"load {os.path.abspath(pdb_path)}, {obj_name}")
@@ -1091,7 +1104,7 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
             lines.append(f"translate [{spacing * i}, 0, 0], {obj_name}")
 
         # Add state label
-        charge_sign = "+" if "p" in obj_name or "+" in label else ("-" if "m" in obj_name or "-" in label else "")
+        # charge_sign = "+" if "p" in obj_name or "+" in label else ("-" if "m" in obj_name or "-" in label else "")
         lines.append(f'pseudoatom label_{obj_name}, label="{lig_id}{label}", '
                      f'pos=[{spacing * i}, -10, 0]')
         lines.append(f"set label_size, 20, label_{obj_name}")
@@ -1108,7 +1121,7 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
         "zoom",
         "",
         f"# States: {', '.join(f'{lig_id}{l}' for l in labels)}",
-        f"# Green H = added vs neutral, Red site = H removed vs neutral",
+        "# Green H = added vs neutral, Red site = H removed vs neutral",
     ])
 
     with open(output_path, "w") as f:

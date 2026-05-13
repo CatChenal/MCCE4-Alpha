@@ -1,12 +1,20 @@
-# python==3.10
-numpy
+# python==3.10, pip requirements
 scipy
-pandas
-pygraphviz
-networkx
+requests
 matplotlib
 seaborn
+pandas
+joblib
+python-dotenv
+scikit-learn
+pygraphviz
+networkx
 pytest
-requests
 mdanalysis
 parmed
+fastapi[standard]
+google-genai
+langgraph
+python-multipart>=0.0.5
+websockets>=10.0
+uvicorn[standard]>=0.20.0
