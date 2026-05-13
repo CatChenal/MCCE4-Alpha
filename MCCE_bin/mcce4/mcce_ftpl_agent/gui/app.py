@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Streamlit Web GUI for the MCCE4 Topology Agent.
 
@@ -14,34 +16,28 @@ Launch:
   # Or via the CLI:
   mcce_ftpl EMH.pdb --gui
 """
-
-import os
-import sys
-import json
-import base64
-import logging
-import tempfile
+import html as _html
 import io
-from pathlib import Path
-
-# Ensure package is importable
-PACKAGE_DIR = str(Path(__file__).resolve().parent.parent.parent)
-if PACKAGE_DIR not in sys.path:
-    sys.path.insert(0, PACKAGE_DIR)
+import logging
+import os
+import pandas as pd
+import tempfile
 
 import streamlit as st
 
-from mcce_ftpl_agent.models import ConformerState, AgentState
+# from mcce_ftpl_agent.models import ConformerState, AgentState
 from mcce_ftpl_agent.config import (
-    GUI_TITLE, SUPPORTED_CHARGE_METHODS, DEFAULT_CHARGE_METHOD, DEFAULT_DIELECTRICS,
-    AGENT_PHASES, PHASE_NAME_MAP,
-)
-from mcce_ftpl_agent.tools.rdkit_tools import mol_to_svg, get_mol_from_pdb, get_mol_from_smiles
+    AGENT_PHASES,
+    DEFAULT_CHARGE_METHOD,
+    GUI_TITLE,
+    PHASE_NAME_MAP,
+    SUPPORTED_CHARGE_METHODS,
+    )
+from mcce_ftpl_agent.agent import run_agent
 from mcce_ftpl_agent.tools.mcce_tools import extract_lig_id_from_pdb
-import html as _html
+from mcce_ftpl_agent.tools.rdkit_tools import get_mol_from_smiles, mol_to_svg
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Log highlighting
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -59,25 +55,25 @@ def _highlight_log(log_text: str) -> str:
     for line in _html.escape(log_text).splitlines():
         # Phase headers — cyan bold
         if any(kw in line for kw in ["PHASE 1", "PHASE 2", "PHASE 3", "PHASE 4",
-                                      "PHASE 5", "PHASE 6", "PHASE 7"]):
+                                     "PHASE 5", "PHASE 6", "PHASE 7"]):
             line = f'<span style="color:#4fc1ff;font-weight:bold;">{line}</span>'
         elif any(kw in line for kw in ["PHASE", "═", "─", "🔬", "🎉", "✅"]):
             line = f'<span style="color:#4fc1ff;">{line}</span>'
         # Protonation additions — green
         elif any(kw in line for kw in ["+H ", "Added H", "added on", "protonate",
-                                        "🟢", "h_added", "Add H:", "Added "]):
+                                       "🟢", "h_added", "Add H:", "Added "]):
             line = f'<span style="color:#4ec94e;font-weight:bold;">▸ {line}</span>'
         # Deprotonation removals — red
         elif any(kw in line for kw in ["-H ", "Removed H", "removed from", "deprotonate",
-                                        "🔴", "h_removed", "Remove H:", "Removed "]):
+                                       "🔴", "h_removed", "Remove H:", "Removed "]):
             line = f'<span style="color:#f44747;font-weight:bold;">▸ {line}</span>'
         # State label lines — highlight the label
         elif any(kw in line for kw in ["State +", "State -", "State 0",
-                                        "state +", "state -", "state 0"]):
+                                       "state +", "state -", "state 0"]):
             line = f'<span style="color:#dcdcaa;">{line}</span>'
         # Naming/label lines
         elif any(kw in line for kw in ["Label disambiguated", "→", "label=",
-                                        "+a", "+b", "-a", "-b", "0a", "0b"]):
+                                       "+a", "+b", "-a", "-b", "0a", "0b"]):
             line = f'<span style="color:#ce9178;">{line}</span>'
         # Warnings
         elif any(kw in line for kw in ["⚠", "WARNING", "warning"]):
@@ -114,7 +110,6 @@ def _render_log_panel(log_text: str, title: str = "Agent Log",
     )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Log capture helper
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -134,9 +129,6 @@ def _stop_log_capture(log_capture, log_handler):
     return log_capture.getvalue()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Page config
-# ──────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title=GUI_TITLE,
     page_icon="🧬",
@@ -145,9 +137,6 @@ st.set_page_config(
 )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Session state init
-# ──────────────────────────────────────────────────────────────────────────────
 def init_session():
     """Initialize session state variables."""
     defaults = {
@@ -170,7 +159,6 @@ def init_session():
 init_session()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Sidebar: Settings + 7-Phase Progress Tracker
 # ──────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -181,7 +169,7 @@ with st.sidebar:
     st.subheader("⚙️ Settings")
     ph = st.slider("Target pH", 0.0, 14.0, 7.4, 0.1)
     charge_method = st.selectbox("Charge Method", SUPPORTED_CHARGE_METHODS,
-                                  index=SUPPORTED_CHARGE_METHODS.index(DEFAULT_CHARGE_METHOD))
+                                 index=SUPPORTED_CHARGE_METHODS.index(DEFAULT_CHARGE_METHOD))
 
     dielectric_opts = st.multiselect("Dielectric Constants", [2, 4, 8], default=[2, 4, 8])
     dry_run = st.checkbox("Dry Run (skip RXN calibration)", value=False)
@@ -256,7 +244,6 @@ with st.sidebar:
         st.caption(f"{len(states)} conformer state(s)")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Main content
 # ──────────────────────────────────────────────────────────────────────────────
 st.title("🧬 MCCE4 Topology File Agent")
@@ -268,7 +255,6 @@ tab_input, tab_states, tab_output, tab_log = st.tabs([
 ])
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # TAB 1: Input
 # ──────────────────────────────────────────────────────────────────────────────
 with tab_input:
@@ -276,9 +262,11 @@ with tab_input:
 
     with col1:
         st.subheader("Upload Ligand PDB")
-
+        # tmp:
+        st.text("TODO: Modify to allow lig code and lig smiles as input.\n")
+        
         uploaded_pdb = st.file_uploader("Ligand PDB file", type=["pdb"],
-                                         key="pdb_upload")
+                                        key="pdb_upload")
         if uploaded_pdb:
             # Save to temp file
             tmp_dir = tempfile.mkdtemp()
@@ -291,7 +279,7 @@ with tab_input:
 
         # Or specify path directly
         pdb_path_input = st.text_input("Or enter PDB file path on server:",
-                                        placeholder="/path/to/EMH.pdb")
+                                       placeholder="/path/to/EMH.pdb")
         if pdb_path_input and os.path.exists(pdb_path_input):
             st.session_state["pdb_path"] = pdb_path_input
             st.session_state["lig_id"] = extract_lig_id_from_pdb(pdb_path_input)
@@ -301,7 +289,7 @@ with tab_input:
         st.subheader("Optional: State-specific PDBs")
         st.caption("Upload PDB files for specific protonation states (e.g., EMH_01.pdb, EMH_+1.pdb)")
         state_pdbs = st.file_uploader("State PDB files", type=["pdb"],
-                                       accept_multiple_files=True, key="state_pdbs")
+                                      accept_multiple_files=True, key="state_pdbs")
 
     with col2:
         st.subheader("Molecule Preview")
@@ -316,12 +304,12 @@ with tab_input:
 
     # ── Analyze button ──
     if st.session_state.get("pdb_path"):
-        if st.button("🧠 Analyze Protonation States", type="primary", use_container_width=True):
+        if st.button("🧠 Analyze Protonation States",
+                     type="primary",
+                     use_container_width=True):
             st.session_state["phase"] = "analyzing"
             # Reset phase status
             st.session_state["phase_status"] = {}
-
-            from mcce_ftpl_agent.agent import run_agent
 
             # Show real-time progress below the button
             status = st.status("🤖 Agent is analyzing the molecule...", expanded=True)
@@ -445,8 +433,7 @@ with tab_input:
         st.success("🎉 Analysis complete! Click the **Conformer States** tab above to review and approve.")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# TAB 2: Conformer States & Editor (v3)
+# TAB 2: Conformer States & Editor
 # ──────────────────────────────────────────────────────────────────────────────
 with tab_states:
     states = st.session_state.get("states", [])
@@ -461,7 +448,6 @@ with tab_states:
 
         st.subheader(f"Protonation States for {lig_id}")
 
-        # ══════════════════════════════════════════════════════════════════
         # SECTION 1: Hydrogen comparison table + per-state focused views
         # ══════════════════════════════════════════════════════════════════
 
@@ -477,7 +463,6 @@ with tab_states:
                 from mcce_ftpl_agent.tools.rdkit_tools import generate_state_comparison_table
                 comp_rows = generate_state_comparison_table(states, h_diffs, lig_id)
                 if comp_rows:
-                    import pandas as pd
                     comp_df = pd.DataFrame(comp_rows)
                     st.dataframe(comp_df, use_container_width=True, hide_index=True)
             except Exception as e:
@@ -591,9 +576,7 @@ with tab_states:
                                         st.image(svg_s, caption=f"{lbl} ({chg:+d})",
                                                  use_container_width=True)
 
-        # ══════════════════════════════════════════════════════════════════
-        # SECTION 1b: PyMOL visualization (full 3D with all H atoms)
-        # ══════════════════════════════════════════════════════════════════
+        # 1b: PyMOL visualization (full 3D with all H atoms)
         if state_pdbs and len(state_pdbs) > 1:
             st.markdown("---")
             st.subheader("🔬 3D Visualization (PyMOL)")
@@ -604,7 +587,6 @@ with tab_states:
             )
 
             pymol_script = agent_state.get("pymol_script") if agent_state else None
-
             col_pymol, col_files = st.columns([1, 1])
 
             with col_pymol:
@@ -642,13 +624,10 @@ with tab_states:
                             key=f"dl_{label}",
                         )
 
-        # ══════════════════════════════════════════════════════════════════
         # SECTION 2: Enriched conformer state table
         # ══════════════════════════════════════════════════════════════════
         st.markdown("---")
         st.subheader("Conformer State Table")
-
-        import pandas as pd
         table_data = []
         for s in states:
             sd = s if isinstance(s, dict) else s.to_dict()
@@ -750,10 +729,10 @@ with tab_states:
                 st.session_state["agent_state"] = agent_state
 
         # Apply changes button
-        if st.button("🔄 Apply Table Changes", help="Refresh page after editing labels or parameters"):
+        if st.button("🔄 Apply Table Changes",
+                     help="Refresh page after editing labels or parameters"):
             st.rerun()
 
-        # ══════════════════════════════════════════════════════════════════
         # SECTION 3: Add custom state via ionizable site selector
         # ══════════════════════════════════════════════════════════════════
         st.markdown("---")
@@ -860,8 +839,8 @@ with tab_states:
                             st.image(svg_custom, use_container_width=False)
                         st.info(f"Formal charge: {charge:+d}")
                         smiles_label = st.text_input("Label:",
-                                                      value=f"{charge:+d}" if charge else "01",
-                                                      key="smiles_label")
+                                                     value=f"{charge:+d}" if charge else "01",
+                                                     key="smiles_label")
                         if st.button("➕ Add", key="add_smiles"):
                             new_state = {
                                 "label": smiles_label, "charge": charge,
@@ -883,21 +862,24 @@ with tab_states:
                 except ImportError:
                     st.error("RDKit required — conda install -c conda-forge rdkit")
 
-        # ══════════════════════════════════════════════════════════════════
         # Approve / Run
         # ══════════════════════════════════════════════════════════════════
         st.markdown("---")
         col_cancel, col_spacer, col_approve = st.columns([1, 2, 1])
 
         with col_cancel:
-            if st.button("✖ Cancel", type="secondary", use_container_width=True):
+            if st.button("✖ Cancel",
+                         type="secondary",
+                         use_container_width=True):
                 st.session_state["phase"] = "upload"
                 st.session_state["states"] = []
                 st.session_state["phase_status"] = {}
                 st.rerun()
 
         with col_approve:
-            if st.button("✔ Approve & Generate .ftpl", type="primary", use_container_width=True):
+            if st.button("✔ Approve & Generate .ftpl",
+                         type="primary",
+                         use_container_width=True):
                 st.session_state["phase"] = "running"
                 st.session_state["approved"] = True
 
@@ -975,7 +957,7 @@ with tab_states:
                             rxn = agent_state.get("rxn_values", {})
                             if isinstance(rxn, dict) and "error" not in str(rxn):
                                 st.session_state["phase_status"]["phase7"] = "done"
-                                st.write(f"✅ RXN calibration complete")
+                                st.write("✅ RXN calibration complete")
                                 # Show rxn summary
                                 for rxn_key, vals in rxn.items():
                                     if isinstance(vals, dict):
@@ -1023,7 +1005,6 @@ with tab_states:
                 st.rerun()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # TAB 3: Output
 # ──────────────────────────────────────────────────────────────────────────────
 with tab_output:
@@ -1064,7 +1045,6 @@ with tab_output:
         st.info("Complete the analysis and approve states to generate the topology file.")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # TAB 4: Full Session Log (persistent, always available)
 # ──────────────────────────────────────────────────────────────────────────────
 with tab_log:
@@ -1136,9 +1116,8 @@ with tab_log:
         )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Footer
 # ──────────────────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption("MCCE4 Topology Agent v5.0 | GunnerLab | "
+st.caption("MCCE4 Topology Agent v1.0.5 | GunnerLab | "
            "[Tutorial](https://gunnerlab.github.io/mcce4_tutorial/docs/topology/)")

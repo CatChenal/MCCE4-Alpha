@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 LLM interface for the agent brain.
 
@@ -11,16 +13,22 @@ Usage:
   llm = create_llm(provider="claude", api_key="sk-ant-...")
   llm = create_llm(provider="chatgpt", api_key="sk-...")
 """
-
-import re
 import json
 import logging
+import re
 from typing import Optional
 
 from .config import (
-    GEMINI_MODEL, CLAUDE_MODEL, CHATGPT_MODEL,
-    get_gemini_api_key, get_anthropic_api_key, get_openai_api_key,
+    CHATGPT_MODEL,
+    CLAUDE_MODEL,
+    GEMINI_MODEL,
+    get_anthropic_api_key,
+    get_gemini_api_key,
+    get_openai_api_key,
 )
+
+
+f_INSTALL_LLM = "  {} not installed — update your mc4 env: (mc4) conda install -c conda-forge {}"
 
 
 class BaseLLM:
@@ -53,8 +61,6 @@ class BaseLLM:
 
 class GeminiLLM(BaseLLM):
     """Google Gemini API (free tier).
-
-    Install: conda install -c conda-forge google-genai
     """
 
     provider_name = "gemini"
@@ -76,7 +82,7 @@ class GeminiLLM(BaseLLM):
             self.available = True
             logging.info(f"LLM: {self.model_name} (Gemini)")
         except ImportError:
-            logging.warning("  google-genai not installed — install: conda install -c conda-forge google-genai")
+            logging.warning("  google-genai not installed — update your mc4 env: (mc4) pip install google-genai")
         except Exception as e:
             logging.warning(f"  Gemini init failed: {e}")
 
@@ -96,8 +102,6 @@ class GeminiLLM(BaseLLM):
 
 class ClaudeLLM(BaseLLM):
     """Anthropic Claude API.
-
-    Install: conda install -c conda-forge anthropic
     """
 
     provider_name = "claude"
@@ -118,7 +122,7 @@ class ClaudeLLM(BaseLLM):
             self.available = True
             logging.info(f"LLM: {self.model_name} (Claude)")
         except ImportError:
-            logging.warning("  anthropic not installed — install: conda install -c conda-forge anthropic")
+            logging.warning(f_INSTALL_LLM.format("anthropic", "anthropic"))
         except Exception as e:
             logging.warning(f"  Claude init failed: {e}")
 
@@ -139,8 +143,6 @@ class ClaudeLLM(BaseLLM):
 
 class ChatGPTLLM(BaseLLM):
     """OpenAI ChatGPT API.
-
-    Install: conda install -c conda-forge openai
     """
 
     provider_name = "chatgpt"
@@ -161,7 +163,7 @@ class ChatGPTLLM(BaseLLM):
             self.available = True
             logging.info(f"LLM: {self.model_name} (ChatGPT)")
         except ImportError:
-            logging.warning("  openai not installed — install: conda install -c conda-forge openai")
+            logging.warning(f_INSTALL_LLM.format("openai", "openai"))
         except Exception as e:
             logging.warning(f"  ChatGPT init failed: {e}")
 

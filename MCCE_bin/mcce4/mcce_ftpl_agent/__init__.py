@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 mcce_ftpl_agent — MCCE4 Topology File AI Agent Package
 =========================================================
@@ -7,8 +9,8 @@ Uses Dimorphite-DL for protonation state enumeration, RDKit for chemistry
 validation, Google Gemini (free tier) for reasoning, and LangGraph for
 agentic orchestration.
 
-Install:
-    conda install -c conda-forge google-genai langgraph dimorphite_dl rdkit streamlit
+For GUI:
+    conda install -c conda-forge --file gui_requirements.txt
 
 Usage:
     # CLI
@@ -19,5 +21,5 @@ Usage:
     run_agent("EMH.pdb")
 """
 
-__version__ = "5.0.0"
+__version__ = "1.0.5"
 __author__ = "Gehan / MCCE4 Team (GunnerLab)"
