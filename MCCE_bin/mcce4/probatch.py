@@ -770,7 +770,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
 
     if args.stop:
         if not args.job_name:
-            print("ERROR, protein_batch: --stop requires -job_name. Use --stop_all to stop every batch.")
+            print("ERROR, protein_batch: --stop requires -job-name. Use --stop_all to stop every batch.")
         stop_jobs(job_name=args.job_name)
         return
 
@@ -780,7 +780,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
 
     if args.check:
         if not args.job_name:
-            print("ERROR, protein_batch: --check requires -job_name. Use --check_all to see every batch.")
+            print("ERROR, protein_batch: --check requires -job-name. Use --check-all to see every batch.")
         check_jobs(job_name=args.job_name)
         return
 
