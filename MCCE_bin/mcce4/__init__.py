@@ -9,7 +9,15 @@ import os
 from pathlib import Path
 import sys
 
-__version__ = "Initial stage of developing"
+__version__ = "4.0.0"
+
+
+CLONE_PATH = Path(__file__).parent.parent.parent
+CLONE = Path(__file__).parent.parent.parent.name
+
+# for cli parsers: give correct repo:
+CLI_EPILOG = f"\nReport issues & feature requests here: https://github.com/GunnerLab/{CLONE}/issues\n"
+
 
 class Common:
     """Shared functions"""

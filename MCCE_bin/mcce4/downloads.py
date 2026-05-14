@@ -23,73 +23,83 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
-def decompress_gz(gfp: Path) -> Path:
-    """Decompressed the gzipped file given by its filepath, gfp.
-    """
-    fpo = gfp.parent.joinpath(f"{gfp.stem}")
-    with gzip.open(gfp, "rb") as f_in:
-        with open(fpo, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
+RCSB_GRAPHQL = "https://data.rcsb.org/graphql"
+SMILES_QRY = """
+query molecules($ids: [String!]!) {
+  chem_comps(comp_ids: $ids) {
+    chem_comp {
+      id
+      name
+      formula
+      pdbx_formal_charge
+    }
+    rcsb_chem_comp_descriptor {
+      SMILES
+    }
+  }
+}
+"""
 
-    return fpo
+
+def get_rcsb_lig_smiles(ligands:list, output_dir:str=Path("./prerun")):
+    """Get the smiles strings for ligands (3-letter code).
+    Save the list of [id, ligand] to csv file in the output_dir
+    as smiles.csv.
+    """
+    variables = {"ids": ligands}
+    payload = {
+        "query": SMILES_QRY,
+        "variables": variables
+    }
+    response = requests.post(RCSB_GRAPHQL, json=payload)
+    if not response.ok:
+        print(f"Failed smiles request: {response.reason}")
+        return
+    data = response.json()
+    # concate long string
+    out = [(f'{entry["chem_comp"]["id"]},'
+            f'{entry["rcsb_chem_comp_descriptor"]["SMILES"]},'
+            f'{entry["chem_comp"]["formula"]}\n')
+           for entry in data["data"]["chem_comps"]]
+    if out:
+        with open(output_dir.joinpath("smiles.csv"), "w") as fo:
+            fo.writelines(out)
+    else:
+        print("No smiles data")
+    return
 
 
 def rcsb_download(pdb_fname: str) -> requests.Response:
     url_rscb = "https://files.rcsb.org/download/" + pdb_fname
     return requests.get(url_rscb, allow_redirects=True)
 
-# original:
-def get_rcsb_pdb0(pdbid: str) -> Union[Path, Tuple[None, str]]:
-    """Given a pdb id, download the pdb file containing
-    the biological assembly from rcsb.org.
-    The file is downloaded with a pdb extension.
-    """
 
-    pdbid = pdbid.lower()
-    bionames = pdbid + ".pdb1", f"{pdbid}-assembly1.cif.gz"
-    pdb_file = pdbid + ".pdb"
+def rcsb_download_fasta(pdb_id: str) -> requests.Response:
+    fasta_url = "https://www.rcsb.org/fasta/entry/" + pdb_id 
+    return requests.get(fasta_url, allow_redirects=True)
 
-    content = None
-    # list of bool to identify which bio assembly was saved:
-    which_ba = [False, False]  # 0: pdb, 1: cif
 
-    # try bio assemblies first:
-    r0 = rcsb_download(bionames[0])
-    if r0.status_code < 400:
-        which_ba[0] = True
-        pdb_file = bionames[0][:-1]
-        content = r0.content
+def get_rcsb_fasta(pdbid: str, output_dir: str = Path.cwd(), verbose: bool=False) -> int:
+    """Given a pdb id, download its fasta file if not found."""
+    pdbid = pdbid.upper()
+    pdb = Path(output_dir).joinpath(f"{pdbid}.fasta")
+    if pdb.exists():
+        if verbose:
+            print(f" {pdbid} fasta file already exists.")
+        return 0
+
+    response = rcsb_download_fasta(pdbid)
+    if response.status_code < 400:
+        with open(pdb, "w") as fo:
+            fo.write(response.text)
+        if verbose:
+            print(f" Saved {pdbid} fasta file.")
+        return 0
     else:
-        logger.error(f"Error: Could not download the pdb bio assembly:{r0.reason}")
+        print(f" ERROR: Could not download fasta file of {pdbid}:\n{response.reason}.")
+        return 1
 
-        r1 = rcsb_download(bionames[1])
-        if r1.status_code < 400:
-            which_ba[1] = True
-            pdb_file = bionames[1]
-            content = r1.content
-        else:
-            logger.error(f"Error: Could not download the cif bio assembly:{r1.reason}")
-
-    if which_ba[0] == which_ba[1]:  # both False; last try: legacy pdb
-        r2 = rcsb_download(pdb_file)
-        if r2.status_code < 400:
-            content = r2.content
-        else:
-            logger.error(f"Error: Could not download the pdb file:{r2.reason}")
-            return None, "Error: Could neither download the bio assembly or pdb file."
-
-    # save file:
-    with open(pdb_file, "wb") as fo:
-        fo.write(content)
-    logger.info("Download completed.")
-
-    if which_ba[1]:
-        decomp = decompress_gz(Path(pdb_file))
-        logger.info(f"{pdb_file} saved & unzipped as {decomp.name}")
-
-    return Path(pdb_file).resolve()
-
-
+    
 def get_rcsb_pdb(pdbid: str,
                  get_bioassembly: bool = True,
                  bioassembly_id: int = 1,
@@ -234,3 +244,38 @@ def getpdb_cli(argv=None):
             logger.info(f"Download failed: {pdbid}; {out[1]}")
         else:
             logger.info(f"Download completed: {out.name}")
+
+
+def fasta_parser():
+    p = argparse.ArgumentParser(prog="getfasta",
+                                description=("Download one or more fasta files from RSCB."))
+    p.add_argument(
+        "pdbid",
+        nargs="+",
+        default=[],
+        help="Specify the pdb ID(s), e.g.: 1ots 4lzt 1FAT",
+    )
+    return p
+
+
+def getfasta_cli(argv=None):
+    """Cli function for the `getfasta` tool.
+    """
+    p = fasta_parser()
+    args = p.parse_args(argv)
+
+    for pdbid in [id.upper() for id in args.pdbid]:
+        out = get_rcsb_fasta(pdbid)
+        if out:
+            logger.info(f"Download failed: {pdbid}")
+
+
+def decompress_gz(gfp: Path) -> Path:
+    """Decompressed the gzipped file given by its filepath, gfp.
+    """
+    fpo = gfp.parent.joinpath(f"{gfp.stem}")
+    with gzip.open(gfp, "rb") as f_in:
+        with open(fpo, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+    return fpo
