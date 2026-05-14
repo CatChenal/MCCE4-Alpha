@@ -436,13 +436,15 @@ def write_book(user_files: list, bench_book: bool = False):
     """
     # preset with header lines:
     content = book_header_lines()
+    # convert Path to str for sorted:
+    user_files = [str(fp) if isinstance(fp, Path) else fp[0] for fp in user_files]
     if user_files:
         for entry in sorted(user_files):
             if isinstance(entry, tuple):
                 content.append(f"{entry[0]:<12} {'r':<8} Pending\n")
             else:
-                # entry is a Path
-                content.append(f"{entry.stem.upper():<12} {'r':<8} Pending\n")
+                # entry was a Path
+                content.append(f"{Path(entry).stem.upper():<12} {'r':<8} Pending\n")
     else:
         if not bench_book:
             print("ERROR: With empty user_files, bench_book must be True (and book.txt exist).")
@@ -504,8 +506,7 @@ def comment_book_pdb(pdb_dir: Path, tag: str):
     if not book_fp.exists():
         print("book.txt not found for commenting!")
         return
-
-    cmd = f"sed -i 's/^\({pdbid}*\).*$/#{pdbid}\te\t{tag}/' {book_fp!s}"
+    cmd = f"sed -i 's/^\({pdbid}*\).*$/#{pdbid}        e\t{tag}/' {book_fp!s}"
     subprocess_run(cmd)
 
     return
@@ -623,22 +624,23 @@ def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False) -> Path:
     if is_pdbid:
         prot_path = p_dir.name
     else:
-        prot_path = pdb_fp
+        prot_path = Path(pdb_fp.name)
 
     os.chdir(p_dir)
-    # preset with available data:
+
+    fetch = True if is_pdbid else False
     info_args = {
         "pdb": prot_path,
         "d": 8,
         "u": "",
         "wet": False,
         "noter": False,
-        "fetch": True,
+        "fetch": fetch,
         "save_dicts": True,
     }
     # run step1 and write prot report (from run1.log):
     # get_pdb_rpt creates the 'prerun' output subfolder in the current run:
-    rpt_pdb = get_pdb_rpt(argparse.Namespace(**info_args), do_checks=True, do_fetch=True)
+    rpt_pdb = get_pdb_rpt(argparse.Namespace(**info_args), do_checks=True, do_fetch=fetch)
     os.chdir(Path.cwd().parent)
 
     return rpt_pdb
@@ -670,7 +672,7 @@ def process_protein_file(protein_path: Union[Path, tuple],
     # prerun_passed -> (bool, reason)
     ok, msg = prerun_passed(p_dir.joinpath("prerun"))
     if not ok:
-        print("Commenting book...")
+        print(f"Commenting book for {p_dir.name}: {msg}")
         comment_book_pdb(p_dir, tag=msg)
 
     _ensure_symlink(p_dir/"prot.pdb", pdb_fp.name)
@@ -855,7 +857,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
 
         if not detail or detail == "Pending":
             new_prots.append(pdb_name)
-        elif status == 'e':
+        elif status == 'e' or pdb_name.startswith("#"):
             error_prots.append(pdb_name)
         else:
             other_prots.append(pdb_name)
@@ -926,6 +928,8 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     sys.stderr = _log_fh
 
     # SETUP & LAUNCH each protein
+    #print(f"{user_files = }")
+
     target_set = set(final_targets)
     for entry in user_files:
         which  = entry[0].upper() if isinstance(entry, tuple) else entry.stem.upper()
