@@ -693,7 +693,8 @@ def cli_parser() -> argparse.ArgumentParser:
                                      formatter_class=argparse.RawTextHelpFormatter,
                                      epilog=CLI_EPILOG,
                                      )
-    parser.add_argument("input-path",
+    # Note: dashes are not converted for positional options:
+    parser.add_argument("input_path",
                         type=str,
                         nargs="?",
                         default=None,
