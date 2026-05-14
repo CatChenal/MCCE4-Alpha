@@ -10,9 +10,9 @@ import logging
 import os
 from pathlib import Path
 import sys
-import textwrap
 from typing import Union
 
+from mcce4 import CLI_EPILOG
 from mcce4.pymol_ligand_cif2pdb import main as cif_ligand_converter
 from mcce4.mcce_ftpl_agent import __version__
 from mcce4.mcce_ftpl_agent.agent import run_agent
@@ -51,58 +51,54 @@ def setup_logging(log_file: str, verbose: bool = False):
     logger.addHandler(ch)
 
 
+USAGE ="""
+EXAMPLES:
+    %(prog)s -lig-code XYZ -lig-smiles C(C(C(=O)O)N        # Ligand code with smiles
+    %(prog)s -lig-code EMH                                 # Ligand code only (query RCSB for smiles)
+    %(prog)s EMH.pdb                                       # Full auto (PDB input)
+    %(prog)s EMH.cif                                       # CIF input (auto-converts)
+    %(prog)s EMH.pdb -lig-code EMH                         # PDB + ligand code
+    %(prog)s -lig-code EMH --dry-run --no-llm              # Quick test
+    %(prog)s EMH.pdb --gui                                 # Web GUI (requires Streamlit)
+    %(prog)s EMH.pdb -state-pdbs EMH_01.pdb EMH_+1.pdb     # User state PDBs
+    %(prog)s EMH.pdb --no-llm                              # No LLM reasoning
+    %(prog)s EMH.pdb -charge-method am1bcc                 # Override charges
+    %(prog)s EMH.pdb --dry-run                             # Skip calibration
+    %(prog)s EMH.pdb -llm-provider claude -api-key sk-...  # Use Claude
+    %(prog)s EMH.pdb -llm-provider chatgpt -api-key sk-... # Use ChatGPT
+"""
+
+EPILOG = USAGE + """
+NOTE: Before using the GUI (--gui option), install its requirements:
+      (mc4)> conda install -c conda-forge --file gui_requirements.txt
+""" + CLI_EPILOG + "\n"
+
+
 def cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="mcce_ftpl",
         description="🤖 MCCE4 Topology File AI Agent",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage=textwrap.dedent("""\
-        Examples:
-          %(prog)s -lig_code XYZ -lig_smiles C(C(C(=O)O)N        # Ligand code with smiles
-          %(prog)s -lig_code EMH                                 # Ligand code only (query RCSB for smiles)
-          %(prog)s EMH.pdb                                       # Full auto (PDB input)
-          %(prog)s EMH.cif                                       # CIF input (auto-converts)
-          %(prog)s EMH.pdb -lig_code EMH                         # PDB + ligand code
-          %(prog)s -lig_code EMH --dry-run --no-llm              # Quick test
-          %(prog)s EMH.pdb --gui                                 # Web GUI (requires Streamlit)
-          %(prog)s EMH.pdb -state-pdbs EMH_01.pdb EMH_+1.pdb     # User state PDBs
-          %(prog)s EMH.pdb --no-llm                              # No LLM reasoning
-          %(prog)s EMH.pdb -charge-method am1bcc                 # Override charges
-          %(prog)s EMH.pdb --dry-run                             # Skip calibration
-          %(prog)s EMH.pdb -llm-provider claude -api-key sk-...  # Use Claude
-          %(prog)s EMH.pdb -llm-provider chatgpt -api-key sk-... # Use ChatGPT
-        """),
-        # TODO: use python-dotenv for API keys
-
-        epilog=textwrap.dedent("""
-        Note 1: LLM providers need keys in the environment:
-          export GEMINI_API_KEY="your_free_key"   # from https://ai.google.dev
-          export ANTHROPIC_API_KEY="your_key"     # for Claude provider
-          export OPENAI_API_KEY="your_key"        # for ChatGPT provider
-        Note 2:
-          Before using the GUI (--gui option), install its requirements:
-          conda install -c conda-forge --file gui_requirements.txt
-        """)
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=EPILOG
     )
     parser.add_argument("input_file",
                         nargs="?",
                         default=None,
-                        help="Ligand PDB or CIF file (e.g., EMH.pdb or EMH.cif). "
-                             "Optional if lig_code is provided (default: %(default)s)"
+                        help="""Ligand PDB or CIF file (e.g., EMH.pdb or EMH.cif).
+Optional if lig_code is provided (default: %(default)s)"""
                         )
     parser.add_argument("-lig-code",
                         type=str,
                         default="",
-                        help="3-letter RCSB ligand code (e.g., EMH). If provided, SMILES and "
-                             "metadata are fetched from RCSB. A PDB/CIF file is optional; "
-                             "if omitted, the 3D structure is built from SMILES using RDKit "
-                             "(default: %(default)s)"
+                        help="""3-letter RCSB ligand code (e.g., EMH). If provided, SMILES and
+metadata are fetched from RCSB. A PDB/CIF file is optional;
+If omitted, the 3D structure is built from SMILES using RDKit (default: %(default)s)"""
                         )
     parser.add_argument("-lig-smiles",
                         type=str,
                         default="",
-                        help="The ligand SMILES string. If provided along with lig-code, "
-                        "the 3D structure is built from SMILES using RDKit (default: %(default)s)"
+                        help="""The ligand SMILES string. If provided along with lig-code,
+the 3D structure is built from SMILES using RDKit (default: %(default)s)"""
                         )
     parser.add_argument("-state-pdbs",
                         nargs="+",
@@ -158,8 +154,8 @@ def cli_parser() -> argparse.ArgumentParser:
     dimorphite_group.add_argument("-precision",
                                   type=float,
                                   default=DIMORPHITE_PRECISION,
-                                  help="pKa precision factor: number of std deviations "
-                                       "from mean pKa to consider (default: %(default)s)"
+                                  help="""pKa precision factor: number of std deviations 
+from mean pKa to consider (default: %(default)s)"""
                                   )
     dimorphite_group.add_argument("-max-variants",
                                   type=int,
@@ -278,9 +274,9 @@ def main(args: Union[argparse.Namespace, dict]):
         if args.input_file and args.input_file.lower().endswith(".cif"):
             logging.info(f"  (converted from {Path(args.input_file)!s})")
     else:
-        logging.info(f"  Input:  -lig_code {lig_id} (no PDB file — will build from SMILES)")
+        logging.info(f"  Input:  -lig-code {lig_id} (no PDB file: will build from RCSB SMILES)")
         if args.lig_smiles:
-            logging.info(f"  Input:  lig_smiles (no PDB file — will build from SMILES)")
+            logging.info(f"  Input:  -lig-smiles (no PDB file: will build from given SMILES)")
 
     logging.info(f"  Ligand: {lig_id}   pH: {args.ph}   Method: {args.charge_method}")
     logging.info(f"  Dimorphite-DL: ph_min={args.ph_min}, ph_max={args.ph_max}, "

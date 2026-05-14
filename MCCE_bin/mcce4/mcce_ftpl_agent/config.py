@@ -3,16 +3,80 @@
 """
 Configuration constants and settings for the MCCE4 Topology Agent.
 """
-from dotenv import dotenv_values
-import os
+from mcce4 import CLONE_PATH
+
+
+# LLMs models & providers
+# ──────────────────────────────────────────────────────────────────────────────
+GEMINI_MODEL = "gemini-2.5-flash"
+CLAUDE_MODEL = "claude-sonnet-4-20250514"
+CHATGPT_MODEL = "gpt-4o"
+SUPPORTED_LLM_PROVIDERS = ["gemini", "claude", "chatgpt"]
+LLM_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY"]
+DEFAULT_LLM_PROVIDER = "gemini"
+
+
+# User keys from .env file
+# ──────────────────────────────────────────────────────────────────────────────
+DOT_ENV_DIR = CLONE_PATH.joinpath("agent_env")
+DOT_ENV_PATH = DOT_ENV_DIR.joinpath(".env")
+
+ENV_HELP =f"""Could not find an .env file for your API key(s) in {DOT_ENV_DIR!s}/
+1. You can use the -api-key option to pass the key for your chosen LLM provider;
+2. You can choose not to use any with the --no-llm option;
+3. Recommended: Setup your API key(s) in a new {str(DOT_ENV_DIR)}/.env file
+   for any of these keys: {LLM_KEYS}. 
+   This "dotenv" file will stay local to your clone (as long as it's named .env),
+   as it is excluded from repo updates. The expected env file format is KEY=value, e.g.:
+   GEMINI_API_KEY=<your key>
+   View the sample file here: {str(DOT_ENV_DIR.joinpath("dotenv_file_example.txt"))}
+"""
+
+
+def load_user_env() -> dict:
+    if not DOT_ENV_PATH.exists():
+        print("\nMISSING .env file.")
+        return {}
+    ud = {}
+    with open(DOT_ENV_PATH) as fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            key, value = line.split("=", 1)
+            k = key.strip().upper()
+            if k not in LLM_KEYS:
+                continue
+            ud[k] = value.strip()
+    if not ud:
+        print("None of the expected keys were found in the .env file.")
+    return ud
+
+USER_CONFIG_DICT = load_user_env()
+if not USER_CONFIG_DICT:
+    print(ENV_HELP)
+
+
+def get_gemini_api_key() -> str:
+    """Get Gemini API key from .env"""
+    if not USER_CONFIG_DICT:
+        return ""
+    return USER_CONFIG_DICT.get("GEMINI_API_KEY", "") or USER_CONFIG_DICT.get("GOOGLE_API_KEY", "")
+
+
+def get_anthropic_api_key() -> str:
+    """Get Anthropic API key from .env."""
+    return USER_CONFIG_DICT.get("ANTHROPIC_API_KEY", "")
+
+
+def get_openai_api_key() -> str:
+    """Get OpenAI API key from .env."""
+    return USER_CONFIG_DICT.get("OPENAI_API_KEY", "")
 
 
 # URLs
 # ──────────────────────────────────────────────────────────────────────────────
 RCSB_GRAPHQL_URL = "https://data.rcsb.org/graphql"
-#RCSB_SMILES_URL = "https://data.rcsb.org/rest/v1/core/chemcomp/{lig_id}"  # legacy REST fallback
-# FIX: does not seem to be used
-# LIGAND_EXPO_URL = "http://ligand-expo.rcsb.org/reports/{first_char}/{lig_id}/{lig_id}_ideal.pdb"
 
 # GraphQL query to fetch comprehensive ligand info from RCSB
 RCSB_GRAPHQL_QUERY = """
@@ -67,26 +131,10 @@ query molecule ($id: String!) {
                 drugbank_id
                 cas_number
                 drug_categories
-                mechanism_of_action
                 synonyms
                 name
-                drug_groups
                 description
-                affected_organisms
-                brand_names
-                indication
-                pharmacology
-                atc_codes
             }
-            drugbank_target {
-                target_actions
-                name
-                interaction_type
-            }
-        }
-        rcsb_chem_comp_related {
-            resource_name
-            resource_accession_code
         }
     }
 }
@@ -124,51 +172,6 @@ CHARGE_TO_CONF = {
 # Negative: a=-1, b=-2, c=-3, ...
 CHARGE_DISAMBIG_POS = {i: chr(ord('A') + i - 1) for i in range(1, 27)}
 CHARGE_DISAMBIG_NEG = {i: chr(ord('a') + i - 1) for i in range(1, 27)}
-
-
-# LLMs models & providers
-# ──────────────────────────────────────────────────────────────────────────────
-GEMINI_MODEL = "gemini-2.5-flash"
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
-CHATGPT_MODEL = "gpt-4o"
-SUPPORTED_LLM_PROVIDERS = ["gemini", "claude", "chatgpt"]
-LLM_KEYS = ["GEMINI_API_KEY", "GOOGLE_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY"]
-DEFAULT_LLM_PROVIDER = "gemini"
-
-ENV_FILE_EXAMPLE = ("Could not find an .env file for your API keys:\n"
-"If you are not using the --no-llm option, you need to put any the supported\n"
-f"LLM providers ({SUPPORTED_LLM_PROVIDERS}) and their API keys into a .env file.\n"
-"""The expected env file format is:
-GEMINI_API_KEY=<your key>
-GOOGLE_API_KEY=<your key>
-ANTHROPIC_API_KEY=<your key>
-OPENAI_API_KEY=<your key>
-""")
-
-
-USER_CONFIG_DICT = {**dotenv_values(".env")}
-if not USER_CONFIG_DICT:
-    print(ENV_FILE_EXAMPLE)
-
-
-def get_gemini_api_key() -> str:
-    """Get Gemini API key from .env"""
-
-    if not USER_CONFIG_DICT:
-        return ""
-    return USER_CONFIG_DICT.get("GEMINI_API_KEY", "") or USER_CONFIG_DICT.get("GOOGLE_API_KEY", "")
-
-
-def get_anthropic_api_key() -> str:
-    """Get Anthropic API key from .env."""
-    if not USER_CONFIG_DICT:
-          return ""
-    return USER_CONFIG_DICT.get("ANTHROPIC_API_KEY", "")
-
-
-def get_openai_api_key() -> str:
-    """Get OpenAI API key from .env."""
-    return USER_CONFIG_DICT.get("OPENAI_API_KEY", "")
 
 
 # GUI
