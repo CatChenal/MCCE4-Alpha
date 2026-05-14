@@ -871,7 +871,8 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     if error_prots:
         print(f"\nFound {len(error_prots)} existing runs with errors ('e'): {', '.join(error_prots)}")
         if ask_user("Would you like to re-run these error cases?"):
-            final_targets.extend(error_prots)
+            # uncomment any commented pdbids:
+            final_targets.extend([pdb[1:] if pdb.startswith("#") else pdb for pdb in error_prots])
 
     if other_prots:
         print(f"\nFound {len(other_prots)} existing runs (Completed 'c' or Pending/Ready/Running 'r').")
