@@ -5,28 +5,55 @@ Module: constants.py
 
 Contains values, conversion factors, lists or dicts for use in MCCE4.
 """
-NEUTRAL_RES = ["ALA", "ASN", "GLN", "GLY", "ILE", "LEU","MET", "PHE", "PRO", "SER", "THR", "TRP", "VAL"]
-IONIZABLE_RES = ["ASP", "GLU", "ARG", "HIS", "LYS", "CYS", "TYR", "NTR", "CTR"]
+# Modified residues to add in lists and in param/:
+# ALY :: N(6)-ACETYLLYSINE; neutral; K
+# PYL :: PYRROLYSINE; neutral; K
+# MSE :: SELENOMETHIONINE; neutral; M
+# SEC :: SELENOCYSTEINE; ionizable; acidic; C
+# SEP :: PHOSPHOSERINE; ionizable; acidic; S
+# TPO :: PHOSPHOTHREONINE; ionizable; acidic; T
+# PTR :: O-PHOSPHOTYROSINE; ionizable; acidic; Y
+
+NEUTRAL_RES = ["ALA", "ASN", "GLN", "GLY", "ILE", "LEU", "MET",
+                "PHE", "PRO", "PYL", "SER", "THR", "TRP", "VAL"]
+IONIZABLE_RES = ["ASP", "GLU", "ARG", "HIS", "LYS", "CYS", "TYR",
+                 "SEC", "NTR", "CTR"]
 ALL_RES = IONIZABLE_RES + NEUTRAL_RES
 
 # Warning: in some context, 'NTG' means Guanine nucleotide, not terminal Glycine:
 AA_CODES = set(ALL_RES + ["CYD","CYL","HIL","NTG"])
 
-ACIDIC_RES = ["ASP", "GLU"]
+ACIDIC_RES = ["ASP", "GLU", "SEC"]
 BASIC_RES = ["ARG", "HIS", "LYS"]
 POLAR_RES = ["CYS", "TYR"]
+
+# ref: https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/CHEM_4320_5320%3A_Biochemistry_1/01%3A_Amino_Acids/1.4%3A_Reactions_of_Amino_Acids/1.4.1_Acid-base_Chemistry_of_Amino_Acids
+SOLUTION_PKAS = {
+    "ASP": 3.9,
+    "GLU": 4.3,
+    "CYS": 8.3,
+    "ARG": 12.5,
+    "HIS": 6.0,
+    "LYS": 10.5,
+    "SEC": 5.5,    # Selenocysteine, SEC -> U
+    "TYR": 10.1,
+    "NTR": 8.0,
+    "CTR": 3.1,
+}
 
 # canonical charge states of ionizable residues at pH 7 in compbio simulations:
 CANONICAL = {
     "ASP": -1,
     "GLU": -1,
     "CTR": -1,
+    "SEC": -1,
     "ARG": 1,
     "LYS": 1,
     "NTR": 1,
     "TYR": 0,
     "CYS": 0,
     }
+CANONICAL_CRG = CANONICAL
 
 COMMON_IONIZ_RANGES = {
     "NTR+": (5, 9),
@@ -48,6 +75,8 @@ res3_to_res1 = {
     "ASN": "N",
     "ASP": "D",
     "CYS": "C",
+    "CYD": "C",
+    "CYL": "C",
     "GLN": "Q",
     "GLU": "E",
     "GLY": "G",
@@ -56,13 +85,20 @@ res3_to_res1 = {
     "LEU": "L",
     "LYS": "K",
     "MET": "M",
+    "MSE": "M",
     "PHE": "F",
     "PRO": "P",
+
+    "PYL": "O",
+    "SEC": "U",
+
     "SER": "S",
     "THR": "T",
     "TRP": "W",
     "TYR": "Y",
     "VAL": "V",
+    # ... ligands ...
+    "PL9": "MQ8",
     }
 
 
@@ -82,6 +118,7 @@ FLOAT_VALUES = [
     "EXTRAE",
     "SCALING",
 ]
+
 INT_VALUES = [
     "TITR_STEPS",
     "MONTE_RUNS",
