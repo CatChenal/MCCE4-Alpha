@@ -42,6 +42,7 @@ def run_cmd(cmd, description="", capture=False, cwd=None):
         if capture and result.stderr:
             logging.error(f"  STDERR: {result.stderr.strip()}")
         return None
+
     return result
 
 
@@ -72,22 +73,19 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
 
     Returns:
         Dict with keys: name, formula, formal_charge, molecular_weight,
-        smiles, smiles_stereo, inchi, inchi_key, type, drugbank, etc.
+        smiles, smiles_stereo, type, drugbank, etc.
     """
     logging.info(f"🔍 Fetching info for '{lig_id}' from RCSB GraphQL...")
     logging.info(f"   Ligand page: https://www.rcsb.org/ligand/{lig_id}")
 
     # Build GraphQL request
-    payload = json.dumps({
-        "query": RCSB_GRAPHQL_QUERY,
-        "variables": {"id": lig_id}
-    })
-    result = run_cmd(
-        f"curl -s -X POST -H 'Content-Type: application/json' "
-        f"-d '{payload}' '{RCSB_GRAPHQL_URL}'",
-        description="Querying RCSB GraphQL",
-        capture=True,
-    )
+    payload = json.dumps({"query": RCSB_GRAPHQL_QUERY, "variables": {"id": lig_id}})
+    cmd = ("curl -s -X POST -H 'Content-Type: application/json' -d "
+           f"'{payload}' '{RCSB_GRAPHQL_URL}'")
+    result = run_cmd(cmd,
+                     description="Querying RCSB GraphQL",
+                     capture=True
+                     )
     if result is None or not result.stdout.strip():
         logging.warning("  RCSB GraphQL query returned empty response")
         return {}
@@ -104,7 +102,7 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
         info = {
             "name": chem.get("name", "Unknown"),
             "formula": chem.get("formula", "Unknown"),
-            "formal_charge": chem.get("pdbx_formal_charge", 0) or 0,
+            "formal_charge": chem.get("pdbx_formal_charge", 0),
             "molecular_weight": chem.get("formula_weight"),
             "type": chem.get("type"),
             "smiles": None,
@@ -175,15 +173,6 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
             info["prd_id"] = ref_mol.get("prd_id")
             info["prd_class"] = ref_mol.get("class")
             info["representative_pdb"] = ref_mol.get("representative_PDB_id_code")
-
-        # # Related resources (PubChem, ChEBI, etc.)
-        # related = data.get("rcsb_chem_comp_related") or []
-        # external_ids = {}
-        # for r in related:
-        #     if isinstance(r, dict) and r.get("resource_name") and r.get("resource_accession_code"):
-        #         external_ids[r["resource_name"]] = r["resource_accession_code"]
-        # if external_ids:
-        #     info["external_ids"] = external_ids
 
         # ── Log all retrieved metadata ──
         logging.info(f"\n  {'─'*55}")

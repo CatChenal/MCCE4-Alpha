@@ -1,0 +1,13 @@
+# Store MCCE toppology agent(s) API key(s) in an .env file.
+# Provide any of the API key name listed below in upper case,
+# followed by an equal sign then the ley value instead of the
+# <your key> placeholder.
+# The equal sign can be surrounded by spaces.
+# Your can copy and paste the uncommented lines below into a
+# .env file created in this folder (/agent_env), then amend it.
+# Entry format examples for all supported providers:
+
+GEMINI_API_KEY=<your key>  # or GOOGLE_API_KEY for the default LLM
+GOOGLE_API_KEY=<your key>
+ANTHROPIC_API_KEY=<your key>
+OPENAI_API_KEY=<your key>
