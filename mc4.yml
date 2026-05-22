@@ -28,4 +28,18 @@ dependencies:
   #- anthropic
   #- openai
   - pip:
-    - -r requirements.txt
+    - scipy
+    - requests
+    - matplotlib
+    - seaborn
+    - pandas
+    - joblib
+    - scikit-learn
+    - pygraphviz
+    - networkx
+    - pytest
+    - fastapi[standard]
+    - google-genai
+    - python-multipart>=0.0.5
+    - websockets>=10.0
+    - uvicorn[standard]>=0.20.0
