@@ -636,7 +636,6 @@ def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False) -> Path:
         "wet": False,
         "noter": False,
         "fetch": fetch,
-        "save_dicts": True,
     }
     # run step1 and write prot report (from run1.log):
     # get_pdb_rpt creates the 'prerun' output subfolder in the current run:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 This module defines the mcce internal data structures.
@@ -39,13 +39,17 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from mcce4.constants import IONIZABLE_RES
-from .geom import ddvv
+from mcce4.constants import IONIZABLE_RES, res3_to_res1
+from mcce4.geom import ddvv
 
 
 logging.basicConfig(level=logging.INFO, 
                     format="[ %(levelname)s ] %(name)s - %(funcName)s:\n  %(message)s")
 logger = logging.getLogger(__name__)
+
+
+PDB_COORDINATE_RECORDS = ("ATOM  ", "HETATM", "MODEL ", "TER   ", "ENDMDL", "END   ")
+COORD_LINE_TYPE = ("ATOM  ", "HETATM")
 
 
 class Atom:
@@ -332,7 +336,7 @@ class Conformer:
 
 class Blob:
     """
-    Define a sphere with center and radius to cover all atoms in a cobnformer including their vdw_r
+    Define a sphere with center and radius to cover all atoms in a conformer including their vdw_r
     """
     def __init__(self, conf):
         self.center = (0.0, 0.0, 0.0)
@@ -836,7 +840,7 @@ class _Model:
         self.lines = []  # atom lines
 
     def _line2resid(self, line:str, keep_type:bool = False) -> Union[tuple, None]:
-        if line[:6] not in ["ATOM  ", "HETATM"]:
+        if not line.startswith(COORD_LINE_TYPE):
             return None
         resName = line[17:20]
         chainID = line[21]
@@ -995,25 +999,25 @@ class Structure:
         self.method = ""  # structure determination method, NMR, XRD, etc
         self.resolution = ""  # self reported structure resolution
         self.splits = []  # lists the other pdbids that make up a macroassembly
-        self.load_all_models = load_all_models
-        self.n_models = 1  # updated if multiple MODEL records found
-        self.hetero_names = defaultdict(tuple)  # names of hetero speciess
+        self.hetero_names = defaultdict(tuple)  # names of hetero species
         self.tot_waters = 0
         self.tot_cofactors = 0
-        self.ter_res = []  # terminal res -> CTR in step1
-        self.models = []  # list of lists of ATOM, HETATM lines for each model
-        self.chains = []
-        self.units_per_chain = []  # units per chain grouped by type (AAs or [d]NTPs)
+        self.units_per_chain = defaultdict(dict)  # units per chain grouped by type (AAs or [d]NTPs)
         self.missing = None  # dict to store missing re, res atoms, ligand atoms
         self.biounits = []  # biounits, if no record of biounits, all placed
         self.ssbonds = None  # disulfide bonds; list of 3-tuples: CYS1, dist, CYS2
-        self.links = (
-            None  # hetatm/res connect.; list of 3-tuples: entity1, dist, entity2
-        )
+        # links: hetatm/res connect.; list of 3-tuples: entity1, dist, entity2
+        self.links = (None)
         # if sites found, self.sites :: dict with key=siteid, values=list with
         # site description as 1st item and other items :: each of the residues involved.
         self.sites = None  # sites identified by authors or sw + info from REMARK 800
+
         self.pdb_fp = None  # path of pdb passed to load_pdb()
+        self.load_all_models = load_all_models
+        self.n_models = 1  # updated if multiple MODEL records found
+        self.ter_res = []  # terminal res -> CTR in step1
+        self.models = []  # list of lists of ATOM, HETATM lines for each model
+        self.chains = []
         # DO_NOT_USE flag: set to True when pdb headers are processed (if present) &
         #                  if CAVEAT or Obsolete statement found.
         self.DO_NOT_USE = False
@@ -1034,7 +1038,7 @@ class Structure:
         new_lines = []
         for line in raw_lines:
             new_line = line
-            if line[:6] == "ATOM  " or line[:6] == "HETATM":
+            if line.startswith(COORD_LINE_TYPE):
                 to_be_matched = line[12:26]
                 for rule in renaming_rules:
                     matched = True
@@ -1071,9 +1075,9 @@ class Structure:
                 model.serial = line.split()[-1].strip()
                 continue
             if detected_model:
-                if line[:6] == "TER   ":
+                if line.startswith("TER   "):
                     continue  # ignore this separator for ATOM and HETATM - jmao
-                elif line[:6] in ["ATOM  ", "HETATM"]:
+                elif line.startswith(COORD_LINE_TYPE):
                     #print("---",line)
                     model.lines.append(line)
                 else:  # encountered ENDMDL or END
@@ -1093,9 +1097,10 @@ class Structure:
 
         # Use the first model to list unique polymeric chains
         self.chains = list(
-            set([line[21] for line in self.models[0].lines if line.startswith(("ATOM  ","HETATM"))])
+            set([line[21] for line in self.models[0].lines if line.startswith(COORD_LINE_TYPE)])
         )
         self.chains.sort()
+
         self.ter_res = [
             line.split(maxsplit=2)[-1].strip()
             for line in self.models[0].lines
@@ -1110,27 +1115,41 @@ class Structure:
             if line.startswith(("CAVEAT", "OBSLTE", "REMARK 5,")):
                 self.DO_NOT_USE = True
                 break
-
         if self.DO_NOT_USE:
-            # get the title, pdb name or id & exit:
-            keyword = "TITLE"
-            for line in nonatomlines:
-                if line.startswith(keyword):
-                    contid = line[8:10].strip()
-                    if not contid.isnumeric():
-                        self.title += line[len(keyword):].strip() + " "
-                    else:
-                        self.title += line[10:].strip() + "; "
-            if self.title:
-                self.title = self.title.replace("  ", " ")
-                self.title = self.title.strip()
-
-            self.pdbid = self.pdb_fp.stem.upper()
-
             return
 
-        # removed: processing of NUMMDL record:
-        # not always present even if pdb has several models, e.g. 3kch
+        keyword = "TITLE"
+        for line in nonatomlines:
+            if line.startswith(keyword):
+                contid = line[8:10].strip()
+                if not contid.isnumeric():
+                    self.title += line[len(keyword):].strip() + " "
+                else:
+                    self.title += line[10:].strip() + "; "
+                break
+        if self.title:
+            self.title = self.title.replace("  ", " ")
+            self.title = self.title.strip()
+
+        keyword = "HEADER    "
+        for line in nonatomlines:
+            if line.startswith(keyword):
+                self.function = line[10:50].strip()
+                self.date = line[50:59]
+                self.pdbid = line[62:66]
+                break
+
+        if not self.pdbid or self.pdbid == "XXXX":
+            self.pdbid = self.pdb_fp.stem.upper()
+
+        keyword = "KEYWDS"  # details on function
+        fn_extra = ""
+        for line in nonatomlines:
+            if line.startswith(keyword):
+                fn_extra += ", ".join(k.strip() for k in line[10:79].split(", ") 
+                                      if k.strip() != self.function)
+        if fn_extra:
+            self.function = self.function + ", " + fn_extra
 
         keyword = "EXPDTA   "  # structure determination method
         for line in nonatomlines:
@@ -1144,42 +1163,60 @@ class Structure:
                 self.resolution = line[len(keyword):].strip()
                 break
 
-        keyword = "COMPND   "  # molecule name(s)
-        molecules = []
-        for line in nonatomlines:
-            if line.startswith(keyword):
-                _, data = line[len(keyword):].split(maxsplit=1)
-                if data.startswith("MOLECULE") or data.startswith("OTHER_DETAILS"):
-                    mol = data.split(":")[-1].strip(" ;\n")
-                    if mol not in molecules:
-                        molecules.append(mol)
-        self.molecule = ", ".join(molecules)
-
-        keyword = "HEADER    "
-        for line in nonatomlines:
-            if line.startswith(keyword):
-                hdr = line[len(keyword):].rsplit(maxsplit=2)
-                self.function, self.date, self.pdbid = hdr
-                break
-
-        keyword = "TITLE"
+        keyword = "SPLIT "
         for line in nonatomlines:
             if line.startswith(keyword):
                 contid = line[8:10].strip()
                 if not contid.isnumeric():
-                    self.title += line[len(keyword):].strip() + " "
+                    self.splits += line[len(keyword):].strip() + " "
                 else:
-                    self.title += line[10:].strip() + "; "
-        if self.title:
-            self.title = self.title.replace("  ", " ")
-            self.title = self.title.strip()
+                    self.splits += line[10:].strip()
+                break
 
-        keyword = "SPLIT "
-        self.splits = [
-            line[len(keyword):].strip()
-            for line in nonatomlines
-            if line.startswith(keyword)
-        ]
+        keyword = "SEQRES"
+        chain_res = defaultdict(lambda: [0, ""])
+        chain_doxy = defaultdict(lambda: [0, ""])
+        chain_oxy = defaultdict(lambda: [0, ""])
+        for line in nonatomlines:
+            if line.startswith(keyword):
+                others1 = ""
+                _, _, chainID, numRes, res1, *others = line.split()
+                len1 = len(res1)
+                others1 = ""
+                if len1 == 3:
+                    # output same res in quotes if no mapping
+                    others1 += "".join(f" {res3_to_res1.get(res, f'{res!r}')}" for res in others)
+                    chain_res[chainID][0] = int(numRes)
+                    chain_res[chainID][1] += res3_to_res1.get(res1, f"{res1!r}") + others1
+                elif len1 == 2:
+                    others1 = " ".join(res[1:] for res in others)
+                    chain_doxy[chainID][0] = int(numRes)
+                    chain_doxy[chainID][1] += res1[1:] + others1
+                else:
+                    others1 = " ".join(res for res in others)
+                    chain_oxy[chainID][0] = int(numRes)
+                    chain_oxy[chainID][1] += res1 + others1
+
+        if chain_res:
+            tot = 0
+            for k in chain_res:
+                self.units_per_chain["Residues"][k] = chain_res[k]
+                tot += chain_res[k][0]
+            self.units_per_chain["Residues"]["Total"] = tot
+
+        if chain_doxy:
+            tot = 0
+            for k in chain_doxy:
+                self.units_per_chain["dNTPs"][k] = chain_doxy[k]
+                tot += chain_doxy[k][0]
+            self.units_per_chain["dNTPs"]["Total"] = tot
+
+        if chain_oxy:
+            tot = 0
+            for k in chain_oxy:
+                self.units_per_chain["NTPs"][k] = chain_oxy[k]
+                tot += chain_oxy[k][0]
+            self.units_per_chain["NTPs"]["Total"] = tot
 
         keyword = "SSBOND"
         # output 3-tuple: CYS1, dist, CYS2. No SymOP.
@@ -1206,18 +1243,15 @@ class Structure:
             if line.startswith(keyword)
         ]
 
-        # keyword = "REMARK 800 "
+        # SITE info, keyword = "REMARK 800 "
         kws = ["REMARK 800 SITE_IDENTIFIER", "REMARK 800 SITE_DESCRIPTION"]
         REM800 = []
         for i, line in enumerate(nonatomlines):
             if line.startswith(kws[0]) or line.startswith(kws[1]):
                 REM800.append(line.split(":")[1].strip())
-        # check:
         misformed_r800 = len(REM800) % 2 != 0
-        if misformed_r800:
-            print(
-                "WARNING: length of REM800 list not even: should have paired site id & description."
-            )
+        # if misformed_r800:
+        #     print("WARNING: length of REM800 list not even: should have paired site id & description.")
 
         if REM800 and not misformed_r800:
             # prep dict with rem 800 desc:
@@ -1239,48 +1273,22 @@ class Structure:
             # assign regular dict to sites attribute:
             self.sites = dict(sites_d)
 
-        keyword = "SEQRES"
-        chain_res = defaultdict(int)
-        chain_oxy = defaultdict(int)
-        chain_doxy = defaultdict(int)
+        # combine het names and their synonyms
+        keyword = "HETNAM"
         for line in nonatomlines:
             if line.startswith(keyword):
-                _, _, chainID, numRes, res1, *_ = line.split()
-                len1 = len(res1)
-                if len1 == 3:
-                    chain_res[chainID] = numRes
-                elif len1 == 2:
-                    chain_doxy[chainID] = numRes
-                else:
-                    chain_oxy[chainID] = numRes
-        if chain_res:
-            tot = f"; Total: {sum(int(n) for n in chain_res.values())}"
-            self.units_per_chain.append(
-                "Residues: "
-                + ", ".join(v for v in [f"{r}:{n}" for r, n in chain_res.items()])
-                + tot
-            )
-        if chain_doxy:
-            tot = f"; Total: {sum(int(n) for n in chain_doxy.values())}"
-            self.units_per_chain.append(
-                "dNTPs: "  # deoxyriboNucleoside Triphosphates, DNA
-                + ", ".join(v for v in [f"{d}:{n}" for d, n in chain_doxy.items()])
-                + tot
-            )
-        if chain_oxy:
-            tot = f"; Total: {sum(int(n) for n in chain_oxy.values())}"
-            self.units_per_chain.append(
-                "NTPs: " # Nucleoside Triphosphates, RNA
-                + ", ".join(v for v in [f"{o}:{n}" for o, n in chain_oxy.items()])
-                + tot
-            )
-
-        # combine het names and their synonyms
-        keywords = ["HETNAM", "HETSYN"]
-        for line in nonatomlines:
-            if line.startswith(keywords[0]) or line.startswith(keywords[1]):
                 hetid, hetname = line[11:14], line[15:].strip()
                 self.hetero_names[hetid] = (hetname, )
+        keyword = "HETSYN"
+        for line in nonatomlines:
+            if line.startswith(keyword):
+                hetid, hetsyn = line[11:14], line[15:].strip()
+                tup = self.hetero_names[hetid]
+                if tup:
+                    self.hetero_names[hetid] = tup + (hetsyn, )
+                else:
+                    self.hetero_names[hetid] = (hetsyn, )
+
 
         keyword = "FORMUL"
         cofactors_counts = defaultdict(int)
@@ -1296,12 +1304,13 @@ class Structure:
                     self.tot_waters = hetcount
                 else:
                     cofactors_counts[hetid] = hetcount
-                    hval = self.hetero_names[hetid]
-                    self.hetero_names[hetid] = (hval[0], hetcount)
+                    tup = self.hetero_names[hetid]
+                    if tup:
+                        self.hetero_names[hetid] = tup + (hetcount, )
 
         self.tot_cofactors = sum(cofactors_counts.values())
 
-        # missing species ---------------------------------------------
+        # missing species remarks ------------------------------------
         # res: rem 465; res atoms: rem 470; non-polymer atoms: rem 610:
         miss_d = dict()
         keyword = "REMARK 465"
@@ -1377,7 +1386,6 @@ class Structure:
         mol_ids = []
 
         for line in nonatomlines:
-
             keyword1 = "REMARK 300 BIOMOLECULE:"
             if line.startswith(keyword1):
                 _, biomols = line.split(": ")
@@ -1399,15 +1407,15 @@ class Structure:
                 biounit.serial = ser.strip()
                 continue
               
-            kw2 = "REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT"  # : DODECAMERIC
+            kw2 = "REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT"  # : DIMERIC
             if detected_biounit and line.startswith(kw2):
                 _, bio = line.split(":")
                 biounit.biounit = bio.strip()
                 biounit.author_determined = bio.strip()
                 continue
 
-            #REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C, D, E, F, G, H, I, 
-            #REMARK 350                    AND CHAINS: J, K,  L 
+            #REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C, D, E, F,
+            #REMARK 350                    AND CHAINS: G, H, I 
             kw3 = "REMARK 350 APPLY THE FOLLOWING TO CHAINS"
             if detected_biounit and line.startswith(kw3):
                 TO_chain = True
@@ -1421,7 +1429,6 @@ class Structure:
                 AND_chain_lines.append(chns.strip())
                 continue
 
-            # done:
             if detected_biounit and TO_chain:
                 if AND_chain_lines:
                     all_chains += AND_chain_lines
@@ -1432,13 +1439,8 @@ class Structure:
                 TO_chain = False
                 all_chains = []
                 AND_chain_lines = []
-                # check
-                #assert len(self.biounits) == len(mol_ids)
                 detected_biounit = False
         # end biounits
-
-        if not self.pdbid or self.pdbid == "XXXX":
-            self.pdbid = self.pdb_fp.stem.upper()
 
         return
 
@@ -1463,12 +1465,13 @@ class Structure:
         nonatomlines = []
         atomlines = []
         for line in renamed_lines:
-            if line[:6] in ["ATOM  ", "HETATM", "MODEL ", "TER   ", "ENDMDL", "END   "]:
+            if line.startswith("ANISOU"):
+                continue
+            if line.startswith(PDB_COORDINATE_RECORDS):
                 atomlines.append(line)
             else:
                 nonatomlines.append(line)
 
-        # process headers first as self.process_atomlines needs self.n_models
         if nonatomlines:
             self.process_headers(nonatomlines)
         else:
@@ -1496,9 +1499,11 @@ class Structure:
         # get unique hetero species per chain:
         hetero_set = defaultdict(set)
         for line in mdl1.lines:
+            # keep_type:: keep record type (ATOM, HETATM)
             x = mdl1._line2resid(line, keep_type=True)
             # populate dict with chain as key:
-            # x0: [ATOM | HETATM], x1: resName, x2: chainID, x3: seqNum, x4: iCode
+            # x0: [ATOM | HETATM]
+            # x1: resName, x2: chainID, x3: seqNum, x4: iCode
             if x[0] == "HETATM":
                 hetero_set[x[2]].add((x[1], x[3]))
         
@@ -1514,7 +1519,7 @@ class Structure:
 
     def get_model1_res(self) -> Union[Tuple[dict, int], None]:
         """
-        Return a dict for the name & count of residues in the first model , per chain (key).
+        Return a dict for the name & count of residues in the first model, per chain (key).
         """
         if not self.n_models:
             return None
@@ -1535,9 +1540,8 @@ class Structure:
 
         model_dict = defaultdict(dict)
         for chn in mdl_data:
-            toti, toto = 0, 0
+            toti = 0
             res_data = defaultdict(list)
-            
             for val in mdl_data[chn]:
                 if val[0] == "ATOM  ":
                     res_data[chn].append(val[1])
@@ -1546,27 +1550,24 @@ class Structure:
             tot_chn_res = sum(res_count_per_chain.values())
 
             residues = []
+
+            # 'Model 1 Residues':
+            #  {'A': {'RESIDUES': 'A: 5, E: 7, G: 1, H: 1, K: 5, L: 6, Q: 1, S: 1, W: 1; Total: 28; Ionizable: 13; Ratio: 46.4%'},
+            #   'B': {'RESIDUES': 'A: 5, E: 7, G: 1, H: 1, K: 5, L: 6, Q: 1, S: 1, W: 1; Total: 28; Ionizable: 13; Ratio: 46.4%'},
+            #   'C': {'RESIDUES': 'A: 5, E: 7, G: 1, H: 1, K: 5, L: 6, Q: 1, S: 1, W: 1; Total: 28; Ionizable: 13; Ratio: 46.4%'}},
+
             for k in res_count_per_chain:
                 cnt = res_count_per_chain[k]
-                residues.append(f"{k}: {cnt}")
+                residues.append(f"{res3_to_res1.get(k, f'{k!r}')}: {cnt}")
                 if k in IONIZABLE_RES:
                     toti += cnt
-                else:
-                    toto += cnt
+
+            data = ", ".join(r for r in sorted(residues)) + \
+                   f"; Total: {tot_chn_res}; Ionizable: {toti}"
             if tot_chn_res:
-                chn_dict = {"RESIDUES": (", ".join(r for r in sorted(residues)),
-                                        f"Total: {tot_chn_res}",
-                                        f"Ionizable: {toti}",
-                                        f"Ratio: {toti/tot_chn_res:.1%}"
-                                        )
-                            }
-            else:
-                chn_dict = {"RESIDUES": (", ".join(r for r in sorted(residues)),
-                                        f"Total: {tot_chn_res}",
-                                        f"Ionizable: {toti}"
-                                        )
-                            }
-            model_dict[chn] = chn_dict
+                data = data + f"; Ratio: {toti/tot_chn_res:.1%}"
+
+            model_dict[chn] = {"RESIDUES": data}
 
         return dict(model_dict)
 
@@ -1574,35 +1575,36 @@ class Structure:
         """Output info to dict for use in protinfo."""
         d = {}
         if self.title:
-            name = f"{self.pdbid} :: {self.title.title()}"
+            name = f"{self.pdbid} {self.title.title()}"
         else:
             name = self.pdbid
 
-        if self.DO_NOT_USE:
-            d["UNUSABLE"] = "File headers contain CAVEAT or Obsolete keywords."
-        elif not self.has_header:
+        if not self.has_header:
             d["HEADERLESS"] = "File has no header records to parse."
+        elif self.DO_NOT_USE:
+            d["UNUSABLE"] = "File headers contain CAVEAT or Obsolete keywords."
         else:
-            # fill info dict:
             d["Function"] = self.function
             d["First Release"] = self.date
             d["Method"] = self.method
             d["Resolution"] = self.resolution
             d["Molecule"] = self.molecule
-            d["Seqres Species"] = "; ".join(self.units_per_chain)
+    
+            d["Seqres Species"] = dict(self.units_per_chain)
+
             if self.hetero_names:
-                d["Cofactors"] = dict(self.hetero_names)
-                d["Total cofactors"] = self.tot_cofactors
+                d["Hetero Species"] = dict(self.hetero_names)
+                d["Total heteros"] = self.tot_cofactors
             if self.tot_waters:
                 d["Total waters"] = self.tot_waters
 
             if self.missing is not None:
                 d["Missing"] = self.missing
             if self.biounits:
+                final = ""
                 smry = defaultdict(list)
                 for b in self.biounits:
                     smry[b.biounit].extend(b.chains)
-                final = ""
                 for k in smry:
                     ch = ",".join(c for c in smry[k])
                     final += f"{k}: {ch}; "

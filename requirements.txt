@@ -1,4 +1,19 @@
-# python==3.10, pip requirements
+# python==3.10 requirements
+numpy
+numba
+mdanalysis
+parmed
+vtk=9.3
+setuptools>=64
+pymol-open-source
+rdkit
+openeye-toolkits
+langgraph
+# ftpl agent dependencies from conda-forge:
+dimorphite-dl
+# other ftpl agent LLM providers (default: gemini)
+#- anthropic
+#- openai
 scipy
 requests
 matplotlib
@@ -9,11 +24,8 @@ scikit-learn
 pygraphviz
 networkx
 pytest
-mdanalysis
-parmed
 fastapi[standard]
 google-genai
-langgraph
 python-multipart>=0.0.5
 websockets>=10.0
 uvicorn[standard]>=0.20.0
