@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Module: parsers.py
@@ -37,6 +37,9 @@ MSG_KEEP_H2O = ("NOTE: Include the '--wet' option at the command line to keep bu
                 "non-zero, positive number using the command line 'u' option:\n"
                 "  > protinfo 1fat.pdb -u H2O_SASCUTOFF=0.05"
                 )
+
+RPT_WIDTH = 120
+
 
 # kept from when biopython was used to output buried res;
 # may be useful if/when acc.files are parsed.
@@ -280,14 +283,13 @@ class RunLog1Parser:
 
         last_line = "Step 1 Done."
         last_found = text.find(last_line)
-        if last_found == -1:
-            self.failed_run = text.find("FATAL") != -1
-            if self.failed_run:
-                logger.error("Step1 failed with 'FATAL' statement(s).")
+        self.failed_run = last_found == -1  # not completed
+        if self.failed_run:
+            if text.find("STOP") != -1:  # STOP found
+                logger.error("Step1 failed with 'STOP' statement.")
             else:
                 logger.error("Step1 log missing completion statement: run ended with error.")
-            #return None
-        
+
         return text
 
     def get_debuglog_species(self) -> list:
@@ -731,9 +733,9 @@ def write_report(pdb: Path, prot_d: dict, s1_d: Union[dict, None]):
                         for kk, vv in subd[h2][k].items():
                             if isinstance(vv, (dict, tuple)):
                                 if isinstance(vv, dict):
-                                    wid = max(len(str(list(vv.values()))), 100)
+                                    wid = max(len(str(list(vv.values()))), RPT_WIDTH)
                                 else:
-                                    wid = max(len(str(vv)), 100)
+                                    wid = max(len(str(vv)), RPT_WIDTH)
                                 out = pformat(vv, sort_dicts=True, compact=True, width=wid)[1:-1]
                                 rpt.write(f"  - {kk}:\n {out}\n")
                             else:
