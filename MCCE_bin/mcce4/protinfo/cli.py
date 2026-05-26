@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 __doc__ = """
 Command line interface for the MCCE4 ProtInfo/protinfo tool, which gathers:
@@ -24,7 +24,6 @@ Options:
     -h, --help  Show this help message and exit.
 """
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, Namespace
-from functools import partial
 import logging
 from pathlib import Path
 from pprint import pformat
@@ -32,7 +31,7 @@ import sys
 import time
 from typing import Tuple, Union
 
-from mcce4.downloads import get_rcsb_pdb
+from mcce4.downloads import get_rcsb_pdb, get_rcsb_lig_smiles
 from mcce4.io_utils import show_elapsed_time
 from mcce4.protinfo import CLI_NAME, ERR, RPT, USER_MCCE
 from mcce4.protinfo import parsers
@@ -102,7 +101,7 @@ def validate_pdb_inputs(args: Namespace) -> Union[Path, str]:
     return pdb
 
 
-def get_pdb_rpt_climode(
+def get_pdb_rpt(
     args: Union[Namespace, dict], do_checks: bool = True, do_fetch: bool = True
 ) -> Path:
     """Get info and save report for a single pdb.
@@ -154,22 +153,51 @@ def get_pdb_rpt_climode(
 
     logger.info(f"Processing {inpdb_fp.stem.upper()}.")
     prot_d, step1_d = parsers.collect_info(inpdb_fp, args)
-    if args.save_dicts:
-        prot_d_fp = out_dir.joinpath("prot_d.txt")
-        prot_d_fp.write_text("# prot dict \n" + pformat(prot_d) + "\n")
-        step1_d_fp = out_dir.joinpath("step1_d.txt")
-        step1_d_fp.write_text("# step1 dict \n" + pformat(step1_d) + "\n")
+    # save dicts:
+    prot_d_fp = out_dir.joinpath("prot_d.txt")
+    prot_d_fp.write_text("# prot dict \n" + pformat(prot_d, width=200) + "\n")
+    step1_d_fp = out_dir.joinpath("step1_d.txt")
+    step1_d_fp.write_text("# step1 dict \n" + pformat(step1_d, width=200) + "\n")
 
     #logger.info(f"Command line options used:\n{pformat(vars(args))}")
-
     parsers.write_report(inpdb_fp, prot_d, step1_d)
 
     return inpdb_fp
 
 
-# Define alternate 'get_pdb_rpt_climode' function with preset flags
-# to False. For use when the pdb already exists, as in the bench app.
-get_pdb_rpt = partial(get_pdb_rpt_climode, do_checks=False, do_fetch=False)
+def prerun_passed(pdb_dir: Path) -> Tuple[bool, str]:
+    """Check the prerun structural & step1 dicts for
+    indication of failed prerun.
+    """
+    struc_fp = pdb_dir.joinpath("prot_d.txt")
+    if struc_fp.exists():
+        struc_d = eval(struc_fp.read_text())
+        if isinstance(struc_d, dict):
+            if struc_d["PDB.Structure"].get("UNUSABLE") is not None:
+                return (False, "# prerun.struc: Unusable")
+
+    tpls = None
+    step1_fp = pdb_dir.joinpath("step1_d.txt")
+    if step1_fp.exists():
+        step1_d = eval(step1_fp.read_text())
+        if isinstance(step1_d, dict):
+            if step1_d["MCCE.Step1"].get("Status") is not None:
+                return (False, "# prerun.step1: Failed")
+
+            newtpls = step1_d["MCCE.Step1"].get("Labeling")
+            if newtpls is not None and newtpls:  # list
+                for ex, entry in enumerate(newtpls):
+                    if entry.startswith("STOP"):
+                        return (False, "# prerun.step1: Tpls created & missing atoms")
+                
+                    if entry.startswith("Generic"):
+                        # get new cofactors, step1 completed, but tpl unusable beyond step2: 
+                        tpls = [part.split(":")[0] for part in newtpls[ex+1].strip().split("; ")]
+                        get_rcsb_lig_smiles(tpls, output_dir=pdb_dir)
+                        lst = ", ".join(tp for tp in tpls)
+                        return (False, f"# prerun.step1: Generic tpls: {lst}")
+
+    return True, ""
 
 
 def arg_valid_pdb_len(p: str) -> Union[None, str]:
@@ -202,13 +230,6 @@ def pi_parser():
         default=False,
         action="store_true",
         help="Download the biological assembly of given pdbid from rcsb.org.",
-    )
-    p.add_argument(
-        "--save_dicts",
-        default=False,
-        action="store_true",
-        help="""Save the structure and step1 dicts as text files. 
-        Enables reusing the parsed data independently of the report; default: %(default)s.""",
     )
 
     s1 = p.add_argument_group("s1", "step1 options")
@@ -261,7 +282,11 @@ def prot_info_cli(argv=None):
     args = cli_parser.parse_args(argv)
 
     start_t = time.time()
-    prerun_pdb = get_pdb_rpt_climode(args)
+    prerun_pdb = get_pdb_rpt(args)
+    ok, msg = prerun_passed(prerun_pdb.parent)
+    if not ok:
+        logger.warning(msg)
+
     show_elapsed_time(start_t=start_t, writer=logger.info,
                       info="Setup, data collection & report creation")
 
