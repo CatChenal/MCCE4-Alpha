@@ -1,8 +1,6 @@
 # python==3.10 requirements
 numpy
 numba
-mdanalysis
-parmed
 vtk=9.3
 setuptools>=64
 pymol-open-source
@@ -21,7 +19,6 @@ seaborn
 pandas
 joblib
 scikit-learn
-pygraphviz
 networkx
 pytest
 fastapi[standard]
