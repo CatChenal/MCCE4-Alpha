@@ -88,6 +88,9 @@ class SeqStatics:
          - aa_code_len (int, 1, [1,3]): Indicates whether the AAs are given in 
            1-letter codes (default) or 3.
          - n_iter (int, NITER): Iterations for binary search.
+        
+        NOTE:
+          If sequence has no ionizable residues: pI will be that of N-TER & C-TER.
         """
         if not sequence:
             raise ValueError("Empty sequence!")
@@ -127,8 +130,6 @@ class SeqStatics:
                 ioniz_counts[res] += 1
                 if res in PHOS_RES:
                     self.phos_res.append(res)
-        if not ioniz_counts:
-            print("No ionizable residues in sequence: pI will be that of N-TER & C-TER.")
 
         self.ioniz_counts = dict(ioniz_counts)
         self.pk_dict = dict((res, self.soln_pkas.get(res)) for res in self.ioniz_counts)
@@ -175,8 +176,8 @@ class SeqStatics:
                 low = mid
             else:
                 high = mid
-        
-        return [round(mid, PREC), round(self.get_theoretical_charge(7.0), PREC)]
+        # Add 0.0 to prevent negative zero:
+        return [round(mid, PREC)+0.0, round(self.get_theoretical_charge(7.0), PREC)+0.0]
 
     def __call__(self, n_iter:int = None) -> list:
         """Call method to enable single command results, e.g.:
