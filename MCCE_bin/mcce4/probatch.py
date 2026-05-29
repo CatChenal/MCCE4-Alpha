@@ -25,8 +25,7 @@ import time
 from datetime import datetime
 from typing import List, Tuple, Union
 
-from mcce4 import CLI_EPILOG, CLONE, CLONE_PATH 
-from mcce4.downloads import get_rcsb_pdb
+from mcce4 import CLI_EPILOG, CLONE, CLONE_PATH
 from mcce4.io_utils import subprocess_run, CalledProcessError
 from mcce4.protinfo.cli import get_pdb_rpt, prerun_passed
 
