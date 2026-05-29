@@ -9,7 +9,6 @@ Note: The file 'run1.log' is created by protinfo to gather the logging
 
 This is the 'main' module for the cli, which calls the function
 that outputs a single protein report: `get_single_pdb_report(args)`.
-
 Options:
  1. pdb (required): a pdb file name or pdbid (assumed valid).
  2. --fetch (False if not used): If 'pdb' is a pdbid and flag is used,

@@ -12,31 +12,25 @@ channels:
 dependencies:
   - python=3.10
   - pip
+  - pytest
   - numpy
-  - numba
-  - vtk=9.3
-  - setuptools>=64
-  - pymol-open-source
-  - rdkit
-  - openeye-toolkits
-  - langgraph
-  # ftpl agent dependencies from conda-forge:
-  - dimorphite-dl
+  - scipy
+  - requests
+  - pytest
+  - matplotlib
+  - pandas
+  - networkx            # interaction_graph.py
+  - scikit-learn        # ml_pbs.py
+  - openeye-toolkits    # pbs_interfaces.py, agent, clis
+  - pymol-open-source   # ms_dipole.py, agent, clis
+  - fastapi[standard]   # agent
+  - vtk=9.3             # vmd_interface
+  - pymol-open-source   # agent
+  - rdkit               # agent
+  - langgraph           # agent
+  - dimorphite-dl       # agent
   # other ftpl agent LLM providers (default: gemini)
   #- anthropic
   #- openai
   - pip:
-    - scipy
-    - requests
-    - matplotlib
-    - seaborn
-    - pandas
-    - joblib
-    - scikit-learn
-    - networkx
-    - pytest
-    - fastapi[standard]
-    - google-genai
-    - python-multipart>=0.0.5
-    - websockets>=10.0
-    - uvicorn[standard]>=0.20.0
+    - google-genai               # agent
