@@ -18,6 +18,7 @@ dependencies:
   - requests
   - pytest
   - matplotlib
+  - seaborn
   - pandas
   - networkx            # interaction_graph.py
   - scikit-learn        # ml_pbs.py
@@ -25,7 +26,6 @@ dependencies:
   - pymol-open-source   # ms_dipole.py, agent, clis
   - fastapi[standard]   # agent
   - vtk=9.3             # vmd_interface
-  - pymol-open-source   # agent
   - rdkit               # agent
   - langgraph           # agent
   - dimorphite-dl       # agent
@@ -33,4 +33,4 @@ dependencies:
   #- anthropic
   #- openai
   - pip:
-    - google-genai               # agent
+    - google-genai      # agent
