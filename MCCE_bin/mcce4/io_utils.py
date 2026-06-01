@@ -39,14 +39,18 @@ Provides these helper functions:
 
 import logging
 from pathlib import Path
+from pprint import pformat
 import subprocess
 from subprocess import CompletedProcess, CalledProcessError
 import sys
 import time
 from typing import Callable, List, Tuple, Union
 
-import pandas as pd
-from pandas.api.types import is_object_dtype
+try:
+    import pandas as pd
+    from pandas.api.types import is_object_dtype
+except ImportError as e:
+    sys.exit("OOPS! Forgot to activate a dedicated environment?"+f"\n{e}")
 
 
 logging.basicConfig(format="[ %(levelname)s ] %(funcName)s:\n  %(message)s")
@@ -59,6 +63,31 @@ def reader_gen(fpath: Path):
     with open(fpath) as fh:
         for line in fh:
             yield line
+
+
+BOOK_HEADER_LINES = 3
+BOOK_FOOTER_LINES = 5
+
+def get_book_data_bounds(book_fp: Path) -> tuple:
+    """Return the start and end indices of the body in
+    a book.txt file for slicing lines.
+    Usage:
+        l1, l2 = get_book_data_bounds(book_fp)
+        if l1 is not None:
+            lines = book_fp.read_text().splitlines()[l1:l2]
+        else:
+            lines = book_fp.read_text().splitlines()
+
+    Retruns a valued 2-tuple if the book has 2 separator lines
+    for the header and footer as in pro_batch book.txt, else
+    the tuple values are both None.
+    """
+    sep_line = "--------------------------------------"
+    txt = book_fp.read_text()
+    if txt.count(sep_line) == 2:
+        # book from pro_batch has header/footer delineated by sep_line
+        return BOOK_HEADER_LINES, -BOOK_FOOTER_LINES
+    return None, None
 
 
 def show_elapsed_time(start_t: time, info: str = None, writer: Callable = print):
@@ -397,7 +426,7 @@ class ToDf:
             logger.error(mf("File {!r} cannot be loaded into a pandas.DataFrame.", which))
             return None
 
-        df = pd.read_csv(fp, sep="\s+")  # noqa: W605
+        df = pd.read_csv(fp, sep=r"\s+")  # noqa: W605
         if fname not in ToDf.headers_dict:
             if (fname in ["pK.out", "all_pK.out"]) or which == "pK.out":
                 if "note" not in df.columns:
@@ -448,6 +477,33 @@ def textfile2df(fp: Path) -> pd.DataFrame:
     if "head3" in fp.name:
         convert = {"iConf": "{:>05}".format}
     return pd.read_csv(fp, sep=r"\s+", converters=convert)  # noqa: W605
+
+
+def dict2txt(d: dict, output_fp: Path, width: int = 100):
+    """Save a python dict to .txt file.
+    """
+    output_fp.write_text(pformat(d, width=width) + "\n")
+
+    return
+
+
+def txt2dict(txt_fp: Path) -> dict:
+    """Open a txt file assumed to contain a printed dict
+    and evaluate the text as such.
+    """
+    if not txt_fp.exists():
+        print(f"File not found: {txt_fp!s}")
+        return None
+    
+    try:
+        d = eval(txt_fp.read_text())
+        if not isinstance(d, dict):
+            print(f"Could not recover dict from file: {txt_fp!s}")
+            return None
+    except Exception as e:
+        print(f"Error evaluating file {txt_fp!s} as dict: {e}")
+
+    return d
 
 
 def read_titr_type(fpath: Path) -> str:
