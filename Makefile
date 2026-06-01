@@ -47,7 +47,7 @@ endif
 
 # bin/mcce = core solver
 $(MCCE): mcce.c $(LIB) $(DEPS) $(STEP6)
-	$(CC2) -o $(MCCE) mcce.c $(STEP6) $(LIB) -l > mcce_build.log 2>&1
+	$(CC2) -o $(MCCE) mcce.c $(STEP6) $(LIB) -lm
 
 $(STEP6): lib/analysis_adv.cpp $(DEPS)
 	cd $(LDIR) && $(CC2) -c -o analysis_adv.o ../lib/analysis_adv.cpp $(CFLAGS)
