@@ -26,7 +26,7 @@ from datetime import datetime
 from typing import List, Tuple, Union
 
 from mcce4 import CLI_EPILOG, CLONE, CLONE_PATH
-from mcce4.io_utils import subprocess_run, CalledProcessError
+from mcce4.io_utils import subprocess_run  # , CalledProcessError
 from mcce4.protinfo.cli import get_pdb_rpt, prerun_passed
 
 
@@ -173,8 +173,8 @@ class JobPool:
         print(f"  Job name      : {self.job_name}")
         print(f"  Nice priority : {self.nice}")
         print(f"  Max concurrent: {self.max_jobs}")
-        print(f"  Check status  : pro_batch <input_path> --check -job_name {self.job_name}")
-        print(f"  Stop batch    : pro_batch --stop -job_name {self.job_name}")
+        print(f"  Check status  : pro_batch <input_path> -job-name {self.job_name} --check")
+        print(f"  Stop batch    : pro_batch --stop -job-name {self.job_name}")
         print(f"{'=' * 45}")
 
 

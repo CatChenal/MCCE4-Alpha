@@ -31,13 +31,19 @@ ngpb:
 	@echo "Building Apptainer Image for NGPB container (.sif) ..."
 	sudo apptainer build $(BIN)/NextGenPB_MCCE4.sif $(BIN)/recipe_MCCE.def
 
+CURRENT_DIR_NAME := $(notdir $(CURDIR))
+ifeq ($(CURRENT_DIR_NAME), MCCE4)
+# If the current directory is MCCE4, define 'born' and include it in 'all'
 # born_radii
 born:
 	ml_pbs.py train ml_trainingset/local_density.csv
 	mv born_radius_model.pkl $(BIN)/
 
-# all = Build  mcce, delphi, ngpb
 all: $(MCCE) $(DELPHI) ngpb born
+else
+# Otherwise, 'born' is not defined, and 'all' does not include it
+all: $(MCCE) $(DELPHI) ngpb
+endif
 
 # bin/mcce = core solver
 $(MCCE): mcce.c $(LIB) $(DEPS) $(STEP6)
