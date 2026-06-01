@@ -247,8 +247,8 @@ class SlurmPool:
         print(f"  Nice priority : {self.nice}")
         print(f"  Max concurrent: {self.max_jobs}")
         print(f"  Slurm status  : squeue --me --name {self.job_name} -o \"{SQUEUE_FMT}\"")
-        print(f"  Check status  : pro_batch <input_path> --check -job_name {self.job_name}")
-        print(f"  Stop batch    : pro_batch --stop -job_name {self.job_name}")
+        print(f"  Check status  : pro_batch <input_path> --check -job-name {self.job_name}")
+        print(f"  Stop batch    : pro_batch --stop -job-name {self.job_name}")
         print(f"{'=' * 45}")
 
 
@@ -796,7 +796,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
         input_path = str(BenchResources(args.input_path).BENCH_PDBS)
     else:
         input_path = args.input_path
-        if not Path(input_path).exists():
+        if not input_path or not Path(input_path).exists():
             print(f"ERROR, protein_batch: {input_path} does not exist.")
             sys.exit(1)
 
