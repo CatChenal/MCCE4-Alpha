@@ -56,6 +56,7 @@ BAD_ANSWER = "Answer must be one of [yes, no, y, n] (case insensitive). Please t
 
 # Related to the creation/update of the bookkeeping file:
 BOOK = "book.txt"
+PRERUN_BOOK = "prerun_book.txt"
 N_HEADER_LINES = 3
 DELIM_LINE = "-" * 38 + "\n"
 BOOK_FOOTER_LINES = [
@@ -69,8 +70,15 @@ N_FOOTER_LINES = len(BOOK_FOOTER_LINES)
 
 JOBS_FILE = ".pro_batch_jobs.json"
 JOBS_FP = Path(JOBS_FILE)
+
 SQUEUE_FMT = "%.10i %.9P %.30j %.8u %.2t %.10M %.10L %.6D %R"
+#JOBID PARTITION                            NAME     USER ST       TIME  TIME_LEFT  NODES NODELIST(REASON)
+#.........1 ......... .............................. ........ ..
+#   3315802     batch                         go1k01 catchena PD       0:00    3:00:00      1 (Priority)
+
+# globals
 _log_fh = None
+save_prerun_book = 0  # to save updated book.txt post prerun
 
 
 def _load_tracking() -> dict:
@@ -182,8 +190,10 @@ class SlurmPool:
     """Manages Slurm job submissions with a concurrency limit by polling squeue."""
 
     def __init__(self,
-                 max_jobs: int = DEFAULT_MAX_JOBS, nice: int = DEFAULT_SLURM_NICE,
-                 job_name: str = DEFAULT_JOBNAME, poll_interval: float = 30.0):
+                 max_jobs: int = DEFAULT_MAX_JOBS,
+                 nice: int = DEFAULT_SLURM_NICE,
+                 job_name: str = DEFAULT_JOBNAME,
+                 poll_interval: float = 30.0):
         self.max_jobs = max_jobs
         self.nice = nice
         self.job_name = job_name
@@ -500,6 +510,8 @@ def comment_book_pdb(pdb_dir: Path, tag: str):
     """Comment out & flag pdbid line in book.txt with error status ('e'), 
     followed by a tag (reason) string.
     """
+    global save_prerun_book
+
     pdbid = pdb_dir.name
     book_fp = pdb_dir.parent.joinpath(BOOK)
     if not book_fp.exists():
@@ -507,6 +519,7 @@ def comment_book_pdb(pdb_dir: Path, tag: str):
         return
     cmd = f"sed -i 's/^\({pdbid}*\).*$/#{pdbid}        e\t{tag}/' {book_fp!s}"
     subprocess_run(cmd)
+    save_prerun_book += 1
 
     return
 
@@ -716,7 +729,7 @@ Required for launching, --check, and --stop. (default: %(default)s)"""
                         default=DEFAULT_MAX_JOBS,
                         help="Max concurrent jobs: how many MCCE runs execute simultaneously. (default: %(default)s)"
                         )
-    parser.add_argument("--nice",
+    parser.add_argument("-nice",
                         type=int,
                         default=None,
                         help="""Lower priority (higher values): nicer to other users.
@@ -733,7 +746,7 @@ NOTE: Jobs are still low priority ({DEFAULT_NICE}) unless --nice is set with a l
     parser.add_argument("--check",
                         action="store_true",
                         default=False,
-                        help="Update book.txt and show status for the batch given by -job_name. "
+                        help="Update book.txt and show status for the batch given by -job-name. "
                         "(default: %(default)s)"
                         )
     parser.add_argument("--check-all",
@@ -745,7 +758,7 @@ NOTE: Jobs are still low priority ({DEFAULT_NICE}) unless --nice is set with a l
     parser.add_argument("--stop",
                         action="store_true",
                         default=False,
-                        help="Stop jobs for the batch given by -job_name. (default: %(default)s)"
+                        help="Stop jobs for the batch given by -job-name. (default: %(default)s)"
                         )
     parser.add_argument("--stop-all",
                         action="store_true",
@@ -762,6 +775,9 @@ NOTE: Jobs are still low priority ({DEFAULT_NICE}) unless --nice is set with a l
 
 
 def protein_batch(args: Union[argparse.Namespace, dict]):
+    global _log_fh
+    global save_prerun_book
+
     if isinstance(args, dict):
         args = argparse.Namespace(**args)
 
@@ -789,7 +805,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
         print("NOTE, protein_batch: input_path is required when launching jobs.")
 
     if not args.job_name:
-        print("NOTE, protein_batch: -job_name is required when launching jobs.")
+        print("NOTE, protein_batch: -job-name is required when launching jobs.")
 
     # Data path resolution
     if datasets_dict and args.input_path in datasets_dict:
@@ -831,7 +847,6 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
             sys.exit(1)
 
     # SETUP: console logging — all output from here is tee'd to the log file
-    global _log_fh
     log_name = f"pro_batch_{args.job_name}.log"
     _log_fh = open(log_name, "a")
     _log_fh.write(f"\n{'=' * 60}\n")
@@ -927,13 +942,14 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     sys.stderr = _log_fh
 
     # SETUP & LAUNCH each protein
-    #print(f"{user_files = }")
-
     target_set = set(final_targets)
     for entry in user_files:
         which  = entry[0].upper() if isinstance(entry, tuple) else entry.stem.upper()
         if which in target_set:
             process_protein_file(entry, script_path, pool, args.dry_run)
+    if save_prerun_book:
+        shutil.copy2(BOOK, PRERUN_BOOK)
+        save_prerun_book = 0
 
     pool.save_tracking()
     update_book()
