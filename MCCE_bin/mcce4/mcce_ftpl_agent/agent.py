@@ -9,9 +9,9 @@ CONNECT records, charges, and rxn calibration.
 Uses a state graph where each node is an agent phase.
 The LLM reasons at decision points and the graph routes accordingly.
 """
-
 import logging
 import os
+from pathlib import Path
 import sys
 from typing import Literal
 
@@ -31,7 +31,6 @@ from mcce4.mcce_ftpl_agent.config import (CHARGE_TO_CONF,
                                           DIMORPHITE_PH_MAX,
                                           DIMORPHITE_PRECISION,
                                           )
-
 from mcce4.mcce_ftpl_agent.llm import create_llm
 from mcce4.mcce_ftpl_agent.models import (
     AgentState,
@@ -76,68 +75,74 @@ from .tools.rdkit_tools import (
 
 # Agent Node Functions
 # ──────────────────────────────────────────────────────────────────────────────
-
 def node_molecule_intel(state: AgentState) -> AgentState:
     """PHASE 1: Gather molecule intelligence.
 
     Handles 3 input modes:
-      1. PDB/CIF file provided → convert to SMILES via Open Babel / RDKit
-      2. -lig_code & lig_smiles → build neutral PDB from SMILES
-      3. -lig_code only (no PDB or smiles) → fetch SMILES from RCSB, build neutral PDB from SMILES
+      1. -lig_id & lig_smiles → build neutral PDB from SMILES
+      2. -lig_id only (no PDB or smiles) → fetch SMILES from RCSB, build neutral PDB from SMILES
+      3. PDB/CIF file provided → convert to SMILES via Open Babel / RDKit
     """
     logging.info(f"\n{'─'*60}")
     logging.info("  PHASE 1: Molecule Intelligence")
     logging.info(f"{'─'*60}")
 
-    pdb_path = state.get("pdb_path")
-    lig_id = state.get("lig_id", "") or (extract_lig_id_from_pdb(pdb_path) if pdb_path else "LIG")
-    smiles = state.get("lig_smiles", "")
-    if smiles:
-        # add extra key:
-        state["smiles"] = smiles
-        smiles_src = "dimorphite or user"
     work_dir = state.get("work_dir", ".")
 
+    pdb_path = state.get("pdb_path", "")
+    lig_id = state.get("lig_id", "")
+    lig_smiles = state.get("lig_smiles", "")
+    info = None
+
     if pdb_path:
+        lig_id = extract_lig_id_from_pdb(pdb_path)
         # PDB/CIF input: convert structure to SMILES locally
-        logging.info(f"  Converting {os.path.basename(pdb_path)} to SMILES (Open Babel / RDKit)...")
+        logging.info(f"  Converting {Path(pdb_path).name} to SMILES (Open Babel / RDKit)...")
         smiles = convert_structure_to_smiles(pdb_path)
+        smiles_src = "input pdb"
         info = {}
         state["lig_id"] = lig_id
+        state["lig_smiles"] = smiles
         state["smiles"] = smiles
     else:
-        if not smiles:
-            # lig_code mode: fetch from RCSB
-            info = fetch_rcsb_info(lig_id, work_dir=work_dir)
-            smiles = info.get("smiles", "")
+        if lig_id:
             state["lig_id"] = lig_id
-            state["smiles"] = smiles
-            smiles_src = "rcsb"
-            state["name"] = info.get("name", lig_id)
-            state["formula"] = info.get("formula", "")
-            state["formal_charge"] = info.get("formal_charge", 0)
+            smiles_src = "dimorphite"
+            if lig_smiles:
+                state["lig_smiles"] = lig_smiles
+                state["smiles"] = lig_smiles
+                smiles_src = "user"
+            else:
+                # lig_id only mode: fetch smiles + extra info from RCSB
+                smiles_src = "rcsb"
+                info = fetch_rcsb_info(lig_id, work_dir=work_dir)
+                if not info:
+                    state["errors"] = (state.get("errors", [])
+                                        + [f"Could not get RCSB info for {lig_id!r}"])
 
-    # state["lig_id"] = lig_id
-    # state["smiles"] = smiles
-    # state["name"] = info.get("name", lig_id)
-    # state["formula"] = info.get("formula", "")
-    # state["formal_charge"] = info.get("formal_charge", 0)
+                lig_smiles = info.get("smiles", "")
+                state["lig_smiles"] = lig_smiles
+                state["smiles"] = lig_smiles
+                # info fields
+                state["name"] = info.get("name", lig_id)
+                state["formula"] = info.get("formula", "")
+                state["formal_charge"] = info.get("formal_charge", 0)
 
     # ── No PDB provided (-lig_code mode): build neutral PDB from SMILES ──
-    if not pdb_path and smiles:
+    if not pdb_path and lig_smiles:
         logging.info("  No input PDB — building neutral structure from SMILES...")
         neutral_pdb = build_pdb_from_smiles(
-            smiles=smiles, lig_id=lig_id, label="01",
+            smiles=lig_smiles, lig_id=lig_id, label="01",
             output_dir=work_dir, charge=0,
             rationale="Neutral reference — built from SMILES",
             source=smiles_src,
         )
         if neutral_pdb:
-            state["pdb_path"] = os.path.abspath(neutral_pdb)
+            state["pdb_path"] = str(Path(neutral_pdb).resolve())
             pdb_path = state["pdb_path"]
             logging.info(f"  ✓ Neutral PDB built: {neutral_pdb}")
         else:
-            logging.error(f"  Failed to build PDB from SMILES: {smiles}")
+            logging.error(f"  Failed to build PDB from SMILES: {lig_smiles}")
             state["errors"] = state.get("errors", []) + [
                 "Cannot build PDB from SMILES — provide an input PDB/CIF file"
             ]
@@ -954,7 +959,6 @@ def node_done(state: AgentState) -> AgentState:
 
 # Graph Construction
 # ──────────────────────────────────────────────────────────────────────────────
-
 def should_review(state: AgentState) -> Literal["user_review", "generate_template"]:
     """Decide whether to pause for user review."""
     if state.get("needs_user_review"):
@@ -1007,10 +1011,10 @@ def build_agent_graph(use_gui: bool = False):
     if use_gui:
         graph.add_node("user_review", node_user_review)
 
-    # Set entry point
+    # Set start task
     graph.set_entry_point("molecule_intel")
 
-    # Add edges
+    # Add next tasks
     graph.add_edge("molecule_intel", "enumerate_states")
     graph.add_edge("enumerate_states", "llm_reasoning")
     graph.add_edge("llm_reasoning", "generate_state_pdbs")  # Phase 3 → Phase 4
@@ -1039,7 +1043,6 @@ def build_agent_graph(use_gui: bool = False):
 
 # Runner
 # ──────────────────────────────────────────────────────────────────────────────
-
 def run_agent(pdb_path: str = None,
               use_gui: bool = False,
               charge_method: str = DEFAULT_CHARGE_METHOD,
@@ -1051,7 +1054,7 @@ def run_agent(pdb_path: str = None,
               output: str = None,
               llm_provider: str = DEFAULT_LLM_PROVIDER,
               api_key: str = None,
-              lig_code: str = "",
+              lig_id: str = "",
               lig_smiles: str = "",
               ph_min: float = DIMORPHITE_PH_MIN,
               ph_max: float = DIMORPHITE_PH_MAX,
@@ -1072,8 +1075,8 @@ def run_agent(pdb_path: str = None,
         output: Output .ftpl filename.
         llm_provider: LLM provider ("gemini", "claude", or "chatgpt").
         api_key: Optional API key for the LLM provider.
-        lig_code: 3-letter RCSB ligand code. When provided without pdb_path,
-                  SMILES is fetched from RCSB and 3D structures are built.
+        lig_id: 3-letter RCSB ligand code. When provided without pdb_path,
+                SMILES is fetched from RCSB and 3D structures are built.
         lig_smiles: SMILES string (no fetching)
         ph_min: Dimorphite-DL minimum pH (default: 6.5).
         ph_max: Dimorphite-DL maximum pH (default: 7.5).
@@ -1084,27 +1087,29 @@ def run_agent(pdb_path: str = None,
     Returns:
         Final AgentState dict.
     """
-    # Determine lig_id from lig_code or PDB
-    if lig_code:
-        lig_id = lig_code.upper()
+    # Determine lig_id from input lig_id or PDB
+    user_pdb_provided = pdb_path is not None
+    if lig_id:
+        lig_id = lig_id.upper()
     else:
         if not lig_smiles:
-            if pdb_path:
+            if user_pdb_provided:
                 lig_id = extract_lig_id_from_pdb(pdb_path)
             else:
-                raise ValueError("Either pdb_path or lig_smiles must be provided")
+                print("Error: Either pdb_path or lig-id must be provided")
+                sys.exit(1)
 
-    user_pdb_provided = pdb_path is not None
-    smiles_build_mode = not user_pdb_provided and not lig_smiles
+    # fetch?
+    smiles_build_mode = pdb_path is None and lig_id and not lig_smiles
 
     initial_state: AgentState = {
-        "pdb_path": os.path.abspath(pdb_path) if pdb_path else "",
+        "pdb_path": str(Path(pdb_path).resolve()) if pdb_path else "",
         "lig_id": lig_id,
         "lig_smiles": lig_smiles,
         "ph": ph,
         "charge_method": charge_method,
         "dielectrics": dielectrics,
-        "work_dir": os.path.abspath(work_dir),
+        "work_dir": str(Path(work_dir)),
         "ftpl_path": output or f"{lig_id}.ftpl",
         "user_state_pdbs": user_state_pdbs or [],
         "states": [],
@@ -1116,7 +1121,7 @@ def run_agent(pdb_path: str = None,
         "user_approved": not use_gui,  # auto-approve if no GUI
         "complete": False,
         "dry_run": dry_run,
-        "smiles": "",
+        "smiles": "",  # smiles post pdb conversion?
         "name": "",
         "formula": "",
         "formal_charge": 0,
@@ -1135,7 +1140,7 @@ def run_agent(pdb_path: str = None,
         # SMILES-build mode flags
         "_smiles_build_mode": smiles_build_mode,
         "_user_pdb_provided": user_pdb_provided,
-        "_lig_code_flag": lig_code,
+        #"_lig_code_flag": lig_id,   # not used
         # Dimorphite-DL parameters
         "_dimorphite_ph_min": ph_min,
         "_dimorphite_ph_max": ph_max,

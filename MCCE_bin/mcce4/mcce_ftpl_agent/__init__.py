@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 
-"""
-mcce_ftpl_agent — MCCE4 Topology File AI Agent Package
-=========================================================
-
-An AI agent for creating MCCE4 topology files (.ftpl) from ligand PDB files.
-Uses Dimorphite-DL for protonation state enumeration, RDKit for chemistry
-validation, Google Gemini (free tier) for reasoning, and LangGraph for
-agentic orchestration.
-
-For GUI:
-    conda install -c conda-forge --file gui_requirements.txt
-
-Usage:
-    # CLI
-    mcce_ftpl EMH.pdb --gui
-
-    # Python
-    from mcce_ftpl_agent.agent import run_agent
-    run_agent("EMH.pdb")
-"""
-
-__version__ = "1.0.5"
+# definitely beta
+__version__ = "0.1.5"
 __author__ = "Gehan / MCCE4 Team (GunnerLab)"
+
+from pathlib import Path
+
+
+def gui_reqs_cmd() -> str:
+    gui_reqs_fp = Path(__file__).parent.joinpath("gui_requirements.txt")
+    cmd_to_run = f"""
+To install the GUI-specific packages run these commands:
+ conda activate mc4
+ conda install -c conda-forge -f {gui_reqs_fp!s}
+"""
+    return cmd_to_run

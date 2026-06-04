@@ -183,6 +183,7 @@ class AgentState(TypedDict, total=False):
     # ── Inputs ──
     pdb_path: str                   # Input ligand PDB file
     lig_id: str                     # 3-letter ligand code
+    lig_smiles: str                 # Input ligand SMILES
     ph: float                       # Target pH
     charge_method: str              # Charge calculation method
     dielectrics: list               # Dielectric constants for RXN

@@ -5,7 +5,6 @@ Tool file: mcce_ftpl — MCCE4 Topology File AI Agent
 
 Codebase: /mcce4/mcce_ftpl_agent
 
-
 Usage:
   mcce4_agent_ftpl.py EMH.pdb                                    # Full auto (PDB input)
   mcce4_agent_ftpl.py EMH.cif                                    # CIF input (auto-converts)

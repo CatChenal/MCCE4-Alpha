@@ -104,6 +104,7 @@ query molecule ($id: String!) {
             bond_count
             bond_count_aromatic
             atom_count_chiral
+            # NEEDED?
             initial_deposition_date
             revision_date
         }
@@ -126,6 +127,7 @@ query molecule ($id: String!) {
             type
             provenance_source
         }
+        # NEEDED?
         drugbank {
             drugbank_info {
                 drugbank_id

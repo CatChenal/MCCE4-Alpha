@@ -4,6 +4,7 @@ RDKit-based tools for molecule intelligence and validation.
 """
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import subprocess
@@ -33,15 +34,14 @@ from rdkit.Chem import (
 
 def get_smiles_from_pdb(pdb_path: str) -> Optional[str]:
     """Extract SMILES from a PDB file using RDKit."""
-    try:
-        mol = MolFromPDBFile(pdb_path, removeHs=False)
-        if mol:
-            smiles = MolToSmiles(mol)
-            logging.info(f"  ✓ SMILES from PDB (RDKit): {smiles}")
-            return smiles
-    except Exception as e:
-        logging.warning(f"  RDKit SMILES extraction failed: {e}")
-    return None
+    mol = MolFromPDBFile(pdb_path, removeHs=False)
+    if mol:
+        smiles = MolToSmiles(mol)
+        logging.info(f"  ✓ SMILES from PDB (RDKit): {smiles}")
+        return smiles
+    else:
+        logging.warning(f"  RDKit SMILES extraction failed")
+        return None
 
 
 def convert_structure_to_smiles(file_path: str) -> Optional[str]:
@@ -49,15 +49,14 @@ def convert_structure_to_smiles(file_path: str) -> Optional[str]:
 
     Tries Open Babel first (obabel), falls back to RDKit.
     """
-    abs_path = os.path.abspath(file_path)
-    ext = os.path.splitext(abs_path)[1].lower()
+    abs_path = Path(file_path).resolve()
+    in_fmt = "cif" if abs_path.suffix == ".cif" else "pdb"
 
     # Try Open Babel first
     if shutil.which("obabel"):
         try:
-            in_fmt = "cif" if ext == ".cif" else "pdb"
             result = subprocess.run(
-                ["obabel", abs_path, f"-i{in_fmt}", "-osmi"],
+                ["obabel", str(abs_path), f"-i{in_fmt}", "-osmi"],
                 capture_output=True, text=True, timeout=60,
             )
             if result.returncode == 0 and result.stdout.strip():
@@ -68,9 +67,9 @@ def convert_structure_to_smiles(file_path: str) -> Optional[str]:
         except Exception as e:
             logging.warning(f"  Open Babel conversion failed: {e}")
 
-    # Fall back to RDKit
-    if ext == ".cif":
-        logging.warning("  RDKit CIF→SMILES not supported; need Open Babel or convert to PDB first")
+    # Fall back to RDKit if pdb
+    if in_fmt == "cif":
+        logging.warning("  RDKit CIF→SMILES not supported; Convert to PDB first")
         return None
 
     return get_smiles_from_pdb(abs_path)
@@ -89,20 +88,14 @@ def get_mol_from_pdb(pdb_path: str, remove_hs: bool = True):
 
 def get_mol_from_smiles(smiles: str):
     """Load an RDKit Mol from SMILES."""
-    try:
-        return MolFromSmiles(smiles)
-    except ImportError:
-        return None
+    return MolFromSmiles(smiles)
 
 
 def get_formal_charge(smiles: str) -> int:
     """Compute formal charge from SMILES."""
-    try:
-        mol = MolFromSmiles(smiles)
-        if mol:
-            return GetFormalCharge(mol)
-    except ImportError:
-        pass
+    mol = MolFromSmiles(smiles)
+    if mol:
+        return GetFormalCharge(mol)
     return 0
 
 
