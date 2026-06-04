@@ -13,8 +13,7 @@ import sys
 from typing import Union
 
 from mcce4 import CLI_EPILOG
-from mcce4.pymol_ligand_cif2pdb import main as cif_ligand_converter
-from mcce4.mcce_ftpl_agent import __version__
+from mcce4.mcce_ftpl_agent import __version__, gui_reqs_cmd
 from mcce4.mcce_ftpl_agent.agent import run_agent
 from mcce4.mcce_ftpl_agent.config import (DEFAULT_CHARGE_METHOD,
                                           DEFAULT_DIELECTRICS,
@@ -29,7 +28,7 @@ from mcce4.mcce_ftpl_agent.config import (DEFAULT_CHARGE_METHOD,
                                           USER_CONFIG_DICT,
                                           )
 from mcce4.mcce_ftpl_agent.launch_gui import launch_gui
-from mcce4.mcce_ftpl_agent.tools.mcce_tools import extract_lig_id_from_pdb
+from mcce4.mcce_ftpl_agent.tools.mcce_tools import convert_cif_to_pdb, extract_lig_id_from_pdb
 
 
 def setup_logging(log_file: str, verbose: bool = False):
@@ -53,25 +52,26 @@ def setup_logging(log_file: str, verbose: bool = False):
 
 USAGE ="""
 EXAMPLES:
-    %(prog)s -lig-code XYZ -lig-smiles C(C(C(=O)O)N        # Ligand code with smiles
-    %(prog)s -lig-code EMH                                 # Ligand code only (query RCSB for smiles)
-    %(prog)s EMH.pdb                                       # Full auto (PDB input)
-    %(prog)s EMH.cif                                       # CIF input (auto-converts)
-    %(prog)s EMH.pdb -lig-code EMH                         # PDB + ligand code
+    * Without an input file:
     %(prog)s -lig-code EMH --dry-run --no-llm              # Quick test
-    %(prog)s EMH.pdb --gui                                 # Web GUI (requires Streamlit)
+    %(prog)s -lig-code EMH                                 # Ligand code only (query RCSB for smiles)
+    %(prog)s -lig-code XYZ -lig-smiles C(C(C(=O)O)N        # Ligand code with smiles
+    %(prog)s -lig-smiles C(C(C(=O)O)N                      # Ligand smiles only (e.g. for new ligand)
+    * With an input file (.pdb or .cif):
+    %(prog)s EMH[.pdb | .cif]                              # Full auto (the .cif file is converted to .pdb)
+    %(prog)s EMH.pdb -lig-code EMH                         # PDB + ligand code (skips ligand code extraction)
     %(prog)s EMH.pdb -state-pdbs EMH_01.pdb EMH_+1.pdb     # User state PDBs
     %(prog)s EMH.pdb --no-llm                              # No LLM reasoning
     %(prog)s EMH.pdb -charge-method am1bcc                 # Override charges
     %(prog)s EMH.pdb --dry-run                             # Skip calibration
     %(prog)s EMH.pdb -llm-provider claude -api-key sk-...  # Use Claude
     %(prog)s EMH.pdb -llm-provider chatgpt -api-key sk-... # Use ChatGPT
+    %(prog)s EMH.pdb --gui                                 # Web GUI (requires Streamlit)
 """
 
 EPILOG = USAGE + """
-NOTE: Before using the GUI (--gui option), install its requirements:
-      (mc4)> conda install -c conda-forge --file gui_requirements.txt
-""" + CLI_EPILOG + "\n"
+NOTE: The GUI (--gui option) needs additional packages, which you may not have.
+""" + gui_reqs_cmd() + CLI_EPILOG + "\n"
 
 
 def cli_parser() -> argparse.ArgumentParser:
@@ -82,26 +82,28 @@ def cli_parser() -> argparse.ArgumentParser:
         epilog=EPILOG
     )
     parser.add_argument("input_file",
-                        nargs="?",
+                        nargs="?",   # 0 or 1 value, or default
                         default=None,
                         help="""Ligand PDB or CIF file (e.g., EMH.pdb or EMH.cif).
-Optional if lig_code is provided (default: %(default)s)"""
+Optional if lig-code is provided (default: %(default)s)"""
                         )
     parser.add_argument("-lig-code",
                         type=str,
-                        default="",
-                        help="""3-letter RCSB ligand code (e.g., EMH). If provided, SMILES and
-metadata are fetched from RCSB. A PDB/CIF file is optional;
-If omitted, the 3D structure is built from SMILES using RDKit (default: %(default)s)"""
+                        nargs="?",
+                        default=None,
+                        help="""3-letter RCSB ligand code (e.g., EMH). If provided without
+lig-smiles, SMILES and metadata are fetched from RCSB.
+Note: if ligand is unknown, lig-smiles must be provided (default: %(default)s)"""
                         )
     parser.add_argument("-lig-smiles",
                         type=str,
-                        default="",
+                        nargs="?",
+                        default=None,
                         help="""The ligand SMILES string. If provided along with lig-code,
 the 3D structure is built from SMILES using RDKit (default: %(default)s)"""
                         )
     parser.add_argument("-state-pdbs",
-                        nargs="+",
+                        nargs="+",   # at least 1
                         default=None,
                         help="PDB files for specific states (e.g., EMH_01.pdb EMH_+1.pdb) (default: %(default)s)"
                         )
@@ -196,36 +198,39 @@ from mean pKa to consider (default: %(default)s)"""
 
 
 def validate_args(args: argparse.Namespace):
-    if args.input_file is None and args.lig_code is None:
-        raise argparse.ArgumentTypeError("Either an input PDB/CIF file or -lig-code must be provided.")
+    """
+    
+    """
+    # nothing provided:
+    if all([args.input_file is None, args.lig_code is None, args.lig_smiles is None]):
+        sys.exit("ERROR: At least one of: an input PDB/CIF file, -lig-code or -lig-smiles must be provided.")
+    
+    # gui w/o file:
+    if args.gui and args.input_file is None:
+        sys.exit("ERROR: GUI mode requires an input PDB/CIF file.")
+            
+    # all provided:  ok?
+    if all([args.input_file is not None, args.lig_code is not None, args.lig_smiles is not None]):
+        print("Warning: Only -lig-code and -lig-smiles will be used.")
+        args.input_file = None
+    
+    if args.input_file is None and args.state_pdbs is not None:
+        sys.exit("ERROR: Parent input PDB/CIF file must be provided along with state pdb(s).")
 
     if args.input_file is not None:
         if not Path(args.input_file).exists():
-            print(f"ERROR: Input file not found: {args.input_file}")
-            sys.exit(1)
+            sys.exit(f"ERROR: Input file not found: {args.input_file}")
+
         if not args.input_file.lower().endswith((".cif", ".pdb")):
-            print("ERROR: Input file must be either a .pdb or .cif file")
-            sys.exit(1)
-
-
-def _convert_cif_to_pdb(cif_path: str) -> str:
-    """Convert a .cif file to .pdb using cif2pdb_PyMOL.
-
-    Returns the path to the generated PDB file.
-    """
-    pdb_path = os.path.splitext(cif_path)[0] + ".pdb"
-    print(f"🔄 Converting {cif_path} → {pdb_path} using cif2pdb_PyMOL ...")
-
-    cif_ligand_converter({"input": cif_path,
-                          "output": pdb_path,
-                          "ligand_cache": None,
-                          "offline": False})
-    if not Path(pdb_path).exists():
-        print(f"ERROR: Conversion completed but {pdb_path} was not created.")
-        sys.exit(1)
-    print(f"✅ Converted successfully: {pdb_path}")
-
-    return pdb_path
+            sys.exit("ERROR: Input file must be either a .pdb or .cif file")
+        # attempt at flagging full pdb, not fail-proof:
+        with open(Path(args.input_file)) as fh:
+            line1 = fh.readline()
+        if not line1.startswith("HETATM"):
+           print("\nCHECK INPUT:",
+                 " It's possible that the input file is a protein file as the first",
+                 " line is not a HETATM line. Remove all non HETATM lines, then rerun.\n", sep="\n")
+           sys.exit(1)
 
 
 def main(args: Union[argparse.Namespace, dict]):
@@ -235,30 +240,25 @@ def main(args: Union[argparse.Namespace, dict]):
 
     validate_args(args)
 
-    if not args.lig_code:
-        lig_id = ""
-    else:
-        lig_code = args.lig_code.upper()
-        lig_id = lig_code
+    lig_id = "" if args.lig_code is None else args.lig_code.upper()
 
     pdb_path = None
 
     if not args.lig_smiles:
         if args.input_file is not None:
-            # ── CIF → PDB conversion ──
             pdb_path = args.input_file
             if args.input_file.lower().endswith(".cif"):
-                pdb_path = _convert_cif_to_pdb(args.input_file)
+                # ── CIF → PDB conversion ──
+                pdb_path = convert_cif_to_pdb(args.input_file)
 
             # Determine lig_id: -lig-code takes precedence, else extract from PDB
             if not lig_id:
                 lig_id = extract_lig_id_from_pdb(pdb_path)
+                if not lig_id:
+                    sys.exit(f"{pdb_path} has no ligands.")
 
     # ── GUI mode: launch Streamlit ──
     if args.gui:
-        if pdb_path is None:
-            print("ERROR: GUI mode requires an input PDB/CIF file.")
-            sys.exit(1)
         args.pdb = pdb_path  # GUI expects args.pdb
         launch_gui(args)
         return
@@ -274,9 +274,9 @@ def main(args: Union[argparse.Namespace, dict]):
         if args.input_file and args.input_file.lower().endswith(".cif"):
             logging.info(f"  (converted from {Path(args.input_file)!s})")
     else:
-        logging.info(f"  Input:  -lig-code {lig_id} (no PDB file: will build from RCSB SMILES)")
+        logging.info(f"  Input: -lig-code {lig_id} (no PDB file: will build from RCSB SMILES)")
         if args.lig_smiles:
-            logging.info(f"  Input:  -lig-smiles (no PDB file: will build from given SMILES)")
+            logging.info(f"  Input: -lig-smiles (no PDB file: will build from given SMILES)")
 
     logging.info(f"  Ligand: {lig_id}   pH: {args.ph}   Method: {args.charge_method}")
     logging.info(f"  Dimorphite-DL: ph_min={args.ph_min}, ph_max={args.ph_max}, "
@@ -302,7 +302,7 @@ def main(args: Union[argparse.Namespace, dict]):
         output=args.output,
         llm_provider=args.llm_provider,
         api_key=args.api_key,
-        lig_code=lig_code,
+        lig_id=lig_id,
         lig_smiles=args.lig_smiles,
         ph_min=args.ph_min,
         ph_max=args.ph_max,

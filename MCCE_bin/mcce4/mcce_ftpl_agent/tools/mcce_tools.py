@@ -3,17 +3,37 @@
 """
 MCCE4 pipeline tools — template generation, calibration, parsing.
 """
+from collections import Counter
 import json
 import logging
-import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 
-import requests
-
+from mcce4.pymol_ligand_cif2pdb import convert as cif_ligand_converter
 from mcce4.mcce_ftpl_agent.config import DIELECTRIC_MAP, RCSB_GRAPHQL_URL, RCSB_GRAPHQL_QUERY
+
+
+def convert_cif_to_pdb(cif_path: str) -> str:
+    """Convert a .cif file to .pdb using pymol_ligand_cif2pdb.
+
+    Returns the path to the generated PDB file.
+    """
+    pdb_path = Path(cif_path).with_suffix(".pdb")
+    print(f"🔄 Converting {cif_path} → {pdb_path!s} using pymol_ligand_cif2pdb...")
+
+    cif_ligand_converter({"input": cif_path,
+                          "output": pdb_path,
+                          "ligand_cache": None,
+                          "offline": False})
+    if not pdb_path.exists():
+        print(f"ERROR: Conversion completed but {pdb_path.name} was not created.")
+        sys.exit(1)
+    print(f"✅ Converted successfully: {pdb_path.name}")
+
+    return pdb_path
 
 
 def _copy_pdb_with_chain_id(src_pdb: str,
@@ -47,17 +67,21 @@ def run_cmd(cmd, description="", capture=False, cwd=None):
 
 
 def extract_lig_id_from_pdb(pdb_path: str) -> str:
-    """Extract 3-letter ligand code from PDB HETATM/ATOM records."""
-    res_counts = {}
-    with open(pdb_path) as f:
-        for line in f:
-            if line.startswith(("HETATM", "ATOM  ")):
-                resname = line[17:20].strip()
-                if resname and resname not in ("HOH", "WAT", "TIP"):
-                    res_counts[resname] = res_counts.get(resname, 0) + 1
-    if not res_counts:
-        return Path(pdb_path).stem.upper()[:3]
-    return max(res_counts, key=res_counts.get)
+    """Extract 3-letter ligand code from PDB HETATM records."""
+    ligs = []
+    with open(pdb_path) as fh:
+        for line in fh:
+            if line.startswith("HETATM"):
+                lig = line[17:20].strip()
+                if lig in ("HOH", "WAT", "TIP", "UNK", "UNL"):
+                    continue
+                ligs.append(lig)
+            if line.startswith(("CONECT")):
+                break
+    if not ligs:
+        return ""
+
+    return Counter(ligs).most_common(n=1)[0][0]
 
 
 def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
@@ -79,6 +103,8 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
     logging.info(f"   Ligand page: https://www.rcsb.org/ligand/{lig_id}")
 
     # Build GraphQL request
+    # FIX: Use requests; run_cmd with logging is listing fields that are not
+    # requested, possibly bc of curl cmd.
     payload = json.dumps({"query": RCSB_GRAPHQL_QUERY, "variables": {"id": lig_id}})
     cmd = ("curl -s -X POST -H 'Content-Type: application/json' -d "
            f"'{payload}' '{RCSB_GRAPHQL_URL}'")
@@ -199,11 +225,11 @@ def fetch_rcsb_info(lig_id: str, work_dir: str = ".") -> dict:
         # ── Save SMILES to .smi file ──
         smiles = info.get("smiles") or info.get("smiles_stereo")
         if smiles:
-            smi_path = os.path.join(work_dir, f"{lig_id}.smi")
+            smi_path = Path(work_dir).joinpath(f"{lig_id}.smi")
             with open(smi_path, "w") as f:
                 f.write(f"{smiles} {lig_id}\n")
-            logging.info(f"  💾 SMILES saved to: {smi_path}")
-            info["smi_path"] = smi_path
+            logging.info(f"  💾 SMILES saved to: {smi_path!s}")
+            info["smi_path"] = str(smi_path)
 
         return info
 
@@ -337,26 +363,29 @@ def run_rxn_calibration(lig_id: str,
          c. Update rxn<eps> in the ftpl CONFORMER lines
          d. Re-run step3.py -d <eps> to validate (dsolv should be ~0)
     """
-    user_param = os.path.join(work_dir, "user_param")
-    os.makedirs(user_param, exist_ok=True)
+    work_dir = Path(work_dir)
+    user_param = work_dir.joinpath("user_param")
+    user_param.mkdir(exist_ok=True)
 
     # ── Link ftpl to user_param BEFORE step1 ──
-    ftpl_abs = os.path.abspath(ftpl_path)
-    link = os.path.join(user_param, os.path.basename(ftpl_path))
-    if os.path.islink(link) or os.path.exists(link):
-        os.remove(link)
-    os.symlink(ftpl_abs, link)
-    logging.info(f"  🔗 Linked {ftpl_abs} → {link}")
+    ftpl_abs = Path(ftpl_path).resolve()
+    link = user_param.joinpath(ftpl_abs.name)
+    if link.exists():
+        link.unlink()
+    # if os.path.islink(link) or os.path.exists(link):
+    #     os.remove(link)
+    link.symlink_to(ftpl_abs)
+    # os.symlink(ftpl_abs, link)
+    logging.info(f"  🔗 Linked {ftpl_abs!s} → {link!s}")
 
     # Ensure PDB is accessible in work_dir, with chain ID defaulting to 'A'
-    pdb_base = os.path.basename(pdb_path)
-    pdb_wd = os.path.join(work_dir, pdb_base)
-    _copy_pdb_with_chain_id(os.path.abspath(pdb_path), pdb_wd)
+    pdb_path = Path(pdb_path).resolve()
+    pdb_base = pdb_path.name
+    _copy_pdb_with_chain_id(str(pdb_path), str(work_dir.joinpath(pdb_base)))
 
     # ── Pre-flight: verify ftpl CONFLIST matches expected states ──
     expected_types = [f"{lig_id}{cl}" for cl in conformer_labels]
-    with open(ftpl_abs) as f:
-        ftpl_content = f.read()
+    ftpl_content = ftpl_abs.read_text()
     conflist_match = re.search(r'CONFLIST,\s*' + re.escape(lig_id) + r':\s*(.*)', ftpl_content)
     if conflist_match:
         conflist_str = conflist_match.group(1)
@@ -385,16 +414,16 @@ def run_rxn_calibration(lig_id: str,
         return {"error": "Step 2 failed"}
 
     # ── Verify all conformers are in step2_out.pdb ──
-    step2_out = os.path.join(work_dir, "step2_out.pdb")
-    if os.path.exists(step2_out):
-        found_types = _check_conformers_in_step2(step2_out, lig_id, conformer_labels)
+    step2_out = work_dir.joinpath("step2_out.pdb")
+    if step2_out.exists():
+        found_types = _check_conformers_in_step2(str(step2_out), lig_id, conformer_labels)
         expected_types = [f"{lig_id}{cl}" for cl in conformer_labels]
         missing = [t for t in expected_types if t not in found_types]
         if missing:
             logging.warning(f"  ⚠ Missing conformers in step2_out.pdb: {missing}")
             logging.warning(f"  Found: {sorted(found_types)}")
             # Diagnose: check ftpl for CONFLIST and CONNECT records
-            _diagnose_missing_conformers(ftpl_abs, lig_id, conformer_labels, missing)
+            _diagnose_missing_conformers(str(ftpl_abs), lig_id, conformer_labels, missing)
         else:
             logging.info(f"  ✅ All {len(expected_types)} conformer types found in step2_out.pdb")
             for ct, count in sorted(found_types.items()):
@@ -419,7 +448,7 @@ def run_rxn_calibration(lig_id: str,
             logging.error(f"  step3.py -d {eps} failed")
             continue
 
-        head3 = os.path.join(work_dir, "head3.lst")
+        head3 = str(work_dir.joinpath("head3.lst"))
         dsolv = parse_head3_dsolv(head3, lig_id, conformer_labels)
         if not dsolv:
             logging.error("  Could not parse dsolv from head3.lst")
@@ -429,10 +458,10 @@ def run_rxn_calibration(lig_id: str,
             logging.info(f"  📊 {ct}: dsolv = {v:.3f} (lowest across all conformers)")
 
         # Update rxn value in ftpl
-        update_rxn(ftpl_abs, dsolv, rxn_key)
+        update_rxn(str(ftpl_abs), dsolv, rxn_key)
 
         # Re-link ftpl after update (symlink target content changed in-place, so OK)
-        logging.info(f"  Updated {rxn_key} in {os.path.basename(ftpl_abs)}")
+        logging.info(f"  Updated {rxn_key} in {ftpl_abs.name}")
 
         # Validate: re-run step3 to check dsolv is now ~0
         logging.info("  🔄 Validating calibration...")
@@ -505,13 +534,11 @@ def _diagnose_missing_conformers(ftpl_path: str, lig_id: str, labels: list, miss
       1. CONFLIST line — does it include all expected conformer types?
       2. CONNECT records — does each conformer type have atom definitions?
     """
-    if not os.path.exists(ftpl_path):
+    if not Path(ftpl_path).exists():
         logging.error(f"  ftpl file not found: {ftpl_path}")
         return
 
-    with open(ftpl_path) as f:
-        content = f.read()
-
+    content = Path(ftpl_path).read_text()
     # Check CONFLIST
     conflist_match = re.search(r'CONFLIST,\s*' + re.escape(lig_id) + r':\s*(.*)', content)
     if conflist_match:
@@ -558,10 +585,10 @@ def parse_head3_dsolv(head3_path: str, lig_id: str, labels: list) -> dict:
 
     For each conformer type (e.g., EMH01, EMH+1), take the most negative dsolv.
     """
-    if not os.path.exists(head3_path):
+    if not Path(head3_path).exists():
         return {}
-    with open(head3_path) as f:
-        lines = f.readlines()
+    with open(head3_path) as fh:
+        lines = fh.readlines()
 
     types = [f"{lig_id}{lb}" for lb in labels]
     logging.info(f"  Looking for conformer types: {types}")
@@ -639,7 +666,7 @@ def generate_ftpl_for_state(lig_id, state_pdb, label, output_dir="."):
     Returns path to the generated ftpl, or None on failure.
     """
     try:
-        pdb_base = os.path.basename(state_pdb)
+        pdb_base = Path(state_pdb).name
         cmd = f"pdb2ftpl.py -p {pdb_base} -c {label}"
         logging.info(f"  Running: {cmd}")
         result = run_cmd(cmd, description=f"pdb2ftpl for {label}",
@@ -648,25 +675,26 @@ def generate_ftpl_for_state(lig_id, state_pdb, label, output_dir="."):
             logging.error(f"  pdb2ftpl.py failed for state {label}")
             return None
 
+        output_dir = Path(output_dir)
         # pdb2ftpl.py writes to stdout — save it
         ftpl_name = f"{lig_id}_{label.replace('+', 'p').replace('-', 'm')}.ftpl"
-        ftpl_path = os.path.join(output_dir, ftpl_name)
+        ftpl_path = output_dir.joinpath(ftpl_name)
 
         # If pdb2ftpl wrote to stdout, save it
         if result.stdout.strip():
-            with open(ftpl_path, "w") as f:
-                f.write(result.stdout)
+            with open(ftpl_path, "w") as fh:
+                fh.write(result.stdout)
         else:
             # Check if it wrote a file directly
-            default_ftpl = os.path.join(output_dir, f"{lig_id}.ftpl")
-            if os.path.exists(default_ftpl):
+            default_ftpl = output_dir.joinpath(f"{lig_id}.ftpl")
+            if default_ftpl.exists():
                 shutil.move(default_ftpl, ftpl_path)
             else:
                 logging.error(f"  No ftpl output for state {label}")
                 return None
 
-        logging.info(f"  → {ftpl_path}")
-        return ftpl_path
+        logging.info(f"  → {ftpl_path!s}")
+        return str(ftpl_path)
 
     except Exception as e:
         logging.error(f"  pdb2ftpl.py failed: {e}")
@@ -688,7 +716,7 @@ def generate_all_state_ftpls(lig_id, state_pdbs, output_dir="."):
     for label, pdb_path in state_pdbs.items():
         logging.info(f"\n  Generating ftpl for state {label}...")
         # Copy state PDB to output_dir, ensuring chain ID defaults to 'A'
-        pdb_dest = os.path.join(output_dir, os.path.basename(pdb_path))
+        pdb_dest = str(Path(output_dir).joinpath(Path(pdb_path).name))
         _copy_pdb_with_chain_id(pdb_path, pdb_dest)
 
         ftpl = generate_ftpl_for_state(lig_id, pdb_path, label, output_dir)
@@ -1044,7 +1072,7 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
     lines = [
         f"# PyMOL script: {lig_id} protonation state comparison",
         "# Generated by mcce_ftpl",
-        f"# Usage: pymol {os.path.basename(output_path)}",
+        f"# Usage: pymol {Path(output_path).name}",
         "",
         "# Settings for H atom visibility",
         "set valence, 1",
@@ -1065,7 +1093,7 @@ def generate_pymol_script(state_pdbs, h_diffs, lig_id, output_path):
         # h_removed = diff.get("removed", [])
 
         lines.append(f"# ── State {label} ──")
-        lines.append(f"load {os.path.abspath(pdb_path)}, {obj_name}")
+        lines.append(f"load {Path(pdb_path).resolve()!s}, {obj_name}")
         lines.append(f"show sticks, {obj_name}")
         lines.append(f"show spheres, {obj_name} and elem H")
         lines.append(f"set sphere_scale, 0.2, {obj_name} and elem H")

@@ -20,10 +20,17 @@ import html as _html
 import io
 import logging
 import os
+import sys
+
 import pandas as pd
 import tempfile
 
-import streamlit as st
+try:
+    import streamlit as st
+except ImportError:
+    from mcce4.mcce_ftpl_agent import gui_reqs_cmd
+    print(gui_reqs_cmd())
+    sys.exit(1)
 
 # from mcce_ftpl_agent.models import ConformerState, AgentState
 from mcce_ftpl_agent.config import (

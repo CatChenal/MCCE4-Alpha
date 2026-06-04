@@ -75,7 +75,7 @@ def snapshot_cif_files(directory: str) -> set:
 
 def cif_only(filename: str):
     if not filename.endswith((".cif", ".CIF")):
-        raise argparse.ArgumentTypeError(f"File '{filename}' must be a .cif file")
+        sys.exit(f"File '{filename}' must be a .cif file")
     return filename
 
 
@@ -116,11 +116,14 @@ def cli_parser():
     return p
 
 
-def main(args: Union[argparse.Namespace, dict]):
-
+def convert(args: Union[argparse.Namespace, dict]) -> str:
+    """
+    Convert a ligand) .cif file to pdb and return the output file path.
+    """
     if isinstance(args, dict):
         args = argparse.Namespace(**args)
-        cif_only(args.input)
+
+    cif_only(args.input)
 
     # Default output name if not provided
     output_file = args.output if args.output else Path(args.input).stem + ".pdb"
@@ -186,13 +189,13 @@ def main(args: Union[argparse.Namespace, dict]):
         except Exception:
             pass
 
-    return
+    return output_file
 
 
 def cli():
     p = cli_parser()
     args = p.parse_args()
-    main(args)
+    out = convert(args)
 
 
 if __name__ == "__main__":
