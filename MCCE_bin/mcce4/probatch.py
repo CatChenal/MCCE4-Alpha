@@ -26,7 +26,7 @@ from datetime import datetime
 from typing import List, Tuple, Union
 
 from mcce4 import CLI_EPILOG, CLONE, CLONE_PATH
-from mcce4.io_utils import subprocess_run  # , CalledProcessError
+from mcce4.io_utils import subprocess_run
 from mcce4.protinfo.cli import get_pdb_rpt, prerun_passed
 
 
@@ -72,9 +72,6 @@ JOBS_FILE = ".pro_batch_jobs.json"
 JOBS_FP = Path(JOBS_FILE)
 
 SQUEUE_FMT = "%.10i %.9P %.30j %.8u %.2t %.10M %.10L %.6D %R"
-#JOBID PARTITION                            NAME     USER ST       TIME  TIME_LEFT  NODES NODELIST(REASON)
-#.........1 ......... .............................. ........ ..
-#   3315802     batch                         go1k01 catchena PD       0:00    3:00:00      1 (Priority)
 
 # globals
 _log_fh = None
@@ -506,24 +503,6 @@ def update_book():
         f.writelines(content)
 
 
-def comment_book_pdb(pdb_dir: Path, tag: str):
-    """Comment out & flag pdbid line in book.txt with error status ('e'), 
-    followed by a tag (reason) string.
-    """
-    global save_prerun_book
-
-    pdbid = pdb_dir.name
-    book_fp = pdb_dir.parent.joinpath(BOOK)
-    if not book_fp.exists():
-        print("book.txt not found for commenting!")
-        return
-    cmd = f"sed -i 's/^\({pdbid}*\).*$/#{pdbid}        e\t{tag}/' {book_fp!s}"
-    subprocess_run(cmd)
-    save_prerun_book += 1
-
-    return
-
-
 def modify_script_for_runprm(script_path: Path):
     """Injects custom run.prm loading into the shell script steps."""
     if not Path(CUSTOM_PRM).exists():
@@ -629,7 +608,25 @@ def ask_user(question: str) -> bool:
         print(BAD_ANSWER)
 
 
-def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False) -> Path:
+def comment_book_pdb(pdb_dir: Path, tag: str):
+    """Comment out & flag pdbid line in book.txt with error status ('e'), 
+    followed by a tag (reason) string.
+    """
+    global save_prerun_book
+
+    pdbid = pdb_dir.name
+    book_fp = pdb_dir.parent.joinpath(BOOK)
+    if not book_fp.exists():
+        print("book.txt not found for commenting!")
+        return
+    cmd = f"sed -i 's/^\({pdbid}*\).*$/#{pdbid}        e\t{tag}/' {book_fp!s}"
+    subprocess_run(cmd)
+    save_prerun_book += 1
+
+    return
+
+
+def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False, redo: bool = False) -> Path:
     """Run protinfo in p_dir.
     Return the report path.
     """
@@ -638,8 +635,11 @@ def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False) -> Path:
     else:
         prot_path = Path(pdb_fp.name)
 
-    os.chdir(p_dir)
+    rpt_fp = p_dir.joinpath(f"{prot_path.stem}_protinfo.md")
+    if rpt_fp.exists() and not redo:
+        return rpt_fp
 
+    os.chdir(p_dir)
     fetch = True if is_pdbid else False
     info_args = {
         "pdb": prot_path,
@@ -654,13 +654,21 @@ def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False) -> Path:
     rpt_pdb = get_pdb_rpt(argparse.Namespace(**info_args), do_checks=True, do_fetch=fetch)
     os.chdir(Path.cwd().parent)
 
+    print(f"{rpt_fp = }")
+    print(f"Prerun report: {rpt_pdb!s}")
+    ok, msg = prerun_passed(p_dir.joinpath("prerun"))
+    if not ok:
+        print(f"Commenting book for {p_dir.name}: {msg}")
+        comment_book_pdb(p_dir, tag=msg)
+
     return rpt_pdb
 
 
 def process_protein_file(protein_path: Union[Path, tuple],
                          script_path: Path,
                          pool: Union["JobPool", "SlurmPool"],
-                         dry_run: bool = False):
+                         dry_run: bool = False,
+                         redo_prerun: bool = False):
     """Sets up the protein directory and launches the run via the pool.
     """
     is_pdbid = isinstance(protein_path, tuple)
@@ -677,14 +685,8 @@ def process_protein_file(protein_path: Union[Path, tuple],
 
     if not (pdb_fp.exists() or is_pdbid):
         shutil.copy2(protein_path, p_dir)
-    
-    rpt_pdb = do_prerun(p_dir, pdb_fp, is_pdbid=is_pdbid)
-    print(f"Prerun report: {rpt_pdb!s}")
-    # prerun_passed -> (bool, reason)
-    ok, msg = prerun_passed(p_dir.joinpath("prerun"))
-    if not ok:
-        print(f"Commenting book for {p_dir.name}: {msg}")
-        comment_book_pdb(p_dir, tag=msg)
+
+    rpt_fp = do_prerun(p_dir, pdb_fp, is_pdbid=is_pdbid, redo=redo_prerun)
 
     _ensure_symlink(p_dir/"prot.pdb", pdb_fp.name)
 
@@ -769,6 +771,11 @@ NOTE: Jobs are still low priority ({DEFAULT_NICE}) unless --nice is set with a l
                         action="store_true",
                         default=False,
                         help="Do setup & prerun only: no job launch. (default: %(default)s)"
+                        )
+    parser.add_argument("--redo-prerun",
+                        action="store_true",
+                        default=False,
+                        help="Re-run the setup prerun step when launching. (default: %(default)s)"
                         )
 
     return parser
@@ -946,8 +953,11 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     for entry in user_files:
         which  = entry[0].upper() if isinstance(entry, tuple) else entry.stem.upper()
         if which in target_set:
-            process_protein_file(entry, script_path, pool, args.dry_run)
-    if save_prerun_book:
+            process_protein_file(entry, script_path, pool,
+                                 dry_run=args.dry_run,
+                                 redo_prerun=args.redo_prerun)
+
+    if save_prerun_book:  # int, > 0 if book commented by do_perun
         shutil.copy2(BOOK, PRERUN_BOOK)
         save_prerun_book = 0
 
