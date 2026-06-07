@@ -632,10 +632,11 @@ def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False, redo: bool = Fa
     """
     if is_pdbid:
         prot_path = p_dir.name
+        rpt_fp = p_dir.joinpath(f"{prot_path}_protinfo.md")
     else:
         prot_path = Path(pdb_fp.name)
+        rpt_fp = p_dir.joinpath(f"{prot_path.stem}_protinfo.md")
 
-    rpt_fp = p_dir.joinpath(f"{prot_path.stem}_protinfo.md")
     if rpt_fp.exists() and not redo:
         return rpt_fp
 
@@ -654,7 +655,6 @@ def do_prerun(p_dir: Path, pdb_fp: Path, is_pdbid: bool = False, redo: bool = Fa
     rpt_pdb = get_pdb_rpt(argparse.Namespace(**info_args), do_checks=True, do_fetch=fetch)
     os.chdir(Path.cwd().parent)
 
-    print(f"{rpt_fp = }")
     print(f"Prerun report: {rpt_pdb!s}")
     ok, msg = prerun_passed(p_dir.joinpath("prerun"))
     if not ok:
