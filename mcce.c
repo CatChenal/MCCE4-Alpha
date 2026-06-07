@@ -80,23 +80,21 @@ int main(int argc, char *argv[])
 }
 
 void welcome()
-{  printf("===========================================================\n");
-   printf("<<< MCCE Multi-Conformation Continuum Electrostatics >>>   \n");
-   printf(" Marilyn Gunner's Lab at City College of New York, 2023    \n");
-   printf("-----------------------------------------------------------\n");
-   printf("Version:        2.7.1                                      \n");
-   printf("MCCE Home Page: https://gunnerlab.github.io/Stable-MCCE/quick/\n");
-   printf("Support:        mgunner@ccny.cuny.edu                   \n");
-   printf("Developed by:   Junjun Mao, Yifan Song, Marilyn Gunner     \n");
-   printf("Reference MCCE: If you publish data calculated with MCCE,  \n");
-   printf("                you need to cite papers suggested in MCCE  \n");
-   printf("                Home Page.                                 \n");
-   printf("===========================================================\n\n");
-   printf("Last Updates:                                              \n");
-   printf("   02/26/2023: vdw calculated by vdw_pw.py after step3.\n");
-   printf("   06/04/2018: Removed dependency on gdbm\n");
-   printf("   06/04/2018: Clear text energy table in step 3 and 4 \n");
-   printf("===========================================================\n\n");
+{  printf("================================================================\n");
+   printf("<<< MCCE Multi-Conformation Continuum Electrostatics >>>        \n");
+   printf(" Marilyn Gunner's Lab at City College of New York, 2023         \n");
+   printf("----------------------------------------------------------------\n");
+   printf("Version:         4.0                                            \n");
+   printf("MCCE Home:                                                      \n");
+   printf("  Private (Dev): https://github.com/GunnerLab/MCCE4             \n");
+   printf("  Public:        https://github.com/GunnerLab/MCCE4-Alpha       \n");
+   printf("  Docs:          https://gunnerlab.github.io/mcce4_tutorial/    \n");
+   printf("Support:         https://github.com/GunnerLab/MCCE4-Alpha/issues\n");
+   printf("Developed by:    The Gunner Lab                                 \n");
+   printf("                 https://gunnerlab.ccny.cuny.edu/               \n");
+   printf("Citations:       If you publish data calculated with MCCE, please cite the papers in\n");
+   printf("                 https://gunnerlab.github.io/mcce4_tutorial/docs/mcce/\n");
+   printf("================================================================\n");
    fflush(stdout);
 
    return;
