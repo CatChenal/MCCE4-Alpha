@@ -39,14 +39,17 @@ Usage examples:
 
 import argparse
 import os
+from pathlib import Path
 import subprocess
 import shutil
 import time
+
 from mccesteps import export_runprm
 from mccesteps import record_runprm
 from mccesteps import detect_runprm
 from mccesteps import restore_runprm
 from amend_sumcrg import amend_sum_crg
+
 
 def write_runprm(args):
     runprm = {}
@@ -124,49 +127,48 @@ def write_runprm(args):
     return
 
 
-def make_pk_extended_and_trim(pk_file="pK.out", pk_extended="pK_extended.out"):
+def make_pk_extended_and_trim():
     """
     1) Copy pK.out -> pK_extended.out
     2) Overwrite pK.out keeping only columns up through '1000*chi2'
        (preserves original spacing by slicing at the header's 'vdw0' start).
     """
-    if not os.path.isfile(pk_file):
+    pk_file="pK.out"
+    if not Path(pk_file).exists():
         print(f"WARNING: {pk_file} not found; skipping pK copy/trim.")
         return
-
+    
     # 1) Archive the full file
+    pk_extended="pK_extended.out"
     shutil.copy2(pk_file, pk_extended)
 
-    # 2) Determine where to cut based on header
-    with open(pk_extended, "r") as fin:
-        lines = fin.readlines()
-
-    cut_idx = None
-    for line in lines:
-        # Find the header line that contains the column names
-        if "1000*chi2" in line:
-            # Best cut is at the start of the NEXT column (vdw0),
-            # so we keep EXACT spacing up to chi2 column.
-            if "vdw0" in line:
-                cut_idx = line.index("       vdw0")
-            else:
-                cut_idx = line.index("1000*chi2") + len("1000*chi2")
-            break
-
-    if cut_idx is None:
-        print("WARNING: Could not find '1000*chi2' header; skipping trim.")
+    try:
+        lines = Path(pk_extended).read_text().splitlines()
+    except UnicodeDecodeError:
+        print("WARNING: Corrupted pK_extended.out; skipping trim.")
         return
+
+    if len(lines) <= 1:
+        print("WARNING: Empty pK_extended.out; skipping trim.")
+        return
+
+    # 2) Determine where to cut based on header
+    try:
+        ix = lines[0].index("1000*chi2")
+        ix += len("1000*chi2")
+    except ValueError:
+        print("WARNING: pK_extended.out is corrupted: missing '1000*chi2' column; skipping trim.")
 
     # Rewrite pK.out with sliced lines (preserving characters/spaces up to cut_idx)
     with open(pk_file, "w") as fout:
         for line in lines:
-            if len(line) >= cut_idx:
-                fout.write(line[:cut_idx].rstrip("\n") + "\n")
-            else:
-                # Keep shorter lines as-is (blank lines, etc.)
+            if len(line) >= ix:
+                fout.write(line[:ix] + "\n")
+            else:  # Keep shorter lines as-is (blank lines, etc.)
                 fout.write(line)
-
     print(f"Saved full pKa/Em output as {pk_extended} and trimmed version as {pk_file}")
+
+    return
 
 
 def sanitycheck_step4(t0):
