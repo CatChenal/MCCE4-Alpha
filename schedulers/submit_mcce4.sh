@@ -4,8 +4,6 @@
 #SBATCH --job-name=submit_mcce4
 #SBATCH --output=submit_mcce4.log
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=5
-#SBATCH --ntasks=1
 #SBATCH --mem=12G                 # Adjust memory if needed
 #SBATCH --export=ALL
 
