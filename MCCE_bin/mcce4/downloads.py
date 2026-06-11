@@ -59,7 +59,8 @@ def get_rcsb_lig_smiles(ligands:list, output_dir:str=Path("./prerun")):
     # concate long string
     out = [(f'{entry["chem_comp"]["id"]},'
             f'{entry["rcsb_chem_comp_descriptor"]["SMILES"]},'
-            f'{entry["chem_comp"]["formula"]}\n')
+            f'{entry["chem_comp"]["formula"]},'
+            f'{entry["chem_comp"]["name"]}\n')
            for entry in data["data"]["chem_comps"]]
     if out:
         with open(output_dir.joinpath("smiles.csv"), "w") as fo:
