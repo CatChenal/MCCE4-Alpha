@@ -26,13 +26,8 @@ echo "If you encounter any problems with this script, please, open an issue here
 echo "https://github.com/GunnerLab/$CLONE/issues/new?title=quick_install.sh&template=bug_report.md"
 echo ""
 
-if [[ "$CLONE" =~ Alpha$ ]]; then
-  ENV_NAME="mc4"
-  YML="mc4.yml"
-else
-  ENV_NAME="mc4dev"
-  YML="mc4dev.yml"
-fi
+ENV_NAME="mc4"   # single env, mc4dev was removed
+YML="mc4.yml"
 
 # Note: legacy code block below; there used to be an option for an alternate env name.
 # Use the -h switch to get help on usage.
@@ -168,9 +163,7 @@ if [[ "$DO_CONDA" -eq 1 ]]; then
     conda env update -n $ENV_NAME -f "$CLONE_PATH/$YML"
   else
     echo "  Creating a dedicated conda env with default name: $ENV_NAME"
-    # prevent 'auto installation' of packages defined in .condarc
-    # => ensure any issue pertains to installation of packages in mc4.yml
-    conda env create -f "$CLONE_PATH/$YML" --no-default-packages
+    conda env create -f "$CLONE_PATH/$YML"
   fi
   if [[ "$APPTAINER_CONDA" -eq 1 ]]; then
     conda install -n $ENV_NAME -c conda-forge apptainer -y
@@ -194,7 +187,6 @@ if [[ "$APPTAINER_FOUND" -eq 1 ]]; then
       if [[ "$resolved_target" = "$sif_file" ]]; then
         echo "  $sif_mc4 is soft-linked to the generic image $sif_file. If you want to replace"
         echo "  the generic image, delete the file, then re-run this quick install script."
-        chmod +x "$sif_file"
       fi
     fi
   else
