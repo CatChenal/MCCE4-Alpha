@@ -45,6 +45,7 @@ def get_rcsb_lig_smiles(ligands:list, output_dir:str=Path("./prerun")):
     """Get the smiles strings for ligands (3-letter code).
     Save the list of [id, ligand] to csv file in the output_dir
     as smiles.csv.
+    Output file is tab separated as the name can have commas.
     """
     variables = {"ids": ligands}
     payload = {
@@ -57,9 +58,9 @@ def get_rcsb_lig_smiles(ligands:list, output_dir:str=Path("./prerun")):
         return
     data = response.json()
     # concate long string
-    out = [(f'{entry["chem_comp"]["id"]},'
-            f'{entry["rcsb_chem_comp_descriptor"]["SMILES"]},'
-            f'{entry["chem_comp"]["formula"]},'
+    out = [(f'{entry["chem_comp"]["id"]}\t'
+            f'{entry["rcsb_chem_comp_descriptor"]["SMILES"]}\t'
+            f'{entry["chem_comp"]["formula"]}\t'
             f'{entry["chem_comp"]["name"]}\n')
            for entry in data["data"]["chem_comps"]]
     if out:
