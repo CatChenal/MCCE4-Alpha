@@ -282,7 +282,7 @@ with tab_input:
             st.success(f"✓ Loaded: {uploaded_pdb.name} (Ligand: {st.session_state['lig_id']})")
 
         # Or specify path directly
-        pdb_path_input = st.text_input("Or enter PDB file path on server:",
+        pdb_path_input = st.text_input("Or enter PDB file path:",
                                        placeholder=os.environ.get("MCCE_AGENT_PDB",
                                                                    "path/to/lig_structure_file")
                                         )
