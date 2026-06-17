@@ -10,11 +10,26 @@ Naming convention:
 import logging
 from typing import List
 
-from ..models import ConformerState, make_labels_unique
-from ..config import CHARGE_TO_CONF
+try:
+    from dimorphite_dl import protonate_smiles
+    NO_DIMORPHITE = False
+except ImportError:
+    NO_DIMORPHITE = True
+    logging.warning("  ⚠ Dimorphite-DL not installed — install: conda install -c conda-forge dimorphite_dl")
+
+try:
+    from rdkit import Chem
+    NO_RDKIT = False
+except ImportError:
+    NO_RDKIT = True
+
+from mcce4.constants import STANDARD_STATE_PH
+from mcce4.mcce_ftpl_agent.config import CHARGE_TO_CONF
+from mcce4.mcce_ftpl_agent.models import ConformerState, make_labels_unique
+from mcce4.mcce_ftpl_agent.tools.charge_tools import get_ionizable_sites_oe
 
 
-def enumerate_protonation_states(smiles: str, ph: float = 7.4,
+def enumerate_protonation_states(smiles: str, ph: float = STANDARD_STATE_PH,
                                  pdb_path: str = None,
                                  ph_min: float = 6.5,
                                  ph_max: float = 7.5,
@@ -57,28 +72,26 @@ def enumerate_protonation_states(smiles: str, ph: float = 7.4,
     logging.info(f"    Input SMILES: {smiles}")
 
     state_smiles = [smiles]  # fallback
+    if NO_DIMORPHITE:
+        logging.warning("    Falling back to input SMILES as single neutral state")
+    else:
+        try:
+            results = protonate_smiles(
+                smiles,
+                ph_min=ph_min,
+                ph_max=ph_max,
+                precision=precision,
+                max_variants=max_variants,
+                label_states=label_states,
+            )
+            if results:
+                state_smiles = list(set(results))
+            logging.info(f"  ✓ Dimorphite-DL returned {len(state_smiles)} unique state(s)")
+            for i, smi in enumerate(state_smiles, 1):
+                logging.info(f"    [{i}] {smi}")
+        except Exception as e:
+            logging.warning(f"  ⚠ Dimorphite-DL error: {e}")
 
-    try:
-        from dimorphite_dl import protonate_smiles
-        results = protonate_smiles(
-            smiles,
-            ph_min=ph_min,
-            ph_max=ph_max,
-            precision=precision,
-            max_variants=max_variants,
-            label_states=label_states,
-        )
-        if results:
-            state_smiles = list(set(results))
-        logging.info(f"  ✓ Dimorphite-DL returned {len(state_smiles)} unique state(s)")
-        for i, smi in enumerate(state_smiles, 1):
-            logging.info(f"    [{i}] {smi}")
-    except ImportError:
-        logging.warning("  ⚠ Dimorphite-DL not installed — install: conda install -c conda-forge dimorphite_dl")
-        logging.warning("    Falling back to input SMILES as single neutral state")
-    except Exception as e:
-        logging.warning(f"  ⚠ Dimorphite-DL error: {e}")
-        logging.warning("    Falling back to input SMILES as single neutral state")
 
     # Compute formal charges and build ConformerState objects
     states = _smiles_to_states(state_smiles, ph)
@@ -110,7 +123,6 @@ def _auto_add_deprotonation(pdb_path: str, ph: float) -> ConformerState:
     Returns a ConformerState or None.
     """
     try:
-        from .charge_tools import get_ionizable_sites_oe
         sites = get_ionizable_sites_oe(pdb_path)
         deprot_candidates = [
             s for s in sites
@@ -161,9 +173,12 @@ def _smiles_to_states(smiles_list: list, ph: float) -> List[ConformerState]:
     states = []
     seen_smiles: set = set()
 
-    try:
-        from rdkit import Chem
-
+    if NO_RDKIT:  # No RDKit fallback
+        states.append(ConformerState(
+            label="01", charge=0, nH=0, smiles=smiles_list[0],
+            source="fallback", rationale="No RDKit — assumed neutral"
+        ))
+    else:
         for smi in smiles_list:
             if smi in seen_smiles:
                 continue
@@ -181,12 +196,5 @@ def _smiles_to_states(smiles_list: list, ph: float) -> List[ConformerState]:
                 smiles=smi, source="dimorphite",
                 rationale=f"Dimorphite-DL at pH {ph}"
             ))
-
-    except ImportError:
-        # No RDKit fallback
-        states.append(ConformerState(
-            label="01", charge=0, nH=0, smiles=smiles_list[0],
-            source="fallback", rationale="No RDKit — assumed neutral"
-        ))
 
     return make_labels_unique(states)

@@ -52,6 +52,7 @@ def load_user_env() -> dict:
         print("None of the expected keys were found in the .env file.")
     return ud
 
+
 USER_CONFIG_DICT = load_user_env()
 if not USER_CONFIG_DICT:
     print(ENV_HELP)

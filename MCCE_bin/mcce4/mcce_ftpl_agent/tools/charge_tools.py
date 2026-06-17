@@ -11,6 +11,15 @@ import shutil
 import subprocess
 import tempfile
 
+try:
+    from openeye import oechem, oequacpac
+    NO_OPENEYE = False
+except ImportError:
+    logging.warning("  OpenEye not available for ionizable site detection or charge generation (license required)"
+                    "  Update mc4 with: conda install -c openeye openeye-toolkits")
+    NO_OPENEYE = True
+    
+
 
 def to_mcce_atom_name(name: str) -> str:
     """Convert atom name to MCCE 4-char padded format."""
@@ -30,19 +39,17 @@ def generate_charges(pdb_path: str, method: str, lig_id: str) -> dict:
     """Generate partial atomic charges. Returns MCCE atom name -> charge."""
     if method == "antechamber":
         return _charges_antechamber(pdb_path, lig_id)
-    return _charges_openeye(pdb_path, method, lig_id)
+    if not NO_OPENEYE:
+        return _charges_openeye(pdb_path, method, lig_id)
+    return {}
 
 
 def _charges_openeye(pdb_path: str, method: str, lig_id: str) -> dict:
     """Generate charges via OpenEye QuacPac TK."""
-    logging.info(f"⚡ Generating charges via OpenEye (method: {method})")
-
-    try:
-        from openeye import oequacpac
-    except ImportError:
-        logging.warning("  OpenEye not available for charge generation, license required; "
-                        "  Update mc4 with: conda install -c openeye openeye-toolkits")
+    if NO_OPENEYE:
         return {}
+    
+    logging.info(f"⚡ Generating charges via OpenEye (method: {method})")
 
     # Use absolute path so subprocess can find the file regardless of cwd
     pdb_abs = os.path.abspath(pdb_path)
@@ -155,13 +162,10 @@ def get_ionizable_sites_oe(pdb_path: str) -> list:
     rdkit_tools.get_ionizable_sites:
       [{"idx", "name", "symbol", "type", "current_hs", "formal_charge"}]
     """
-    logging.info(f"  Detecting ionizable sites via OEChem: {pdb_path}")
-    try:
-        from openeye import oechem
-    except ImportError:
-        logging.warning("  OEChem not available for ionizable site detection")
+    if NO_OPENEYE:
         return []
 
+    logging.info(f"  Detecting ionizable sites via OEChem: {pdb_path}")
     mol = oechem.OEMol()
     ifs = oechem.oemolistream(pdb_path)
     if not oechem.OEReadMolecule(ifs, mol):

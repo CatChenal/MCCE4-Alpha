@@ -18,7 +18,7 @@ import logging
 import re
 from typing import Optional
 
-from .config import (
+from mcce4.mcce_ftpl_agent.config import (
     CHATGPT_MODEL,
     CLAUDE_MODEL,
     GEMINI_MODEL,

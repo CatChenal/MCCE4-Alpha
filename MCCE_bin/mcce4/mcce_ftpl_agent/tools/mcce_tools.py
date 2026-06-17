@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 
+from mcce4.io_utils import subprocess_run
 from mcce4.pymol_ligand_cif2pdb import convert as cif_ligand_converter
 from mcce4.mcce_ftpl_agent.config import DIELECTRIC_MAP, RCSB_GRAPHQL_URL, RCSB_GRAPHQL_QUERY
 
@@ -36,6 +37,11 @@ def convert_cif_to_pdb(cif_path: str) -> str:
     return pdb_path
 
 
+def check_pdb_has_het(pdb_fp) -> bool:
+    out = subprocess_run("grep '^HET' " + str(pdb_fp), check=True)
+    return not out.returncode
+
+
 def _copy_pdb_with_chain_id(src_pdb: str,
                             dst_pdb: str,
                             default_chain: str = "A"):
@@ -55,7 +61,7 @@ def run_cmd(cmd, description="", capture=False, cwd=None):
     """
     if description:
         logging.info(f"▶ {description}")
-    logging.debug(f"  CMD: {cmd}")
+    #logging.debug(f"  CMD: {cmd}")
     result = subprocess.run(cmd, shell=True, capture_output=capture, text=True, cwd=cwd)
     if result.returncode != 0:
         logging.error(f"  Command failed (exit code {result.returncode})")
@@ -67,13 +73,18 @@ def run_cmd(cmd, description="", capture=False, cwd=None):
 
 
 def extract_lig_id_from_pdb(pdb_path: str) -> str:
-    """Extract 3-letter ligand code from PDB HETATM records."""
+    """Extract 3-letter ligand code from PDB HETATM/ATOM coordinates lines
+    of non water species. Return the id of the most common.
+
+    Note: The returned id can be that of a non-HET species/residue since the
+          ATOM lines are parsed. Probable use case: de novo molecule.
+    """
     ligs = []
     with open(pdb_path) as fh:
         for line in fh:
-            if line.startswith("HETATM"):
+            if line.startswith(("HETATM", "ATOM  ")):
                 lig = line[17:20].strip()
-                if lig in ("HOH", "WAT", "TIP", "UNK", "UNL"):
+                if lig in ("HOH", "WAT", "TIP"):
                     continue
                 ligs.append(lig)
             if line.startswith(("CONECT")):
