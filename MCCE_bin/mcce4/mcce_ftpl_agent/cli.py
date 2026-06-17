@@ -32,7 +32,6 @@ from mcce4.mcce_ftpl_agent.tools.mcce_tools import (convert_cif_to_pdb,
                                                     extract_lig_id_from_pdb,
                                                     check_pdb_has_het,
                                                     )
-from mcce4.pymol_ligand_cif2pdb import convert as cif_ligand_converter
 
 
 def setup_logging(log_file: str, verbose: bool = False):
@@ -59,7 +58,7 @@ EXAMPLES:
     * Without an input file:
     %(prog)s -lig-id EMH --dry-run --no-llm                # Quick test
     %(prog)s -lig-id EMH                                   # Ligand code only (query RCSB for smiles)
-    %(prog)s -lig-id XYZ -lig-smiles C(C(C(=O)O)N          # Ligand code with smiles
+    %(prog)s -lig-id XYZ -lig-smiles "C(C(C(=O)O)N"        # Ligand code with smiles string (quotes required)
     * With an input file (.pdb or .cif):
     %(prog)s EMH[.pdb | .cif]                              # Full auto (the .cif file is converted to .pdb)
     %(prog)s EMH.pdb -lig-id EMH                           # PDB + ligand code (skips ligand code extraction)

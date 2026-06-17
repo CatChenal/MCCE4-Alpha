@@ -15,6 +15,6 @@ def gui_reqs_cmd() -> str:
     cmd_to_run = f"""
 To install the GUI-specific packages run these commands:
  conda activate mc4
- conda install -c conda-forge -f {gui_reqs_fp!s}
+ pip install -r {gui_reqs_fp!s}
 """
     return cmd_to_run
