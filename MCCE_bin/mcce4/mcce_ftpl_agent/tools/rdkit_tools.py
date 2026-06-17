@@ -257,7 +257,7 @@ def get_ionizable_sites(mol) -> list:
 
         if symbol == "N":
             hybrid = atom.GetHybridization()
-            # Skip sp nitrogen (nitrile C≡N, isonitrile, etc.) — not ionizable at pH 7.4
+            # Skip sp nitrogen (nitrile C≡N, isonitrile, etc.) — not ionizable at pH 7.0
             if hybrid == rdchem.HybridizationType.SP:
                 continue
             if n_hs > 0 or fc == 0:
@@ -352,7 +352,6 @@ def build_pdb_from_smiles(smiles: str, lig_id: str, label: str,
 
     # Add explicit hydrogens
     mol = AddHs(mol)
-
     # Generate 3D coordinates using ETKDG
     params = rdDistGeom.ETKDGv3()
     params.randomSeed = 42

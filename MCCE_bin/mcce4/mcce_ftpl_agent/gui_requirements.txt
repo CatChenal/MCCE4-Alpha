@@ -1,7 +1,8 @@
-# MCCE4 Topology Agent — Dependencies
-# =====================================
-# Install: conda install -c conda-forge --file gui_requirements.txt
+# MCCE4 Topology Agent — Dependencies for optional --gui mode
+# ===========================================================
+# Install: activate mc4, then:
+# conda install -c conda-forge --file gui_requirements.txt
 
-# Web GUI (optional, for --gui mode)
-streamlit                 # Web framework for the interactive GUI
-streamlit-ketcher         # Ketcher molecule editor widget for Streamlit
+protobuf<=3.20.3
+streamlit             # Web framework for the interactive GUI
+streamlit-ketcher   # Ketcher molecule editor widget for Streamlit

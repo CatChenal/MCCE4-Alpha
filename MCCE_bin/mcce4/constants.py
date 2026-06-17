@@ -130,6 +130,7 @@ INT_VALUES = [
 ]
 
 
+STANDARD_STATE_PH = 7.0
 ROOMT = 298.15
 PH2KCAL = ph2Kcal = ph2kcal = 1.364
 KCAL2KT = Kcal2kT = kcal2kt = 1.688

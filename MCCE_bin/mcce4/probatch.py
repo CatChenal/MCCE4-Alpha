@@ -22,6 +22,7 @@ import signal
 import subprocess
 import sys
 import time
+import urllib.request
 from datetime import datetime
 from typing import List, Tuple, Union
 
@@ -592,6 +593,73 @@ def get_user_files(input_path: str) -> Tuple[List[Path], bool]:
         return _get_user_files_from_file(input_fp)
 
 
+def _download_pdb(pdb_id: str, output_dir: Path) -> Path:
+    """Download a PDB file (bioassembly) from RCSB using getpdb.
+    Returns path to downloaded file or None.
+    """
+    out_path = output_dir / f"{pdb_id.lower()}.pdb"
+    if out_path.exists() and out_path.stat().st_size > 0:
+        return out_path
+
+    from mcce4.downloads import get_rcsb_pdb
+    saved_cwd = Path.cwd()
+    try:
+        os.chdir(output_dir)
+        result = get_rcsb_pdb(pdb_id, get_bioassembly=True)
+        os.chdir(saved_cwd)
+        if isinstance(result, tuple):
+            print(f"  [FAIL] Could not download {pdb_id}: {result[1]}")
+            return None
+        if result.exists() and result.stat().st_size > 0:
+            return result
+        return None
+    except Exception as e:
+        os.chdir(saved_cwd)
+        print(f"  [FAIL] Could not download {pdb_id}: {e}")
+        if out_path.exists():
+            out_path.unlink()
+        return None
+
+
+def download_pdbids(user_files: list) -> list:
+    """If user_files contains PDB ID tuples, download them into pdb_downloads/
+    and replace the tuples with file paths. File-path entries pass through unchanged.
+    """
+    pdbid_entries = [(i, entry) for i, entry in enumerate(user_files)
+                     if isinstance(entry, tuple)]
+    if not pdbid_entries:
+        return user_files
+
+    dl_dir = Path("pdb_downloads")
+    dl_dir.mkdir(exist_ok=True)
+
+    n_total = len(pdbid_entries)
+    n_ok = 0
+    n_skip = 0
+    n_fail = 0
+    print(f"\nDownloading {n_total} PDBs from RCSB into {dl_dir}/ ...")
+
+    updated = list(user_files)
+    for idx, (i, entry) in enumerate(pdbid_entries, 1):
+        pdb_id = entry[0]
+        out_path = dl_dir / f"{pdb_id.lower()}.pdb"
+        if out_path.exists() and out_path.stat().st_size > 0:
+            n_skip += 1
+            updated[i] = out_path
+            continue
+        result = _download_pdb(pdb_id, dl_dir)
+        if result:
+            n_ok += 1
+            updated[i] = result
+        else:
+            n_fail += 1
+        if idx % 50 == 0:
+            print(f"  Progress: {idx}/{n_total}")
+
+    print(f"  Done: {n_ok} downloaded, {n_skip} already existed, {n_fail} failed")
+    return updated
+
+
 def ask_user(question: str) -> bool:
     while True:
         res = input(f"{question} (y/n): ").lower().strip()
@@ -668,7 +736,8 @@ def process_protein_file(protein_path: Union[Path, tuple],
                          script_path: Path,
                          pool: Union["JobPool", "SlurmPool"],
                          dry_run: bool = False,
-                         redo_prerun: bool = False):
+                         redo_prerun: bool = False,
+                         skip_prerun: bool = False):
     """Sets up the protein directory and launches the run via the pool.
     """
     is_pdbid = isinstance(protein_path, tuple)
@@ -686,7 +755,10 @@ def process_protein_file(protein_path: Union[Path, tuple],
     if not (pdb_fp.exists() or is_pdbid):
         shutil.copy2(protein_path, p_dir)
 
-    rpt_fp = do_prerun(p_dir, pdb_fp, is_pdbid=is_pdbid, redo=redo_prerun)
+    if skip_prerun:
+        print(f"  Skipping prerun for {p_dir.name}")
+    else:
+        rpt_fp = do_prerun(p_dir, pdb_fp, is_pdbid=is_pdbid, redo=redo_prerun)
 
     _ensure_symlink(p_dir/"prot.pdb", pdb_fp.name)
 
@@ -718,18 +790,18 @@ def cli_parser() -> argparse.ArgumentParser:
     parser.add_argument("-custom",
                         type=str,
                         default="",
-                        help="Path to custom bash script."
+                        help="Path to custom bash script; default: %(default)s"
                         )
     parser.add_argument("-job-name",
                         type=str,
                         default=None,
-                        help="""A unique name for this batch (e.g. 'pH7_mutations').
-Required for launching, --check, and --stop. (default: %(default)s)"""
+                        help="""A unique name for this batch (e.g. 'pH7_mutations'); default: %(default)s
+Required for launching, --check, and --stop"""
                         )
     parser.add_argument("-j", "--jobs",
                         type=int,
                         default=DEFAULT_MAX_JOBS,
-                        help="Max concurrent jobs: how many MCCE runs execute simultaneously. (default: %(default)s)"
+                        help="Max concurrent jobs: how many MCCE runs execute simultaneously; default: %(default)s"
                         )
     parser.add_argument("-nice",
                         type=int,
@@ -741,43 +813,54 @@ Required for launching, --check, and --stop. (default: %(default)s)"""
     parser.add_argument("--no-slurm",
                         action="store_true",
                         default=False,
-                        help=f"""Use bash instead of the Slurm scheduler to run jobs.
-NOTE: Jobs are still low priority ({DEFAULT_NICE}) unless --nice is set with a lower value.
-(default: %(default)s)"""
+                        help=f"""Use bash instead of the Slurm scheduler to run jobs; default: %(default)s
+NOTE: Jobs are still low priority ({DEFAULT_NICE}) unless --nice is set with a lower value)"""
                         )
     parser.add_argument("--check",
                         action="store_true",
                         default=False,
-                        help="Update book.txt and show status for the batch given by -job-name. "
-                        "(default: %(default)s)"
+                        help="Update book.txt and show status for the batch given by -job-name; default: %(default)s"
                         )
     parser.add_argument("--check-all",
                         action="store_true",
                         default=False,
-                        help="Update book.txt and show status for all tracked batches. "
-                             "(default: %(default)s)"
+                        help="Update book.txt and show status for all tracked batches; default: %(default)s"
                         )
     parser.add_argument("--stop",
                         action="store_true",
                         default=False,
-                        help="Stop jobs for the batch given by -job-name. (default: %(default)s)"
+                        help="Stop jobs for the batch given by -job-name; default: %(default)s"
                         )
     parser.add_argument("--stop-all",
                         action="store_true",
                         default=False,
-                        help="Stop all tracked jobs from every batch in this directory. (default: %(default)s)"
+                        help="Stop all tracked jobs from every batch in this directory; default: %(default)s"
                         )
     parser.add_argument("--dry-run",
                         action="store_true",
                         default=False,
-                        help="Do setup & prerun only: no job launch. (default: %(default)s)"
+                        help="Do setup & prerun only: no job launch; default: %(default)s"
                         )
     parser.add_argument("--redo-prerun",
                         action="store_true",
                         default=False,
-                        help="Re-run the setup prerun step when launching. (default: %(default)s)"
+                        help="Re-run the setup prerun step when launching; default: %(default)s"
                         )
-
+    parser.add_argument("--skip-prerun",
+                        action="store_true",
+                        default=False,
+                        help="Skip the prerun step entirely (useful when prerun was already done); default: %(default)s"
+                        )
+    parser.add_argument("--retry-errors",
+                        action="store_true",
+                        default=False,
+                        help="Only re-run proteins with error status ('e') in book.txt, skip all others; default: %(default)s"
+                        )
+    parser.add_argument("--no-pdbids-predownload",
+                        action="store_true",
+                        default=False,
+                        help="Do not download pdbs files from pdbids in list into pdb_downloads/; default: %(default)s"
+                        )
     return parser
 
 
@@ -794,7 +877,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
 
     if args.stop:
         if not args.job_name:
-            print("ERROR, protein_batch: --stop requires -job-name. Use --stop_all to stop every batch.")
+            print("ERROR, pro_batch: --stop requires -job-name. Use --stop_all to stop every batch.")
         stop_jobs(job_name=args.job_name)
         return
 
@@ -804,15 +887,19 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
 
     if args.check:
         if not args.job_name:
-            print("ERROR, protein_batch: --check requires -job-name. Use --check-all to see every batch.")
+            print("ERROR, pro_batch: --check requires -job-name. Use --check-all to see every batch.")
         check_jobs(job_name=args.job_name)
         return
 
+    if args.skip_prerun and args.redo_prerun:
+        print("ERROR, pro_batch: --skip-prerun and --redo-prerun are mutually exclusive.")
+        sys.exit(1)
+
     if not args.input_path:
-        print("NOTE, protein_batch: input_path is required when launching jobs.")
+        print("NOTE, pro_batch: input_path is required when launching jobs.")
 
     if not args.job_name:
-        print("NOTE, protein_batch: -job-name is required when launching jobs.")
+        print("NOTE, pro_batch: -job-name is required when launching jobs.")
 
     # Data path resolution
     if datasets_dict and args.input_path in datasets_dict:
@@ -820,7 +907,7 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     else:
         input_path = args.input_path
         if not input_path or not Path(input_path).exists():
-            print(f"ERROR, protein_batch: {input_path} does not exist.")
+            print(f"ERROR, pro_batch: {input_path} does not exist.")
             sys.exit(1)
 
     # SETUP: proteins folders
@@ -828,6 +915,10 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     if not user_files and not found_book:
         print("ERROR: Cannot proceed: No valid PDB files found & no pre-existing book.")
         sys.exit(1)
+
+    if not args.no_pdbids_predownload:
+        # Download PDB IDs from RCSB into pdb_downloads/ before processing
+        user_files = download_pdbids(user_files)
 
     # SETUP: write initial book
     write_book(user_files, found_book)
@@ -884,20 +975,31 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
 
     final_targets = []
 
-    if new_prots:
-        print(f"\nFound {len(new_prots)} new or missing runs to launch: {', '.join(new_prots)}")
-        final_targets.extend(new_prots)
-
-    if error_prots:
-        print(f"\nFound {len(error_prots)} existing runs with errors ('e'): {', '.join(error_prots)}")
-        if ask_user("Would you like to re-run these error cases?"):
-            # uncomment any commented pdbids:
+    if args.retry_errors:
+        if error_prots:
+            print(f"\n--retry-errors: selecting {len(error_prots)} error proteins for re-run.")
             final_targets.extend([pdb[1:] if pdb.startswith("#") else pdb for pdb in error_prots])
+        else:
+            print("\n--retry-errors: no error proteins found in book.txt.")
+        if new_prots:
+            print(f"  Skipping {len(new_prots)} new/pending proteins (--retry-errors only re-runs errors).")
+        if other_prots:
+            print(f"  Skipping {len(other_prots)} completed/running proteins.")
+    else:
+        if new_prots:
+            print(f"\nFound {len(new_prots)} new or missing runs to launch: {', '.join(new_prots)}")
+            final_targets.extend(new_prots)
 
-    if other_prots:
-        print(f"\nFound {len(other_prots)} existing runs (Completed 'c' or Pending/Ready/Running 'r').")
-        if ask_user("Would you like to re-run/overwrite these as well?"):
-            final_targets.extend(other_prots)
+        if error_prots:
+            print(f"\nFound {len(error_prots)} existing runs with errors ('e'): {', '.join(error_prots)}")
+            if ask_user("Would you like to re-run these error cases?"):
+                # uncomment any commented pdbids:
+                final_targets.extend([pdb[1:] if pdb.startswith("#") else pdb for pdb in error_prots])
+
+        if other_prots:
+            print(f"\nFound {len(other_prots)} existing runs (Completed 'c' or Pending/Ready/Running 'r').")
+            if ask_user("Would you like to re-run/overwrite these as well?"):
+                final_targets.extend(other_prots)
 
     if not final_targets:
         print("\nNo proteins selected for processing. Exiting.")
@@ -955,7 +1057,8 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
         if which in target_set:
             process_protein_file(entry, script_path, pool,
                                  dry_run=args.dry_run,
-                                 redo_prerun=args.redo_prerun)
+                                 redo_prerun=args.redo_prerun,
+                                 skip_prerun=args.skip_prerun)
 
     if save_prerun_book:  # int, > 0 if book commented by do_perun
         shutil.copy2(BOOK, PRERUN_BOOK)

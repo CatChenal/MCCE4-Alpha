@@ -14,6 +14,13 @@ import subprocess
 import sys
 from typing import Union
 
+try:
+    import streamlit as st
+except ImportError:
+    from mcce4.mcce_ftpl_agent import gui_reqs_cmd
+    print("\nMissing GUI dependencies!\n",gui_reqs_cmd())
+    sys.exit(1)
+
 
 GUI_APP_FP = Path(__file__).parent.joinpath("gui", "app.py")
 
@@ -59,14 +66,10 @@ def launch_gui(args: Union[argparse.Namespace, dict]):
     if not GUI_APP_FP.exists():
         print(f"ERROR: GUI app not found at {GUI_APP_FP!s}")
         sys.exit(1)
-
-    if isinstance(args, dict):
-        args = argparse.Namespace(**args)
-
     gui_path = str(GUI_APP_FP)
-    port = 8501
 
     # Check if port is already in use and handle it
+    port = 8501
     if _is_port_in_use(port):
         print(f"⚠  Port {port} is already in use (previous Streamlit session?).")
         print()
@@ -111,6 +114,9 @@ def launch_gui(args: Union[argparse.Namespace, dict]):
             print(f"     # or: kill $(lsof -ti:{port})")
             print("   Then rerun this command.")
             sys.exit(1)
+
+    if isinstance(args, dict):
+        args = argparse.Namespace(**args)
 
     # Pass PDB path via environment so Streamlit can access it
     os.environ["MCCE_AGENT_PDB"] = os.path.abspath(args.pdb)

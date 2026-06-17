@@ -21,32 +21,29 @@ import io
 import logging
 import os
 import sys
+from pathlib import Path
 
 import pandas as pd
+import streamlit as st
 import tempfile
 
-try:
-    import streamlit as st
-except ImportError:
-    from mcce4.mcce_ftpl_agent import gui_reqs_cmd
-    print(gui_reqs_cmd())
-    sys.exit(1)
+# Ensure the project root (MCCE_bin) is in sys.path so the 'mcce4' package is discoverable
+project_root = str(Path(__file__).resolve().parents[3])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-# from mcce_ftpl_agent.models import ConformerState, AgentState
-from mcce_ftpl_agent.config import (
+from mcce4.mcce_ftpl_agent.agent import run_agent
+from mcce4.mcce_ftpl_agent.config import (
     AGENT_PHASES,
     DEFAULT_CHARGE_METHOD,
+    DEFAULT_DIELECTRICS,
     GUI_TITLE,
     PHASE_NAME_MAP,
     SUPPORTED_CHARGE_METHODS,
     )
-from mcce_ftpl_agent.agent import run_agent
-from mcce_ftpl_agent.tools.mcce_tools import extract_lig_id_from_pdb
-from mcce_ftpl_agent.tools.rdkit_tools import get_mol_from_smiles, mol_to_svg
+from mcce4.mcce_ftpl_agent.tools.mcce_tools import extract_lig_id_from_pdb
+from mcce4.mcce_ftpl_agent.tools.rdkit_tools import get_mol_from_smiles, mol_to_svg
 
-
-# Log highlighting
-# ──────────────────────────────────────────────────────────────────────────────
 
 def _highlight_log(log_text: str) -> str:
     """Add HTML color highlighting to log text for protonation changes.
@@ -117,9 +114,6 @@ def _render_log_panel(log_text: str, title: str = "Agent Log",
     )
 
 
-# Log capture helper
-# ──────────────────────────────────────────────────────────────────────────────
-
 def _start_log_capture():
     """Start capturing log output. Returns (StringIO, handler)."""
     log_capture = io.StringIO()
@@ -174,11 +168,14 @@ with st.sidebar:
 
     # Settings
     st.subheader("⚙️ Settings")
-    ph = st.slider("Target pH", 0.0, 14.0, 7.4, 0.1)
-    charge_method = st.selectbox("Charge Method", SUPPORTED_CHARGE_METHODS,
+    ph = st.slider("Target pH", 0.0, 14.0, 7.0, 0.1)
+    charge_method = st.selectbox("Charge Method",
+                                 SUPPORTED_CHARGE_METHODS,
                                  index=SUPPORTED_CHARGE_METHODS.index(DEFAULT_CHARGE_METHOD))
 
-    dielectric_opts = st.multiselect("Dielectric Constants", [2, 4, 8], default=[2, 4, 8])
+    dielectric_opts = st.multiselect("Dielectric Constants",
+                                     DEFAULT_DIELECTRICS,
+                                     default=DEFAULT_DIELECTRICS)
     dry_run = st.checkbox("Dry Run (skip RXN calibration)", value=False)
 
     st.markdown("---")
@@ -286,7 +283,10 @@ with tab_input:
 
         # Or specify path directly
         pdb_path_input = st.text_input("Or enter PDB file path on server:",
-                                       placeholder="/path/to/EMH.pdb")
+                                       placeholder=os.environ.get("MCCE_AGENT_PDB",
+                                                                   "path/to/lig_structure_file")
+                                        )
+                                        # placeholder="/path/to/EMH.pdb")
         if pdb_path_input and os.path.exists(pdb_path_input):
             st.session_state["pdb_path"] = pdb_path_input
             st.session_state["lig_id"] = extract_lig_id_from_pdb(pdb_path_input)
@@ -303,7 +303,7 @@ with tab_input:
         if st.session_state.get("pdb_path"):
             svg = mol_to_svg(st.session_state["pdb_path"], size=(500, 400))
             if svg:
-                st.image(svg, use_container_width=True)
+                st.image(svg, width='stretch')
             else:
                 st.info("RDKit not available for 2D preview. Install: `conda install -c conda-forge rdkit`")
         else:
@@ -313,7 +313,7 @@ with tab_input:
     if st.session_state.get("pdb_path"):
         if st.button("🧠 Analyze Protonation States",
                      type="primary",
-                     use_container_width=True):
+                     width='stretch'):
             st.session_state["phase"] = "analyzing"
             # Reset phase status
             st.session_state["phase_status"] = {}
@@ -467,11 +467,11 @@ with tab_states:
                 "— = no change (neutral reference)"
             )
             try:
-                from mcce_ftpl_agent.tools.rdkit_tools import generate_state_comparison_table
+                from mcce4.mcce_ftpl_agent.tools.rdkit_tools import generate_state_comparison_table
                 comp_rows = generate_state_comparison_table(states, h_diffs, lig_id)
                 if comp_rows:
                     comp_df = pd.DataFrame(comp_rows)
-                    st.dataframe(comp_df, use_container_width=True, hide_index=True)
+                    st.dataframe(comp_df, width='stretch', hide_index=True)
             except Exception as e:
                 logging.warning(f"Comparison table failed: {e}")
 
@@ -528,7 +528,7 @@ with tab_states:
                         rendered = False
                         if pdb_for_state and os.path.exists(str(pdb_for_state)):
                             try:
-                                from mcce_ftpl_agent.tools.rdkit_tools import (
+                                from mcce4.mcce_ftpl_agent.tools.rdkit_tools import (
                                     mol_to_svg_with_h_diff,
                                 )
                                 svg = mol_to_svg_with_h_diff(
@@ -536,7 +536,7 @@ with tab_states:
                                     size=(550, 450),
                                 )
                                 if svg:
-                                    st.image(svg, use_container_width=True)
+                                    st.image(svg, width='stretch')
                                     rendered = True
                             except Exception as e:
                                 st.warning(f"Render: {e}")
@@ -567,7 +567,7 @@ with tab_states:
             if neutral_pdb:
                 svg = mol_to_svg(neutral_pdb, size=(450, 350))
                 if svg:
-                    st.image(svg, use_container_width=True)
+                    st.image(svg, width='stretch')
                 if len(states) > 1:
                     state_cols = st.columns(min(len(states), 3))
                     for i, s in enumerate(states):
@@ -580,8 +580,7 @@ with tab_states:
                                     if svg_s:
                                         lbl = s.get("label", "?") if isinstance(s, dict) else s.label
                                         chg = s.get("charge", 0) if isinstance(s, dict) else s.charge
-                                        st.image(svg_s, caption=f"{lbl} ({chg:+d})",
-                                                 use_container_width=True)
+                                        st.image(svg_s, caption=f"{lbl} ({chg:+d})", width='stretch')
 
         # 1b: PyMOL visualization (full 3D with all H atoms)
         if state_pdbs and len(state_pdbs) > 1:
@@ -657,7 +656,7 @@ with tab_states:
         edited_df = st.data_editor(
             df,
             num_rows="dynamic",
-            use_container_width=True,
+            width='stretch',
             column_config={
                 "Label": st.column_config.TextColumn("Label", help="e.g., 01, +1, -1, +a, +b"),
                 "Charge": st.column_config.NumberColumn("Charge", format="%+d"),
@@ -755,7 +754,7 @@ with tab_states:
             ionizable = agent_state.get("_ionizable_sites", [])
             if not ionizable:
                 try:
-                    from mcce_ftpl_agent.tools.rdkit_tools import (
+                    from mcce4.mcce_ftpl_agent.tools.rdkit_tools import (
                         get_ionizable_sites, get_mol_from_pdb as _gm
                     )
                     pdb = st.session_state.get("pdb_path")
@@ -843,7 +842,7 @@ with tab_states:
                         charge = Chem.GetFormalCharge(mol)
                         svg_custom = mol_to_svg(mol, size=(300, 200))
                         if svg_custom:
-                            st.image(svg_custom, use_container_width=False)
+                            st.image(svg_custom, width='content')
                         st.info(f"Formal charge: {charge:+d}")
                         smiles_label = st.text_input("Label:",
                                                      value=f"{charge:+d}" if charge else "01",
@@ -877,7 +876,7 @@ with tab_states:
         with col_cancel:
             if st.button("✖ Cancel",
                          type="secondary",
-                         use_container_width=True):
+                         width='stretch'):
                 st.session_state["phase"] = "upload"
                 st.session_state["states"] = []
                 st.session_state["phase_status"] = {}
@@ -886,11 +885,11 @@ with tab_states:
         with col_approve:
             if st.button("✔ Approve & Generate .ftpl",
                          type="primary",
-                         use_container_width=True):
+                         width='stretch'):
                 st.session_state["phase"] = "running"
                 st.session_state["approved"] = True
 
-                from mcce_ftpl_agent.agent import (
+                from mcce4.mcce_ftpl_agent.agent import (
                     node_generate_template, node_assign_charges,
                     node_rxn_calibration, node_done,
                 )
