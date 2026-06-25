@@ -69,7 +69,7 @@ BOOK_FOOTER_LINES = [
 ]
 N_FOOTER_LINES = len(BOOK_FOOTER_LINES)
 
-JOBS_FILE = ".pro_batch_jobs.json"
+JOBS_FILE = "pro_batch_jobs.json"
 JOBS_FP = Path(JOBS_FILE)
 
 SQUEUE_FMT = "%.10i %.9P %.30j %.8u %.2t %.10M %.10L %.6D %R"
@@ -414,7 +414,7 @@ def get_protein_status(protein_name: str) -> Tuple[str, str]:
 
     last_valid_step = "None"
     for filename, step_label in steps:
-        if (p_dir / filename).exists():
+        if (p_dir/filename).exists():
             last_valid_step = step_label
         else:
             break
@@ -426,6 +426,10 @@ def get_protein_status(protein_name: str) -> Tuple[str, str]:
         return "e", "Failed @ Step1"
 
     next_idx = int(last_valid_step[-1]) + 1
+    err_fp = list(p_dir.glob("*.err"))
+    if err_fp:
+        return "e", f"Failed @ Step{next_idx}"
+
     return "r", f"In Step{next_idx}"
 
 
