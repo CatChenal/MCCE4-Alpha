@@ -47,6 +47,8 @@ def get_rcsb_lig_smiles(ligands:list, output_dir:str=Path("./prerun")):
     as smiles.csv.
     Output file is tab separated as the name can have commas.
     """
+    # remove UNL (no useless query):
+    ligands = [lig for lig in ligands if lig != "UNL"]
     variables = {"ids": ligands}
     payload = {
         "query": SMILES_QRY,
@@ -57,12 +59,12 @@ def get_rcsb_lig_smiles(ligands:list, output_dir:str=Path("./prerun")):
         print(f"Failed smiles request: {response.reason}")
         return
     data = response.json()
-    # concate long string
     out = [(f'{entry["chem_comp"]["id"]}\t'
             f'{entry["rcsb_chem_comp_descriptor"]["SMILES"]}\t'
             f'{entry["chem_comp"]["formula"]}\t'
             f'{entry["chem_comp"]["name"]}\n')
-           for entry in data["data"]["chem_comps"]]
+           for entry in data["data"]["chem_comps"]
+           if entry.get("rcsb_chem_comp_descriptor") is not None]
     if out:
         with open(output_dir.joinpath("smiles.csv"), "w") as fo:
             fo.writelines(out)
@@ -121,8 +123,8 @@ def get_rcsb_pdb(pdbid: str,
      - cif_format (bool, False): Whether to download the file in .cif format directly.
 
     Returns:
-     - The path to the downloaded pdb file or a tuple signifying and error occured with values
-       (None, error_message)
+     - The path to the downloaded pdb file or a tuple, which signifies that an error occured
+       with values: (None, error_message)
     """
     pdbid = pdbid.lower()
 

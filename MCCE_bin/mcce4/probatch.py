@@ -22,7 +22,7 @@ import signal
 import subprocess
 import sys
 import time
-import urllib.request
+import traceback
 from datetime import datetime
 from typing import List, Tuple, Union
 
@@ -614,9 +614,8 @@ def _download_pdb(pdb_id: str, output_dir: Path) -> Path:
         if isinstance(result, tuple):
             print(f"  [FAIL] Could not download {pdb_id}: {result[1]}")
             return None
-        if result.exists() and result.stat().st_size > 0:
-            return result
-        return None
+        else:  # result = pdb_id.lower() + ".pdb"
+            return out_path
     except Exception as e:
         os.chdir(saved_cwd)
         print(f"  [FAIL] Could not download {pdb_id}: {e}")
@@ -1059,10 +1058,23 @@ def protein_batch(args: Union[argparse.Namespace, dict]):
     for entry in user_files:
         which  = entry[0].upper() if isinstance(entry, tuple) else entry.stem.upper()
         if which in target_set:
-            process_protein_file(entry, script_path, pool,
-                                 dry_run=args.dry_run,
-                                 redo_prerun=args.redo_prerun,
-                                 skip_prerun=args.skip_prerun)
+            try:
+                process_protein_file(entry, script_path, pool,
+                                     dry_run=args.dry_run,
+                                     redo_prerun=args.redo_prerun,
+                                     skip_prerun=args.skip_prerun)
+            except Exception as exc:
+                # Don't let one protein's unexpected error (e.g. a bad
+                # upstream API response during prerun) abort the whole
+                # batch: flag it in book.txt as an error and move on.
+                print(f"ERROR processing {which}: {exc}")
+                traceback.print_exc()
+                # comment_book_pdb shells out (sed) with this tag interpolated
+                # into the command string, so keep it to a safe character set.
+                safe_msg = re_split(r"[^A-Za-z0-9 .:_-]+", str(exc))
+                safe_msg = " ".join(part for part in safe_msg if part)[:120]
+                tag = f"# prerun.exception: {type(exc).__name__}: {safe_msg}"
+                comment_book_pdb(Path(which), tag=tag)
 
     if save_prerun_book:  # int, > 0 if book commented by do_perun
         shutil.copy2(BOOK, PRERUN_BOOK)
