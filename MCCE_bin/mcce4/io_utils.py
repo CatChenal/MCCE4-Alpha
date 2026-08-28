@@ -479,10 +479,21 @@ def textfile2df(fp: Path) -> pd.DataFrame:
     return pd.read_csv(fp, sep=r"\s+", converters=convert)  # noqa: W605
 
 
-def dict2txt(d: dict, output_fp: Path, width: int = 100):
+def dict2txt(d: dict, output_fp: Path, width: int = 100, text_to_comment:str = None):
     """Save a python dict to .txt file.
+    Output file will have a commented header consisting of each line
+    in text_to_comment if given, e.g.: 
+      # Purpose...    :: '# ' + line1
+      # Created: date :: '# ' + line2, etc
     """
-    output_fp.write_text(pformat(d, width=width) + "\n")
+    if text_to_comment:
+        txt = ""
+        for line in text_to_comment.splitlines():
+            txt += f"# {line}\n"
+        txt += pformat(d, width=width) + "\n"
+        output_fp.write_text(txt)
+    else:
+        output_fp.write_text(pformat(d, width=width) + "\n")
 
     return
 
@@ -500,10 +511,10 @@ def txt2dict(txt_fp: Path) -> dict:
         if not isinstance(d, dict):
             print(f"Could not recover dict from file: {txt_fp!s}")
             return None
+        return d
     except Exception as e:
         print(f"Error evaluating file {txt_fp!s} as dict: {e}")
-
-    return d
+        return None
 
 
 def read_titr_type(fpath: Path) -> str:

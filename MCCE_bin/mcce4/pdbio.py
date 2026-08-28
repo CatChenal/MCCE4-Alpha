@@ -25,7 +25,6 @@ Classes:
 
 """
 # ...................................................................................................| 100
-
 from collections import defaultdict, Counter
 import glob
 import logging
@@ -1013,6 +1012,8 @@ class Structure:
         self.sites = None  # sites identified by authors or sw + info from REMARK 800
 
         self.pdb_fp = None  # path of pdb passed to load_pdb()
+        self.has_model_record = None
+        self.has_end_record = None
         self.load_all_models = load_all_models
         self.n_models = 1  # updated if multiple MODEL records found
         self.ter_res = []  # terminal res -> CTR in step1
@@ -1067,18 +1068,23 @@ class Structure:
     def process_atomlines(self, atomlines: list):
         # collect models
         detected_model = False
+        if not self.has_model_record:
+            detected_model = True
+            model = _Model()
+            model.serial = 1
+            logging.warning("PDB has no MODEL line: All coordinates loaded into Model 1.")
+
         for line in atomlines:
-            #print(line)
-            if line.startswith("MODEL "):
-                detected_model = True
-                model = _Model()
-                model.serial = line.split()[-1].strip()
-                continue
+            if self.has_model_record:
+                if line.startswith("MODEL "):
+                    detected_model = True
+                    model = _Model()
+                    model.serial = line.split()[-1].strip()
+                    continue
             if detected_model:
                 if line.startswith("TER   "):
                     continue  # ignore this separator for ATOM and HETATM - jmao
                 elif line.startswith(COORD_LINE_TYPE):
-                    #print("---",line)
                     model.lines.append(line)
                 else:  # encountered ENDMDL or END
                     self.models.append(model)
@@ -1086,11 +1092,11 @@ class Structure:
         if detected_model:  # model ended with ATOM or HETATM, push this last model
             self.models.append(model)
             detected_model = False
-        # some files may not have a "MODEL" line:
-        if not self.models:
-            self.n_models = 0
-            logger.warning(f"{self.pdb_fp!s} is missing a MODEL line.")
-            return
+        # # some files may not have a "MODEL" line:
+        # if not self.models:
+        #     self.n_models = 0
+        #     logger.warning(f"{self.pdb_fp!s} is missing a MODEL line.")
+        #     return
 
         # set total model count
         self.n_models = len(self.models)
@@ -1182,7 +1188,6 @@ class Structure:
                 others1 = ""
                 _, _, chainID, numRes, res1, *others = line.split()
                 len1 = len(res1)
-                others1 = ""
                 if len1 == 3:
                     # output same res in quotes if no mapping
                     others1 += "".join(f" {res3_to_res1.get(res, f'{res!r}')}" for res in others)
@@ -1464,13 +1469,21 @@ class Structure:
         # Divide raw lines into atom lines and non-atom lines for more efficient processing.
         nonatomlines = []
         atomlines = []
+        model_kws = set()
+        end_kws = set()
         for line in renamed_lines:
             if line.startswith("ANISOU"):
                 continue
             if line.startswith(PDB_COORDINATE_RECORDS):
                 atomlines.append(line)
+                if line.startswith("MODEL"):
+                    model_kws.add(line.rstrip())
+                if line.startswith(("ENDMDL", "END")):
+                    end_kws.add(line.rstrip())
             else:
                 nonatomlines.append(line)
+        self.has_model_record = len(model_kws)
+        self.has_end_record = len(end_kws)
 
         if nonatomlines:
             self.process_headers(nonatomlines)
